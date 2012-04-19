@@ -1,0 +1,11 @@
+[Unit]
+Description=Starts the X Server
+
+[Service]
+Type=simple
+KillMode=none
+ExecStartPre=-/bin/rm -rf /var/log/Xorg*
+ExecStart=/usr/bin/X
+
+[Install]
+WantedBy=multi-user.target

@@ -1,0 +1,10 @@
+Index: base-passwd/passwd.master
+===================================================================
+--- base-passwd.orig/passwd.master	2012-03-15 16:45:58.149968908 +0200
++++ base-passwd/passwd.master	2012-03-15 16:47:26.094468934 +0200
+@@ -1,4 +1,4 @@
+-root::0:0:root:/home/root:/bin/sh
++root:\$1\$1DO/lR8M\$f8JOOu4W8GBZzdNzCgSW40:0:0:root:/home/root:/bin/bash
+ daemon:*:1:1:daemon:/usr/sbin:/bin/sh
+ bin:*:2:2:bin:/bin:/bin/sh
+ sys:*:3:3:sys:/dev:/bin/sh

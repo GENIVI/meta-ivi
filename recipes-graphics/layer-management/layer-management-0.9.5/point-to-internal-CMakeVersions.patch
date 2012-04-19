@@ -1,0 +1,13 @@
+Index: git/CMakeLists.txt
+===================================================================
+--- git.orig/CMakeLists.txt	2012-02-16 13:02:02.257718578 +0200
++++ git/CMakeLists.txt	2012-02-16 13:02:20.217968698 +0200
+@@ -22,7 +22,7 @@
+ 
+ set(CMAKE_MODULE_PATH ${CMAKE_MODULE_PATH} "${CMAKE_CURRENT_SOURCE_DIR}/cmake/modules/")
+ 
+-include(${CMAKE_MODULE_PATH}/CMakeVersions.txt)
++include(${CMAKE_CURRENT_SOURCE_DIR}/cmake/modules/CMakeVersions.txt)
+ 
+ # set default build type, if not defined by user
+ if (NOT CMAKE_BUILD_TYPE)

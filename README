@@ -1,0 +1,20 @@
++=================================================================+
+Instructions on how to use this project for an arm build.|
++=================================================================+
+
+1) This project must not be stored onto an encrypted partition as yocto has some issues when dealing with encrypted partitions.
+
+   See http://www.yoctoproject.org/docs/current/yocto-project-qs/yocto-project-qs.html under "The Packages" for a list of required packages needed when using yocto on a specific linux distribution.
+
+2) Create your new build directory: source yocto-ivi/oe-init-build-env
+
+3) Optional: Edit your newly created conf/local.conf; uncomment a MACHINE of your choice (vexpressa9 is enabled by default. Available machines at this time: vexpressa9)
+
+4) Optional: in conf/local.conf uncomment BB_NUMBER_THREADS = "4" and PARALLEL_MAKE = "-j 4".
+
+5) $ bitbake discovery-image
+
+6) Run the emulator:
+   $ runqemu discovery-image <selected machine>
+   for example, to boot the default selected machine (vexpressa9  - Cortex A9) you would use:
+        runqemu discovery-image vexpressa9

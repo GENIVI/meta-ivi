@@ -1,0 +1,26 @@
+#!/bin/sh
+
+# This script
+#     generates host keys
+#     check /var/run/sshd nad creates it if not already created
+
+
+if ! [ -f /etc/ssh/ssh_host_ecdsa_key ]; then
+  /usr/bin/ssh-keygen -q -t ecdsa -N "" -f /etc/ssh/ssh_host_ecdsa_key || exit 1
+fi
+
+if ! [ -f /etc/ssh/ssh_host_rsa_key ]; then
+  /usr/bin/ssh-keygen -q -t rsa -N "" -f /etc/ssh/ssh_host_rsa_key || exit 1
+fi
+
+if ! [ -f /etc/ssh/ssh_host_dsa_key ]; then
+  /usr/bin/ssh-keygen  -q -t dsa -N "" -f /etc/ssh/ssh_host_dsa_key || exit 1
+fi
+
+if [ ! -d /var/run/sshd ]; then
+  mkdir /var/run/sshd || exit 1
+  chmod 0755 /var/run/sshd || exit 1
+fi
+
+# `test' returns non-zero when it fails. Don't let this hold up ExecStart.
+exit 0
