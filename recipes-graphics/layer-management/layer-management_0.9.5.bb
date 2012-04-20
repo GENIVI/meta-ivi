@@ -12,6 +12,8 @@ SRCREV = "02c4d61f14d8d684757f5d13bf2105ddb11ac8ee"
 
 SRC_URI = "git://git.genivi.org/srv/git/layer_management;protocol=git \
 	   file://point-to-internal-CMakeVersions.patch \
+	   file://layermanager.service \
+	   file://layermanager_demo.service \
           "
 # Needed this for imx6 boards to use precompiled EGL libraries
 python () {
@@ -25,14 +27,23 @@ S = "${WORKDIR}/git"
 
 inherit autotools gettext cmake
 
+do_install_append() {
+    install -d ${D}/lib/systemd/system
+    install -m 0755 ${WORKDIR}/layermanager.service ${D}/lib/systemd/system
+    install -m 0755 ${WORKDIR}/layermanager_demo.service ${D}/lib/systemd/system
+}
+
 FILES_${PN} += "${libdir}/lib* \
 		${libdir}/layermanager/lib* \
 		${libdir}/layermanager/communicator/lib* \
 		${libdir}/layermanager/renderer/lib* \
-		${libdir}/layermanager/renderer/renderer*"
+		${libdir}/layermanager/renderer/renderer* \
+		/lib/systemd"
 
 FILES_${PN}-dev += "${includedir}/*"
 FILES_${PN}-staticdev += "${libdir}/layermanager/static/lib*"
 FILES_${PN}-dbg += "${libdir}/layermanager/.debug/ \
 		    ${libdir}/layermanager/communicator/.debug/ \
 		    ${libdir}/layermanager/renderer/.debug/ "
+
+WARN_QA = "ldflags useless-rpaths rpaths staticdev"

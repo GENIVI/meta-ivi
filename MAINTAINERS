@@ -1,0 +1,36 @@
+This file contains a list of maintainers for the meta-ivi layer.
+
+Please submit any patches against meta-ivi to the maintainers
+(cc:ing the Yocto Project mailing list (yocto@yoctoproject.org))
+
+You may also contact the maintainers directly in case you have any questions
+on a particular meta-ivi topic, but please try to do the following first:
+
+  - look in the Yocto Project Bugzilla
+    (http://bugzilla.yoctoproject.org/) to see if a problem has
+    already been reported
+
+  - look through recent entries of the Yocto mailing list archives
+    (https://lists.yoctoproject.org/pipermail/yocto/) to see if other
+    people have run into similar problems or had similar questions
+    answered.
+
+Descriptions of section entries:
+
+	M: Mail patches to: FullName <address@domain>
+	F: Files and directories with wildcard patterns.
+	   A trailing slash includes all files and subdirectory files.
+	   F:	recipes-devtools/	all files in and below meta-ivi
+	   F:	recipes-selinux/*	all files in meta-ivi, but not below
+	   One pattern per line.  Multiple F: lines acceptable.
+
+Please keep this list in alphabetical order.
+
+Maintainers List (try to look for most precise areas first)
+
+COMMON
+M:	Holger Behrens <holger.behrens@windriver.com>
+F:	*
+
+M:	Florin Sarbu <florin.sarbu@windriver.com>
+F:	/

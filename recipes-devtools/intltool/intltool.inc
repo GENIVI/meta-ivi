@@ -3,7 +3,7 @@ SECTION = "devel"
 LICENSE = "GPLv2"
 
 URLV="${@'.'.join(d.getVar('PV',1).split('.')[0:2])}"
-SRC_URI = "http://launchpad.net/intltool/trunk/0.50.0/+download/intltool-0.50.0.tar.gz"
+SRC_URI = "http://launchpad.net/${BPN}/trunk/${PV}/+download/${BP}.tar.gz"
 S = "${WORKDIR}/intltool-${PV}"
 
 DEPENDS = "libxml-parser-perl-native"

@@ -1,11 +1,11 @@
 require intltool.inc
 LICENSE="GPLv2"
 LIC_FILES_CHKSUM = "file://COPYING;md5=94d55d512a9ba36caa9b7df079bae19f"
-PR = "r6"
+PR = "r0"
 
-SRC_URI_append = " file://intltool-nowarn-0.50.0.patch \
-                   ${NATIVEPATCHES} \
-                 "
+SRC_URI += "file://intltool-nowarn-0.50.0.patch \
+           ${NATIVEPATCHES} \
+           "
 
 #
 # All of the intltool scripts have the correct paths to perl already

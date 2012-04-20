@@ -1,0 +1,97 @@
+#!/bin/sh
+
+export BBFETCH2=True
+export BB_ENV_EXTRAWHITE="PSEUDO_BUILD PSEUDO_DISABLED $BB_ENV_EXTRAWHITE"
+
+NO_BUILD_OPTS="--version -h --help -p --parse-only -s --show-versions -e --environment -g --graphviz"
+needpseudo="1"
+for opt in $@; do
+for key in $NO_BUILD_OPTS; do
+    if [ $opt = $key ]
+    then
+        needpseudo="0"
+        break
+    fi
+done
+[ $needpseudo = "0" ] && break
+done
+
+# Make sure we're not using python v3.x. This check can't go into
+# sanity.bbclass because bitbake's source code doesn't even pass
+# parsing stage when used with python v3, so we catch it here so we
+# can offer a meaningful error message.
+py_v3_check=`/usr/bin/env python --version 2>&1 | grep "Python 3"`
+if [ "$py_v3_check" != "" ]; then
+	echo "Bitbake is not compatible with python v3"
+	echo "Please set up python v2 as your default python interpreter"
+	exit 1
+fi
+
+# Similarly, we now have code that doesn't parse correctly with older
+# versions of Python, and rather than fixing that and be eternally
+# vigilant for any other new feature use, just check the version here.
+py_v26_check=`python -c 'import sys; print sys.version_info >= (2,6,0)'`
+if [ "$py_v26_check" != "True" ]; then
+	echo "BitBake requires Python 2.6 or later"
+	exit 1
+fi
+
+needtar="1"
+TARVERSION=`tar --version | head -n 1 | cut -d ' ' -f 4`
+float_test() {
+     echo | awk 'END { exit ( !( '"$1"')); }'
+}
+
+# Tar version 1.24 and onwards handle symlinks in sstate packages correctly
+# but earlier versions do not
+float_test "$TARVERSION > 1.23" && needtar="0"
+
+buildpseudo="1"
+if [ $needpseudo = "1" ] && [ -e "$BUILDDIR/pseudodone" ]; then
+    PSEUDOBINDIR=`cat $BUILDDIR/pseudodone`
+    if [ -e "$PSEUDOBINDIR/pseudo" -a -e "$PSEUDOBINDIR/tar" -a "$needtar" = "1" ]; then
+        buildpseudo="0"
+    fi
+    if [ -e "$PSEUDOBINDIR/pseudo" -a $needtar = "0" ]; then
+        buildpseudo="0"
+    fi
+fi
+if [ $needpseudo = "0" ]; then
+    buildpseudo="0"
+fi
+
+OLDPATH=$PATH
+export PATH=`echo $PATH | sed s#.*/poky/scripts:##`
+if [ $buildpseudo = "1" ]; then
+    echo "Pseudo is not present but is required, building this first before the main build"
+    export PSEUDO_BUILD=1
+    TARTARGET="tar-replacement-native"
+    if [ $needtar = "0" ]; then
+        TARTARGET=""
+    fi
+    bitbake pseudo-native $TARTARGET -c populate_sysroot
+    ret=$?
+    if [ "$ret" != "0" ]; then
+        exit 1
+    fi
+    PSEUDOBINDIR=`bitbake -e | grep STAGING_BINDIR_NATIVE=\" | cut -d '=' -f2 | cut -d '"' -f2`
+    ret=$?
+    if [ "$ret" != "0" ]; then
+        exit 1
+    fi
+    echo $PSEUDOBINDIR > $BUILDDIR/pseudodone
+    # This needs to exist in case pseudo has to log somewhere
+    mkdir -p $PSEUDOBINDIR/../../var/pseudo
+fi
+BITBAKE=`which bitbake`
+export PATH=$OLDPATH
+if [ $needpseudo = "1" ]; then
+    export PSEUDO_BUILD=2
+    PSEUDOBINDIR=`cat $BUILDDIR/pseudodone`
+    PSEUDO_BINDIR=$PSEUDOBINDIR PSEUDO_LIBDIR=$PSEUDOBINDIR/../lib/pseudo/lib PSEUDO_PREFIX=$PSEUDOBINDIR/../../ PSEUDO_DISABLED=1 $PSEUDOBINDIR/pseudo $BITBAKE $@
+else
+    export PSEUDO_BUILD=0
+    $BITBAKE $@
+fi
+ret=$?
+exit $ret

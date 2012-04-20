@@ -1,0 +1,73 @@
+#!/bin/sh
+
+# OE-Core Build Enviroment Setup Script
+#
+# Copyright (C) 2006-2011 Linux Foundation
+#
+# This program is free software; you can redistribute it and/or modify
+# it under the terms of the GNU General Public License as published by
+# the Free Software Foundation; either version 2 of the License, or
+# (at your option) any later version.
+#
+# This program is distributed in the hope that it will be useful,
+# but WITHOUT ANY WARRANTY; without even the implied warranty of
+# MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+# GNU General Public License for more details.
+#
+# You should have received a copy of the GNU General Public License
+# along with this program; if not, write to the Free Software
+# Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
+
+# It is assumed OEROOT is already defined when this is called
+if [ -z "$OEROOT" ]; then
+    echo >&2 "Error: OEROOT is not defined!"
+    return 1
+fi
+
+if [ "x$BDIR" = "x" ]; then
+    if [ "x$1" = "x" ]; then
+        BDIR="build"
+    else
+        BDIR="$1"
+        if [ "$BDIR" = "/" ]; then
+            echo >&2 "Error: / is not supported as a build directory."
+            return 1
+        fi
+
+        # Remove any possible trailing slashes. This is used to work around
+        # buggy readlink in Ubuntu 10.04 that doesn't ignore trailing slashes
+        # and hence "readlink -f new_dir_to_be_created/" returns empty.
+        BDIR=`echo $BDIR | sed -re 's|/+$||'`
+
+        BDIR=`readlink -f "$BDIR"`
+        if [ -z "$BDIR" ]; then
+            PARENTDIR=`dirname "$1"`
+            echo >&2 "Error: the directory $PARENTDIR does not exist?"
+            return 1
+        fi
+    fi
+fi
+if expr "$BDIR" : '/.*' > /dev/null ; then
+    BUILDDIR="$BDIR"
+else
+    BUILDDIR="`pwd`/$BDIR"
+fi
+unset BDIR
+
+BITBAKEDIR="$OEROOT/poky/bitbake$BBEXTRA/"
+
+BITBAKEDIR=`readlink -f "$BITBAKEDIR"`
+BUILDDIR=`readlink -f "$BUILDDIR"`
+
+if ! (test -d "$BITBAKEDIR"); then
+    echo >&2 "Error: The bitbake directory ($BITBAKEDIR) does not exist!  Please ensure a copy of bitbake exists at this location"
+    return 1
+fi
+
+PATH="${OEROOT}/scripts:${OEROOT}/poky/scripts:$BITBAKEDIR/bin/:$PATH"
+unset BITBAKEDIR
+
+# Used by the runqemu script
+export BUILDDIR
+export PATH
+export BB_ENV_EXTRAWHITE="MACHINE DISTRO TCMODE TCLIBC http_proxy ftp_proxy https_proxy all_proxy ALL_PROXY no_proxy SSH_AGENT_PID SSH_AUTH_SOCK BB_SRCREV_POLICY SDKMACHINE BB_NUMBER_THREADS PARALLEL_MAKE GIT_PROXY_COMMAND GIT_PROXY_IGNORE SOCKS5_PASSWD SOCKS5_USER"

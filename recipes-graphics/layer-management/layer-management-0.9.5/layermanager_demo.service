@@ -1,0 +1,12 @@
+Description=LayerManager DEMO Application from Genivi
+Requires=layermanager.service
+After=layermanager.service
+
+[Service]
+Type=simple
+Environment=DISPLAY=:0
+ExecStart=/usr/bin/EGLX11ApplicationExample
+TimeoutSec=2s
+
+[Install]
+WantedBy=multi-user.target.wants
