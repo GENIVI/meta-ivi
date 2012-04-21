@@ -18,7 +18,7 @@ You can build an QEMU image including GENIVI P1 components using the following s
 
 2. Add meta-ivi path to COREBASE/build/conf/bblayers.conf file.
 
-3. Add meta-system path to COREBASE/build/conf/bblayers.conf file.
+3. Add meta-systemd path to COREBASE/build/conf/bblayers.conf file.
 
 4. Set MACHINE ?= "vexpressa9" in COREBASE/build/conf/local.conf file.
 
