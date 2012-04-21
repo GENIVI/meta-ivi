@@ -38,4 +38,4 @@ You can build an QEMU image including GENIVI P1 components using the following s
    $ bitbake discovery-image
 
 11. Run the emulator:
-   $ PATH_TO_META_IVI/scripts/runqemu discovery-image vexpressa9
+   $ PATH_TO_META_IVI/meta-ivi/scripts/runqemu discovery-image vexpressa9
