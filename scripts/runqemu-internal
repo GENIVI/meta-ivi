@@ -337,7 +337,6 @@ if [ "$MACHINE" = "beagleboard" -a "$SD_NEEDED" = "y" ]; then
 else
     echo "No need to create image."
 fi
-
 if [ "$MACHINE" = "vexpressa9" -a "$SD_NEEDED" = "y" ]; then
     echo "Creating vexpress A9 SD image ..."
     QEMU_IMG=qemu-img
@@ -347,7 +346,7 @@ if [ "$MACHINE" = "vexpressa9" -a "$SD_NEEDED" = "y" ]; then
 	cleanup
 	return
     fi
-    CREATE_SD_SCRIPT=`which create_img_vexpress-a9.sh`
+    CREATE_SD_SCRIPT=$(dirname $0)/create_img_vexpress-a9.sh
     echo "IMGNAME $IMGNAME"
     echo "QEMUIMG $QEMUIMG"
     $CREATE_SD_SCRIPT $IMGNAME $KERNEL $ROOTFS $QEMUIMG
