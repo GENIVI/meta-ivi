@@ -424,6 +424,6 @@ if [ "$libgl" != 'yes' ]; then
     exit 1;
 fi
 
-INTERNAL_SCRIPT=`which runqemu-internal`
+INTERNAL_SCRIPT=$(dirname $0)/runqemu-internal
 
 . $INTERNAL_SCRIPT
