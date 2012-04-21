@@ -8,8 +8,8 @@ PR = "r0"
 FILESPATH = "${FILE_DIRNAME}/qemu-${PV}"
 FILESDIR = "${WORKDIR}"
 
-# Tag 2012.01
-SRCREV = "4b6667af6cd1a58f4d43f3baae432723f47d28fb"
+# Tag 2012.04
+SRCREV = "cc9364d58d474ee6ebc78d98ad3f24afe65b95a6"
 
 SRC_URI = "\
     git://git.linaro.org/qemu/qemu-linaro.git;protocol=git \
@@ -29,7 +29,4 @@ SRC_URI_append_virtclass-nativesdk = "\
     ${QEMUGLPATCHES} \
     file://glflags.patch \
     "
-#SRC_URI[md5sum] = "34f17737baaf1b3495c89cd6d4a607ed"
-#SRC_URI[sha256sum] = "7705b14d9b8e4df4a0b1790980e618084261e8daef0672a1aa7a830a0f3db5ba"
-
 S = "${WORKDIR}/git"
