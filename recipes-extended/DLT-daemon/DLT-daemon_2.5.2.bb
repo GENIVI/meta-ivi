@@ -26,3 +26,16 @@ S = "${WORKDIR}/git"
 inherit autotools gettext cmake
 
 FILES_${PN}-doc += "/usr/share/*"
+FILES_${PN}-systemd += "/lib/systemd/system/"
+
+PACKAGES =+ "${PN}-systemd"
+
+EXTRA_OECMAKE = "-DWITH_SYSTEMD=ON"
+
+do_install_append() {
+        mkdir -p ${D}/lib/systemd/system/
+        install -m 0644 systemd/dlt.service ${D}/lib/systemd/system/
+        install -m 0644 systemd/dlt-syslog.service ${D}/lib/systemd/system/
+}
+
+
