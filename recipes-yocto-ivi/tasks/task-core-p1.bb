@@ -12,15 +12,20 @@ PACKAGES = "\
 ALLOW_EMPTY = "1"
 
 RDEPENDS_task-core-p1 = "\
+    AudioManager \
+    AudioManager-systemd \
     DLT-daemon \
+    DLT-daemon-systemd \
     alsa-lib  \
     alsa-utils \
     bluez4 \
+    bluez4-systemd \
     connman \
     curl \
     dbus \
     dhcp-client \
     ecryptfs-utils \
+    ecryptfs-utils-systemd \
     eglibc \
     fuse \
     gstreamer \
@@ -30,13 +35,16 @@ RDEPENDS_task-core-p1 = "\
     libusb1 \
     nfs-utils \
     ntp \
+    ntp-systemd \
     openssl \
+    portmap-systemd \
     qt4-embedded \
     quota \
     sqlite3 \
     udev \
     usbutils \
     wpa-supplicant \
+    wpa-supplicant-systemd \
     "
 
 RRECOMMENDS_${PN} = "\
