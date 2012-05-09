@@ -1,0 +1,12 @@
+[Unit]
+Description=WPA Supplicant daemon
+After=syslog.target network.target
+
+[Service]
+Type=forking
+EnvironmentFile=-/etc/sysconfig/wpa_supplicant
+ExecStart=/usr/sbin/wpa_supplicant -c /etc/wpa_supplicant/wpa_supplicant.conf $INTERFACES $DRIVERS -B -u $OTHER_ARGS
+
+[Install]
+WantedBy=multi-user.target
+
