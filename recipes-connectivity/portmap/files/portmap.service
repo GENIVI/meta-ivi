@@ -1,0 +1,12 @@
+[Unit]
+Description=Server that converts RPC program numbers into DARPA protocol port numbers
+After=connman.service
+
+[Service]
+Type=oneshot
+ExecStart=/sbin/portmap -l
+RemainAfterExit=yes
+
+[Install]
+WantedBy=multi-user.target
+
