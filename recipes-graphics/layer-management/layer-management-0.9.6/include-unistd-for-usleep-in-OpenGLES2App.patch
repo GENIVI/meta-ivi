@@ -1,0 +1,18 @@
+Include unistd.h in OpenGLES2App.cpp as usleep is used in code
+
+Signed-off-by: Andrei Gherzan <andrei.gherzan@windriver.com>
+Upstream-status: Pending
+
+Index: git/LayerManagerExamples/EGLX11MockNavigation/src/OpenGLES2App.cpp
+===================================================================
+--- git.orig/LayerManagerExamples/EGLX11MockNavigation/src/OpenGLES2App.cpp	2012-05-16 13:52:30.114057234 +0300
++++ git/LayerManagerExamples/EGLX11MockNavigation/src/OpenGLES2App.cpp	2012-05-16 13:52:46.674056640 +0300
+@@ -28,6 +28,8 @@
+ #include <math.h>
+ #include <sys/time.h>
+ 
++#include <unistd.h>
++
+ #define RUNTIME_IN_MS() (GetTickCount() - startTimeInMS)
+ 
+ // Max width and height of the window
