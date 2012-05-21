@@ -3,7 +3,7 @@ PRINC = "1"
 # Find "files" directory
 FILESEXTRAPATHS := "${THISDIR}/files"
 
-SRC_URI_append_vexpressa9 = " file://wpa_supplicant.service"
+SRC_URI_append = " file://wpa_supplicant.service"
 
 PACKAGES =+ "${PN}-systemd"
 
