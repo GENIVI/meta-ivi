@@ -1,3 +1,4 @@
+PRINC = "1"
 
 PACKAGES =+ "${PN}-systemd"
 

@@ -1,3 +1,5 @@
+PRINC = "1"
+
 INITSCRIPT_PACKAGES = ""
 INITSCRIPT_NAME_${PN}-sshd = ""
 INITSCRIPT_PARAMS_${PN}-sshd = ""

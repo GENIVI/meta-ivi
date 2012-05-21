@@ -1,3 +1,5 @@
+PRINC = "1"
+
 # Find "files" directory
 FILESEXTRAPATHS := "${THISDIR}/files"
 
