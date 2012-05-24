@@ -13,6 +13,8 @@ ALLOW_EMPTY = "1"
 
 RDEPENDS_task-core-p2 = "\
     pulseaudio \
+    ofono \
+    ofono-systemd \
     "
 
 
