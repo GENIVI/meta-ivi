@@ -1,10 +1,4 @@
-#
-# Copyright (c) 2012 Wind River Systems, Inc.
-#
-# The right to copy, distribute, modify, or otherwise make use
-# of this software may be licensed only pursuant to the terms
-# of an applicable Wind River license agreement.
-#
+LICENSE = "GPLv2"
 
 # http://www.freedesktop.org/wiki/Software/systemd/TheCaseForTheUsrMerge
 # /bin → /usr/bin
