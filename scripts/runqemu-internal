@@ -441,8 +441,8 @@ if [ "$MACHINE" = "vexpressa9" ]; then
     QEMU=qemu-system-arm
     MACHINE_SUBTYPE=vexpress-a9
     QEMU_UI_OPTIONS="$QEMU_UI_OPTIONS"
-    export QEMU_AUDIO_DRV="alsa"
-    SCRIPT_QEMU_OPT="$SCRIPT_QEMU_OPT -soundhw all"
+    export QEMU_AUDIO_DRV="none"
+    SCRIPT_QEMU_OPT="$SCRIPT_QEMU_OPT -soundhw all "
     if [ "$FSTYPE" = "tar.bz2" ]; then
 	KERNCMDLINE="root=/dev/mmcblk0p2 rw mem=1024M raid=noautodetect console=tty0 console=ttyAMA0,38400n8 rootwait vmalloc=256MB devtmpfs.mount=0"
 	QEMUOPTIONS="$QEMU_NETWORK_CMD -M $MACHINE_SUBTYPE -cpu cortex-a9 -sd $IMGNAME"
