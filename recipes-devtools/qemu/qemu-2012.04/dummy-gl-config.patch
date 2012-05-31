@@ -1,0 +1,34 @@
+Add a dummy option for GL acceleration to pass the configure when there is no
+GL acceleration patch. The parsing function will be filled by following
+opengl-disable-option.patch.
+Upstream-Status: Inappropriate [other] - depends on GL patch
+
+Signed-off-by: Zhai Edwin <edwin.zhai@intel.com>
+
+Patch rewritten for this qemu version
+
+Signed-off-by: Andrei Gherzan <andrei.gherzan@windriver.com>
+
+Index: git/configure
+===================================================================
+--- git.orig/configure	2012-05-31 10:59:40.757440002 +0300
++++ git/configure	2012-05-31 11:01:43.901435595 +0300
+@@ -191,6 +191,7 @@
+ smartcard_nss=""
+ usb_redir=""
+ opengl=""
++gl_accel="yes"
+ zlib="yes"
+ guest_agent="yes"
+ libiscsi=""
+@@ -812,6 +811,10 @@
+   ;;
+   --enable-opengl) opengl="yes"
+   ;;
++  --disable-gl-accel) gl_accel="no"
++  ;;
++  --enable-gl-accel) gl_accel="yes"
++  ;;
+   --disable-rbd) rbd="no"
+   ;;
+   --enable-rbd) rbd="yes"
