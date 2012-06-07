@@ -1,5 +1,7 @@
 FILESEXTRAPATHS := "${THISDIR}/${PN}"
 
+PRINC = "1"
+
 SRC_URI += "file://0001-systemd-complement-module-console-kit-with-module-sy.patch \
            "
 
@@ -30,3 +32,10 @@ RDEPENDS_pulseaudio-server = " \
     pulseaudio-module-position-event-sounds \
     pulseaudio-module-cork-music-on-phone "
 
+do_configure_append () {
+	#udev_get_dev_path(), udev_get_sys_path(), udev_get_run_path()
+	#systemd does not allow to configure any of these filesystem paths
+	#udev is included in systemd
+	sed -i 's:udev_get_sys_path(udev):"/sys":' src/modules/module-udev-detect.c
+	sed -i 's:udev_get_dev_path(u->udev):"/dev":' src/modules/module-udev-detect.c
+}
