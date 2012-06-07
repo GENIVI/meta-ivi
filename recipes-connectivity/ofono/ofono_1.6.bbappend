@@ -16,7 +16,7 @@ do_install_append() {
 }
 
 PACKAGES =+ " ${PN}-systemd "
-FILES_${PN}-systemd += "${base_libdir}/systemd/system"
+FILES_${PN}-systemd += "${libdir}/systemd/system"
 
 # Systemd service needs systemd
 RDEPENDS_${PN}-systemd = "systemd"
