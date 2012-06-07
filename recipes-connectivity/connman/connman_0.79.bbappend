@@ -5,7 +5,7 @@ INITSCRIPT_PARAMS = ""
 
 PACKAGES =+ "${PN}-systemd"
 
-FILES_${PN}-systemd = "/lib/systemd/system/"
+FILES_${PN}-systemd = "${libdir}/systemd/"
 
 do_install_append() {
 	# Remove init scripts
