@@ -12,6 +12,7 @@ PACKAGES = "\
 ALLOW_EMPTY = "1"
 
 RDEPENDS_task-core-p1 = "\
+    kernel-modules \
     AudioManager \
     AudioManager-systemd \
     DLT-daemon \
