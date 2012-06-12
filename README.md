@@ -34,8 +34,16 @@ You can build an QEMU image including GENIVI P1 components using the following s
    - copy meta-ivi/scripts/dl_pkgs.sh into COREBASE/build/conf/
    $ ./conf/dl_pkgs.sh
 
-10. Build discovery-image including GENIVI 2.0 (Discovery) P1 components
+10. Build discovery-image/excalibur-image including GENIVI 2.0 (Discovery/Excalibur) P1 components
    $ bitbake discovery-image
+
+   or
+
+   $ bitbake excalibur-image
 
 11. Run the emulator:
    $ PATH_TO_META_IVI/meta-ivi/scripts/runqemu discovery-image vexpressa9
+
+   or
+
+   $ PATH_TO_META_IVI/meta-ivi/scripts/runqemu excalibur-image vexpressa9
