@@ -13,3 +13,9 @@ SRC_URI_append_arm += "file://keyutils-arm-remove-m32-m64.patch"
 S = "${WORKDIR}/git"
 
 inherit autotools
+
+INSTALL_FLAGS = "BINDIR=/usr/bin SBINDIR=/usr/sbin DESTDIR=${D}"
+
+do_install() {
+	oe_runmake ${INSTALL_FLAGS} install
+}
