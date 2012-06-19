@@ -17,6 +17,7 @@ SRC_URI[sha256sum] = "1ec1913e38f09b2a9ec1579e1800805b5e2c747d1dce515e316dbb665c
 
 inherit autotools pkgconfig
 
+export MOUNT_FUSE_PATH = "/usr/sbin"
 EXTRA_OECONF = "--disable-kernel-module"
 
 PACKAGES =+ "fuse-utils-dbg fuse-utils libulockmgr libulockmgr-dev libulockmgr-dbg"
