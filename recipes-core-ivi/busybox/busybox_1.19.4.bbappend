@@ -34,3 +34,6 @@ do_install_append () {
 }
 
 ALTERNATIVE_TARGET = "/usr/bin/busybox"
+
+# Fake RPROVIDES on /bin/sh as we will have symlink on target
+RPROVIDES_${PN} = "/bin/sh"
