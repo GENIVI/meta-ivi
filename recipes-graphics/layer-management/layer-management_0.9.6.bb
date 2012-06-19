@@ -31,9 +31,9 @@ S = "${WORKDIR}/git"
 inherit autotools gettext cmake
 
 do_install_append() {
-    install -d ${D}/lib/systemd/system
-    install -m 0755 ${WORKDIR}/layermanager.service ${D}/lib/systemd/system
-    install -m 0755 ${WORKDIR}/layermanager_demo.service ${D}/lib/systemd/system
+    install -d ${D}/${libdir}/systemd/system
+    install -m 0755 ${WORKDIR}/layermanager.service ${D}/${libdir}/systemd/system
+    install -m 0755 ${WORKDIR}/layermanager_demo.service ${D}/${libdir}/systemd/system
 }
 
 FILES_${PN} += "${libdir}/lib* \
@@ -41,7 +41,7 @@ FILES_${PN} += "${libdir}/lib* \
 		${libdir}/layermanager/communicator/lib* \
 		${libdir}/layermanager/renderer/lib* \
 		${libdir}/layermanager/renderer/renderer* \
-		/lib/systemd"
+		${libdir}/systemd"
 
 FILES_${PN}-dev += "${includedir}/*"
 FILES_${PN}-staticdev += "${libdir}/layermanager/static/lib*"
