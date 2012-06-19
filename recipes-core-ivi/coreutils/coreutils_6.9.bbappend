@@ -15,7 +15,7 @@ base_bindir_progs = ""
 sbindir_progs= "chroot"
 
 do_install_append () {
-	rmdir ${D}/bin
+	rmdir ${D}/${base_bindir}
 }
 
 ALTERNATIVE_${PN} = "lbracket ${bindir_progs} ${base_bindir_progs} ${sbindir_progs}"
