@@ -1,9 +1,11 @@
 PRINC = "1"
 
-# Find "files" directory
-FILESEXTRAPATHS := "${THISDIR}/files"
+# Find local "files" and "${PN}" directory
+FILESEXTRAPATHS := "${THISDIR}/files:${THISDIR}/${PN}"
 
-SRC_URI_append = " file://portmap.service"
+SRC_URI_append = " file://portmap.service \
+                   file://define-sbindir.patch \
+                 "
 
 PACKAGES =+ "${PN}-systemd"
 
@@ -12,11 +14,13 @@ FILES_${PN}-systemd = "${libdir}/systemd/system/"
 INITSCRIPT_NAME = ""
 INITSCRIPT_PARAMS = ""
 
+sbindir = "/usr/sbin"
+
 fakeroot do_install() {
 	#install -d ${D}${mandir}/man8/ ${D}${base_sbindir} ${D}${sysconfdir}/init.d
-	install -d ${D}${mandir}/man8/ ${D}${base_sbindir}
+	install -d ${D}${mandir}/man8/ ${D}${sbindir}
 	#install -m 0755 ${WORKDIR}/portmap.init ${D}${sysconfdir}/init.d/portmap
-	oe_runmake install DESTDIR=${D}
+	oe_runmake install DESTDIR=${D} SBINDIR=${sbindir}
 }
 
 do_install_append() {
@@ -24,3 +28,5 @@ do_install_append() {
         install -m 644 ${WORKDIR}/portmap.service ${D}/${libdir}/systemd/system/
 }
 
+FILES_${PN}-utils = "${sbindir}/pmap_set \
+                     ${sbindir}/pmap_dump"

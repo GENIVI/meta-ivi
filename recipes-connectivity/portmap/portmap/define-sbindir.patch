@@ -1,0 +1,26 @@
+Define SBINDIR and install binaries using this path
+
+Upstream-Status: Pending
+Signed-off-by: Andrei Gherzan <andrei.gherzan@windriver.com>
+
+Index: portmap_6.0/Makefile
+===================================================================
+--- portmap_6.0.orig/Makefile	2012-06-11 12:46:49.371204362 +0300
++++ portmap_6.0/Makefile	2012-06-11 12:45:06.000000000 +0300
+@@ -135,11 +135,13 @@
+ portmap.man : portmap.8
+ 	sed $(MAN_SED) < portmap.8 > portmap.man
+ 
++SBINDIR		:= /sbin
++
+ DESTDIR = $(BASEDIR)
+ install: all
+-	install -o root -g root -m 0755 portmap $(DESTDIR)/sbin
+-	install -o root -g root -m 0755 pmap_dump $(DESTDIR)/sbin
+-	install -o root -g root -m 0755 pmap_set $(DESTDIR)/sbin
++	install -o root -g root -m 0755 portmap $(DESTDIR)$(SBINDIR)
++	install -o root -g root -m 0755 pmap_dump $(DESTDIR)$(SBINDIR)
++	install -o root -g root -m 0755 pmap_set $(DESTDIR)$(SBINDIR)
+ 	install -o root -g root -m 0644 portmap.man $(DESTDIR)/usr/share/man/man8/portmap.8
+ 	install -o root -g root -m 0644 pmap_dump.8 $(DESTDIR)/usr/share/man/man8
+ 	install -o root -g root -m 0644 pmap_set.8 $(DESTDIR)/usr/share/man/man8
