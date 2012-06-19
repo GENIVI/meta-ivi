@@ -7,7 +7,7 @@ SRC_URI_append = " file://portmap.service"
 
 PACKAGES =+ "${PN}-systemd"
 
-FILES_${PN}-systemd = "/lib/systemd/system/"
+FILES_${PN}-systemd = "${libdir}/systemd/system/"
 
 INITSCRIPT_NAME = ""
 INITSCRIPT_PARAMS = ""
@@ -20,7 +20,7 @@ fakeroot do_install() {
 }
 
 do_install_append() {
-        mkdir -p ${D}/lib/systemd/system
-        install -m 644 ${WORKDIR}/portmap.service ${D}/lib/systemd/system/
+        mkdir -p ${D}/${libdir}/systemd/system
+        install -m 644 ${WORKDIR}/portmap.service ${D}/${libdir}/systemd/system/
 }
 
