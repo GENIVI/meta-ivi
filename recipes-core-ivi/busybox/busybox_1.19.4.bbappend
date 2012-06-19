@@ -28,6 +28,9 @@ do_install_append () {
 	mkdir -p ${D}/${bindir}
 	mv -f ${D}/${base_bindir}/* ${D}/${bindir}
 	rmdir ${D}/${base_bindir}
+
+	# Modify busybox.links with new paths as we use that for creating postinstall symlinks
+	sed -i -e 's#^/bin#/usr/bin#g' -e 's#^/sbin#/usr/sbin#g' ${D}/etc/busybox.links
 }
 
 ALTERNATIVE_TARGET = "/usr/bin/busybox"
