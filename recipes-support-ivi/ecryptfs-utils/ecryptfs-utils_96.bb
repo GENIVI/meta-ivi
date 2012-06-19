@@ -33,11 +33,11 @@ FILES_${PN}-dbg += "${libdir}/ecryptfs/.debug \
                    "
 PACKAGES =+ "${PN}-systemd"
 
-FILES_${PN}-systemd = "/lib/systemd/system/"
+FILES_${PN}-systemd = "${libdir}/systemd/system/"
 
 do_install_append() {
-        mkdir -p ${D}/lib/systemd/system
-        install -m 644 ${WORKDIR}/ecryptfs.service ${D}/lib/systemd/system
+        mkdir -p ${D}/${libdir}/systemd/system
+        install -m 644 ${WORKDIR}/ecryptfs.service ${D}/${libdir}/systemd/system
 }
 
 # Skip useless warning as we have /usr and / on the same partition
