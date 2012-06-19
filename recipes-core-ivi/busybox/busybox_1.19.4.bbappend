@@ -22,3 +22,12 @@ pkg_postinst_${PN}-syslog () {
 	#update-alternatives --install ${sysconfdir}/init.d/syslog syslog-init syslog.${BPN} 50
 	update-alternatives --install ${sysconfdir}/syslog-startup.conf syslog-startup-conf syslog-startup.conf.${BPN} 50
 }
+
+# Move base_bindir in bindir
+do_install_append () {
+	mkdir -p ${D}/${bindir}
+	mv -f ${D}/${base_bindir}/* ${D}/${bindir}
+	rmdir ${D}/${base_bindir}
+}
+
+ALTERNATIVE_TARGET = "/usr/bin/busybox"
