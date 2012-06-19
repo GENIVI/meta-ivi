@@ -16,16 +16,20 @@ SRC_URI[sha256sum] = "04c43b6e7a2f6b3644a24bcf718bfde6384e74bb4266c053ac78b9cc85
 
 inherit autotools
 
-EXTRA_OECONF += "--disable-nss --disable-pywrap --enable-openssl"
+EXTRA_OECONF += "--disable-nss --disable-pywrap --enable-openssl --prefix=/ --datarootdir=/usr/share"
 EXTRA_OEMAKE += "'CFLAGS+= -lgcrypt '"
 
 FILES_${PN} += " \
                ${libdir}/ecryptfs/* \
-               ${base_libdir}/security/pam_ecryptfs.so \
+               ${libdir}/security/pam_ecryptfs.so \
                "
 
+FILES_${PN}-doc += " \
+                   /share/locale/* \
+                   "
+
 FILES_${PN}-dbg += "${libdir}/ecryptfs/.debug \
-                    ${base_libdir}/security/.debug \
+                    ${libdir}/security/.debug \
                    "
 PACKAGES =+ "${PN}-systemd"
 
