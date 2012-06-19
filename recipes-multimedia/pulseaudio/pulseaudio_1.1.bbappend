@@ -39,3 +39,9 @@ do_configure_append () {
 	sed -i 's:udev_get_sys_path(udev):"/sys":' src/modules/module-udev-detect.c
 	sed -i 's:udev_get_dev_path(u->udev):"/dev":' src/modules/module-udev-detect.c
 }
+
+# Install rules in libdir
+EXTRA_OECONF += " --with-udev-rules-dir=${libdir}/udev/rules.d "
+
+FILES_${PN}-server += " ${libdir}/udev/rules.d "
+
