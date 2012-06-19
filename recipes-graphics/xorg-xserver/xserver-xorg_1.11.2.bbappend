@@ -17,10 +17,10 @@ python () {
 }
 
 do_install_append() {
-    install -d ${D}/lib/systemd/system
-    install -m 0755 ${WORKDIR}/X.service ${D}/lib/systemd/system
+    install -d ${D}/${libdir}/systemd/system
+    install -m 0755 ${WORKDIR}/X.service ${D}/${libdir}/systemd/system
 }
 
-FILES_${PN} += "/lib/systemd/system"
+FILES_${PN} += "${libdir}/systemd/system"
 
 WARN_QA = "ldflags useless-rpaths rpaths staticdev"
