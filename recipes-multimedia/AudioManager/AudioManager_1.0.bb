@@ -1,8 +1,4 @@
-
-ERROR_QA = "debug-deps dev-deps debug-files arch la2 pkgconfig la perms"
-
 SUMMARY = "Genivi AudioManager"
-
 HOMEPAGE = "https://www.genivi.org/"
 SECTION = "multimedia"
 
@@ -29,7 +25,7 @@ FILES_${PN}-dev += "${libdir}/audioManager/command/*.so \
                     ${libdir}/audioManager/routing/*.so \
 "
 
-FILES_${PN}-systemd += "/lib/systemd/"
+FILES_${PN}-systemd += "${libdir}/systemd/"
 
 FILES_${PN}-dbg += "${libdir}/audioManager/command/.debug/* \
                     ${libdir}/audioManager/control/.debug/* \
@@ -39,7 +35,9 @@ FILES_${PN}-dbg += "${libdir}/audioManager/command/.debug/* \
 PACKAGES =+ "${PN}-systemd"
 
 do_install_append() {
-        mkdir -p ${D}/lib/systemd/system/ ${D}/lib/systemd/scripts/
-        install -m 0755 ${WORKDIR}/AudioManager.service ${D}/lib/systemd/system/AudioManager.service
-        install -m 0755 ${WORKDIR}/setup_amgr.sh ${D}/lib/systemd/scripts/setup_amgr.sh
+        mkdir -p ${D}/usr/lib/systemd/system/ ${D}/usr/lib/systemd/scripts/
+        install -m 0755 ${WORKDIR}/AudioManager.service ${D}/usr/lib/systemd/system/AudioManager.service
+        install -m 0755 ${WORKDIR}/setup_amgr.sh ${D}/usr/lib/systemd/scripts/setup_amgr.sh
 }
+
+ERROR_QA = "debug-deps dev-deps debug-files arch la2 pkgconfig la perms"
