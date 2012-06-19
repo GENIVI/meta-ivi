@@ -4,7 +4,7 @@ another server or reference time source, such as a radio \
 or satellite receiver or modem."
 HOMEPAGE = "http://ntp.isc.org/bin/view/Main/WebHome"
 SECTION = "console/network"
-LICENSE = "ntp"
+LICENSE = "NTP"
 LIC_FILES_CHKSUM = "file://COPYRIGHT;md5=fea4b50c33b18c2194b4b1c9ca512670"
 RSUGGESTS_${PN} = "iana-etc"
 

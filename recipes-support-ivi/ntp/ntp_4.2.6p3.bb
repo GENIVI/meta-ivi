@@ -25,14 +25,14 @@ EXTRA_OECONF += " --with-net-snmp-config=no --without-ntpsnmpd"
 do_install_append() {
 	install -d ${D}/${sysconfdir}
 	install -m 644 ${WORKDIR}/ntp.conf ${D}/${sysconfdir}
-	install -d ${D}${base_libdir}/systemd/system
-	install -m 0644 ${WORKDIR}/ntpdate.service ${D}${base_libdir}/systemd/system/
-	install -m 0644 ${WORKDIR}/ntpd.service ${D}${base_libdir}/systemd/system/
+	install -d ${D}${libdir}/systemd/system
+	install -m 0644 ${WORKDIR}/ntpdate.service ${D}${libdir}/systemd/system/
+	install -m 0644 ${WORKDIR}/ntpd.service ${D}${libdir}/systemd/system/
 }
 
 PACKAGES =+ "${PN}-systemd"
 
-FILES_${PN}-systemd = "${base_libdir}/systemd/system/"
+FILES_${PN}-systemd = "${libdir}/systemd/system/"
 RDEPENDS_${PN}-systemd = "${PN}"
 
 FILES_${PN}-bin = "${bindir}/ntp-wait ${bindir}/ntpdc ${bindir}/ntpq ${bindir}/ntptime ${bindir}/ntptrace"
