@@ -1,0 +1,12 @@
+[Unit]
+Description=SSH Socket for Per-Connection Servers
+Conflicts=sshd.service
+Requires=genkeys.service
+After=genkeys.service
+
+[Socket]
+ListenStream=22
+Accept=yes
+
+[Install]
+WantedBy=sockets.target
