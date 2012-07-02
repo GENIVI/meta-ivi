@@ -1,0 +1,10 @@
+[Unit]
+Description=dhclient
+
+[Service]
+ExecStart=/usr/sbin/dhclient %i
+ExecReload=/bin/kill -TERM $MAINPID
+KillSignal=SIGINT
+
+# Enable this service as:
+#    dhclient@eth0.service for ip on eth0

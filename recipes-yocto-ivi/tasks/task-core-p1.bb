@@ -25,6 +25,7 @@ RDEPENDS_task-core-p1 = "\
     curl \
     dbus \
     dhcp-client \
+    dhcp-client-systemd \
     ecryptfs-utils \
     ecryptfs-utils-systemd \
     eglibc \
