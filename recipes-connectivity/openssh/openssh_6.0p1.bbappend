@@ -20,11 +20,10 @@ do_compile_append () {
 do_install_append () {
 	rm -r ${D}${sysconfdir}/init.d
 	# Install services
-	install -d ${D}/${libdir}/systemd/system/sockets.target.wants
+	install -d ${D}/${libdir}/systemd/system
 	install -m 744 ${WORKDIR}/sshd@.service ${D}/${libdir}/systemd/system
 	install -m 744 ${WORKDIR}/sshd.socket ${D}/${libdir}/systemd/system
 	install -m 744 ${WORKDIR}/genkeys.service ${D}/${libdir}/systemd/system
-	ln -s ../sshd.socket ${D}/${libdir}/systemd/system/sockets.target.wants/sshd.socket
 	install -d ${D}/${libdir}/systemd/scripts
 	install -m 744 ${WORKDIR}/genkeys.sh ${D}/${libdir}/systemd/scripts
 }
