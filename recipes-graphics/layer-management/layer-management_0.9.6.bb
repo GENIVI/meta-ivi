@@ -43,7 +43,7 @@ FILES_${PN} += "${libdir}/lib* \
 		${libdir}/layermanager/renderer/renderer* \
 		${libdir}/systemd"
 
-FILES_${PN}-dev += "${includedir}/*"
+FILES_${PN}-dev = "${includedir}/*"
 FILES_${PN}-staticdev += "${libdir}/layermanager/static/lib*"
 FILES_${PN}-dbg += "${libdir}/layermanager/.debug/ \
 		    ${libdir}/layermanager/communicator/.debug/ \
