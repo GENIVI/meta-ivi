@@ -20,8 +20,8 @@
 # OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
 # THE SOFTWARE.
 
-GIT_PACKAGES=(layer-management DLT-daemon AudioManager)
-GIT_URLS=(https://git.genivi.org/srv/git/layer_management https://git.genivi.org/srv/git/DLT-daemon https://git.genivi.org/srv/git/AudioManager)
+GIT_PACKAGES=(layer-management DLT-daemon AudioManager boot-manager)
+GIT_URLS=(https://git.genivi.org/srv/git/layer_management https://git.genivi.org/srv/git/DLT-daemon https://git.genivi.org/srv/git/AudioManager https://git.genivi.org/srv/git/boot-manager)
 
 
 echo -e "\nCreating download directory ..."
