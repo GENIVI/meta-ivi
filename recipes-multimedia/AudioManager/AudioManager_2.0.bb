@@ -7,7 +7,7 @@ LIC_FILES_CHKSUM = "file://LICENCE;md5=815ca599c9df247a0c7f619bab123dad"
 
 DEPENDS = "DLT-daemon sqlite3 dbus"
 
-SRC_URI = "git://git.genivi.org/srv/git/AudioManager;protocol=git;tag=3c4baa71a0c3176dad0c2dcdafbf802fd28a7200 \
+SRC_URI = "git://git.genivi.org/srv/git/AudioManager;protocol=git;tag=a1f572cacb1c9b520a7f5271ce75c9ae2f4862c9 \
            file://AudioManager.service file://setup_amgr.sh"
 
 S = "${WORKDIR}/git"
