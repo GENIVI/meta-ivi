@@ -10,11 +10,12 @@ DEPENDS = "virtual/libgl dbus libxcomposite"
 
 PR = "r1"
 
-SRCREV = "ec56d1114fa3ad8d28a8415e85b4c0093dea12f4"
+SRCREV = "d066997c719141d9ff816cde3e94e06bfd8c1a72"
 
 SRC_URI = "git://git.genivi.org/srv/git/layer_management;protocol=git \
 	   file://point-to-internal-CMakeVersions.patch \
 	   file://include-unistd-for-usleep-in-OpenGLES2App.patch \
+	   file://include-unistd-for-alarm-in-example.patch \
 	   file://layermanager.service \
 	   file://layermanager_demo.service \
           "
@@ -39,6 +40,7 @@ do_install_append() {
 FILES_${PN} += "${libdir}/lib* \
 		${libdir}/layermanager/lib* \
 		${libdir}/layermanager/communicator/lib* \
+		${libdir}/layermanager/ipcmodules/lib* \
 		${libdir}/layermanager/renderer/lib* \
 		${libdir}/layermanager/renderer/renderer* \
 		${libdir}/systemd"
@@ -47,6 +49,7 @@ FILES_${PN}-dev = "${includedir}/*"
 FILES_${PN}-staticdev += "${libdir}/layermanager/static/lib*"
 FILES_${PN}-dbg += "${libdir}/layermanager/.debug/ \
 		    ${libdir}/layermanager/communicator/.debug/ \
+		    ${libdir}/layermanager/ipcmodules/.debug/ \
 		    ${libdir}/layermanager/renderer/.debug/ "
 
 WARN_QA = "ldflags useless-rpaths rpaths staticdev"
