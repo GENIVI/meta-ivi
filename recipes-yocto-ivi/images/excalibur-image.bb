@@ -2,4 +2,4 @@
 include recipes-yocto-ivi/images/discovery-image.bb
 
 # Add image specific packages
-IMAGE_INSTALL += ""
+IMAGE_INSTALL += "task-excalibur-core-p1"
