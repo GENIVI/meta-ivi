@@ -13,7 +13,7 @@ SRC_URI = "git://git.genivi.org/srv/git/AudioManager;protocol=git;tag=a1f572cacb
 S = "${WORKDIR}/git"
 inherit autotools gettext cmake pkgconfig
 
-EXTRA_OECMAKE += "-DWITH_TESTS=OFF"
+EXTRA_OECMAKE += "-DWITH_TESTS=OFF -DUSE_BUILD_LIBS=OFF"
 OECMAKE_CXX_FLAGS +="-ldl"
 
 FILES_${PN} += "${libdir}/audioManager/command/*.so.* \
