@@ -11,11 +11,11 @@ DRIDRIVERS_append_x86-64 = ",i915,i965"
 EXTRA_OECONF += "--disable-gallium --without-gallium-drivers --with-dri-drivers=${DRIDRIVERS} --enable-gles2 --enable-glx --enable-dri --disable-osmesa --with-egl-platform=drm --disable-xlib-glx"
 
 python populate_packages_prepend() {
-	import os.path
+    import os.path
 
-	dri_drivers_root = os.path.join(d.getVar('libdir', 1), "dri")
+    dri_drivers_root = os.path.join(d.getVar('libdir', 1), "dri")
 
-	do_split_packages(d, dri_drivers_root, '^(.*)_dri\.so$', 'mesa-dri-driver-%s', 'Mesa %s DRI driver', extra_depends='')
+    do_split_packages(d, dri_drivers_root, '^(.*)_dri\.so$', 'mesa-dri-driver-%s', 'Mesa %s DRI driver', extra_depends='')
 }
 
 PACKAGES_DYNAMIC = "mesa-dri-driver-*"

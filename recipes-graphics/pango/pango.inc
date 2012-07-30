@@ -29,9 +29,9 @@ EXTRA_AUTORECONF = ""
 FULL_OPTIMIZATION_arm = "-O2"
 
 EXTRA_OECONF = "--disable-glibtest \
-		--enable-explicit-deps=no \
-	        --disable-debug \
-		${@base_contains('DISTRO_FEATURES', 'x11', '--with-x', '--without-x', d)}"
+        --enable-explicit-deps=no \
+            --disable-debug \
+        ${@base_contains('DISTRO_FEATURES', 'x11', '--with-x', '--without-x', d)}"
 
 LEAD_SONAME = "libpango-1.0*"
 LIBV = "1.6.0"
@@ -44,11 +44,11 @@ fi
 }
 
 python populate_packages_prepend () {
-	prologue = d.getVar("postinst_prologue", 1)
+    prologue = d.getVar("postinst_prologue", 1)
 
-	modules_root = bb.data.expand('${libdir}/pango/${LIBV}/modules', d)
+    modules_root = bb.data.expand('${libdir}/pango/${LIBV}/modules', d)
 
-	do_split_packages(d, modules_root, '^pango-(.*)\.so$', 'pango-module-%s', 'Pango module %s', prologue + 'pango-querymodules > /etc/pango/pango.modules')
+    do_split_packages(d, modules_root, '^pango-(.*)\.so$', 'pango-module-%s', 'Pango module %s', prologue + 'pango-querymodules > /etc/pango/pango.modules')
 }
 
 FILES_${PN} = "/etc ${bindir}/* ${libdir}/libpango*${SOLIBS}"
