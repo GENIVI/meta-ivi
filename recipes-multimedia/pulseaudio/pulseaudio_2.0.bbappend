@@ -2,7 +2,7 @@ FILESEXTRAPATHS := "${THISDIR}/${PN}"
 
 PRINC = "1"
 
-SRC_URI += "file://0001-systemd-complement-module-console-kit-with-module-sy.patch \
+#SRC_URI += "file://0001-systemd-complement-module-console-kit-with-module-sy.patch \
            "
 
 DEPENDS = "libatomics-ops liboil libsamplerate0 libsndfile1 libtool ${@base_contains('DISTRO_FEATURES', 'x11', 'virtual/libx11 gtk+', '', d)} \
