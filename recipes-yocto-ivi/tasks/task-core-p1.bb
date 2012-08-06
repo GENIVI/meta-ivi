@@ -1,7 +1,7 @@
 DESCRIPTION = "P1 packages"
 LICENSE = "MIT"
 LIC_FILES_CHKSUM = "file://${IVI_COREBASE}/meta-ivi/COPYING.MIT;md5=3da9cfbcb788c80a0384361b4de20420"
-PR = "r0"
+PR = "r1"
 
 PACKAGES = "\
     task-core-p1 \
@@ -24,8 +24,6 @@ RDEPENDS_task-core-p1 = "\
     connman \
     curl \
     dbus \
-    dhcp-client \
-    dhcp-client-systemd \
     ecryptfs-utils \
     ecryptfs-utils-systemd \
     eglibc \
@@ -36,15 +34,11 @@ RDEPENDS_task-core-p1 = "\
     layer-management \
     libusb1 \
     nfs-utils \
-    ntp \
-    ntp-systemd \
     openssl \
     portmap-systemd \
-    qt4-embedded \
     quota \
     sqlite3 \
     udev \
-    usbutils \
     wpa-supplicant \
     wpa-supplicant-systemd \
     "
