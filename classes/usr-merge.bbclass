@@ -13,8 +13,13 @@ usr_merge() {
 	#
 	echo "usr-merge: moving modules in /usr/lib ..."
 	mkdir -p $INSTALL_ROOTFS_RPM/usr/lib
-	mv $INSTALL_ROOTFS_RPM/lib/modules $INSTALL_ROOTFS_RPM/usr/lib
-	rmdir $INSTALL_ROOTFS_RPM/lib/
+	# was:
+	# mv $INSTALL_ROOTFS_RPM/lib/modules $INSTALL_ROOTFS_RPM/usr/lib
+	# rmdir $INSTALL_ROOTFS_RPM/lib/
+	cp -x --no-dereference --preserve=link,mode,ownership,timestamps --strip-trailing-slashes --recursive $INSTALL_ROOTFS_RPM/lib -t $INSTALL_ROOTFS_RPM/usr/
+	rm -rf $INSTALL_ROOTFS_RPM/lib/
+	mv $INSTALL_ROOTFS_RPM/sbin/ldconfig $INSTALL_ROOTFS_RPM/usr/sbin/
+	rmdir $INSTALL_ROOTFS_RPM/sbin
 
 	echo "usr-merge: Creating symlinks for /usr merge stage ..."
 	if [ ! -d $INSTALL_ROOTFS_RPM/sbin -a -d $INSTALL_ROOTFS_RPM/usr/sbin ]; then
