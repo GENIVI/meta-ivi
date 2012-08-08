@@ -20,30 +20,53 @@
 # OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
 # THE SOFTWARE.
 
-GIT_PACKAGES=(layer-management DLT-daemon AudioManager boot-manager)
-GIT_URLS=(https://git.genivi.org/srv/git/layer_management https://git.genivi.org/srv/git/DLT-daemon https://git.genivi.org/srv/git/AudioManager https://git.genivi.org/srv/git/boot-manager)
+GIT_PACKAGES=(layer-management DLT-daemon AudioManager node-startup-controller)
+GIT_URLS=(https://git.genivi.org/srv/git/layer_management https://git.genivi.org/srv/git/DLT-daemon https://git.genivi.org/srv/git/AudioManager https://git.genivi.org/srv/git/node-startup-controller)
 
+if [ -z "$BUILDDIR" ];
+then
+	echo -e "ERROR:\tOE build environment not set"
+	echo -e "\tThis should be done by, for example:"
+	echo -e "\t% source ./poky/oe-init-build-env"
+	exit 1
+else
+	# figure out Where to place downloads (configurable in local.conf)
+	eval `(cd $BUILDDIR && bitbake -e) | grep ^DL_DIR=`
+fi
 
-echo -e "\nCreating download directory ..."
-mkdir -p ../downloads/git2
+if [ -z "$DL_DIR" ];
+then
+	GIT_DL_DIR="$BUILDDIR/downloads/git2"
+else
+	GIT_DL_DIR="$DL_DIR/git2"
+fi
 
-echo -e "\nDownloading GENIVI packages ..."
+echo -e "\nCreating GIT download directory ($GIT_DL_DIR) ..."
+mkdir -p ${GIT_DL_DIR}
+echo -e "Downloading GENIVI packages ..."
 
-#Download GIT Packages
+# Download GENIVI OSS Packages
 for index in ${!GIT_PACKAGES[*]}
 do
     echo -e "\nPACKAGE ${GIT_PACKAGES[$index]}"
     URLS2=${GIT_URLS[$index]/https:\/\/}
     URLS2=${URLS2//\//.}
-    if [ ! -f downloads/${URLS2}.done ]
+    if [ ! -f ${GIT_DL_DIR}/../${URLS2}.done ]
     then
-        rm -rf downloads/git2/${URLS2}
-        git clone -q --bare ${GIT_URLS[$index]} downloads/git2/${URLS2}
+        rm -rf ${GIT_DL_DIR}/${URLS2}
+	if [ -z "$GENIVI_USER" ];
+	then
+        	git clone -q --bare ${GIT_URLS[$index]} ${GIT_DL_DIR}/${URLS2}
+	else
+        	git clone -q --bare ${GIT_URLS[$index]//:\/\//:\/\/$GENIVI_USER:$GENIVI_PASS@} ${GIT_DL_DIR}/${URLS2}
+	fi
         if  [ $? == 0 ]
         then
-    	    touch downloads/${URLS2}.done
+    	    touch ${GIT_DL_DIR}/../${URLS2}.done
     	fi
     else
-	echo "${GIT_PACKAGES[$index]} already downloaded"
+	# echo "${GIT_PACKAGES[$index]} already downloaded"
+	echo -e "\talready downloaded"
     fi
 done
+echo ""
