@@ -3,6 +3,7 @@ FILESEXTRAPATHS := "${THISDIR}/${PN}"
 
 # Add patch to avoid overwriting libc_cv_rootsbindir
 SRC_URI += " file://dont-set-libc_cv_rootsbindir-if-set-already.patch \
+             file://eglibc_2.16_add_af_bus_support.patch \
            "
 
 # Use paths from usr

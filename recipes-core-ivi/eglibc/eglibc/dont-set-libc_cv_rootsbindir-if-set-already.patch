@@ -1,19 +1,13 @@
-Let the user have a custom path for libc_cv_rootsbindir.
-
-Upstream-Status: Pending
-Signed-off-by: Andrei Gherzan <andrei.gherzan@windriver.com>
-
-Index: eglibc-2_15/libc/sysdeps/unix/sysv/linux/configure
+Index: eglibc-2_16/libc/sysdeps/gnu/configure
 ===================================================================
---- libc/sysdeps/unix/sysv/linux/configure	2012-06-12 13:40:14.479998263 +0300
-+++ libc/sysdeps/unix/sysv/linux/configure	2012-06-12 13:40:37.831997418 +0300
-@@ -169,7 +169,8 @@
+--- libc/sysdeps/gnu/configure.orig	2012-08-13 13:24:54.643463697 +0300
++++ libc/sysdeps/gnu/configure	2012-08-13 13:25:42.231463057 +0300
+@@ -37,6 +37,7 @@
    else
-     libc_cv_sysconfdir=$sysconfdir
+     libc_cv_localstatedir=$localstatedir
     fi
--  libc_cv_rootsbindir="/sbin"
+-  libc_cv_rootsbindir=/sbin
 +  test -n "$libc_cv_rootsbindir" || \
-+    libc_cv_rootsbindir="/sbin"
++  libc_cv_rootsbindir="/sbin"
    ;;
  esac
- 
