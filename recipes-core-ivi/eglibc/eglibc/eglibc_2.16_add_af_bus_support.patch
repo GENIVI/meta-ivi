@@ -1,8 +1,8 @@
-Index: eglibc-2_16/libc/Makefile
+Index: libc/Makefile
 ===================================================================
---- libc/Makefile.orig	2012-08-13 12:28:31.323509025 +0300
-+++ libc/Makefile	2012-08-13 12:29:15.331508430 +0300
-@@ -344,7 +344,7 @@
+--- libc.orig/Makefile
++++ libc/Makefile
+@@ -317,7 +317,7 @@ installed-headers = argp/argp.h assert/a
  		    resource/sys/vtimes.h resource/ulimit.h rt/aio.h \
  		    rt/mqueue.h setjmp/setjmp.h shadow/shadow.h \
  		    signal/signal.h signal/sys/signal.h socket/sys/socket.h \
@@ -11,18 +11,17 @@ Index: eglibc-2_16/libc/Makefile
  		    stdio-common/stdio_ext.h stdlib/stdlib.h stdlib/alloca.h \
  		    stdlib/monetary.h stdlib/fmtmsg.h stdlib/ucontext.h \
  		    sysdeps/generic/inttypes.h sysdeps/generic/stdint.h \
-Index: eglibc-2_16/libc/include/sys/bus.h
+Index: libc/include/sys/bus.h
 ===================================================================
---- /dev/null	1970-01-01 00:00:00.000000000 +0000
-+++ libc/include/sys/bus.h	2012-08-13 12:30:43.135507342 +0300
+--- /dev/null
++++ libc/include/sys/bus.h
 @@ -0,0 +1 @@
 +#include <socket/sys/bus.h>
-\ No newline at end of file
-Index: eglibc-2_16/libc/socket/Makefile
+Index: libc/socket/Makefile
 ===================================================================
---- libc/socket/Makefile.orig	2012-08-13 12:31:01.911507008 +0300
-+++ libc/socket/Makefile	2012-08-13 12:31:40.335506497 +0300
-@@ -20,7 +20,7 @@
+--- libc.orig/socket/Makefile
++++ libc/socket/Makefile
+@@ -21,7 +21,7 @@
  #
  subdir	:= socket
  
@@ -31,10 +30,10 @@ Index: eglibc-2_16/libc/socket/Makefile
  	   bits/socket2.h sys/socketvar.h net/if.h
  
  routines := accept bind connect getpeername getsockname getsockopt	\
-Index: eglibc-2_16/libc/socket/sys/bus.h
+Index: libc/socket/sys/bus.h
 ===================================================================
---- /dev/null	1970-01-01 00:00:00.000000000 +0000
-+++ libc/socket/sys/bus.h	2012-08-13 12:33:20.175505155 +0300
+--- /dev/null
++++ libc/socket/sys/bus.h
 @@ -0,0 +1,57 @@
 +/* Copyright (C) 1991, 1995, 1996, 2001 Free Software Foundation, Inc.
 +   This file is part of the GNU C Library.
@@ -93,12 +92,11 @@ Index: eglibc-2_16/libc/socket/sys/bus.h
 +__END_DECLS
 +
 +#endif /* sys/bus.h */
-\ No newline at end of file
-Index: eglibc-2_16/libc/socket/sys/socket.h
+Index: libc/socket/sys/socket.h
 ===================================================================
---- libc/socket/sys/socket.h.orig	2012-08-13 12:33:42.907504849 +0300
-+++ libc/socket/sys/socket.h	2012-08-13 12:34:25.603504284 +0300
-@@ -85,7 +85,8 @@
+--- libc.orig/socket/sys/socket.h
++++ libc/socket/sys/socket.h
+@@ -86,7 +86,8 @@ enum
    __SOCKADDR_ONETYPE (sockaddr_iso) \
    __SOCKADDR_ONETYPE (sockaddr_ns) \
    __SOCKADDR_ONETYPE (sockaddr_un) \
@@ -108,10 +106,10 @@ Index: eglibc-2_16/libc/socket/sys/socket.h
  
  # define __SOCKADDR_ONETYPE(type) struct type *__restrict __##type##__;
  typedef union { __SOCKADDR_ALLTYPES
-Index: eglibc-2_16/libc/sysdeps/unix/sysv/linux/bits/socket.h
+Index: libc/sysdeps/unix/sysv/linux/bits/socket.h
 ===================================================================
---- libc/sysdeps/unix/sysv/linux/bits/socket.h.orig	2012-08-13 12:35:10.003503683 +0300
-+++ libc/sysdeps/unix/sysv/linux/bits/socket.h	2012-08-13 12:36:20.055502745 +0300
+--- libc.orig/sysdeps/unix/sysv/linux/bits/socket.h	2012-07-27 12:51:44.788385057 +0200
++++ libc/sysdeps/unix/sysv/linux/bits/socket.h	2012-07-27 12:53:34.508771064 +0200
 @@ -80,7 +80,8 @@
  #define PF_CAIF		37	/* CAIF sockets.  */
  #define PF_ALG		38	/* Algorithm sockets.  */
@@ -122,3 +120,12 @@ Index: eglibc-2_16/libc/sysdeps/unix/sysv/linux/bits/socket.h
  
  /* Address families.  */
  #define	AF_UNSPEC	PF_UNSPEC
+@@ -124,6 +125,8 @@
+ #define AF_CAIF		PF_CAIF
+ #define AF_ALG		PF_ALG
+ #define AF_NFC		PF_NFC
++#define AF_NFC		PF_NFC
++#define AF_BUS		PF_BUS
+ #define	AF_MAX		PF_MAX
+ 
+ /* Socket level values.  Others are defined in the appropriate headers.
