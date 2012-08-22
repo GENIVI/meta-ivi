@@ -13,7 +13,7 @@ SRC_URI += "file://0001-net-bus-add-the-AF_BUS-socket-address-family.patch"
 #Binutils is gplv3 so we remove it from 
 PERFDEPENDS = "virtual/${MLPREFIX}libc:do_populate_sysroot ${MLPREFIX}elfutils:do_populate_sysroot"
 
-KBRANCH_vexpressa9 = "yocto/standard/beagleboard"
-SRCREV_machine_vexpressa9 ?= "6b4bf6173b0bd2d1619a8218bac66ebc4681dd35"
+KBRANCH_vexpressa9 = "standard/beagleboard"
+SRCREV_machine_vexpressa9 ?= "AUTOINC"
 COMPATIBLE_MACHINE_vexpressa9 = "vexpressa9"
 
