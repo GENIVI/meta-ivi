@@ -1,4 +1,7 @@
+FILESEXTRAPATHS := "${THISDIR}/${PN}"
 PRINC = "1"
+
+SRC_URI += "file://dbus_1.6-add-afbus-support.patch"
 
 # Don't register init scripts
 INITSCRIPT_NAME = ""
