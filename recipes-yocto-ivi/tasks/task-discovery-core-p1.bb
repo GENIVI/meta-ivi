@@ -13,8 +13,6 @@ ALLOW_EMPTY = "1"
 
 RDEPENDS_task-discovery-core-p1 = "\
     AudioManager \
-    dhcp-client \
-    dhcp-client-systemd \
     ntp \
     ntp-systemd \
     qt4-embedded \
