@@ -6,12 +6,12 @@ DEPENDS = "keyutils libgcrypt libpam"
 LICENSE = "GPLv2"
 LIC_FILES_CHKSUM = "file://COPYING;md5=8ca43cbc842c2336e835926c2166c28b"
 
-SRC_URI = "https://launchpad.net/ecryptfs/trunk/96/+download/ecryptfs-utils_96.orig.tar.gz \
+SRC_URI = "https://launchpad.net/ecryptfs/trunk/100/+download/ecryptfs-utils_100.orig.tar.gz \
            file://ecryptfs-fix-disable-nss.patch \
            file://ecryptfs.service \
           "
-SRC_URI[md5sum] = "4f92c9f6e8f62ac00ca7e2c4e480f1d7"
-SRC_URI[sha256sum] = "04c43b6e7a2f6b3644a24bcf718bfde6384e74bb4266c053ac78b9cc852f2c0c"
+SRC_URI[md5sum] = "efaa5eabbd368268874536036397f73b"
+SRC_URI[sha256sum] = "a31cb155483d44a59f1506ab53990ac36f81630e0cb3fd2f4dcba35fab614689"
 
 
 inherit autotools
