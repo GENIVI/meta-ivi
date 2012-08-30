@@ -10,7 +10,9 @@ DEPENDS = "virtual/libgl dbus libxcomposite"
 
 PR = "r1"
 
-SRCREV = "d066997c719141d9ff816cde3e94e06bfd8c1a72"
+SRCREV = "8b6a27f2f4ea24a0fcb8a375a4be1ec6d798d7ff"
+
+DEFAULT_PREFERENCE = "-1"
 
 SRC_URI = "git://git.genivi.org/srv/git/layer_management;protocol=git \
 	   file://point-to-internal-CMakeVersions.patch \
