@@ -16,6 +16,8 @@ LIC_FILES_CHKSUM = "file://COPYING;md5=815ca599c9df247a0c7f619bab123dad"
 SRC_URI = "git://git.genivi.org/srv/git/${PN};protocol=git;tag=c117ed6ce95229c5dfba33b890e7e7173218152e"
 PR = "r1"
 
+DEFAULT_PREFERENCE = "-1"
+
 DEPENDS = "glib-2.0 DLT-daemon systemd"
 
 S = "${WORKDIR}/git"
