@@ -30,7 +30,7 @@ RDEPENDS_pulseaudio-server = " \
     pulseaudio-module-suspend-on-idle \
     pulseaudio-module-${@base_contains('DISTRO_FEATURES', 'systemd', 'systemd-login', 'console-kit', d)} \
     pulseaudio-module-position-event-sounds \
-    pulseaudio-module-cork-music-on-phone "
+    pulseaudio-module-role-cork "
 
 do_configure_append () {
 	#udev_get_dev_path(), udev_get_sys_path(), udev_get_run_path()
