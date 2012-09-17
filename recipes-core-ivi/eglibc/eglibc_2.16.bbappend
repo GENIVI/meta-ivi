@@ -15,7 +15,7 @@ base_sbindir = "${sbindir}"
 sysconfdir = "/etc"
 
 # Reorder PACKAGES to have -dev at the end
-PACKAGES = "${PN}-dbg ${PN} catchsegv${PKGSUFFIX} sln${PKGSUFFIX} nscd${PKGSUFFIX} ldd${PKGSUFFIX} ${PN}-mtrace ${PN}-utils eglibc-extra-nss${PKGSUFFIX} eglibc-thread-db${PKGSUFFIX} ${PN}-pic ${PN}-doc libcidn${PKGSUFFIX} libmemusage${PKGSUFFIX} libsegfault${PKGSUFFIX} ${PN}-pcprofile libsotruss${PKGSUFFIX} ${PN}-dev ${PN}-staticdev"
+PACKAGES = "${PN}-dbg ${PN} catchsegv sln nscd ldd ${PN}-mtrace ${PN}-utils eglibc-extra-nss eglibc-thread-db ${PN}-pic ${PN}-doc libcidn libmemusage libsegfault ${PN}-pcprofile libsotruss ${PN}-dev ${PN}-staticdev"
 
 # New location of sln
-FILES_sln${PKGSUFFIX} = "${sbindir}/sln"
+FILES_sln$ = "${sbindir}/sln"
