@@ -22,5 +22,6 @@ do_install_append() {
 }
 
 FILES_${PN} += "${libdir}/systemd/system"
+RREPLACES_${PN}-module-exa = ""
 
 WARN_QA = "ldflags useless-rpaths rpaths staticdev"
