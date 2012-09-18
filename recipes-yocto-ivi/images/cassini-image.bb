@@ -1,4 +1,4 @@
-IMAGE_INSTALL = "task-core-boot-genivi ${ROOTFS_PKGMANAGE_BOOTSTRAP} ${CORE_IMAGE_EXTRA_INSTALL} task-core-p1 task-core-p2"
+IMAGE_INSTALL = "packagegroup-core-boot-genivi ${ROOTFS_PKGMANAGE_BOOTSTRAP} ${CORE_IMAGE_EXTRA_INSTALL} packagegroup-core-p1 packagegroup-core-p2"
 
 EXTRA_IMAGE_FEATURES = "debug-tweaks"
 EXTRA_IMAGEDEPENDS += "qemu-native qemu-helper-native"

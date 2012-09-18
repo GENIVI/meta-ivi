@@ -1,8 +1,8 @@
-DESCRIPTION = "Task for xserver and GPU drivers"
+DESCRIPTION = "Packagegroup for xserver and GPU drivers"
 LICENSE = "MIT"
 LIC_FILES_CHKSUM = "file://${IVI_COREBASE}/meta-ivi/COPYING.MIT;md5=3da9cfbcb788c80a0384361b4de20420"
 
-inherit task
+inherit packagegroup
 
 XSERVER ?= "xserver-xorg \
             xf86-input-evdev \

@@ -1,13 +1,15 @@
 # Copyright (C) 2007 OpenedHand Ltd.
 #
 
-DESCRIPTION = "Task for OpenedHand Poky - minimal bootable image"
+DESCRIPTION = "packagegroup for OpenedHand Poky - minimal bootable image"
 LICENSE = "MIT"
 LIC_FILES_CHKSUM = "file://${IVI_COREBASE}/meta-ivi/COPYING.MIT;md5=3da9cfbcb788c80a0384361b4de20420"
 PACKAGE_ARCH = "${MACHINE_ARCH}"
 DEPENDS = "virtual/kernel"
 ALLOW_EMPTY = "1"
 PR = "r9"
+
+inherit packagegroup
 
 #
 # Set by the machine configuration with packages essential for device bootup
@@ -23,12 +25,12 @@ VIRTUAL-RUNTIME_initscripts ?= "initscripts"
 VIRTUAL-RUNTIME_keymaps ?= "keymaps"
 
 PACKAGES = "\
-    task-core-boot-genivi \
-    task-core-boot-genivi-dbg \
-    task-core-boot-genivi-dev \
+    packagegroup-core-boot-genivi \
+    packagegroup-core-boot-genivi-dbg \
+    packagegroup-core-boot-genivi-dev \
 "
 
-RDEPENDS_task-core-boot-genivi = "\
+RDEPENDS_packagegroup-core-boot-genivi = "\
     base-files \
     base-passwd \
     busybox \
@@ -41,5 +43,5 @@ RDEPENDS_task-core-boot-genivi = "\
     ${VIRTUAL-RUNTIME_update-alternatives} \
     ${MACHINE_ESSENTIAL_EXTRA_RDEPENDS}"
 
-RRECOMMENDS_task-core-boot-genivi = "\
+RRECOMMENDS_packagegroup-core-boot-genivi = "\
     ${MACHINE_ESSENTIAL_EXTRA_RRECOMMENDS}"
