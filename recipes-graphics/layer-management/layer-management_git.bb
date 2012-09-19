@@ -10,7 +10,7 @@ DEPENDS = "virtual/libgl dbus libxcomposite"
 
 PR = "r1"
 
-SRCREV = "8b6a27f2f4ea24a0fcb8a375a4be1ec6d798d7ff"
+SRCREV = "86c2dc9ef367b52fd5d05b53cbad5e21b9ab042f"
 
 DEFAULT_PREFERENCE = "-1"
 
