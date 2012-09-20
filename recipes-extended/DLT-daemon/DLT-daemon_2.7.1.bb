@@ -17,7 +17,7 @@ LICENSE = "MPLv2"
 LIC_FILES_CHKSUM = "file://LICENSE.txt;md5=99ba60c3fad7eaf8c56bca6dd75cba09 \
 		    file://MPL.txt;md5=ccdb2761cef70c8b2612624c323f89dc"
 
-SRC_URI = "git://git.genivi.org/srv/git/DLT-daemon;protocol=git;tag=0944520b679040bf94476fa7bc3f957ecb65a0b9"
+SRC_URI = "git://git.genivi.org/srv/git/DLT-daemon;protocol=git;tag=82b1b748b207fe85db97089be5f78a5e9ab551d1"
 
 DEPENDS = ""
 
