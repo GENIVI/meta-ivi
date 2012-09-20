@@ -20,7 +20,7 @@ You can build an QEMU image including GENIVI P1 components using the following s
 
 3. Add meta-systemd path to COREBASE/build/conf/bblayers.conf file.
 
-4. Set MACHINE ?= "vexpressa9" in COREBASE/build/conf/local.conf file.
+4. Set MACHINE ??= "vexpressa9" in COREBASE/build/conf/local.conf file.
 
 5. Add BBMASK = "v4l-utils" in COREBASE/build/conf/local.conf file.
 
