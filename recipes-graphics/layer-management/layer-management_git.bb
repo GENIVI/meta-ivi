@@ -23,7 +23,7 @@ SRC_URI = "git://git.genivi.org/srv/git/layer_management;protocol=git \
           "
 # Needed this for imx6 boards to use precompiled EGL libraries
 python () {
-    if ((d.getVar("MACHINE", True) or "").find("imx6sabre") != -1):
+    if ((d.getVar("MACHINE", True) or "").find("imx6") != -1):
 	flags = d.getVar("OECMAKE_CXX_FLAGS", True)
 	flags += " -DLINUX"
 	d.setVar('OECMAKE_CXX_FLAGS', flags)
