@@ -9,7 +9,7 @@ DESCRIPTION = "This component provides a standardised log and trace interface, b
 		- the DLT test applications \
 		"
 HOMEPAGE = "https://www.genivi.org/"
-SECTION = ""console/utils"
+SECTION = "console/utils"
 
 inherit gzipnative
 
