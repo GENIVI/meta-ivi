@@ -4,7 +4,7 @@ After=X.service
 
 [Service]
 Type=simple
-Environment=LD_PRELOAD=/usr/lib/layermanager/communicator/libDBUSCommunicator.so:/usr/lib/libGLESv2.so.2
+ExecStartPre=/usr/bin/sleep 1
 ExecStart=/usr/bin/LayerManagerService
 TimeoutSec=2s
 
