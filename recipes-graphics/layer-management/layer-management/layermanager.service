@@ -3,7 +3,8 @@ Requires=X.service
 After=X.service
 
 [Service]
-Type=simple
+Type=dbus
+BusName=org.genivi.layermanagementservice
 ExecStartPre=/usr/bin/sleep 1
 ExecStart=/usr/bin/LayerManagerService
 TimeoutSec=2s
