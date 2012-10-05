@@ -5,7 +5,7 @@ SECTION = "multimedia"
 LICENSE = "MPLv2"
 LIC_FILES_CHKSUM = "file://LICENCE;md5=815ca599c9df247a0c7f619bab123dad"
 
-DEPENDS = "DLT-daemon sqlite3 dbus"
+DEPENDS = "dlt-daemon sqlite3 dbus"
 
 SRC_URI = "git://git.genivi.org/srv/git/AudioManager;protocol=git;tag=a9771fa406089c5c8b032e558afb84108d078c51 \
            file://AudioManager.service file://setup_amgr.sh"

@@ -18,7 +18,7 @@ PR = "r0"
 
 SRC_URI = "git://git.genivi.org/srv/git/${PN};protocol=git"
 
-DEPENDS = "glib-2.0 DLT-daemon systemd"
+DEPENDS = "glib-2.0 dlt-daemon systemd"
 
 S = "${WORKDIR}/git"
 
