@@ -12,11 +12,11 @@ SECTION = "base"
 LICENSE = "MPLv2"
 LIC_FILES_CHKSUM = "file://COPYING;md5=815ca599c9df247a0c7f619bab123dad"
 
-# tag 1.0.0 : c117ed6ce95229c5dfba33b890e7e7173218152e
-SRC_URI = "git://git.genivi.org/srv/git/${PN};protocol=git;tag=c117ed6ce95229c5dfba33b890e7e7173218152e"
-PR = "r1"
+# tag 1.0.1 : f109eab4393fcb55ecbb0a21d68436a5057a6b82
+SRC_URI = "git://git.genivi.org/srv/git/${PN};protocol=git;tag=f109eab4393fcb55ecbb0a21d68436a5057a6b82"
+PR = "r0"
 
-DEFAULT_PREFERENCE = "-1"
+#DEFAULT_PREFERENCE = "-1"
 
 DEPENDS = "glib-2.0 DLT-daemon systemd"
 
