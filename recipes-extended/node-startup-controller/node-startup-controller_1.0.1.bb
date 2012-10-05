@@ -18,7 +18,7 @@ PR = "r0"
 
 #DEFAULT_PREFERENCE = "-1"
 
-DEPENDS = "glib-2.0 DLT-daemon systemd"
+DEPENDS = "glib-2.0 dlt-daemon systemd"
 
 S = "${WORKDIR}/git"
 

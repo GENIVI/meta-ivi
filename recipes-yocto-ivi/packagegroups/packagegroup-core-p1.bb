@@ -13,10 +13,10 @@ ALLOW_EMPTY = "1"
 
 RDEPENDS_packagegroup-core-p1 = "\
     kernel-modules \
-    AudioManager \
-    AudioManager-systemd \
-    DLT-daemon \
-    DLT-daemon-systemd \
+    audiomanager \
+    audiomanager-systemd \
+    dlt-daemon \
+    dlt-daemon-systemd \
     alsa-lib  \
     alsa-utils \
     bluez4 \
