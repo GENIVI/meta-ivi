@@ -1,7 +1,7 @@
 # Base this image on generic IVI image
 include recipes-yocto-ivi/images/ivi-image.inc
 
-PV = "E-0.2"
+PV = "3.0.0"
 PR = "r1"
 
 IMAGE_INSTALL_append = " packagegroup-core-p1 packagegroup-core-p2"
