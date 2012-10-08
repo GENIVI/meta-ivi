@@ -7,8 +7,6 @@ inherit packagegroup
 
 PACKAGES = "\
     packagegroup-discovery-core-p1 \
-    packagegroup-discovery-core-p1-dbg \
-    packagegroup-discovery-core-p1-dev \
     "
 
 ALLOW_EMPTY = "1"

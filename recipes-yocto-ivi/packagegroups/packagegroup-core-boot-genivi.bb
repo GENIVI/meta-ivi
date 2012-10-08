@@ -26,8 +26,6 @@ VIRTUAL-RUNTIME_keymaps ?= "keymaps"
 
 PACKAGES = "\
     packagegroup-core-boot-genivi \
-    packagegroup-core-boot-genivi-dbg \
-    packagegroup-core-boot-genivi-dev \
 "
 
 RDEPENDS_packagegroup-core-boot-genivi = "\
