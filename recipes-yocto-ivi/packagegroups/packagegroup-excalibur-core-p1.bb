@@ -7,8 +7,6 @@ inherit packagegroup
 
 PACKAGES = "\
     packagegroup-excalibur-core-p1 \
-    packagegroup-excalibur-core-p1-dbg \
-    packagegroup-excalibur-core-p1-dev \
     "
 
 ALLOW_EMPTY = "1"
