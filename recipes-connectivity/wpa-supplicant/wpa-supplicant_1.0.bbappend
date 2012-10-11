@@ -1,7 +1,7 @@
 PRINC = "1"
 
 # Find "files" directory
-FILESEXTRAPATHS := "${THISDIR}/files"
+FILESEXTRAPATHS := "${THISDIR}/${PN}"
 
 SRC_URI_append = " file://wpa_supplicant.service"
 
