@@ -9,7 +9,7 @@ LICENSE = "MIT"
 
 # Check if image should be created
 IMAGE_SD = '${@base_contains("IMAGE_FSTYPES", "sdimg", "sd", "core", d)}'
-inherit ${IMAGE_SD}-image usr-merge buildhistory
+inherit ${IMAGE_SD}-image buildhistory
 
 IMAGE_ROOTFS_SIZE = "8192"
 
@@ -18,8 +18,5 @@ ROOTFS_POSTPROCESS_COMMAND += "remove_packaging_data_files ; "
 
 # Create SD image symlink correctly
 IMAGE_POSTPROCESS_COMMAND_imx53qsb += "rename_symlink ; "
-
-# /usr Merge
-ROOTFS_POSTPROCESS_COMMAND += "usr_merge ; "
 
 BUILDHISTORY_COMMIT = "1"
