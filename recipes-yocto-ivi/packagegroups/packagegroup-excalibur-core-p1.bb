@@ -12,7 +12,6 @@ PACKAGES = "\
 ALLOW_EMPTY = "1"
 
 RDEPENDS_packagegroup-excalibur-core-p1 = "\
-    AudioManager \
     node-startup-controller \
     obex-client \
     obexd \
