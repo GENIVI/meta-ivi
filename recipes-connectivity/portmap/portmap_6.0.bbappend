@@ -1,19 +1,16 @@
-PRINC = "2"
+PRINC = "3"
 
 # Find local "files" and "${PN}" directory
 FILESEXTRAPATHS := "${THISDIR}/${PN}"
 
+inherit systemd
+
+SYSTEMD_PACKAGES = "${PN}-systemd"
+SYSTEMD_SERVICE = "portmap.service"
+SYSTEMD_AUTO_ENABLE = "disable"
+
 SRC_URI_append = " file://portmap.service \
                  "
 
-PACKAGES =+ "${PN}-systemd"
-
-FILES_${PN}-systemd = "${libdir}/systemd/system/"
-
 INITSCRIPT_NAME = ""
 INITSCRIPT_PARAMS = ""
-
-do_install_append() {
-        mkdir -p ${D}/${libdir}/systemd/system
-        install -m 644 ${WORKDIR}/portmap.service ${D}/${libdir}/systemd/system/
-}
