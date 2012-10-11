@@ -19,7 +19,6 @@ SRC_URI = "git://git.genivi.org/srv/git/layer_management;protocol=git \
 	   file://include-unistd-for-usleep-in-OpenGLES2App.patch \
 	   file://include-unistd-for-alarm-in-example.patch \
 	   file://layermanager.service \
-	   file://layermanager_demo.service \
           "
 # Needed this for imx6 boards to use precompiled EGL libraries
 python () {
