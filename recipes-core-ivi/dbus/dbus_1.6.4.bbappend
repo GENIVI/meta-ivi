@@ -11,6 +11,3 @@ INITSCRIPT_PARAMS = ""
 do_install_append() {
 	rm -rf ${D}${sysconfdir}/init.d
 }
-
-systemd_unitdir = "${libdir}/systemd"
-
