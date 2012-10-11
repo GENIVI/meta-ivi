@@ -1,0 +1,31 @@
+From 70f09301d5d47577cfa4fe70c7b3cba336529cdf Mon Sep 17 00:00:00 2001
+From: Yin Kangkai <kangkai.yin@intel.com>
+Date: Fri, 24 Aug 2012 08:52:58 +0000
+Subject: journal: add HAVE_XZ check to avoid build failure
+
+Without this, build fail with --disable-xz or xz not installed.
+---
+diff --git a/src/journal/journal-verify.c b/src/journal/journal-verify.c
+index 2401293..5d134bd 100644
+--- a/src/journal/journal-verify.c
++++ b/src/journal/journal-verify.c
+@@ -63,6 +63,7 @@ static int journal_file_object_verify(JournalFile *f, Object *o) {
+                 h1 = le64toh(o->data.hash);
+ 
+                 if (o->object.flags & OBJECT_COMPRESSED) {
++#ifdef HAVE_XZ
+                         void *b = NULL;
+                         uint64_t alloc = 0, b_size;
+ 
+@@ -73,6 +74,9 @@ static int journal_file_object_verify(JournalFile *f, Object *o) {
+ 
+                         h2 = hash64(b, b_size);
+                         free(b);
++#else
++                        return -EPROTONOSUPPORT;
++#endif
+                 } else
+                         h2 = hash64(o->data.payload, le64toh(o->object.size) - offsetof(Object, data.payload));
+ 
+--
+cgit v0.9.0.2-2-gbebe
