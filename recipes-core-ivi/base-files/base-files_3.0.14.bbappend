@@ -59,10 +59,3 @@ do_install () {
 
 	ln -sf /proc/mounts ${D}${sysconfdir}/mtab
 }
-
-# In usr merge case we don't need /sbin, /bin and /lib as these will be symlinks
-do_install_append () {
-	rmdir ${D}/bin
-	rmdir ${D}/sbin
-	rmdir ${D}/lib
-}
