@@ -1,5 +1,3 @@
-LICENSE = "MIT"
-
 # Base this image on generic IVI image
 include recipes-yocto-ivi/images/ivi-image.inc
 
