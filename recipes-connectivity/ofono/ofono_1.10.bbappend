@@ -1,4 +1,4 @@
-PRINC = "1"
+PRINC = "2"
 
 # Depend on systemd if DISTRO_FEATURES contains systemd
 DEPENDS += " ${@base_contains('DISTRO_FEATURES', 'systemd', 'systemd', '', d)} "
@@ -16,7 +16,7 @@ do_install_append() {
 }
 
 PACKAGES =+ " ${PN}-systemd "
-FILES_${PN}-systemd += "${libdir}/systemd/system"
+FILES_${PN}-systemd += "${systemd_unitdir}/system"
 
 # Systemd service needs systemd
 RDEPENDS_${PN}-systemd = "systemd"
