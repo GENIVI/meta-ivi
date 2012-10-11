@@ -1,14 +1,10 @@
-PRINC = "2"
+PRINC = "3"
 
-DEPENDS += " ${@base_contains('DISTRO_FEATURES', 'systemd', 'systemd', '', d)}"
+inherit systemd
 
-PACKAGES =+ "${PN}-systemd"
-
-FILES_${PN}-systemd = "${libdir}/systemd/system/"
-FILES_${PN}-dbg += " ${libexecdir}/udev/.debug/ "
-
-# Systemd service needs systemd
-RDEPENDS_${PN}-systemd = "systemd"
+SYSTEMD_PACKAGES = "${PN}-systemd"
+SYSTEMD_SERVICE = "bluetooth.service"
+SYSTEMD_AUTO_ENABLE = "disable"
 
 do_configure_append () {
 	#udev_get_dev_path(), udev_get_sys_path(), udev_get_run_path()
