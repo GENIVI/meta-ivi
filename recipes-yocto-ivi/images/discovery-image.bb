@@ -1,20 +1,10 @@
-IMAGE_INSTALL = "packagegroup-core-boot-genivi ${ROOTFS_PKGMANAGE_BOOTSTRAP} ${CORE_IMAGE_EXTRA_INSTALL} packagegroup-core-p1 packagegroup-core-p2 packagegroup-discovery-core-p1"
+# Base this image on generic IVI image
+include recipes-yocto-ivi/images/ivi-image.inc
 
-EXTRA_IMAGE_FEATURES = "debug-tweaks"
-EXTRA_IMAGEDEPENDS += "qemu-native qemu-helper-native"
+PV = "2.0.2"
+PR = "r0"
 
-IMAGE_LINGUAS = " "
+IMAGE_INSTALL_append = " packagegroup-core-p1 packagegroup-core-p2"
 
-LICENSE = "MIT"
-
-# Check if image should be created
-IMAGE_SD = '${@base_contains("IMAGE_FSTYPES", "sdimg", "sd", "core", d)}'
-inherit ${IMAGE_SD}-image
-
-IMAGE_ROOTFS_SIZE = "8192"
-
-# remove not needed ipkg informations
-ROOTFS_POSTPROCESS_COMMAND += "remove_packaging_data_files ; "
-
-# Create SD image symlink currectly
-IMAGE_POSTPROCESS_COMMAND_imx53qsb += "rename_symlink ; "
+# Add image specific packages
+IMAGE_INSTALL_append = " packagegroup-discovery-core-p1"
