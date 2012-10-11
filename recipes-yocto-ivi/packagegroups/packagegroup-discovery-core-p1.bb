@@ -14,7 +14,6 @@ PACKAGES = "\
 ALLOW_EMPTY = "1"
 
 RDEPENDS_packagegroup-discovery-core-p1 = "\
-    AudioManager \
     ntp \
     ntp-systemd \
     qt4-embedded \
