@@ -1,7 +1,14 @@
+PRINC = "1"
+
 LIB_DEPS := "${@oe_filter_out('mesa-dri', '${LIB_DEPS}', d)}"
 LIB_DEPS += "virtual/libgl"
 
 FILESEXTRAPATHS := "${THISDIR}/${PN}"
+
+inherit systemd
+SYSTEMD_PACKAGES = "${PN}-systemd"
+SYSTEMD_SERVICE = "X.service"
+
 SRC_URI_append = " file://X.service \
                  "
 
@@ -16,12 +23,6 @@ python () {
 	    d.setVar('RDEPENDS_xserver-xorg', "xserver-xorg-extension-glx")
 }
 
-do_install_append() {
-    install -d ${D}/${libdir}/systemd/system
-    install -m 0755 ${WORKDIR}/X.service ${D}/${libdir}/systemd/system
-}
-
-FILES_${PN} += "${libdir}/systemd/system"
 RREPLACES_${PN}-module-exa = ""
 
 WARN_QA = "ldflags useless-rpaths rpaths staticdev"
