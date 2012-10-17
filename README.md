@@ -15,7 +15,7 @@ URI: git://git.yoctoproject.org/poky
 branch: master
 revision: HEAD
 
-URI: git://git.openembedded.org/openembedded-core
+URI: git://git.openembedded.org/meta-openembedded
 branch: master
 revision: HEAD
 
@@ -28,13 +28,13 @@ You can build an QEMU image including GENIVI P1 components using the following s
 
 2. Add meta-ivi path to COREBASE/build/conf/bblayers.conf file.
 
-3. Add meta-oe/meta-systemd path to COREBASE/build/conf/bblayers.conf file.
+3. Add meta-openembedded/meta-systemd path to COREBASE/build/conf/bblayers.conf file.
 
-4. Add meta-oe/meta-oe path to COREBASE/build/conf/bblayers.conf file.
+4. Add meta-openembedded/meta-oe path to COREBASE/build/conf/bblayers.conf file.
 
 5. Set MACHINE ??= "vexpressa9" in COREBASE/build/conf/local.conf file.
 
-6. BBMASK = "meta-systemd/meta-efl|meta-systemd/meta-gnome|meta-systemd/meta-multimedia" in COREBASE/build/conf/local.conf file.
+6. Add BBMASK = "meta-systemd/meta-efl|meta-systemd/meta-gnome|meta-systemd/meta-multimedia" in COREBASE/build/conf/local.conf file.
 
 7. Add INCOMPATIBLE_LICENSE = "GPLv3" in COREBASE/build/conf/local.conf file.
 
@@ -46,12 +46,14 @@ You can build an QEMU image including GENIVI P1 components using the following s
    - copy meta-ivi/scripts/dl_pkgs.sh into COREBASE/build/conf/
    $ ./conf/dl_pkgs.sh
 
-11. Build discovery-image/excalibur-image including GENIVI 2.0 (Discovery/Excalibur) P1 components
+11. Build discovery-image/excalibur-image including GENIVI 2.0/3.0 (Discovery/Excalibur) P1 components
    $ bitbake discovery-image
 
    or
 
    $ bitbake excalibur-image
+
+   (Please make sure you git checkout on either denzil or 3.0 branch before you bitbake discovery-image or excalibur-image respectively)
 
 12. Run the emulator:
    $ PATH_TO_META_IVI/meta-ivi/scripts/runqemu discovery-image vexpressa9
