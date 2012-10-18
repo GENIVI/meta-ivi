@@ -13,16 +13,21 @@ Layer dependencies
 
 URI: git://git.yoctoproject.org/poky
 branch: master
-revision: HEAD
+revision: d9b7d6b4cd6b959b3998ddfec9775b64ffa61fe0
 
 URI: git://git.openembedded.org/meta-openembedded
 branch: master
-revision: HEAD
+revision: 83448c4b318ce60a54aae24a9a247456fa94caaf
+
+
+Using the above git sha's and master meta-ivi, bitbaking excalibur-image is known to work (the excalibur-image build is Genivi 3.0 compliant).
+For creating specific Genivi compliant images, please make sure you git checkout on the desired meta-ivi branch and follow the build instructions 
+located in the README.md file.
 
 Build a QEMU (ARMv7a) image including GENIVI P1 components
 ----------------------------------------------------------
 
-You can build an QEMU image including GENIVI P1 components using the following steps:
+You can build a QEMU image including GENIVI P1 components using the following steps:
 
 1. Run the following command: $ source poky/oe-init-build-env
 
@@ -46,18 +51,10 @@ You can build an QEMU image including GENIVI P1 components using the following s
    - copy meta-ivi/scripts/dl_pkgs.sh into COREBASE/build/conf/
    $ ./conf/dl_pkgs.sh
 
-11. Build discovery-image/excalibur-image including GENIVI 2.0/3.0 (Discovery/Excalibur) P1 components
-   $ bitbake discovery-image
-
-   or
+11. Build excalibur-image including GENIVI 3.0 (Excalibur) P1 components
 
    $ bitbake excalibur-image
 
-   (Please make sure you git checkout on either denzil or 3.0 branch before you bitbake discovery-image or excalibur-image respectively)
-
 12. Run the emulator:
-   $ PATH_TO_META_IVI/meta-ivi/scripts/runqemu discovery-image vexpressa9
-
-   or
 
    $ PATH_TO_META_IVI/meta-ivi/scripts/runqemu excalibur-image vexpressa9
