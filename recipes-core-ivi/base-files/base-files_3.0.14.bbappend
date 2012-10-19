@@ -1,0 +1,3 @@
+PRINC = "1"
+
+FILESEXTRAPATHS := "${THISDIR}/${PN}"
