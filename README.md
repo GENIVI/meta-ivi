@@ -13,7 +13,7 @@ Layer dependencies
 
 URI: git://git.yoctoproject.org/poky
 branch: master
-revision: d9b7d6b4cd6b959b3998ddfec9775b64ffa61fe0
+revision: ee8d3fb19fb0132812dec2bde1dfb7026deb642d
 
 URI: git://git.openembedded.org/meta-openembedded
 branch: master
