@@ -13,11 +13,11 @@ Layer dependencies
 
 URI: git://git.yoctoproject.org/poky
 branch: master
-revision: ee8d3fb19fb0132812dec2bde1dfb7026deb642d
+revision: caba9cbfce09f19eb27f4c6615c0c5c48e1a2952
 
 URI: git://git.openembedded.org/meta-openembedded
 branch: master
-revision: 83448c4b318ce60a54aae24a9a247456fa94caaf
+revision: 2c1f670d731fb1c4a2167b110e9ae1c3288a8108
 
 
 Using the above git sha's and master meta-ivi, bitbaking excalibur-image is known to work (the excalibur-image build is Genivi 3.0 compliant).
