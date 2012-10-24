@@ -1,6 +1,6 @@
 PRINC = "1"
 
-FILESEXTRAPATHS := "${THISDIR}/${PN}"
+FILESEXTRAPATHS_append := ":${THISDIR}/${PN}"
 
 # xz is GPLv3
 # Remove this package from depends and configure
