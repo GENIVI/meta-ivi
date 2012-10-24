@@ -13,7 +13,6 @@ LICENSE = "MPLv2"
 LIC_FILES_CHKSUM = "file://COPYING;md5=815ca599c9df247a0c7f619bab123dad"
 
 # tag 1.0.1 : f109eab4393fcb55ecbb0a21d68436a5057a6b82
-#DEFAULT_PREFERENCE = "-1"
 SRC_URI = "git://git.genivi.org/srv/git/${PN};protocol=git;tag=f109eab4393fcb55ecbb0a21d68436a5057a6b82 \
            file://use-systemd-unit-dir.patch"
 PR = "r1"
