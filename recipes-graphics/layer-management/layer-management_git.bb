@@ -8,13 +8,13 @@ LIC_FILES_CHKSUM = "file://LICENSE.txt;md5=249d3578d6bba1bb946148d367a28080"
 
 DEPENDS = "virtual/libgl dbus libxcomposite"
 
-PR = "r1"
+PR = "r2"
 
 SRCREV = "86c2dc9ef367b52fd5d05b53cbad5e21b9ab042f"
 
 DEFAULT_PREFERENCE = "-1"
 
-SRC_URI = "git://git.genivi.org/srv/git/layer_management;protocol=git \
+SRC_URI = "git://git.projects.genivi.org/layer_management.git;protocol=git \
 	   file://point-to-internal-CMakeVersions.patch \
 	   file://include-unistd-for-usleep-in-OpenGLES2App.patch \
 	   file://include-unistd-for-alarm-in-example.patch \
