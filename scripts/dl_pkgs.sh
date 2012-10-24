@@ -20,8 +20,8 @@
 # OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
 # THE SOFTWARE.
 
-GIT_PACKAGES=(layer-management DLT-daemon AudioManager node-startup-controller)
-GIT_URLS=(https://git.genivi.org/srv/git/layer_management https://git.genivi.org/srv/git/DLT-daemon https://git.genivi.org/srv/git/AudioManager https://git.genivi.org/srv/git/node-startup-controller)
+GIT_PACKAGES=(node-startup-controller)
+GIT_URLS=(https://git.genivi.org/srv/git/node-startup-controller)
 
 if [ -z "$BUILDDIR" ];
 then
