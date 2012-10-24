@@ -11,7 +11,7 @@ DESCRIPTION = "This component provides a standardised log and trace interface, b
 HOMEPAGE = "https://www.genivi.org/"
 SECTION = "console/utils"
 
-PR = "r2"
+PR = "r3"
 
 inherit gzipnative
 
@@ -26,13 +26,8 @@ S = "${WORKDIR}/git"
 inherit autotools gettext cmake
 
 FILES_${PN}-doc += "/usr/share/*"
-FILES_${PN}-systemd += "${libdir}/systemd/system/"
+FILES_${PN}-systemd += "${systemd_unitdir}/system/"
 
 PACKAGES =+ "${PN}-systemd"
 
 EXTRA_OECMAKE = "-DWITH_SYSTEMD=ON"
-
-do_install_append() {
-         mv ${D}${base_libdir}/systemd ${D}${libdir}
-         rm -rf ${D}${base_libdir}
-}
