@@ -1,0 +1,26 @@
+Index: git/node-startup-controller/Makefile.am
+===================================================================
+--- git.orig/node-startup-controller/Makefile.am	2012-10-24 17:46:02.781473364 +0300
++++ git/node-startup-controller/Makefile.am	2012-10-24 17:46:36.329472165 +0300
+@@ -79,7 +79,7 @@
+ 
+ dbus_service_DATA = $(dbus_service_in_files:.service.in=.service)
+ 
+-systemd_servicedir = $(libdir)/systemd/system
++systemd_servicedir = $(systemd_unitdir)/system
+ 
+ systemd_service_in_files =						\
+ 	node-startup-controller.service.in
+Index: git/nsm-dummy/Makefile.am
+===================================================================
+--- git.orig/nsm-dummy/Makefile.am	2012-10-24 17:46:16.925472859 +0300
++++ git/nsm-dummy/Makefile.am	2012-10-24 17:46:47.705471753 +0300
+@@ -56,7 +56,7 @@
+ 
+ dbus_service_DATA = $(dbus_service_in_files:.service.in=.service)
+ 
+-systemd_servicedir = ${libdir}/systemd/system
++systemd_servicedir = $(systemd_unitdir)/system
+ 
+ systemd_service_in_files =						\
+ 	nsm-dummy.service.in
