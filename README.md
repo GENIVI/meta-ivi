@@ -48,8 +48,7 @@ You can build a QEMU image including GENIVI P1 components using the following st
 9. Optional: In COREBASE/build/conf/local.conf file, uncomment BB_NUMBER_THREADS = "4" and PARALLEL_MAKE = "-j 4" if you have a quad core machine.
 
 10. Download the GENIVI specific open source component from git.genivi.org (you need to have your GENIVI credential ready):
-   - copy meta-ivi/scripts/dl_pkgs.sh into COREBASE/build/conf/
-   $ ./conf/dl_pkgs.sh
+   $ <meta-ivi-layer-path>/scripts/dl_pkgs.sh
 
 11. Build excalibur-image including GENIVI 3.0 (Excalibur) P1 components
 
