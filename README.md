@@ -13,11 +13,11 @@ Layer dependencies
 
 URI: git://git.yoctoproject.org/poky
 branch: master
-revision: caba9cbfce09f19eb27f4c6615c0c5c48e1a2952
+revision: d93898b2c530681362e42d1b0477fa593a625046
 
 URI: git://git.openembedded.org/meta-openembedded
 branch: master
-revision: 2c1f670d731fb1c4a2167b110e9ae1c3288a8108
+revision: 20506c8cb4369a219ecfa892065917b930b910a5
 
 
 Using the above git sha's and master meta-ivi, bitbaking excalibur-image is known to work (the excalibur-image build is Genivi 3.0 compliant).
@@ -39,7 +39,8 @@ You can build a QEMU image including GENIVI P1 components using the following st
 
 5. Set MACHINE ??= "vexpressa9" in COREBASE/build/conf/local.conf file.
 
-6. Add BBMASK = "meta-systemd/meta-efl|meta-systemd/meta-gnome|meta-systemd/meta-multimedia" in COREBASE/build/conf/local.conf file.
+6. Add BBMASK = "meta-systemd/meta-efl|meta-systemd/meta-gnome|meta-systemd/meta-multimedia|meta-openembedded/meta-gnome/recipes-gnome"
+ in COREBASE/build/conf/local.conf file.
 
 7. Add INCOMPATIBLE_LICENSE = "GPLv3" in COREBASE/build/conf/local.conf file.
 
