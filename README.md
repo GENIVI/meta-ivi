@@ -13,12 +13,12 @@ Layer dependencies
 ------------------
 
 URI: git://git.yoctoproject.org/poky
-branch: master
-revision: HEAD
+branch: danny
+revision: 27af23e65f63b41962a7cfddba9e9372d5212396
 
-URI: git://git.yoctoproject.org/meta-systemd
-branch: 3.0
-revision: bb3aaa8c69a4565d7f1d483b5493a2bc85346fd0
+URI: git://git.openembedded.org/meta-openembedded
+branch: master
+revision: 1571c2c566c51799eceea2aabe13d1c3116f36b3
 
 
 Build a QEMU (ARMv7a) image including GENIVI P1 components
