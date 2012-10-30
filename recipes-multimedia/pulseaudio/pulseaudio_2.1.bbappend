@@ -1,4 +1,7 @@
-PRINC = "2"
+PRINC := "${@int(PRINC) + 3}"
+
+# Remove gconf at it triggers a GPLv3 dependency
+DEPENDS := "${@oe_filter_out('gconf', '${DEPENDS}', d)}"
 
 DEPENDS += "${@base_contains('DISTRO_FEATURES', 'systemd', 'systemd', '', d)}"
 
