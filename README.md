@@ -34,7 +34,7 @@ You can build an QEMU image including GENIVI P1 components using the following s
 
 4. Set MACHINE ??= "vexpressa9" in COREBASE/build/conf/local.conf file.
 
-5. Add BBMASK = "v4l-utils" in COREBASE/build/conf/local.conf file.
+5. Add BBMASK = "meta-systemd/meta-efl|meta-systemd/meta-gnome|meta-systemd/meta-multimedia|meta-openembedded/meta-gnome/recipes-gnome|meta-systemd/meta-oe/recipes-support".
 
 6. Add INCOMPATIBLE_LICENSE = "GPLv3" in COREBASE/build/conf/local.conf file.
 
