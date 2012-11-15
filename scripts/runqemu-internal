@@ -338,26 +338,6 @@ if [ "$MACHINE" = "beagleboard" -a "$SD_NEEDED" = "y" ]; then
 else
     echo "No need to create image."
 fi
-if [ "$MACHINE" = "vexpressa9" -a "$SD_NEEDED" = "y" ]; then
-    echo "Creating vexpress A9 SD image ..."
-    QEMU_IMG=qemu-img
-    QEMUIMG=`which $QEMU_IMG 2> /dev/null`
-    if [ ! -x "$QEMUIMG" ]; then
-	echo "Error: No QEMUIMG binary '$QEMU_IMG' could be found."    
-	cleanup
-	return
-    fi
-    CREATE_SD_SCRIPT=$(dirname $0)/create_img_vexpress-a9.sh
-    echo "IMGNAME $IMGNAME"
-    echo "QEMUIMG $QEMUIMG"
-    $CREATE_SD_SCRIPT $IMGNAME $KERNEL $ROOTFS $QEMUIMG
-    if [ $? != 0 ]; then
-	cleanup
-	return
-    fi
-else
-    echo "No need to create image."
-fi
 
 if [ "$FSTYPE" != "nfs" -a ! -f "$ROOTFS" ]; then
     echo "Error: Image file $ROOTFS doesn't exist"
