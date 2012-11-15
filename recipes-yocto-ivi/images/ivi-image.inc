@@ -7,9 +7,7 @@ IMAGE_LINGUAS = " "
 
 LICENSE = "MIT"
 
-# Check if image should be created
-IMAGE_SD = '${@base_contains("IMAGE_FSTYPES", "sdimg", "sd", "core", d)}'
-inherit ${IMAGE_SD}-image buildhistory
+inherit core-image buildhistory
 
 IMAGE_ROOTFS_SIZE = "8192"
 
