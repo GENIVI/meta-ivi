@@ -1,14 +1,4 @@
-PRINC = "3"
+PRINC := "${@int(PRINC) + 1}"
 
-# Do't register init scripts
-INITSCRIPT_PACKAGES = ""
-
-INITSCRIPT_NAME_${PN}-httpd = ""
-INITSCRIPT_NAME_${PN}-syslog = ""
-INITSCRIPT_NAME_${PN}-mdev = ""
-INITSCRIPT_PARAMS_${PN}-mdev = ""
-INITSCRIPT_NAME_${PN}-udhcpd = ""
-INITSCRIPT_NAME_${PN}-udhcpc = ""
-
-# Don' install syslog and udhcpc
-RRECOMMENDS_${PN} = ""
+FILESEXTRAPATHS := "${THISDIR}/${PN}-${PV}"
+SRC_URI += "file://defconfig"
