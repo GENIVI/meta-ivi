@@ -7,7 +7,7 @@ LIC_FILES_CHKSUM = "file://${IVI_COREBASE}/meta-ivi/COPYING.MIT;md5=3da9cfbcb788
 PACKAGE_ARCH = "${MACHINE_ARCH}"
 DEPENDS = "virtual/kernel"
 ALLOW_EMPTY = "1"
-PR = "r9"
+PR = "r10"
 
 inherit packagegroup
 
@@ -39,7 +39,9 @@ RDEPENDS_packagegroup-core-boot-genivi = "\
     ${VIRTUAL-RUNTIME_init_manager} \
     ${VIRTUAL-RUNTIME_dev_manager} \
     ${VIRTUAL-RUNTIME_update-alternatives} \
-    ${MACHINE_ESSENTIAL_EXTRA_RDEPENDS}"
+    ${MACHINE_ESSENTIAL_EXTRA_RDEPENDS} \
+    procps \
+    "
 
 RRECOMMENDS_packagegroup-core-boot-genivi = "\
     ${MACHINE_ESSENTIAL_EXTRA_RRECOMMENDS}"
