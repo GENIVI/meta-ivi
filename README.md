@@ -18,7 +18,7 @@ revision: 27af23e65f63b41962a7cfddba9e9372d5212396
 
 URI: git://git.openembedded.org/meta-openembedded
 branch: master
-revision: 36f85eee821565c5bc197e7215ba13411a5605b4
+revision: 5b427f6daae0caa7439256ecf35a877f1cb2dbed
 
 
 Build a QEMU (ARMv7a) image including GENIVI P1 components
@@ -36,7 +36,7 @@ You can build an QEMU image including GENIVI P1 components using the following s
 
 5. Set MACHINE ??= "vexpressa9" or MACHINE ??= "qemux86" in COREBASE/build/conf/local.conf file to build for emulated vexpressa9 or x86.
 
-6. Add BBMASK = "meta-systemd/meta-efl|meta-systemd/meta-gnome|meta-systemd/meta-multimedia|meta-openembedded/meta-gnome/recipes-gnome|meta-systemd/meta-oe/recipes-support" 
+6. Add BBMASK = "meta-systemd/meta-efl|meta-systemd/meta-gnome|meta-systemd/meta-multimedia|meta-openembedded/meta-gnome/recipes-gnome|meta-systemd/meta-oe/recipes-support|meta-systemd/meta-networking" 
 in COREBASE/build/conf/local.conf file.
 
 7. Add INCOMPATIBLE_LICENSE = "GPLv3" in COREBASE/build/conf/local.conf file.
