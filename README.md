@@ -38,24 +38,26 @@ You can build a QEMU image including GENIVI P1 components using the following st
 
 5. Add meta-openembedded/meta-gnome path to COREBASE/build/conf/bblayers.conf file.
 
-6. Set MACHINE ??= "vexpressa9" or MACHINE ??= "qemux86" in COREBASE/build/conf/local.conf file to build for emulated vexpressa9 or x86.
+6. Add meta-openembedded/meta-networking path to COREBASE/build/conf/bblayers.conf file.
 
-7. Add BBMASK = "meta-systemd/meta-efl|meta-systemd/meta-gnome|meta-systemd/meta-multimedia|meta-systemd/meta-oe/recipes-support|meta-gnome/recipes-gnome"
+7. Set MACHINE ??= "vexpressa9" or MACHINE ??= "qemux86" in COREBASE/build/conf/local.conf file to build for emulated vexpressa9 or x86.
+
+8. Add BBMASK = "meta-systemd/meta-efl|meta-systemd/meta-gnome|meta-systemd/meta-multimedia|meta-systemd/meta-oe/recipes-support|meta-gnome/recipes-gnome"
  in COREBASE/build/conf/local.conf file.
 
-8. Add INCOMPATIBLE_LICENSE = "GPLv3" in COREBASE/build/conf/local.conf file.
+9. Add INCOMPATIBLE_LICENSE = "GPLv3" in COREBASE/build/conf/local.conf file.
 
-9. Set DISTRO ?= "poky-ivi-systemd" in COREBASE/build/conf/local.conf file.
+10. Set DISTRO ?= "poky-ivi-systemd" in COREBASE/build/conf/local.conf file.
 
-10. Optional: In COREBASE/build/conf/local.conf file, uncomment BB_NUMBER_THREADS = "4" and PARALLEL_MAKE = "-j 4" if you have a quad core machine.
+11. Optional: In COREBASE/build/conf/local.conf file, uncomment BB_NUMBER_THREADS = "4" and PARALLEL_MAKE = "-j 4" if you have a quad core machine.
 
-11. Download the GENIVI specific open source component from git.genivi.org (you need to have your GENIVI credential ready):
+12. Download the GENIVI specific open source component from git.genivi.org (you need to have your GENIVI credential ready):
    $ <meta-ivi-layer-path>/scripts/dl_pkgs.sh
 
-12. Build excalibur-image including GENIVI 3.0 (Excalibur) P1 components
+13. Build excalibur-image including GENIVI 3.0 (Excalibur) P1 components
 
    $ bitbake excalibur-image
 
-13. Run the emulator:
+14. Run the emulator:
 
    $ PATH_TO_META_IVI/meta-ivi/scripts/runqemu excalibur-image vexpressa9
