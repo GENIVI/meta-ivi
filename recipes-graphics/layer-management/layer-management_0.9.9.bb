@@ -3,17 +3,16 @@ HOMEPAGE = "https://www.genivi.org/"
 SECTION = "environment/base"
 
 LICENSE = "Apache-2.0"
-LIC_FILES_CHKSUM = "file://LICENSE.txt;md5=249d3578d6bba1bb946148d367a28080"
+LIC_FILES_CHKSUM = "file://LICENSE.txt;md5=071e6b9a5eb9fc5868edf57ce153e5b9"
 
 DEPENDS = "virtual/libgl dbus libxcomposite"
 
 PR = "r0"
 
 SRC_URI = " \
-	git://git.projects.genivi.org/layer_management.git;protocol=git;tag=ivi-layer-management_version_0_9_8 \
+	git://git.projects.genivi.org/layer_management.git;protocol=git;tag=ivi-layer-management_version_0_9_9 \
 	file://point-to-internal-CMakeVersions.patch \
 	file://include-unistd-for-usleep-in-OpenGLES2App.patch \
-	file://include-unistd-for-alarm-in-example.patch \
 	file://layermanager.service \
 	"
 
