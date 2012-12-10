@@ -14,11 +14,11 @@ Layer dependencies
 
 URI: git://git.yoctoproject.org/poky
 branch: danny
-revision: 27af23e65f63b41962a7cfddba9e9372d5212396
+revision: 24af2693697ac38070f9702a9e6c4527989379ba
 
 URI: git://git.openembedded.org/meta-openembedded
-branch: master
-revision: 5b427f6daae0caa7439256ecf35a877f1cb2dbed
+branch: danny
+revision: 40d26999e070ce21ca2ec474ca2c482c28893a89
 
 
 Build a QEMU (ARMv7a) image including GENIVI P1 components
@@ -54,4 +54,8 @@ in COREBASE/build/conf/local.conf file.
 
 12. Run the emulator:
 
+   for qemu vexpressa9:
    $ PATH_TO_META_IVI/meta-ivi/scripts/runqemu excalibur-image vexpressa9
+
+   for qemux86:
+   $ PATH_TO_POKY/poky/scripts/runqemu excalibur-image qemux86
