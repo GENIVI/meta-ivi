@@ -60,4 +60,8 @@ You can build a QEMU image including GENIVI P1 components using the following st
 
 14. Run the emulator:
 
+   for qemu vexpressa9:
    $ PATH_TO_META_IVI/meta-ivi/scripts/runqemu excalibur-image vexpressa9
+
+   for qemux86:
+   $ PATH_TO_POKY/poky/scripts/runqemu excalibur-image qemux86
