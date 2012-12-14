@@ -9,17 +9,17 @@ Please see the MAINTAINERS file for information on contacting the maintainers
 of this layer, as well as instructions for submitting patches.
 
 You may in addition influence future meta-ivi development. For that take a
-look at the meta-ivi Trello board at https://trello.com/b/HplBZa2l and vote.
+look at the [meta-ivi Trello board](https://trello.com/b/HplBZa2l) and vote.
 
 Layer dependencies
 ------------------
 
-URI: git://git.yoctoproject.org/poky
-branch: danny
+URI: git://git.yoctoproject.org/poky  
+branch: danny  
 revision: 24af2693697ac38070f9702a9e6c4527989379ba
 
-URI: git://git.openembedded.org/meta-openembedded
-branch: danny
+URI: git://git.openembedded.org/meta-openembedded  
+branch: danny  
 revision: 40d26999e070ce21ca2ec474ca2c482c28893a89
 
 
@@ -53,16 +53,17 @@ BB_NUMBER_THREADS = "4" and PARALLEL_MAKE = "-j 4" if you build on a
 quad-core machine.
 
 10. Download the GENIVI specific open source component from git.genivi.org (you need to have your GENIVI credential ready):
-   $ PATH_TO_META_IVI/meta-ivi/scripts/dl_pkgs.sh
+
+   > $ PATH_TO_META_IVI/meta-ivi/scripts/dl_pkgs.sh
 
 11. Build excalibur-image including GENIVI 3.0 (Excalibur) P1 components
 
-   $ bitbake excalibur-image
+   > $ bitbake excalibur-image
 
 12. Run the emulator:
 
-   for qemu vexpressa9:
-   $ PATH_TO_META_IVI/meta-ivi/scripts/runqemu excalibur-image vexpressa9
+   > for qemu vexpressa9:  
+   > $ PATH_TO_META_IVI/meta-ivi/scripts/runqemu excalibur-image vexpressa9
 
-   for qemux86:
-   $ PATH_TO_POKY/poky/scripts/runqemu excalibur-image qemux86
+   > for qemux86:  
+   > $ PATH_TO_POKY/poky/scripts/runqemu excalibur-image qemux86
