@@ -16,11 +16,11 @@ Layer dependencies
 
 URI: git://git.yoctoproject.org/poky  
 branch: danny  
-revision: 24af2693697ac38070f9702a9e6c4527989379ba
+revision: bf909b267498dbab4d7695c26b0dce903ac8b6b0
 
 URI: git://git.openembedded.org/meta-openembedded  
 branch: danny  
-revision: 40d26999e070ce21ca2ec474ca2c482c28893a89
+revision: f026e96295da101bb715858bc8705de7e4a33992
 
 
 Build a QEMU image including GENIVI P1 components
