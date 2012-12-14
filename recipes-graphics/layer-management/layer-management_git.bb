@@ -6,9 +6,9 @@ SECTION = "environment/base"
 LICENSE = "Apache-2.0"
 LIC_FILES_CHKSUM = "file://LICENSE.txt;md5=249d3578d6bba1bb946148d367a28080"
 
-DEPENDS = "virtual/libgl dbus libxcomposite"
+DEPENDS = "virtual/egl dbus libxcomposite"
 
-PR = "r2"
+PR = "r3"
 
 SRCREV = "86c2dc9ef367b52fd5d05b53cbad5e21b9ab042f"
 
