@@ -2,6 +2,7 @@ This file contains a list of maintainers for the meta-ivi layer.
 
 Please submit any patches against meta-ivi to the maintainers
 (cc:ing the Yocto Project mailing list (yocto@yoctoproject.org))
+with '[meta-ivi]' in subject
 
 You may also contact the maintainers directly in case you have any questions
 on a particular meta-ivi topic, but please try to do the following first:
