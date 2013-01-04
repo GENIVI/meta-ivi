@@ -13,9 +13,9 @@ LICENSE = "MPLv2"
 LIC_FILES_CHKSUM = "file://COPYING;md5=815ca599c9df247a0c7f619bab123dad"
 
 # tag 1.0.1 : f109eab4393fcb55ecbb0a21d68436a5057a6b82
-SRC_URI = "git://git.genivi.org/srv/git/${PN};protocol=git;tag=f109eab4393fcb55ecbb0a21d68436a5057a6b82 \
+SRC_URI = "git://git.projects.genivi.org/lifecycle/node-startup-controller.git;protocol=git;tag=f109eab4393fcb55ecbb0a21d68436a5057a6b82 \
            file://use-systemd-unit-dir.patch"
-PR = "r1"
+PR = "r2"
 
 DEPENDS = "glib-2.0 dlt-daemon systemd"
 

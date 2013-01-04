@@ -14,11 +14,11 @@ LIC_FILES_CHKSUM = "file://COPYING;md5=815ca599c9df247a0c7f619bab123dad"
 
 SRCREV = "958e5ab2bc93ac0d885ca75f4f33988cbdd3e758"
 PV = "1.0.0+git${SRCPV}"
-PR = "r1"
+PR = "r2"
 
 DEFAULT_PREFERENCE = "-1"
 
-SRC_URI = "git://git.genivi.org/srv/git/${PN};protocol=git"
+SRC_URI = "git://git.projects.genivi.org/lifecycle/node-startup-controller.git;protocol=git"
 
 DEPENDS = "glib-2.0 dlt-daemon systemd"
 
