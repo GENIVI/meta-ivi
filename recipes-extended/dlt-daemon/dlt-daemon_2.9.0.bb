@@ -16,8 +16,10 @@ PR = "r0"
 inherit gzipnative
 
 LICENSE = "MPLv2"
-LIC_FILES_CHKSUM = "file://LICENSE.txt;md5=99ba60c3fad7eaf8c56bca6dd75cba09 \
-		    file://MPL.txt;md5=ccdb2761cef70c8b2612624c323f89dc"
+LIC_FILES_CHKSUM = " \
+    file://LICENSE.txt;md5=99ba60c3fad7eaf8c56bca6dd75cba09 \
+    file://MPL.txt;md5=ccdb2761cef70c8b2612624c323f89dc \
+    "
 
 SRC_URI = "git://git.projects.genivi.org/${PN}.git;protocol=git;tag=v${PV}"
 
