@@ -41,19 +41,25 @@ following steps:
 
 2. Add meta-ivi path to COREBASE/build/conf/bblayers.conf file.
 
-3. Add meta-openembedded/meta-systemd path to COREBASE/build/conf/bblayers.conf file.
+3. Add meta-openembedded/meta-systemd path to COREBASE/build/conf/bblayers.conf
+file.
 
 4. Add meta-openembedded/meta-oe path to COREBASE/build/conf/bblayers.conf file.
 
-5. Add meta-openembedded/meta-gnome path to COREBASE/build/conf/bblayers.conf file.
+5. Add meta-openembedded/meta-gnome path to COREBASE/build/conf/bblayers.conf
+file.
 
-6. Add meta-openembedded/meta-networking path to COREBASE/build/conf/bblayers.conf file.
+6. Add meta-openembedded/meta-networking path to
+COREBASE/build/conf/bblayers.conf file.
 
 7. Set MACHINE ??= "vexpressa9" or MACHINE ??= "qemux86" in
 COREBASE/build/conf/local.conf file to build for an emulated ARMv7a or IA-32
 instruction-set maschine respectively.
 
-8. Add BBMASK = "meta-systemd/meta-efl|meta-systemd/meta-gnome|meta-systemd/meta-multimedia|meta-systemd/meta-oe/recipes-support|meta-gnome/recipes-gnome"
+8. Add
+BBMASK = "meta-systemd/meta-efl|meta-systemd/meta-gnome|\
+meta-systemd/meta-multimedia|meta-systemd/meta-oe/recipes-support|\
+meta-gnome/recipes-gnome"
 in COREBASE/build/conf/local.conf file.
 
 9. Add INCOMPATIBLE_LICENSE = "GPLv3" in COREBASE/build/conf/local.conf file.
