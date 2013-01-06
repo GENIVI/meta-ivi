@@ -1,4 +1,4 @@
-PRINC = "1"
+PRINC := "${@int(PRINC) + 1}"
 
 # xz is GPLv3 so remove it from DEPENDS if INCOMPATIBLE_LICENSE contains GPLv3
 python () {
