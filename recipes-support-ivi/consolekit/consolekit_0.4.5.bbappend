@@ -1,4 +1,4 @@
-PRINC = "1"
+PRINC := "${@int(PRINC) + 1}"
 
 # gnome-common is GPLv3 so we drop this dependency
 # if INCOMPATIBLE_LICENSE contains GPLv3
