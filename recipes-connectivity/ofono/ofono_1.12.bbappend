@@ -1,4 +1,4 @@
-PRINC = "3"
+PRINC := "${@int(PRINC) + 3}"
 
 inherit systemd
 
@@ -12,8 +12,7 @@ INITSCRIPT_PARAMS = ""
 
 # Remove init scripts
 do_install_append() {
-	if [[ "${DISTRO_FEATURES}" == *"systemd"*  ]]
-	then
-		rm -rf ${D}${sysconfdir}/init.d/
-	fi
+	case "${DISTRO_FEATURES}" in
+		*systemd*) rm -rf ${D}${sysconfdir}/init.d/
+	esac
 }
