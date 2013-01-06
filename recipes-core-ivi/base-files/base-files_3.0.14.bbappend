@@ -1,3 +1,3 @@
-PRINC = "1"
+PRINC := "${@int(PRINC) + 1}"
 
 FILESEXTRAPATHS := "${THISDIR}/${PN}"
