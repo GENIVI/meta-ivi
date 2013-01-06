@@ -1,4 +1,4 @@
-PRINC = "3"
+PRINC := "${@int(PRINC) + 3}"
 
 inherit systemd
 
