@@ -1,4 +1,4 @@
-PRINC = "1"
+PRINC := "${@int(PRINC) + 1}"
 
 # xz is GPLv3
 # Remove this package from depends and configure
