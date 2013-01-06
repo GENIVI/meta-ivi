@@ -6,5 +6,5 @@ INITSCRIPT_PARAMS = ""
 
 # Remove installed init scripts
 do_install_append () {
-	rm -rvf ${D}${sysconfdir}/init.d
+    rm -rvf ${D}${sysconfdir}/init.d
 }
