@@ -1,4 +1,4 @@
-PRINC = "2"
+PRINC := "${@int(PRINC) + 2}"
 
 INITSCRIPT_NAME = ""
 INITSCRIPT_PARAMS = ""
