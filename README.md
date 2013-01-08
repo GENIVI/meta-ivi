@@ -70,16 +70,11 @@ in COREBASE/build/conf/local.conf file.
 BB_NUMBER_THREADS = "4" and PARALLEL_MAKE = "-j 4" if you build on a
 quad-core machine.
 
-12. Download the GENIVI specific open source component from git.genivi.org (you
-need to have your GENIVI credentials ready):
-
-   > $ PATH_TO_META_IVI/meta-ivi/scripts/dl_pkgs.sh
-
-13. Build excalibur-image including GENIVI 3.0 (Excalibur) P1 components
+12. Build excalibur-image including GENIVI 3.0 (Excalibur) P1 components
 
    > $ bitbake excalibur-image
 
-14. Run the emulator:
+13. Run the emulator:
 
    > for qemu vexpressa9:  
    > $ PATH_TO_META_IVI/meta-ivi/scripts/runqemu excalibur-image vexpressa9
