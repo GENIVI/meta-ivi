@@ -15,6 +15,7 @@ RDEPENDS_packagegroup-core-p2 = "\
     pulseaudio \
     ofono \
     ofono-systemd \
+    node-state-manager \
     "
 
 
