@@ -10,6 +10,10 @@ SRC_URI_append_vexpressa9 = " \
 	file://vexpress_a9.cfg  \
 	"
 
+SRC_URI_append_qemux86 = " \
+	file://qemux86.cfg  \
+	"
+
 SRC_URI += "file://0001-net-bus-add-the-AF_BUS-socket-address-family.patch"
 
 KBRANCH_vexpressa9 = "standard/beagleboard"
