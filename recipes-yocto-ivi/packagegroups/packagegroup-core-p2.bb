@@ -16,6 +16,7 @@ RDEPENDS_packagegroup-core-p2 = "\
     ofono \
     ofono-systemd \
     node-state-manager \
+    wireless-tools \
     "
 
 
