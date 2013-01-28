@@ -11,7 +11,7 @@ DESCRIPTION = "This component provides a standardised log and trace interface, b
 HOMEPAGE = "https://www.genivi.org/"
 SECTION = "console/utils"
 
-PR = "r0"
+PR = "r1"
 
 inherit gzipnative
 
@@ -33,3 +33,9 @@ FILES_${PN}-systemd += "${systemd_unitdir}/system/"
 PACKAGES =+ "${PN}-systemd"
 
 EXTRA_OECMAKE = "-DWITH_SYSTEMD=ON"
+
+# Remove "User=genivi" option from systemd services
+# as there is no such username
+do_install_append() {
+    sed -i '/User/d' ${D}/${systemd_unitdir}/system/*.service
+}
