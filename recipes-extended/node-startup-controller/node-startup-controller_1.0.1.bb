@@ -15,7 +15,7 @@ LIC_FILES_CHKSUM = "file://COPYING;md5=815ca599c9df247a0c7f619bab123dad"
 # tag 1.0.1 : f109eab4393fcb55ecbb0a21d68436a5057a6b82
 SRC_URI = "git://git.projects.genivi.org/lifecycle/node-startup-controller.git;protocol=git;tag=f109eab4393fcb55ecbb0a21d68436a5057a6b82 \
            file://use-systemd-unit-dir.patch"
-PR = "r2"
+PR = "r3"
 
 DEPENDS = "glib-2.0 dlt-daemon systemd"
 
@@ -23,7 +23,7 @@ S = "${WORKDIR}/git"
 
 inherit autotools gtk-doc systemd
 do_configure_prepend () {
-        mkdir m4
+        mkdir -p m4
 }
 
 PACKAGES =+ "${PN}-nsm-dummy ${PN}-nsm-dummy-dbg"
