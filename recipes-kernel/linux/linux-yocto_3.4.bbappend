@@ -1,3 +1,5 @@
+PRINC := "${@int(PRINC) + 1}"
+
 # find defconfig path
 FILESEXTRAPATHS := "${THISDIR}/${PN}"
 
