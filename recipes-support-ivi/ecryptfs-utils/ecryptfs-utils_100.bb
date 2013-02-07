@@ -1,7 +1,7 @@
 DESCRIPTION = "eCryptfs: A stacked cryptographic filesystem for Linux"
 SECTION = "base"
 LICENSE = "GPLv2"
-DEPENDS = "keyutils libgcrypt libpam openssl"
+DEPENDS = "intltool-native keyutils libgcrypt libpam openssl"
 
 LICENSE = "GPLv2"
 LIC_FILES_CHKSUM = "file://COPYING;md5=8ca43cbc842c2336e835926c2166c28b"
