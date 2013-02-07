@@ -52,8 +52,8 @@ file.
 6. Add meta-openembedded/meta-networking path to
 COREBASE/build/conf/bblayers.conf file.
 
-7. Set MACHINE ??= "vexpressa9" or MACHINE ??= "qemux86" in
-COREBASE/build/conf/local.conf file to build for an emulated ARMv7a or IA-32
+7. Set MACHINE ??= "vexpressa9", MACHINE ??= "qemux86" or MACHINE ??= "qemux86-64"
+in COREBASE/build/conf/local.conf file to build for an emulated ARMv7a, x86 or x86-64
 instruction-set maschine respectively.
 
 8. Add
@@ -76,8 +76,11 @@ quad-core machine.
 
 13. Run the emulator:
 
-   > for qemu vexpressa9:  
+   > for qemu vexpressa9:
    > $ PATH_TO_META_IVI/meta-ivi/scripts/runqemu excalibur-image vexpressa9
 
-   > for qemux86:  
+   > for qemu x86:
    > $ PATH_TO_POKY/poky/scripts/runqemu excalibur-image qemux86
+
+   > for qemu x86-64:
+   > $ PATH_TO_POKY/poky/scripts/runqemu excalibur-image qemux86-64
