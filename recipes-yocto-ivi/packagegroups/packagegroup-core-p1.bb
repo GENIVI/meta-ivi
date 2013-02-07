@@ -40,7 +40,6 @@ RDEPENDS_packagegroup-core-p1 = "\
     sqlite3 \
     udev \
     wpa-supplicant \
-    wpa-supplicant-systemd \
     "
 
 RRECOMMENDS_${PN} = "\
