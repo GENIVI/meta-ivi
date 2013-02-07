@@ -1,4 +1,4 @@
-PRINC := "${@int(PRINC) + 1}"
+PRINC := "${@int(PRINC) + 2}"
 
 # find defconfig path
 FILESEXTRAPATHS := "${THISDIR}/${PN}"
@@ -14,6 +14,10 @@ SRC_URI_append_vexpressa9 = " \
 
 SRC_URI_append_qemux86 = " \
 	file://qemux86.cfg  \
+	"
+
+SRC_URI_append_qemux86-64 = " \
+	file://qemux86_64.cfg  \
 	"
 
 KMACHINE_vexpressa9 = "beagleboard"
