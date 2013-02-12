@@ -13,9 +13,12 @@ SRC_URI = "https://launchpad.net/ecryptfs/trunk/100/+download/ecryptfs-utils_100
 SRC_URI[md5sum] = "efaa5eabbd368268874536036397f73b"
 SRC_URI[sha256sum] = "a31cb155483d44a59f1506ab53990ac36f81630e0cb3fd2f4dcba35fab614689"
 
-PR = "r1"
+PR = "r2"
 
 inherit autotools systemd
+
+PACKAGES =+ "${PN}-systemd"
+
 SYSTEMD_PACKAGES = "${PN}-systemd"
 SYSTEMD_SERVICE = "ecryptfs.service"
 
