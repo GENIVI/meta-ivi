@@ -1,6 +1,8 @@
-PRINC := "${@int(PRINC) + 3}"
+PRINC := "${@int(PRINC) + 4}"
 
 inherit systemd
+
+PACKAGES =+ "${PN}-systemd"
 
 SYSTEMD_PACKAGES = "${PN}-systemd"
 SYSTEMD_SERVICE = "bluetooth.service"
