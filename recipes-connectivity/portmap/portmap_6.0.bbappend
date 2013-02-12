@@ -1,9 +1,11 @@
-PRINC := "${@int(PRINC) + 3}"
+PRINC := "${@int(PRINC) + 4}"
 
 # Find local ${PN} directory
 FILESEXTRAPATHS := "${THISDIR}/${PN}"
 
 inherit systemd
+
+PACKAGES =+ "${PN}-systemd"
 
 SYSTEMD_PACKAGES = "${PN}-systemd"
 SYSTEMD_SERVICE = "portmap.service"
