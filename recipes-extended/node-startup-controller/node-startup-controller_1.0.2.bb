@@ -17,7 +17,7 @@ LIC_FILES_CHKSUM = "file://COPYING;md5=815ca599c9df247a0c7f619bab123dad"
 # tag 1.0.2 : 717e743c84ef9c168501dcbc012c4212f1903581
 SRC_URI = "git://git.projects.genivi.org/lifecycle/node-startup-controller.git;protocol=git;tag=717e743c84ef9c168501dcbc012c4212f1903581 \
            file://use-systemd-unit-dir.patch"
-PR = "r0"
+PR = "r1"
 
 DEPENDS = "glib-2.0 dlt-daemon systemd"
 
@@ -30,25 +30,28 @@ do_configure_prepend () {
 
 PACKAGES =+ "${PN}-nsm-dummy ${PN}-nsm-dummy-dbg"
 
-SYSTEMD_PACKAGES = "${PN}-systemd ${PN}-nsm-dummy-systemd"
-SYSTEMD_SERVICE_${PN}-systemd = "node-startup-controller.service"
-SYSTEMD_SERVICE_${PN}-nsm-dummy-systemd = "nsm-dummy.service"
+SYSTEMD_SERVICE = "node-startup-controller.service nsm-dummy.service"
 SYSTEMD_AUTO_ENABLE = "disable"
 
 RRECOMMENDS_${PN} += "${PN}-nsm-dummy"
 
 FILES_${PN} += "\
-	${libdir}/${PN}-1/${PN} \
-	${libdir}/${PN}-1/legacy-app-handler \
-	${datadir}/dbus-1/system-services/org.genivi.NodeStartupController1.service \
-	"
+    ${libdir}/${PN}-1/${PN} \
+    ${libdir}/${PN}-1/legacy-app-handler \
+    ${datadir}/dbus-1/system-services/org.genivi.NodeStartupController1.service \
+    ${systemd_unitdir}/system/node-startup-controller.service \
+    ${systemd_unitdir}/system/nsm-dummy.service \
+    "
+
 FILES_${PN}-dbg += "\
-	${libdir}/${PN}-1/.debug/*ler \
-	"
+    ${libdir}/${PN}-1/.debug/*ler \
+    "
+
 FILES_${PN}-nsm-dummy = "\
-	${libdir}/${PN}-1/nsm-dummy \
-	${datadir}/dbus-1/system-services/org.genivi.NodeStateManager.* \
-	"
+    ${libdir}/${PN}-1/nsm-dummy \
+    ${datadir}/dbus-1/system-services/org.genivi.NodeStateManager.* \
+    "
+
 FILES_${PN}-nsm-dummy-dbg = "\
-	${libdir}/${PN}-1/.debug/nsm-dummy \
-	"
+    ${libdir}/${PN}-1/.debug/nsm-dummy \
+    "
