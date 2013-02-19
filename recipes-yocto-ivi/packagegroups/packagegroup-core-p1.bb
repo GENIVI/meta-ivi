@@ -25,7 +25,6 @@ RDEPENDS_packagegroup-core-p1 = "\
     curl \
     dbus \
     ecryptfs-utils \
-    ecryptfs-utils-systemd \
     eglibc \
     fuse \
     gstreamer \
@@ -35,7 +34,6 @@ RDEPENDS_packagegroup-core-p1 = "\
     libusb1 \
     nfs-utils \
     openssl \
-    portmap-systemd \
     quota \
     sqlite3 \
     udev \
