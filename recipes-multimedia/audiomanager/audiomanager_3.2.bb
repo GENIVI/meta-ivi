@@ -5,18 +5,16 @@ SECTION = "multimedia"
 LICENSE = "MPLv2"
 LIC_FILES_CHKSUM = "file://LICENCE;md5=815ca599c9df247a0c7f619bab123dad"
 
-PR = "r4"
+PR = "r0"
 
 DEPENDS = "dlt-daemon sqlite3 dbus"
 
-SRC_URI = "git://git.projects.genivi.org/AudioManager.git;protocol=git;tag=a9771fa406089c5c8b032e558afb84108d078c51 \
+SRC_URI = "git://git.projects.genivi.org/AudioManager.git;protocol=git;tag=${PV} \
            file://AudioManager.service file://setup_amgr.sh"
 
 S = "${WORKDIR}/git"
 inherit autotools gettext cmake pkgconfig systemd
 
-PACKAGES =+ "${PN}-systemd"
-SYSTEMD_PACKAGES = "${PN}-systemd"
 SYSTEMD_SERVICE = "AudioManager.service"
 SYSTEMD_AUTO_ENABLE = "disable"
 
@@ -26,6 +24,8 @@ OECMAKE_CXX_FLAGS +="-ldl"
 FILES_${PN} += "${libdir}/audioManager/command/*.so.* \
                 ${libdir}/audioManager/control/*.so.* \
                 ${libdir}/audioManager/routing/*.so.* \
+                ${systemd_unitdir}/AudioManager.service \
+                ${systemd_unitdir}/scripts/setup_amgr.sh \
 "
 FILES_${PN}-dev += "${libdir}/audioManager/command/*.so \
                     ${libdir}/audioManager/control/*.so \
@@ -36,9 +36,11 @@ FILES_${PN}-dbg += "${libdir}/audioManager/command/.debug/* \
                     ${libdir}/audioManager/control/.debug/* \
                     ${libdir}/audioManager/routing/.debug/* \
 "
-FILES_${PN}-systemd += "${systemd_unitdir}/scripts"
-
 do_install_append() {
+    if ${@base_contains('DISTRO_FEATURES','systemd','true','false',d)}; then
         mkdir -p ${D}${systemd_unitdir}/scripts/
         install -m 0755 ${WORKDIR}/setup_amgr.sh ${D}${systemd_unitdir}/scripts/setup_amgr.sh
+        install -d ${D}${systemd_unitdir}/system/
+        install -m 0644 ${WORKDIR}/AudioManager.service ${D}${systemd_unitdir}/system
+    fi
 }
