@@ -14,7 +14,6 @@ ALLOW_EMPTY = "1"
 RDEPENDS_packagegroup-core-p1 = "\
     kernel-modules \
     audiomanager \
-    audiomanager-systemd \
     dlt-daemon \
     dlt-daemon-systemd \
     alsa-lib  \
