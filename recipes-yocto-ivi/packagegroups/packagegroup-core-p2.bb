@@ -9,8 +9,6 @@ PACKAGES = "\
     packagegroup-core-p2 \
     "
 
-ALLOW_EMPTY = "1"
-
 RDEPENDS_packagegroup-core-p2 = "\
     pulseaudio \
     ofono \

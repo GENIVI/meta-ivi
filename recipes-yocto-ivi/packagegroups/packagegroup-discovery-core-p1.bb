@@ -9,8 +9,6 @@ PACKAGES = "\
     packagegroup-discovery-core-p1 \
     "
 
-ALLOW_EMPTY = "1"
-
 RDEPENDS_packagegroup-discovery-core-p1 = "\
     ntp \
     ntp-systemd \

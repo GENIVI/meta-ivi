@@ -9,8 +9,6 @@ PACKAGES = "\
     packagegroup-excalibur-core-p1 \
     "
 
-ALLOW_EMPTY = "1"
-
 RDEPENDS_packagegroup-excalibur-core-p1 = "\
     node-startup-controller \
     obex-client \

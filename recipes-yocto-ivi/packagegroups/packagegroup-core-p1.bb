@@ -9,8 +9,6 @@ PACKAGES = "\
     packagegroup-core-p1 \
     "
 
-ALLOW_EMPTY = "1"
-
 RDEPENDS_packagegroup-core-p1 = "\
     kernel-modules \
     audiomanager \
