@@ -49,17 +49,17 @@ instruction-set maschine respectively.
 BB_NUMBER_THREADS = "4" and PARALLEL_MAKE = "-j 4" if you build on a
 quad-core machine.
 
-7. Build excalibur-image including GENIVI 3.0 (Excalibur) P1 components
+7. Build foton-image including GENIVI 3.0 (Foton) P1 components
 
-   > $ bitbake excalibur-image
+   > $ bitbake foton-image
 
 8. Run the emulator:
 
    > for qemu vexpressa9:
-   > $ PATH_TO_META_IVI/meta-ivi/scripts/runqemu excalibur-image vexpressa9
+   > $ PATH_TO_META_IVI/meta-ivi/scripts/runqemu foton-image vexpressa9
 
    > for qemu x86:
-   > $ PATH_TO_POKY/poky/scripts/runqemu excalibur-image qemux86
+   > $ PATH_TO_POKY/poky/scripts/runqemu foton-image qemux86
 
    > for qemu x86-64:
-   > $ PATH_TO_POKY/poky/scripts/runqemu excalibur-image qemux86-64
+   > $ PATH_TO_POKY/poky/scripts/runqemu foton-image qemux86-64
