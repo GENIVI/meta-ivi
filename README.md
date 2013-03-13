@@ -18,8 +18,8 @@ URI: git://git.yoctoproject.org/poky
 branch: master
 revision: d823759b4594143d522eae0b2a2498436a6dcb1e
 
-Using the above git sha's and master meta-ivi, bitbaking excalibur-image is
-known to work (the excalibur-image build should be GENIVI 3.0 compliant).
+Using the above git sha's and master meta-ivi, bitbaking foton-image is
+known to work (the foton-image build should be GENIVI 4.0 compliant).
 
 For creating specific GENIVI compliant images, please make sure you git
 checkout on the desired meta-ivi branch and follow the build instructions
@@ -49,17 +49,17 @@ instruction-set maschine respectively.
 BB_NUMBER_THREADS = "4" and PARALLEL_MAKE = "-j 4" if you build on a
 quad-core machine.
 
-7. Build excalibur-image including GENIVI 3.0 (Excalibur) P1 components
+7. Build foton-image including GENIVI 4.0 (Foton) P1 components
 
-   > $ bitbake excalibur-image
+   > $ bitbake foton-image
 
 8. Run the emulator:
 
    > for qemu vexpressa9:
-   > $ PATH_TO_META_IVI/meta-ivi/scripts/runqemu excalibur-image vexpressa9
+   > $ PATH_TO_META_IVI/meta-ivi/scripts/runqemu foton-image vexpressa9
 
    > for qemu x86:
-   > $ PATH_TO_POKY/poky/scripts/runqemu excalibur-image qemux86
+   > $ PATH_TO_POKY/poky/scripts/runqemu foton-image qemux86
 
    > for qemu x86-64:
-   > $ PATH_TO_POKY/poky/scripts/runqemu excalibur-image qemux86-64
+   > $ PATH_TO_POKY/poky/scripts/runqemu foton-image qemux86-64
