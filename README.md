@@ -49,7 +49,7 @@ instruction-set maschine respectively.
 BB_NUMBER_THREADS = "4" and PARALLEL_MAKE = "-j 4" if you build on a
 quad-core machine.
 
-7. Build foton-image including GENIVI 3.0 (Foton) P1 components
+7. Build foton-image including GENIVI 4.0 (Foton) P1 components
 
    > $ bitbake foton-image
 
