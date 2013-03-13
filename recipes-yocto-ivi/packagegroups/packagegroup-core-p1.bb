@@ -30,6 +30,9 @@ RDEPENDS_packagegroup-core-p1 = "\
     layer-management \
     libusb1 \
     nfs-utils \
+    node-startup-controller \
+    obex-client \
+    obexd \
     openssl \
     quota \
     sqlite3 \
