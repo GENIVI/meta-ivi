@@ -19,7 +19,7 @@ branch: master
 revision: d823759b4594143d522eae0b2a2498436a6dcb1e
 
 Using the above git sha's and master meta-ivi, bitbaking foton-image is
-known to work (the foton-image build should be GENIVI 3.0 compliant).
+known to work (the foton-image build should be GENIVI 4.0 compliant).
 
 For creating specific GENIVI compliant images, please make sure you git
 checkout on the desired meta-ivi branch and follow the build instructions
