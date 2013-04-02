@@ -40,6 +40,7 @@ RDEPENDS_packagegroup-core-boot-genivi = "\
     ${VIRTUAL-RUNTIME_update-alternatives} \
     ${MACHINE_ESSENTIAL_EXTRA_RDEPENDS} \
     procps \
+    util-linux-mount \
     "
 
 RRECOMMENDS_packagegroup-core-boot-genivi = "\
