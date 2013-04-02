@@ -7,12 +7,8 @@ LIC_FILES_CHKSUM = "file://LICENSE.txt;md5=071e6b9a5eb9fc5868edf57ce153e5b9"
 
 DEPENDS = "virtual/egl dbus libxcomposite"
 
-PR = "r2"
-
 SRC_URI = " \
-    git://git.projects.genivi.org/layer_management.git;protocol=git;tag=ivi-layer-management_version_0_9_9 \
-    file://point-to-internal-CMakeVersions.patch \
-    file://include-unistd-for-usleep-in-OpenGLES2App.patch \
+    git://git.projects.genivi.org/layer_management.git;protocol=git;tag=1_0 \
     file://layermanager.service \
     "
 
