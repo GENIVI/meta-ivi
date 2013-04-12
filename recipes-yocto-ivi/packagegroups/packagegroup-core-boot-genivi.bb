@@ -31,6 +31,7 @@ RDEPENDS_packagegroup-core-boot-genivi = "\
     base-files \
     base-passwd \
     busybox \
+    kmod \
     ${VIRTUAL-RUNTIME_initscripts} \
     ${@base_contains("MACHINE_FEATURES", "keyboard", "${VIRTUAL-RUNTIME_keymaps}", "", d)} \
     netbase \
