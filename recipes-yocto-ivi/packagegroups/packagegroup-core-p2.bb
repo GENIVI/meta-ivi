@@ -10,10 +10,10 @@ PACKAGES = "\
     "
 
 RDEPENDS_packagegroup-core-p2 = "\
-    pulseaudio \
+    node-state-manager \
     ofono \
     ofono-systemd \
-    node-state-manager \
+    pulseaudio-server \
     wireless-tools \
     "
 
