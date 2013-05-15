@@ -11,8 +11,7 @@ inherit core-image buildhistory
 
 IMAGE_ROOTFS_SIZE = "8192"
 
-# remove not needed ipkg informations
-ROOTFS_POSTPROCESS_COMMAND += "remove_packaging_data_files ; "
+IMAGE_FEATURES += " package-management"
 
 # Create SD image symlink correctly
 IMAGE_POSTPROCESS_COMMAND_imx53qsb += "rename_symlink ; "
