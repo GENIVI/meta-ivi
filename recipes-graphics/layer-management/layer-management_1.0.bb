@@ -2,7 +2,7 @@ DESCRIPTION = "LayerManager"
 HOMEPAGE = "https://www.genivi.org/"
 SECTION = "environment/base"
 
-PR = "r1"
+PR = "r2"
 
 LICENSE = "Apache-2.0"
 LIC_FILES_CHKSUM = "file://LICENSE.txt;md5=071e6b9a5eb9fc5868edf57ce153e5b9"
@@ -13,14 +13,6 @@ SRC_URI = " \
     git://git.projects.genivi.org/layer_management.git;protocol=git;tag=1_0 \
     file://layermanager.service \
     "
-
-# Needed this for imx6 boards to use precompiled EGL libraries
-python () {
-    if ((d.getVar("MACHINE", True) or "").find("imx6") != -1):
-        flags = d.getVar("OECMAKE_CXX_FLAGS", True)
-        flags += " -DLINUX"
-        d.setVar('OECMAKE_CXX_FLAGS', flags)
-}
 
 S = "${WORKDIR}/git"
 
