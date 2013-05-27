@@ -1,4 +1,4 @@
-PRINC := "${@int(PRINC) + 4}"
+PRINC := "${@int(PRINC) + 5}"
 
 FILESEXTRAPATHS_prepend := "${THISDIR}/${PN}:"
 
@@ -26,9 +26,9 @@ do_configure_append () {
 	# udev_get_dev_path(), udev_get_sys_path(), udev_get_run_path()
 	# systemd does not allow to configure any of these filesystem paths
 	# udev is included in systemd
-	sed -i 's:udev_get_sys_path(udev):"/sys":' src/modules/module-udev-detect.c
-	sed -i 's:udev_get_sys_path(udev):"/sys":' src/modules/udev-util.c
-	sed -i 's:udev_get_dev_path(u->udev):"/dev":' src/modules/module-udev-detect.c
+	sed -i 's:udev_get_sys_path(udev):"/sys":' ${S}/src/modules/module-udev-detect.c
+	sed -i 's:udev_get_sys_path(udev):"/sys":' ${S}/src/modules/udev-util.c
+	sed -i 's:udev_get_dev_path(u->udev):"/dev":' ${S}/src/modules/module-udev-detect.c
 }
 
 do_install_append() {
