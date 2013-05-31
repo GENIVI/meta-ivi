@@ -29,7 +29,6 @@ RDEPENDS_packagegroup-core-p1 = "\
     gst-plugins-base \
     layer-management \
     libusb1 \
-    nfs-utils \
     node-startup-controller \
     obex-client \
     obexd \
