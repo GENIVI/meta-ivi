@@ -16,7 +16,7 @@ PR = "r3"
 
 EXTRA_OECONF = "${@base_contains('DISTRO_FEATURES', 'systemd', '--with-systemdsystemunitdir=${systemd_unitdir}/system/', '', d)}"
 
-DEPENDS = "glib-2.0 dlt-daemon"
+DEPENDS = "dbus glib-2.0 dlt-daemon"
 
 S = "${WORKDIR}/git"
 
