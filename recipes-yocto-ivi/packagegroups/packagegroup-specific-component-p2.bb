@@ -1,4 +1,4 @@
-DESCRIPTION = "P2 packages"
+DESCRIPTION = "GENIVI P2 Specific components (SC)"
 LICENSE = "MIT"
 LIC_FILES_CHKSUM = "file://${IVI_COREBASE}/meta-ivi/COPYING.MIT;md5=3da9cfbcb788c80a0384361b4de20420"
 PR = "r0"
@@ -6,16 +6,14 @@ PR = "r0"
 inherit packagegroup
 
 PACKAGES = "\
-    packagegroup-core-p2 \
+    packagegroup-specific-component-p2 \
     "
 
-RDEPENDS_packagegroup-core-p2 = "\
-    node-state-manager \
-    ofono \
-    ofono-systemd \
+ALLOW_EMPTY_${PN} = "1"
+
+
+RDEPENDS_${PN} += "\
     pulseaudio-server \
     wireless-tools \
     "
-
-
 

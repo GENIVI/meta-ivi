@@ -1,44 +1,37 @@
-DESCRIPTION = "P1 packages"
+DESCRIPTION = "GENIVI P1 Specific components (SC)"
 LICENSE = "MIT"
 LIC_FILES_CHKSUM = "file://${IVI_COREBASE}/meta-ivi/COPYING.MIT;md5=3da9cfbcb788c80a0384361b4de20420"
-PR = "r1"
+PR = "r0"
 
 inherit packagegroup
 
 PACKAGES = "\
-    packagegroup-core-p1 \
+    packagegroup-specific-component-p1 \
     "
 
-RDEPENDS_packagegroup-core-p1 = "\
+ALLOW_EMPTY_${PN} = "1"
+
+
+RDEPENDS_${PN} += "\
     kernel-modules \
     audiomanager \
     dlt-daemon \
     dlt-daemon-systemd \
     alsa-lib  \
     alsa-utils \
-    bluez4 \
-    bluez4-systemd \
     connman \
     curl \
     dbus \
     ecryptfs-utils \
-    eglibc \
     fuse \
     gstreamer \
     gst-plugins-good \
     gst-plugins-base \
-    layer-management \
     libusb1 \
     node-startup-controller \
-    obex-client \
-    obexd \
     openssl \
     quota \
     sqlite3 \
     udev \
     wpa-supplicant \
-    "
-
-RRECOMMENDS_${PN} = "\
-    packagegroup-xserver-ivi \
     "
