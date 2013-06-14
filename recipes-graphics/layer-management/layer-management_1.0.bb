@@ -21,6 +21,8 @@ inherit gettext cmake systemd
 SYSTEMD_SERVICE = "layermanager.service"
 SYSTEMD_AUTO_ENABLE = "disable"
 
+EXTRA_OECMAKE += "-DWITH_EXAMPLE_SCENE_PROVIDER=ON"
+
 FILES_${PN} += " \
     ${libdir}/lib* \
     ${libdir}/layermanager/lib* \
@@ -28,6 +30,7 @@ FILES_${PN} += " \
     ${libdir}/layermanager/ipcmodules/lib* \
     ${libdir}/layermanager/renderer/lib* \
     ${libdir}/layermanager/renderer/renderer* \
+    ${libdir}/layermanager/sceneprovider/* \
     ${systemd_unitdir}/system/layermanager.service \
     "
 
@@ -42,6 +45,7 @@ FILES_${PN}-dbg += " \
     ${libdir}/layermanager/communicator/.debug/ \
     ${libdir}/layermanager/ipcmodules/.debug/ \
     ${libdir}/layermanager/renderer/.debug/ \
+    ${libdir}/layermanager/sceneprovider/.debug/ \
     "
 
 do_install_append() {
