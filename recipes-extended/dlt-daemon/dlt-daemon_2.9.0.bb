@@ -21,6 +21,8 @@ LIC_FILES_CHKSUM = " \
     file://MPL.txt;md5=ccdb2761cef70c8b2612624c323f89dc \
     "
 
+DEPENDS = "zlib"
+
 SRC_URI = "git://git.projects.genivi.org/${PN}.git;protocol=git;tag=v${PV} \
            file://systemd_service_installation.patch \
           "
