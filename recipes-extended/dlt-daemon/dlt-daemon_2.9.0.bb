@@ -21,7 +21,9 @@ LIC_FILES_CHKSUM = " \
     file://MPL.txt;md5=ccdb2761cef70c8b2612624c323f89dc \
     "
 
-SRC_URI = "git://git.projects.genivi.org/${PN}.git;protocol=git;tag=v${PV}"
+SRC_URI = "git://git.projects.genivi.org/${PN}.git;protocol=git;tag=v${PV} \
+           file://systemd_service_installation.patch \
+          "
 
 S = "${WORKDIR}/git"
 
@@ -38,4 +40,12 @@ EXTRA_OECMAKE = "-DWITH_SYSTEMD=ON"
 # as there is no such username
 do_install_append() {
     sed -i '/User/d' ${D}/${systemd_unitdir}/system/*.service
+
+    if [ ${@base_contains('EXTRA_OECMAKE', '-DWITH_SYSTEMD=ON', 'yes', 'no', d)} = yes ]; then
+        # Install the required systemd services links
+        install -d ${D}${base_libdir}/systemd/system/basic.target.wants
+        ln -sf ../dlt.service ${D}${base_libdir}/systemd/system/basic.target.wants/dlt.service
+        ln -sf ../dlt-system.service ${D}${base_libdir}/systemd/system/basic.target.wants/dlt-system.service
+    fi
+
 }
