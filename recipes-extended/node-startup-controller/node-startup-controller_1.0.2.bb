@@ -19,6 +19,9 @@ SRC_URI = "git://git.projects.genivi.org/lifecycle/node-startup-controller.git;p
            file://use-systemd-unit-dir.patch"
 PR = "r1"
 
+RPROVIDES_${PN}-nsm-dummy = "node-state-manager"
+RCONFLICTS_${PN}-nsm-dummy = "node-state-manager"
+
 DEPENDS = "glib-2.0 dlt-daemon systemd"
 
 S = "${WORKDIR}/git"
@@ -33,14 +36,14 @@ PACKAGES =+ "${PN}-nsm-dummy ${PN}-nsm-dummy-dbg"
 SYSTEMD_SERVICE = "node-startup-controller.service nsm-dummy.service"
 SYSTEMD_AUTO_ENABLE = "disable"
 
-RRECOMMENDS_${PN} += "${PN}-nsm-dummy"
+RRECOMMENDS_${PN} += "node-state-manager"
 
 FILES_${PN} += "\
     ${libdir}/${PN}-1/${PN} \
     ${libdir}/${PN}-1/legacy-app-handler \
     ${datadir}/dbus-1/system-services/org.genivi.NodeStartupController1.service \
+    ${sysconfdir}/dbus-1/system.d/org.genivi.NodeStartupController1.conf \
     ${systemd_unitdir}/system/node-startup-controller.service \
-    ${systemd_unitdir}/system/nsm-dummy.service \
     "
 
 FILES_${PN}-dbg += "\
@@ -50,6 +53,8 @@ FILES_${PN}-dbg += "\
 FILES_${PN}-nsm-dummy = "\
     ${libdir}/${PN}-1/nsm-dummy \
     ${datadir}/dbus-1/system-services/org.genivi.NodeStateManager.* \
+    ${sysconfdir}/dbus-1/system.d/org.genivi.NodeStateManager.conf \
+    ${systemd_unitdir}/system/nsm-dummy.service \
     "
 
 FILES_${PN}-nsm-dummy-dbg = "\
