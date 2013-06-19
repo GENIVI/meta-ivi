@@ -3,9 +3,7 @@ Description=A userspace daemon that runs as the user perform file operations und
 After=udev.service
 
 [Service]
-Type=oneshot
-ExecStart=/usr/bin/ecryptfsd
-RemainAfterExit=yes
+ExecStart=/usr/bin/ecryptfsd -f
 
 [Install]
 WantedBy=multi-user.target
