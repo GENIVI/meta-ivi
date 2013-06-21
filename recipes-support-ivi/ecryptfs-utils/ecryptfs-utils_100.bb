@@ -19,7 +19,7 @@ inherit autotools systemd
 
 SYSTEMD_SERVICE = "ecryptfs.service"
 
-EXTRA_OECONF += "--disable-nss --disable-pywrap --enable-openssl --prefix=/ --datarootdir=/usr/share"
+EXTRA_OECONF += "--disable-nss --disable-pywrap --enable-openssl --prefix=/ --sbindir=/sbin --datarootdir=/usr/share"
 EXTRA_OEMAKE += "'CFLAGS+= -lgcrypt '"
 
 FILES_${PN} += " \
