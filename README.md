@@ -16,7 +16,7 @@ Layer Dependencies
 
 URI: git://git.yoctoproject.org/poky
 branch: dylan
-rebision: b15bdd842092f2335784c20b8e1b3a0ddcf7996b
+revision: 64273e53f2789d2ea8393fc80909ac7086f168a7
 
 Using the above poky branch and meta-ivi 4.0 branch, bitbaking foton-image is
 known to work (the foton-image build should be GENIVI 4.0 compliant).
