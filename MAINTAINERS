@@ -1,20 +1,32 @@
 This file contains a list of maintainers for the meta-ivi layer.
 
 Please submit any patches against meta-ivi to the maintainers
-(cc:ing the Yocto Project mailing list (yocto@yoctoproject.org))
+(cc:ing the meta-ivi mailing list (genivi-meta-ivi@lists.genivi.org))
 with '[meta-ivi]' in subject
 
 You may also contact the maintainers directly in case you have any questions
 on a particular meta-ivi topic, but please try to do the following first:
 
-  - look in the Yocto Project Bugzilla
-    (http://bugzilla.yoctoproject.org/) to see if a problem has
-    already been reported
+  - look in the meta-ivi Bugzilla
+    (https://bugs.genivi.org/buglist.cgi?product=meta-ivi) to see if
+    a problem has already been reported
 
-  - look through recent entries of the Yocto mailing list archives
-    (https://lists.yoctoproject.org/pipermail/yocto/) to see if other
+  - look through recent entries of the meta-ivi mailing list archives
+    (http://lists.genivi.org/pipermail/genivi-meta-ivi/) to see if other
     people have run into similar problems or had similar questions
     answered.
+
+When creating patches, please use something like:
+>    git format-patch -s --subject-prefix='meta-ivi][PATCH' origin
+
+When sending patches, please use something like:
+>    git send-email --to=florin.sarbu@windriver.com --to=holger@windriver.com \
+>                   --cc=genivi-meta-ivi@lists.genivi.org <generated patch>
+
+Please refer to:
+https://wiki.yoctoproject.org/wiki/Contribution_Guidelines#General_Information
+for some useful guidelines to be followed when submitting patches.
+
 
 Descriptions of section entries:
 
@@ -35,3 +47,4 @@ F:	*
 
 M:	Florin Sarbu <florin.sarbu@windriver.com>
 F:	/
+
