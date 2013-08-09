@@ -1,14 +1,19 @@
+#
+# Contains changes by Wind River Systems, 2013-08-08
+# Copyright (c) 2013 Wind River Systems, Inc.
 # Copyright (C) 2007 OpenedHand Ltd.
 #
+# derived from oe-core: meta/recipes-core/packagegroups/packagegroup-core-boot.bb
 
-DESCRIPTION = "packagegroup for OpenedHand Poky - minimal bootable image"
+SUMMARY = "Minimal boot requirements"
+DESCRIPTION = "The minimal set of packages required to boot the system"
 LICENSE = "MIT"
-LIC_FILES_CHKSUM = "file://${IVI_COREBASE}/meta-ivi/COPYING.MIT;md5=3da9cfbcb788c80a0384361b4de20420"
-PACKAGE_ARCH = "${MACHINE_ARCH}"
 DEPENDS = "virtual/kernel"
-PR = "r10"
+PR = "r11"
 
 inherit packagegroup
+
+PACKAGE_ARCH = "${MACHINE_ARCH}"
 
 #
 # Set by the machine configuration with packages essential for device bootup
@@ -23,26 +28,22 @@ VIRTUAL-RUNTIME_init_manager ?= "sysvinit"
 VIRTUAL-RUNTIME_initscripts ?= "initscripts"
 VIRTUAL-RUNTIME_keymaps ?= "keymaps"
 
-PACKAGES = "\
-    packagegroup-core-boot-genivi \
-"
-
-RDEPENDS_packagegroup-core-boot-genivi = "\
+RDEPENDS_${PN} = "\
     base-files \
     base-passwd \
     busybox \
-    kmod \
-    ${VIRTUAL-RUNTIME_initscripts} \
     ${@base_contains("MACHINE_FEATURES", "keyboard", "${VIRTUAL-RUNTIME_keymaps}", "", d)} \
     netbase \
     ${VIRTUAL-RUNTIME_login_manager} \
     ${VIRTUAL-RUNTIME_init_manager} \
+    ${VIRTUAL-RUNTIME_initscripts} \
     ${VIRTUAL-RUNTIME_dev_manager} \
     ${VIRTUAL-RUNTIME_update-alternatives} \
     ${MACHINE_ESSENTIAL_EXTRA_RDEPENDS} \
+    kmod \
     procps \
     util-linux-mount \
     "
 
-RRECOMMENDS_packagegroup-core-boot-genivi = "\
+RRECOMMENDS_${PN} = "\
     ${MACHINE_ESSENTIAL_EXTRA_RRECOMMENDS}"
