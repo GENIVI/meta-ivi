@@ -15,7 +15,7 @@ submit patches, report bugs, answer questions on our mailing lists and
 review and edit our documentation and much more.
 
 Subscribe to the mailing list
-    [here](https://lists.genivi.org/mailman/listinfo/genivi-meta-ivi)
+    [here](https://lists.genivi.org/mailman/listinfo/genivi-meta-ivi).
 View or Report bugs
     [here](https://bugs.genivi.org/buglist.cgi?product=meta-ivi).
 Read or Edit the wiki
@@ -25,14 +25,14 @@ Vote or Comment on our plan
 For information about the Yocto Project, see the
     [Yocto Project website](https://www.yoctoproject.org).
 For information about the Yocto GENIVI Baseline, see the
-    [Yocto GENIVI Baseline website](https://www.yoctoproject.org).
+    [Yocto GENIVI Baseline website](http://projects.genivi.org/GENIVI_Baselines/meta-ivi).
 
 Layer Dependencies
 ------------------
 
 URI: git://git.yoctoproject.org/poky  
 > branch:   master  
-> revision: 9de0ad47462c13ac4a2d73e12e92be6c1b4e0415  
+> revision: 16d522bcd1f1b7741577fa31fab7e2129da0cae9
 
 Using the above git sha's and master meta-ivi, bitbaking foton-image is
 known to work (the foton-image build should be GENIVI 4.0 compliant).
@@ -68,7 +68,8 @@ following steps:
 1. Run the following command:
    > $ source poky/oe-init-build-env
 
-2. Add meta-ivi path to $BUILDDIR/conf/bblayers.conf BBLAYERS variable.
+2. Add the meta-ivi and meta-ivi-bsp path to the $BUILDDIR/conf/bblayers.conf
+BBLAYERS variable.
 
 3. Set MACHINE ??= "vexpressa9", MACHINE ??= "qemux86" or MACHINE ??= "qemux86-64"
 in $BUILDDIR/conf/local.conf file to build for an emulated ARMv7a, x86 or x86-64
@@ -94,4 +95,8 @@ quad-core machine.
 
    > for qemu x86-64:  
    > $ PATH_TO_POKY/poky/scripts/runqemu foton-image qemux86-64
+
+9. To login use these credentials:
+   > User - root
+   > Password - root
 
