@@ -36,5 +36,11 @@ DEBIAN_NOAUTONAME_fuse-utils = "1"
 DEBIAN_NOAUTONAME_fuse-utils-dbg = "1"
 
 do_install_append() {
-  rm -rf ${D}${base_prefix}/dev
+	rm -rf ${D}${base_prefix}/dev
+
+	if	${@base_contains('DISTRO_FEATURES','systemd','true','false',d)} && \
+		! ${@base_contains('DISTRO_FEATURES','sysvinit','true','false',d)} && \
+		test -d "${D}/etc/init.d"; then
+			rm -rf ${D}/etc/init.d/
+	fi
 }
