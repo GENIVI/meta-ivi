@@ -23,7 +23,6 @@ RDEPENDS_${PN} += "\
     curl \
     dbus \
     ecryptfs-utils \
-    fuse \
     gstreamer \
     gst-plugins-good \
     gst-plugins-base \
