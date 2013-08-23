@@ -30,12 +30,12 @@ For information about the Yocto GENIVI Baseline, see the
 Layer Dependencies
 ------------------
 
-URI: git://git.yoctoproject.org/poky  
-> branch:   master  
-> revision: 16d522bcd1f1b7741577fa31fab7e2129da0cae9
+URI: git://git.yoctoproject.org/poky
+> branch:   master
+> revision: 02521a40d36d06d269ec14ce9000f2941d6980af
 
-Using the above git sha's and master meta-ivi, bitbaking foton-image is
-known to work (the foton-image build should be GENIVI 4.0 compliant).
+Using the above git sha's and master meta-ivi, bitbaking gemini-image is
+known to work (the gemini-image build should be GENIVI 5.0 compliant).
 
 For creating a specific GENIVI compliant image version, please make sure you
 git checkout the related meta-ivi branch and follow the build instructions
@@ -83,18 +83,18 @@ instruction-set maschine respectively.
 BB_NUMBER_THREADS = "4" and PARALLEL_MAKE = "-j 4" if you build on a
 quad-core machine.
 
-7. Build foton-image including GENIVI 4.0 (Foton) components
-   > $ bitbake foton-image
+7. Build gemini-image including GENIVI 5.0 (Gemini) components
+   > $ bitbake gemini-image
 
 8. Run the emulator:
    > for qemu vexpressa9:  
-   > $ PATH_TO_META_IVI/meta-ivi/scripts/runqemu foton-image vexpressa9
+   > $ PATH_TO_META_IVI/meta-ivi/scripts/runqemu gemini-image vexpressa9
 
    > for qemu x86:  
-   > $ PATH_TO_POKY/poky/scripts/runqemu foton-image qemux86
+   > $ PATH_TO_POKY/poky/scripts/runqemu gemini-image qemux86
 
    > for qemu x86-64:  
-   > $ PATH_TO_POKY/poky/scripts/runqemu foton-image qemux86-64
+   > $ PATH_TO_POKY/poky/scripts/runqemu gemini-image qemux86-64
 
 9. To login use these credentials:
    > User - root
