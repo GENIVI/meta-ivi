@@ -32,7 +32,7 @@ Layer Dependencies
 
 URI: git://git.yoctoproject.org/poky
 > branch:   master
-> revision: 02521a40d36d06d269ec14ce9000f2941d6980af
+> revision: 44c3f72684c5c920ce8af1da54a2268047342589
 
 Using the above git sha's and master meta-ivi, bitbaking gemini-image is
 known to work (the gemini-image build should be GENIVI 5.0 compliant).
@@ -40,7 +40,7 @@ known to work (the gemini-image build should be GENIVI 5.0 compliant).
 For creating a specific GENIVI compliant image version, please make sure you
 git checkout the related meta-ivi branch and follow the build instructions
 located in the README.md file of that branch.  So for example, to build
-an image that should be GENIVI 3.0 compliant, checkout the meta-ivi 3.0 branch,
+an image that should be GENIVI 4.0 compliant, checkout the meta-ivi 4.0 branch,
 and follow the README.md part of that branch.  As does the GENIVI Alliance
 we only support the current and the previous version.  Any version older
 than that is not supported any more, and therefore may not build or run.
