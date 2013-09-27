@@ -31,10 +31,10 @@ Layer Dependencies
 ------------------
 
 URI: git://git.yoctoproject.org/poky
-> branch:   master
-> revision: 199b1a8c7d7109d9b59d67bf4dcfeb03be07587a
+> branch:   dora
+> revision: 4d8ab87d25ea6e59dc88375813ef88ee0ac813d0
 
-Using the above git sha's and master meta-ivi, bitbaking gemini-image is
+Using the above git sha's and meta-ivi 5.0, bitbaking gemini-image is
 known to work (the gemini-image build should be GENIVI 5.0 compliant).
 
 For creating a specific GENIVI compliant image version, please make sure you
