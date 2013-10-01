@@ -262,7 +262,7 @@ QEMUARM_DEFAULT_FSTYPE=ext3
 BEAGLEBOARD_DEFAULT_KERNEL=uImage-beagleboard.bin
 BEAGLEBOARD_DEFAULT_FSTYPE=tar.bz2
 
-VEXPRESSA9_DEFAULT_KERNEL=uImage-vexpressa9.bin
+VEXPRESSA9_DEFAULT_KERNEL=zImage-vexpressa9.bin
 VEXPRESSA9_DEFAULT_FSTYPE=tar.bz2
 
 QEMUMIPS_DEFAULT_KERNEL=vmlinux-qemumips.bin
@@ -353,7 +353,7 @@ fi
 if [ -z "$KERNEL" ]; then
     setup_tmpdir
     eval kernel_file=\$${machine2}_DEFAULT_KERNEL
-    KERNEL=$TMPDIR/deploy/images/$kernel_file
+    KERNEL=$TMPDIR/deploy/images/$MACHINE/$kernel_file
 
     if [ -z "$KERNEL" ]; then
         echo "Error: Unable to determine default kernel for MACHINE [$MACHINE]"
@@ -383,8 +383,8 @@ fi
 if [ "$LAZY_ROOTFS" = "true" ]; then
     setup_tmpdir
     echo "Assuming $ROOTFS really means $TMPDIR/deploy/images/$ROOTFS-$MACHINE.$FSTYPE"
-    IMGNAME=$TMPDIR/deploy/images/$ROOTFS-$MACHINE.vexpressa9-sdimg
-    ROOTFS=$TMPDIR/deploy/images/$ROOTFS-$MACHINE.$FSTYPE
+    IMGNAME=$TMPDIR/deploy/images/$MACHINE/$ROOTFS-$MACHINE.vexpressa9-sdimg
+    ROOTFS=$TMPDIR/deploy/images/$MACHINE/$ROOTFS-$MACHINE.$FSTYPE
     MLO=$TMPDIR/deploy/images/MLO-$MACHINE
     UBOOT=$TMPDIR/deploy/images/u-boot-$MACHINE.bin
 fi
