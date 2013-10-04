@@ -10,7 +10,7 @@ LIC_FILES_CHKSUM = "file://LICENSE.txt;md5=071e6b9a5eb9fc5868edf57ce153e5b9"
 DEPENDS = "virtual/egl dbus libxcomposite libxdamage"
 
 SRC_URI = " \
-    git://git.projects.genivi.org/layer_management.git;protocol=git;tag=1_0_1 \
+    git://git.projects.genivi.org/layer_management.git;protocol=git;tag=1_1 \
     file://layermanager.service \
     "
 
