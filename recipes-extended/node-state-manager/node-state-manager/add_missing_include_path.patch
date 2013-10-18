@@ -1,0 +1,14 @@
+Index: git/NodeStateAccess/Makefile.am
+===================================================================
+--- git.orig/NodeStateAccess/Makefile.am	2013-10-16 14:08:58.000000000 +0300
++++ git/NodeStateAccess/Makefile.am	2013-10-16 14:10:49.000000000 +0300
+@@ -21,7 +21,8 @@
+                                 generated/NodeStateLifecycleControl.c  \
+                                 generated/NodeStateLifecycleConsumer.c
+ 
+-libNodeStateAccess_la_CFLAGS  = -I generated                 \
++libNodeStateAccess_la_CFLAGS  = -I$(top_srcdir)/NodeStateManager \
++                                -I generated                 \
+                                 $(GIO_CFLAGS)                \
+                                 $(GIO_UNIX_CFLAGS)           \
+                                 $(GLIB_CFLAGS)               \
