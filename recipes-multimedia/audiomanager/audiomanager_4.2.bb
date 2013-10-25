@@ -5,13 +5,12 @@ SECTION = "multimedia"
 LICENSE = "MPLv2"
 LIC_FILES_CHKSUM = "file://LICENCE;md5=815ca599c9df247a0c7f619bab123dad"
 
-PR = "r1"
+PR = "r0"
 
 DEPENDS = "dlt-daemon sqlite3 dbus"
 
 SRC_URI = "git://git.projects.genivi.org/AudioManager.git;protocol=git;tag=${PV} \
-           file://AudioManager.service file://setup_amgr.sh \
-           file://0001-Build-plugins-as-modules-instead-of-shared-libraries.patch"
+           file://AudioManager.service file://setup_amgr.sh"
 
 S = "${WORKDIR}/git"
 inherit autotools gettext cmake pkgconfig systemd
