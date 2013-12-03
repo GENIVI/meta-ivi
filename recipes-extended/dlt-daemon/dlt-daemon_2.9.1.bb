@@ -11,7 +11,7 @@ DESCRIPTION = "This component provides a standardised log and trace interface, b
 HOMEPAGE = "https://www.genivi.org/"
 SECTION = "console/utils"
 
-PR = "r2"
+PR = "r0"
 
 inherit gzipnative
 
@@ -23,9 +23,8 @@ LIC_FILES_CHKSUM = " \
 
 DEPENDS = "zlib"
 
-SRC_URI = "git://git.projects.genivi.org/${PN}.git;protocol=git;tag=v${PV} \
-           file://systemd_service_installation.patch \
-           file://fix-in-build-builds.patch \
+SRC_URI = "git://git.projects.genivi.org/${PN}.git;tag=v${PV} \
+           file://modify_systemd_config_dir.patch \
           "
 
 S = "${WORKDIR}/git"
