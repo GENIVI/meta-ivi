@@ -11,11 +11,12 @@ SECTION = "base"
 LICENSE = "MPLv2"
 LIC_FILES_CHKSUM = "file://COPYING;md5=815ca599c9df247a0c7f619bab123dad"
 
-SRC_URI = "git://git.projects.genivi.org/lifecycle/node-state-manager.git;protocol=git;tag=c9ebf0f95499509922c74e55e2eed8192f35e493 \
+SRC_URI = "git://git.projects.genivi.org/lifecycle/node-state-manager.git;tag=c9ebf0f95499509922c74e55e2eed8192f35e493 \
            file://add_missing_include_path.patch \
+           file://nsm-fix-systemd-service-dep.patch \
           "
 
-PR = "r4"
+PR = "r5"
 
 EXTRA_OECONF = "${@base_contains('DISTRO_FEATURES', 'systemd', '--with-systemdsystemunitdir=${systemd_unitdir}/system/', '', d)}"
 
