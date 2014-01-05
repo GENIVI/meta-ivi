@@ -1,4 +1,7 @@
-DESCRIPTION = "eCryptfs: A stacked cryptographic filesystem for Linux"
+SUMMARY = "A stacked cryptographic filesystem for Linux"
+DESCRIPTION = "eCryptfs stores cryptographic metadata in the header of each \
+file written, so that encrypted files can be copied between hosts; the file \
+will be decrypted with the proper key in the Linux kernel keyring"
 SECTION = "base"
 LICENSE = "GPLv2"
 DEPENDS = "intltool-native keyutils libgcrypt libpam openssl"
