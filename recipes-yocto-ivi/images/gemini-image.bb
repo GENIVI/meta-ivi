@@ -2,7 +2,6 @@
 include recipes-yocto-ivi/images/ivi-image.inc
 
 PV = "5.0.0"
-#PR = "r1"
 
 IMAGE_INSTALL_append = " \
     packagegroup-abstract-component-p1 \
@@ -11,5 +10,3 @@ IMAGE_INSTALL_append = " \
     packagegroup-abstract-component-p2 \
     packagegroup-specific-component-p1 \
 "
-
-# Add image specific packages
