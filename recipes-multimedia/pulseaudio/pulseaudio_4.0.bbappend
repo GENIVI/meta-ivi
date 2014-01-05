@@ -2,33 +2,30 @@ PRINC := "${@int(PRINC) + 5}"
 
 FILESEXTRAPATHS_prepend := "${THISDIR}/${PN}:"
 
-SRC_URI_append = " file://pulseaudio.service "
+SRC_URI_append = " file://pulseaudio.service"
 
+inherit systemd
+
+SYSTEMD_PACKAGES = "${PN}-server"
 SYSTEMD_SERVICE = "pulseaudio.service"
-
-# Remove gconf as it triggers a GPLv3 dependency
-DEPENDS := "${@oe_filter_out('gconf', '${DEPENDS}', d)}"
-
-DEPENDS += "${@base_contains('DISTRO_FEATURES', 'systemd', 'systemd', '', d)}"
 
 RDEPENDS_pulseaudio-module-systemd-login =+ "systemd"
 RDEPENDS_pulseaudio-server += "\
         ${@base_contains('DISTRO_FEATURES', 'x11', 'pulseaudio-module-systemd-login', '', d)}"
 
-# We use pulseaudio-module-systemd-login so let's drop pulseaudio-module-console-kit
-RDEPENDS_pulseaudio-server := "${@oe_filter_out('pulseaudio-module-console-kit', '${RDEPENDS_pulseaudio-server}', d)}"
-
-FILES_${PN}-server += " \
-    ${systemd_unitdir}/system/pulseaudio.service \
-    "
-
-do_configure_append () {
-	# udev_get_dev_path(), udev_get_sys_path(), udev_get_run_path()
-	# systemd does not allow to configure any of these filesystem paths
-	# udev is included in systemd
-	sed -i 's:udev_get_sys_path(udev):"/sys":' ${S}/src/modules/module-udev-detect.c
-	sed -i 's:udev_get_sys_path(udev):"/sys":' ${S}/src/modules/udev-util.c
-	sed -i 's:udev_get_dev_path(u->udev):"/dev":' ${S}/src/modules/module-udev-detect.c
+python __anonymous () {
+    '''
+    If DISTRO_FEATURES include systemd use pulseaudio-module-systemd-login as a
+    replacer for pulseaudio-module-console-kit.
+    '''
+    distro_features = d.getVar('DISTRO_FEATURES', True).split()
+    if 'systemd' in distro_features:
+        new_rdeps = []
+        old_rdeps = d.getVar('RDEPENDS_pulseaudio-server', True).split()
+        for rdep in old_rdeps:
+            if rdep != 'pulseaudio-module-console-kit':
+                new_rdeps.append(rdep)
+        d.setVar('RDEPENDS_pulseaudio-server', ' '.join(new_rdeps))
 }
 
 do_install_append() {
