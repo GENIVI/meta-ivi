@@ -1,4 +1,8 @@
-DESCRIPTION = "Linux Key Management Utilities"
+SUMMARY = "Linux Key Management Utilities"
+DESCRIPTION = "Keyutils is a set of utilities for managing the key retention \
+facility in the kernel, which can be used by filesystems, block devices and \
+more to gain and retain the authorization and encryption keys required to \
+perform secure operations."
 SECTION = "base"
 LICENSE = "GPLv2"
 LIC_FILES_CHKSUM = "file://LICENCE.GPL;md5=5f6e72824f5da505c1f4a7197f004b45"
@@ -21,5 +25,5 @@ inherit autotools
 INSTALL_FLAGS = "BINDIR=/usr/bin SBINDIR=/usr/sbin DESTDIR=${D}"
 
 do_install() {
-	oe_runmake ${INSTALL_FLAGS} install
+    oe_runmake ${INSTALL_FLAGS} install
 }
