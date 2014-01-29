@@ -2,15 +2,16 @@ DESCRIPTION = "LayerManager"
 HOMEPAGE = "https://www.genivi.org/"
 SECTION = "environment/base"
 
-PR = "r0"
-
 LICENSE = "Apache-2.0"
 LIC_FILES_CHKSUM = "file://LICENSE.txt;md5=071e6b9a5eb9fc5868edf57ce153e5b9"
 
 DEPENDS = "virtual/egl dbus libxcomposite libxdamage"
 
+SRCREV = "5e2f490b40b8b60a0efbd2b244be44d93bc081f6"
+PR = "r1"
+
 SRC_URI = " \
-    git://git.projects.genivi.org/layer_management.git;protocol=git;tag=1_1 \
+    git://git.projects.genivi.org/layer_management.git;protocol=git \
     file://layermanager.service \
     "
 
