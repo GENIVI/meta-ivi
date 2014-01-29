@@ -11,8 +11,6 @@ DESCRIPTION = "This component provides a standardised log and trace interface, b
 HOMEPAGE = "https://www.genivi.org/"
 SECTION = "console/utils"
 
-PR = "r0"
-
 inherit gzipnative
 
 LICENSE = "MPLv2"
@@ -23,7 +21,10 @@ LIC_FILES_CHKSUM = " \
 
 DEPENDS = "zlib"
 
-SRC_URI = "git://git.projects.genivi.org/${PN}.git;tag=v${PV} \
+SRCREV = "6ab10c022d4464628fc2b848b5a56bf1eaafe857"
+PR = "r1"
+
+SRC_URI = "git://git.projects.genivi.org/${PN}.git \
            file://modify_systemd_config_dir.patch \
           "
 
