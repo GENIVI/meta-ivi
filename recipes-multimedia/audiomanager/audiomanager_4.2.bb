@@ -5,11 +5,12 @@ SECTION = "multimedia"
 LICENSE = "MPLv2"
 LIC_FILES_CHKSUM = "file://LICENCE;md5=815ca599c9df247a0c7f619bab123dad"
 
-PR = "r0"
-
 DEPENDS = "common-api-c++-dbus dlt-daemon sqlite3 dbus"
 
-SRC_URI = "git://git.projects.genivi.org/AudioManager.git;protocol=git;tag=${PV} \
+SRCREV = "5588613179be49860ffb7000c21fb08d4580f383"
+PR = "r1"
+
+SRC_URI = "git://git.projects.genivi.org/AudioManager.git;branch=gemini_stable \
            file://AudioManager.service file://setup_amgr.sh"
 
 S = "${WORKDIR}/git"
