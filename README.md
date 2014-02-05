@@ -100,3 +100,6 @@ quad-core machine.
    > User - root
    > Password - root
 
+You may point an environment variable named TEMPLATECONF to the meta-ivi/conf
+directory for the template local.conf & bblayers.conf files; in which case you
+may skip steps 2. to 6.
