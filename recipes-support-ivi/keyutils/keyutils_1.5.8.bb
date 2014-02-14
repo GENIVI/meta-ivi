@@ -7,9 +7,7 @@ SECTION = "base"
 LICENSE = "GPLv2"
 LIC_FILES_CHKSUM = "file://LICENCE.GPL;md5=5f6e72824f5da505c1f4a7197f004b45"
 
-PR = "r1"
-
-SRCREV = "5cd9d711f650e03685ba8bf2099b2df30cf6e71a"
+SRCREV = "dd64114721edca5808872190e7e2e927ee2e994c"
 
 SRC_URI = "git://git.kernel.org/pub/scm/linux/kernel/git/dhowells/keyutils.git;protocol=git \
           file://keyutils_fix_library_install.patch \
