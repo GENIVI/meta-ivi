@@ -1,13 +1,13 @@
 Index: git/NodeStateManager/config/nodestatemanager-daemon.service.in
 ===================================================================
---- git.orig/NodeStateManager/config/nodestatemanager-daemon.service.in	2013-12-04 08:37:48.000000000 +0200
-+++ git/NodeStateManager/config/nodestatemanager-daemon.service.in	2013-12-04 08:38:56.000000000 +0200
-@@ -2,8 +2,8 @@
+--- git.orig/NodeStateManager/config/nodestatemanager-daemon.service.in	2014-02-24 19:19:44.000000000 +0200
++++ git/NodeStateManager/config/nodestatemanager-daemon.service.in	2014-02-24 19:22:08.000000000 +0200
+@@ -11,8 +11,8 @@
  
  [Unit]
  Description=NodeStateManager to provide system states, session and shutdown handling
--Wants=dbus.service dlt-daemon.service
--After=dbus.service dlt-daemon.service
+-Wants=dbus.service dlt-daemon.service pas-daemon.service
+-After=dbus.service dlt-daemon.service pas-daemon.service
 +Wants=dbus.service dlt.service
 +After=dbus.service dlt.service
  

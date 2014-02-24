@@ -11,14 +11,17 @@ SECTION = "base"
 LICENSE = "MPLv2"
 LIC_FILES_CHKSUM = "file://COPYING;md5=815ca599c9df247a0c7f619bab123dad"
 
-SRC_URI = "git://git.projects.genivi.org/lifecycle/node-state-manager.git;tag=4e48024924d9441cc4431b26bf6e1c9d1f3697e8 \
+SRCREV = "dd4a86b9459537d2e85489b36abf80f34d12f098"
+
+SRC_URI = "git://git.projects.genivi.org/lifecycle/node-state-manager.git \
            file://nsm-fix-systemd-service-dep.patch \
           "
-PR = "r4"
+
+PR = "r0"
 
 EXTRA_OECONF = "${@base_contains('DISTRO_FEATURES', 'systemd', '--with-systemdsystemunitdir=${systemd_unitdir}/system/', '', d)}"
 
-DEPENDS = "dbus glib-2.0 dlt-daemon"
+DEPENDS = "dbus glib-2.0 dlt-daemon persistence-client-library"
 
 S = "${WORKDIR}/git"
 
@@ -28,7 +31,14 @@ SYSTEMD_SERVICE = "nodestatemanager-daemon.service"
 SYSTEMD_AUTO_ENABLE = "disable"
 
 
+do_configure_prepend() {
+	mkdir -p m4
+	mkdir -p NodeStateAccess/doc
+	mkdir -p NodeStateAccess/generated
+}
+
 FILES_${PN} += "\
     ${datadir}/dbus-1/system-services/org.genivi.NodeStateManager.LifeCycleControl.service \
     ${systemd_unitdir}/system/nodestatemanager-daemon.service \
     "
+FILES_${PN}-dev += "${datadir}/dbus-1/interfaces/"
