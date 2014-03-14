@@ -21,7 +21,7 @@ PR = "r0"
 
 EXTRA_OECONF = "${@base_contains('DISTRO_FEATURES', 'systemd', '--with-systemdsystemunitdir=${systemd_unitdir}/system/', '', d)}"
 
-DEPENDS = "dbus glib-2.0 dlt-daemon persistence-client-library"
+DEPENDS = "dbus glib-2.0 dlt-daemon persistence-client-library systemd"
 
 S = "${WORKDIR}/git"
 
