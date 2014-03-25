@@ -1,5 +1,3 @@
-PRINC := "${@int(PRINC) + 1}"
-
 FILESEXTRAPATHS := "${THISDIR}/${PN}"
 
 SRC_URI_append_vexpressa9 = " file://securetty-vea9"

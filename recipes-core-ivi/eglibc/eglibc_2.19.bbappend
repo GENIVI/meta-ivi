@@ -1,8 +1,6 @@
 # Use local $PN directory
 FILESEXTRAPATHS_prepend := "${THISDIR}/${PN}:"
 
-PRINC := "${@int(PRINC) + 2}"
-
 # add support for GENIVI AF_Bus D-Bus Optimization
 # - http://projects.genivi.org/afbus-dbus-optimization/
 SRC_URI_AFBUS = ""

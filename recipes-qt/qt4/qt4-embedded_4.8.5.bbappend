@@ -1,5 +1,3 @@
-PRINC := "${@int(PRINC) + 1}"
-
 OTHER_PACKAGES_ivi = "\
     ${QT_BASE_NAME}-tools \
     ${QT_BASE_NAME}-assistant \

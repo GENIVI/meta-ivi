@@ -1,5 +1,3 @@
-PRINC := "${@int(PRINC) + 4}"
-
 inherit systemd
 
 PACKAGES =+ "${PN}-systemd"

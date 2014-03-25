@@ -1,5 +1,3 @@
-PRINC := "${@int(PRINC) + 5}"
-
 FILESEXTRAPATHS_prepend := "${THISDIR}/${PN}:"
 
 SRC_URI_append = " file://pulseaudio.service"

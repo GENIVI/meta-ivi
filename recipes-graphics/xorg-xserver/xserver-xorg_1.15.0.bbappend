@@ -1,5 +1,3 @@
-PRINC := "${@int(PRINC) + 5}"
-
 FILESEXTRAPATHS := "${THISDIR}/${PN}"
 
 inherit systemd

@@ -1,5 +1,4 @@
 FILESEXTRAPATHS := "${THISDIR}/${PN}"
-PRINC := "${@int(PRINC) + 3}"
 
 # add support for GENIVI AF_Bus D-Bus Optimization
 # - http://projects.genivi.org/afbus-dbus-optimization/
