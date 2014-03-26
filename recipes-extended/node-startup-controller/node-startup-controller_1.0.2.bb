@@ -18,7 +18,9 @@ SRCREV = "717e743c84ef9c168501dcbc012c4212f1903581"
 PR = "r3"
 
 SRC_URI = "git://git.projects.genivi.org/lifecycle/node-startup-controller.git;branch=genivi-excalibur \
-           file://use-systemd-unit-dir.patch"
+           file://use-systemd-unit-dir.patch \
+           file://fix-no-libsystemd-daemon.patch \
+          "
 
 DEPENDS = "glib-2.0 dlt-daemon systemd"
 

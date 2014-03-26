@@ -1,0 +1,13 @@
+Index: git/configure.ac
+===================================================================
+--- git.orig/configure.ac	2014-03-26 09:25:49.000000000 +0200
++++ git/configure.ac	2014-03-26 09:26:54.000000000 +0200
+@@ -86,7 +86,7 @@
+ PKG_CHECK_MODULES([GLIB], [glib-2.0 >= 2.30.0])
+ PKG_CHECK_MODULES([GIO], [gio-2.0 >= 2.30.0])
+ PKG_CHECK_MODULES([GIO_UNIX], [gio-unix-2.0 >= 2.30.0])
+-PKG_CHECK_MODULES([SYSTEMD_DAEMON], [libsystemd-daemon >= 183])
++PKG_CHECK_MODULES([SYSTEMD_DAEMON], [libsystemd >= 183])
+ PKG_CHECK_MODULES([DLT], [automotive-dlt >= 2.2.0])
+ 
+ dnl *********************************************
