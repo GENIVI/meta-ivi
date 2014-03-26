@@ -10,7 +10,6 @@ After=dbus.service
 Type=oneshot
 RemainAfterExit=true
 ExecStart=/lib/systemd/scripts/setup_amgr.sh
-Restart=always
 
 [Install]
 WantedBy=multi-user.target
