@@ -18,7 +18,6 @@ RDEPENDS_${PN} += "\
     bluez4-systemd \
     eglibc \
     layer-management \
-    node-state-manager \
     obex-client \
     obexd \
     ofono \

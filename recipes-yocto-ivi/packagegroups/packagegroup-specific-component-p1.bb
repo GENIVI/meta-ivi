@@ -30,6 +30,7 @@ RDEPENDS_${PN} += "\
     gst-plugins-base \
     libusb1 \
     node-startup-controller \
+    node-state-manager \
     openssl \
     quota \
     sqlite3 \
