@@ -15,7 +15,6 @@ ALLOW_EMPTY_${PN} = "1"
 
 
 RDEPENDS_${PN} += "\
-    common-api-c++ \
     common-api-c++-dbus \
     fuse \
     pulseaudio-server \

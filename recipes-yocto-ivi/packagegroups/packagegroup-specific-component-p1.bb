@@ -17,6 +17,7 @@ ALLOW_EMPTY_${PN} = "1"
 RDEPENDS_${PN} += "\
     kernel-modules \
     audiomanager \
+    common-api-c++ \
     dlt-daemon \
     dlt-daemon-systemd \
     alsa-lib  \
