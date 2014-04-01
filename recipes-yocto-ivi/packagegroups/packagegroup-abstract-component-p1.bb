@@ -21,4 +21,5 @@ RDEPENDS_${PN} += "\
     node-state-manager \
     obex-client \
     obexd \
+    ofono \
     "
