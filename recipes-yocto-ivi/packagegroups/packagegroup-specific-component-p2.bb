@@ -18,6 +18,8 @@ RDEPENDS_${PN} += "\
     common-api-c++-dbus \
     fuse \
     pulseaudio-server \
+    quota \
+    sqlite3 \
     wireless-tools \
     "
 

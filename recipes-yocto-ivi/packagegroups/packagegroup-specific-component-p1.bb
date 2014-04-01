@@ -33,8 +33,6 @@ RDEPENDS_${PN} += "\
     node-startup-controller \
     node-state-manager \
     openssl \
-    quota \
-    sqlite3 \
     udev \
     wpa-supplicant \
     "
