@@ -14,8 +14,8 @@ PACKAGES = "\
 ALLOW_EMPTY_${PN} = "1"
 
 RDEPENDS_${PN} += "\
-    bluez4 \
-    bluez4-systemd \
+    bluez5 \
+    bluez5-obex \
     eglibc \
     layer-management \
     ofono \
