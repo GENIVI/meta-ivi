@@ -2,10 +2,15 @@ FILESEXTRAPATHS_prepend := "${THISDIR}/${PN}:"
 
 SRC_URI_append = " file://pulseaudio.service"
 
+PR = "r1"
+
 inherit systemd
 
 SYSTEMD_PACKAGES = "${PN}-server"
 SYSTEMD_SERVICE = "pulseaudio.service"
+
+PACKAGECONFIG_remove = "bluez4"
+PACKAGECONFIG_append = " bluez5"
 
 RDEPENDS_pulseaudio-module-systemd-login =+ "systemd"
 RDEPENDS_pulseaudio-server += "\
