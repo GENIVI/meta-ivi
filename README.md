@@ -34,8 +34,8 @@ URI: git://git.yoctoproject.org/poky
 > branch:   master
 > revision: 44c3f72684c5c920ce8af1da54a2268047342589
 
-Using the above git sha's and master meta-ivi, bitbaking gemini-image is
-known to work (the gemini-image build should be GENIVI 5.0 compliant).
+Using the above git sha's and master meta-ivi, bitbaking horizon-image is
+known to work (the horizon-image build should be GENIVI 6.0 compliant).
 
 For creating a specific GENIVI compliant image version, please make sure you
 git checkout the related meta-ivi branch and follow the build instructions
@@ -83,18 +83,18 @@ instruction-set maschine respectively.
 BB_NUMBER_THREADS = "4" and PARALLEL_MAKE = "-j 4" if you build on a
 quad-core machine.
 
-7. Build gemini-image including GENIVI 5.0 (Gemini) components
-   > $ bitbake gemini-image
+7. Build horizon-image including GENIVI 6.0 (Horizon) components
+   > $ bitbake horizon-image
 
 8. Run the emulator:
    > for qemu vexpressa9:  
-   > $ PATH_TO_META_IVI/meta-ivi/scripts/runqemu gemini-image vexpressa9
+   > $ PATH_TO_META_IVI/meta-ivi/scripts/runqemu horizon-image vexpressa9
 
    > for qemu x86:  
-   > $ PATH_TO_POKY/poky/scripts/runqemu gemini-image qemux86
+   > $ PATH_TO_POKY/poky/scripts/runqemu horizon-image qemux86
 
    > for qemu x86-64:  
-   > $ PATH_TO_POKY/poky/scripts/runqemu gemini-image qemux86-64
+   > $ PATH_TO_POKY/poky/scripts/runqemu horizon-image qemux86-64
 
 9. To login use these credentials:
    > User - root
