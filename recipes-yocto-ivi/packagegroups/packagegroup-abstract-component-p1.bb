@@ -17,6 +17,7 @@ RDEPENDS_${PN} += "\
     bluez5 \
     bluez5-obex \
     eglibc \
-    layer-management \
     ofono \
+    wayland-ivi-extension \
+    weston \
     "
