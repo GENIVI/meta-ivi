@@ -16,5 +16,3 @@ ALLOW_EMPTY_${PN} = "1"
 
 RDEPENDS_${PN} += "\
     "
-
-RRECOMMENDS_${PN} =  "${@base_contains("DISTRO_FEATURES", "x11", "packagegroup-xserver-ivi", "", d)}"
