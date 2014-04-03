@@ -1,0 +1,13 @@
+Index: git/weston-ivi-shell/CMakeLists.txt
+===================================================================
+--- git.orig/weston-ivi-shell/CMakeLists.txt	2014-04-04 00:15:43.000000000 +0300
++++ git/weston-ivi-shell/CMakeLists.txt	2014-04-04 00:16:20.000000000 +0300
+@@ -44,7 +44,7 @@
+     ${CAIRO_LIBRARY_DIRS}
+     ${WESTON_LIBRARY_DIRS}
+     ${PIXMAN_LIBRARY_DIRS}
+-    ${WESTON_LIBDIR}/weston
++    =${WESTON_LIBDIR}/weston
+ )
+ 
+ 
