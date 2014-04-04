@@ -1,0 +1,13 @@
+Index: git/configure.ac
+===================================================================
+--- git.orig/configure.ac	2014-04-04 09:16:53.000000000 +0300
++++ git/configure.ac	2014-04-04 09:17:17.000000000 +0300
+@@ -43,7 +43,7 @@
+ PKG_CHECK_MODULES([GLIB],     [glib-2.0                   >= 2.30.0 ])
+ PKG_CHECK_MODULES([GOBJECT],  [gobject-2.0                >= 2.30.0 ])
+ PKG_CHECK_MODULES([DBUS],     [dbus-1                     >= 1.4.10 ])
+-PKG_CHECK_MODULES([SYSTEMD],  [libsystemd-daemon          >= 187    ])
++PKG_CHECK_MODULES([SYSTEMD],  [libsystemd                 >= 187    ])
+ PKG_CHECK_MODULES([NSM],      [node-state-manager         >= 1.2.0.0])
+ PKG_CHECK_MODULES([PCL],      [persistence_client_library >= 0.6.0  ])
+ 
