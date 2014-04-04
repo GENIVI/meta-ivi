@@ -383,7 +383,7 @@ fi
 if [ "$LAZY_ROOTFS" = "true" ]; then
     setup_tmpdir
     echo "Assuming $ROOTFS really means $TMPDIR/deploy/images/$ROOTFS-$MACHINE.$FSTYPE"
-    IMGNAME=$TMPDIR/deploy/images/$MACHINE/$ROOTFS-$MACHINE.vexpressa9-sdimg
+    IMGNAME=$TMPDIR/deploy/images/$MACHINE/$ROOTFS-$MACHINE.ext3
     ROOTFS=$TMPDIR/deploy/images/$MACHINE/$ROOTFS-$MACHINE.$FSTYPE
     MLO=$TMPDIR/deploy/images/MLO-$MACHINE
     UBOOT=$TMPDIR/deploy/images/u-boot-$MACHINE.bin

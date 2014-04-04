@@ -424,7 +424,7 @@ if [ "$MACHINE" = "vexpressa9" ]; then
     export QEMU_AUDIO_DRV="none"
     #SCRIPT_QEMU_OPT="$SCRIPT_QEMU_OPT -serial stdio "
     if [ "$FSTYPE" = "tar.bz2" ]; then
-	KERNCMDLINE="root=/dev/mmcblk0p2 rw mem=1024M raid=noautodetect console=tty0 console=ttyAMA0,38400n8 rootwait vmalloc=256MB devtmpfs.mount=0"
+	KERNCMDLINE="root=/dev/mmcblk0 rw mem=1024M raid=noautodetect console=tty0 console=ttyAMA0,38400n8 rootwait vmalloc=256MB devtmpfs.mount=0"
 	QEMUOPTIONS="$QEMU_NETWORK_CMD -M $MACHINE_SUBTYPE -cpu cortex-a9 -sd $IMGNAME"
 	# Add
 	# -serial stdio
