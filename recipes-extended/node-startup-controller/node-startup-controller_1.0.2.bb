@@ -15,7 +15,7 @@ LICENSE = "MPLv2"
 LIC_FILES_CHKSUM = "file://COPYING;md5=815ca599c9df247a0c7f619bab123dad"
 
 SRCREV = "717e743c84ef9c168501dcbc012c4212f1903581"
-PR = "r3"
+PR = "r4"
 
 SRC_URI = "git://git.projects.genivi.org/lifecycle/node-startup-controller.git;branch=genivi-excalibur \
            file://use-systemd-unit-dir.patch \
@@ -28,7 +28,7 @@ S = "${WORKDIR}/git"
 
 inherit autotools gtk-doc systemd
 do_configure_prepend () {
-        mkdir -p m4
+        mkdir -p ${S}/m4
 }
 
 PACKAGES =+ "${PN}-nsm-dummy ${PN}-nsm-dummy-dbg"
