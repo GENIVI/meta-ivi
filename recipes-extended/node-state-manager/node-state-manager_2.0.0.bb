@@ -18,7 +18,7 @@ SRC_URI = "git://git.projects.genivi.org/lifecycle/node-state-manager.git \
            file://nsm-fix-no-libsystemd-daemon.patch \
           "
 
-PR = "r0"
+PR = "r1"
 
 EXTRA_OECONF = "${@base_contains('DISTRO_FEATURES', 'systemd', '--with-systemdsystemunitdir=${systemd_unitdir}/system/', '', d)}"
 
@@ -26,7 +26,7 @@ DEPENDS = "dbus glib-2.0 dlt-daemon persistence-client-library systemd"
 
 S = "${WORKDIR}/git"
 
-inherit autotools systemd
+inherit autotools-brokensep systemd
 
 SYSTEMD_SERVICE = "nodestatemanager-daemon.service"
 SYSTEMD_AUTO_ENABLE = "disable"
