@@ -13,13 +13,13 @@ SRC_URI = "http://coyotegulch.scottrobertladd.net/products/itzam/c/libitzam-6.0.
 SRC_URI[md5sum] = "333f680c21037e32b4000933eae27721"
 SRC_URI[sha256sum] = "d5b565a9d96275e3bf39ea2dd0b121a92b578819650a09fc5add4f4113df734d"
 
-PR = "r1"
+PR = "r2"
 
 inherit autotools
 
 do_install_prepend() {
     mkdir -p ${D}/usr/lib/pkgconfig
-    cp ${S}/libitzam.pc ${D}/usr/lib/pkgconfig
+    cp ${B}/libitzam.pc ${D}/usr/lib/pkgconfig
 }
 
 FILES_${PN}-dev += "/usr/lib/pkgconfig/*"
