@@ -31,8 +31,8 @@ Layer Dependencies
 ------------------
 
 URI: git://git.yoctoproject.org/poky
-> branch:   master
-> revision: bf8dcb43432004328162ddad3c8b38eaab6ab5ce
+> branch:   daisy
+> revision: 5306aaab07a7a9b3b0c7e8008dabbd2e89daec28
 
 Using the above git sha's and master meta-ivi, bitbaking horizon-image is
 known to work (the horizon-image build should be GENIVI 6.0 compliant).
@@ -40,7 +40,7 @@ known to work (the horizon-image build should be GENIVI 6.0 compliant).
 For creating a specific GENIVI compliant image version, please make sure you
 git checkout the related meta-ivi branch and follow the build instructions
 located in the README.md file of that branch.  So for example, to build
-an image that should be GENIVI 4.0 compliant, checkout the meta-ivi 4.0 branch,
+an image that should be GENIVI 5.0 compliant, checkout the meta-ivi 5.0 branch,
 and follow the README.md part of that branch.  As does the GENIVI Alliance
 we only support the current and the previous version.  Any version older
 than that is not supported any more, and therefore may not build or run.
