@@ -1,7 +1,8 @@
 # Base this image on generic IVI image
 include recipes-yocto-ivi/images/ivi-image.inc
 
-PV = "6.0.1"
+PV = "6.0+snapshot-${DATE}"
+
 
 IMAGE_INSTALL_append = " \
     packagegroup-abstract-component-p1 \
