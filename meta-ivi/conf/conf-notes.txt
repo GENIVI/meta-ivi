@@ -1,3 +1,4 @@
-Common target is:
+Common targets are:
+    horizon-image
     ivi-image
 
