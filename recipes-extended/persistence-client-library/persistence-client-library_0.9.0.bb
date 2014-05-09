@@ -10,11 +10,12 @@ SRCREV = "0934ba263e69be8453cc3150f997dad28489f0c7"
 
 SRC_URI = "git://git.projects.genivi.org/persistence/persistence-client-library.git \
           "
-PR = "r1"
+PR = "r2"
 
 DEPENDS = "dbus dlt-daemon libitzam"
 
 S = "${WORKDIR}/git"
 
-inherit autotools
+inherit autotools-brokensep
 PARALLEL_MAKE = ""
+
