@@ -21,8 +21,8 @@ LIC_FILES_CHKSUM = " \
 
 DEPENDS = "zlib"
 
-SRCREV = "6ab10c022d4464628fc2b848b5a56bf1eaafe857"
-PR = "r2"
+SRCREV = "8b48e73f79b4463393916e4c6696917e3dedd026"
+PR = "r0"
 
 SRC_URI = "git://git.projects.genivi.org/${PN}.git \
            file://modify_systemd_config_dir.patch \
