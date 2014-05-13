@@ -2,13 +2,13 @@ DESCRIPTION = "Weston is the reference implementation of a Wayland compositor. \
 This particular version we are using contains the IVI-Shell implementation."
 HOMEPAGE = "https://github.com/ntanibata/weston-ivi-shell"
 
-SRCREV = "71019824462597a82e71bee913f12165875e9fd2"
+SRCREV = "7d4cb85a941cf16c063d2ce577a4f718b6c70138"
 
 SRC_URI_remove = "http://wayland.freedesktop.org/releases/weston-1.4.0.tar.xz"
-SRC_URI_prepend = "git://github.com/ntanibata/weston-ivi-shell.git;branch=weston-ivi-shell-1.4.0-v12;protocol=http "
+SRC_URI_prepend = "git://github.com/ntanibata/weston-ivi-shell.git;branch=weston-ivi-shell-1.4.0-v13;protocol=http "
 S = "${WORKDIR}/git"
 
-PR = "r2"
+PR = "r3"
 
 FILES_${PN} += "${libdir}/weston/*"
 FILES_${PN}-dbg += "${libdir}/weston/.debug/*"
