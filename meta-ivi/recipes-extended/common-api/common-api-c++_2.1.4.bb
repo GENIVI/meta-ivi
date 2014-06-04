@@ -8,4 +8,6 @@ PR = "r0"
 SRC_URI = "git://git.projects.genivi.org/ipc/common-api-runtime.git;protocol=http;tag=${PV}"
 S = "${WORKDIR}/git"
 
+CXXFLAGS := "${@oe_filter_out('-fvisibility-inlines-hidden', '${CXXFLAGS}', d)}"
+
 inherit autotools lib_package pkgconfig

@@ -8,4 +8,7 @@ SRC_URI = "git://git.projects.genivi.org/ipc/common-api-dbus-runtime.git;protoco
 S = "${WORKDIR}/git"
 
 DEPENDS = "common-api2 dbus"
+
+CXXFLAGS := "${@oe_filter_out('-fvisibility-inlines-hidden', '${CXXFLAGS}', d)}"
+
 inherit autotools lib_package pkgconfig
