@@ -32,7 +32,7 @@ Layer Dependencies
 
 URI: git://git.yoctoproject.org/poky
 > branch:   master
-> revision: 646b089c38623cebe4a6b22c6798d21453fe5257
+> revision: f3d08464ef0e8ee11fe9d59857f4be314cd64580
 
 Using the above git sha's and master meta-ivi, bitbaking horizon-image is
 known to work (the horizon-image build should be GENIVI 6.0 compliant).
