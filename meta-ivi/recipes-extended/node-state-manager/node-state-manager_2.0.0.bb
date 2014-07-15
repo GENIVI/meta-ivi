@@ -38,6 +38,10 @@ do_configure_prepend() {
 	mkdir -p NodeStateAccess/generated
 }
 
+# .so files are the actual libraries
+FILES_SOLIBSDEV = ""
+SOLIBS = "${SOLIBSDEV}"
+
 FILES_${PN} += "\
     ${datadir}/dbus-1/system-services/org.genivi.NodeStateManager.LifeCycleControl.service \
     ${systemd_unitdir}/system/nodestatemanager-daemon.service \
