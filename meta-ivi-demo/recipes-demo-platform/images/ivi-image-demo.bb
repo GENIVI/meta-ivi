@@ -8,5 +8,5 @@ PV = "0.1+snapshot-${DATE}"
 
 IMAGE_INSTALL_append = " \
     boost \
+    automotive-message-broker \
     "
-
