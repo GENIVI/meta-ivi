@@ -26,7 +26,7 @@ DEPENDS = "dbus glib-2.0 dlt-daemon persistence-client-library systemd"
 
 S = "${WORKDIR}/git"
 
-inherit autotools-brokensep systemd
+inherit pkgconfig autotools-brokensep systemd
 
 SYSTEMD_SERVICE = "nodestatemanager-daemon.service"
 SYSTEMD_AUTO_ENABLE = "disable"
