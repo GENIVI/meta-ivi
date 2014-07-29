@@ -42,7 +42,7 @@ URI: https://github.com/meta-qt5/meta-qt5.git
 > branch:   master
 > revision: 
 
-URI: git://github.com/openembedded/meta-oe.git
+URI: git://git.openembedded.org/meta-openembedded
 > branch:   master
 > revision: 
 
