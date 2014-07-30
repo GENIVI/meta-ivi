@@ -17,6 +17,11 @@ PR = "r2"
 
 inherit autotools
 
+do_configure_prepend() {
+    # Add  necesary files
+    touch ${S}/INSTALL ${S}/NEWS ${S}/README ${S}/AUTHORS ${S}/ChangeLog
+}
+
 do_install_prepend() {
     mkdir -p ${D}/usr/lib/pkgconfig
     cp ${B}/libitzam.pc ${D}/usr/lib/pkgconfig
