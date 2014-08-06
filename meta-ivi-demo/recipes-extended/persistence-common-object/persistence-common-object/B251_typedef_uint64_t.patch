@@ -1,0 +1,22 @@
+diff --git a/inc/protected/persComTypes.h b/inc/protected/persComTypes.h
+index 4fc0ff7..78f4fb6 100644
+--- a/inc/protected/persComTypes.h
++++ b/inc/protected/persComTypes.h
+@@ -77,7 +77,7 @@ typedef __s64 INT64;
+ typedef __u8  uint8_t;
+ typedef __u16 uint16_t;
+ typedef __u32 uint32_t;
+-typedef __u64 uint64_t;
++//typedef __u64 uint64_t;
+ 
+ /**
+  * \brief 8 bit signed
+@@ -196,7 +196,7 @@ typedef sint32_t* psint32_t;
+ /**
+  * \brief Pointer to UNSIGNED-64-Bit
+  */
+-typedef uint64_t* puint64_t;
++//typedef uint64_t* puint64_t;
+ /**
+  * \brief Pointer to SIGNED-64-Bit
+  */

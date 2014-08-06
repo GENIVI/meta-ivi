@@ -11,4 +11,6 @@ IMAGE_INSTALL_append = " \
     packagegroup-gdp-gps \
     boost \
     automotive-message-broker \
+    persistence-common-object \
+    persistence-administrator \
     "
