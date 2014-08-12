@@ -16,7 +16,7 @@ DEPENDS = "libitzam dlt-daemon"
 
 S = "${WORKDIR}/git"
 
-inherit autotools-brokensep
+inherit autotools-brokensep pkgconfig
 
 FILES_${PN} += "${datadir}"
 
