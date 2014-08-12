@@ -7,6 +7,11 @@ PV = "0.1+snapshot-${DATE}"
 
 
 IMAGE_INSTALL_append = " \
+    packagegroup-abstract-component-p1 \
+    packagegroup-placeholder-component-p1 \
+    packagegroup-specific-component-p2 \
+    packagegroup-abstract-component-p2 \
+    packagegroup-specific-component-p1 \
     packagegroup-gdp-qt5 \
     packagegroup-gdp-gps \
     boost \
