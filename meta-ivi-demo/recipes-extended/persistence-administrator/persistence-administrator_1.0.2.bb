@@ -17,7 +17,7 @@ DEPENDS = "glib-2.0 dbus dlt-daemon libarchive zlib json-c node-state-manager \
 
 S = "${WORKDIR}/git"
 
-inherit autotools-brokensep systemd
+inherit autotools-brokensep systemd pkgconfig
 
 FILES_${PN}-dev += "${datadir}/dbus-1/"
 
