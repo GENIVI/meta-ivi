@@ -1,4 +1,4 @@
-FILESEXTRAPATHS := "${THISDIR}/${PN}"
+FILESEXTRAPATHS_append := ":${THISDIR}/${PN}"
 
 # add support for GENIVI AF_Bus D-Bus Optimization
 # - http://projects.genivi.org/afbus-dbus-optimization/
@@ -15,4 +15,3 @@ SRC_URI_append = "\
     ${SRC_URI_AFBUS} \
     ${SRC_URI_COMMONAPI} \
 "
-

@@ -1,5 +1,5 @@
 # find defconfig path
-FILESEXTRAPATHS := "${THISDIR}/${PN}"
+FILESEXTRAPATHS_append := ":${THISDIR}/${PN}"
 
 # Kernel configs
 SRC_URI_append_beagleboard = " \

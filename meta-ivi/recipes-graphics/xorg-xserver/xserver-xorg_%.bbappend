@@ -1,4 +1,4 @@
-FILESEXTRAPATHS := "${THISDIR}/${PN}"
+FILESEXTRAPATHS_append := ":${THISDIR}/${PN}"
 
 inherit systemd
 
