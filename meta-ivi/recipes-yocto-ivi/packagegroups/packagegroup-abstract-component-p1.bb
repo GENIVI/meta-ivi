@@ -19,5 +19,5 @@ RDEPENDS_${PN} += "\
     eglibc \
     ofono \
     wayland-ivi-extension \
-    weston \
+    weston weston-examples \
     "
