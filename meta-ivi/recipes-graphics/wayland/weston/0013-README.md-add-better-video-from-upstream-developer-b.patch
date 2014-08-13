@@ -1,0 +1,29 @@
+From 79e35bb041102b80d1ca8d43d0fa1057e2a064be Mon Sep 17 00:00:00 2001
+From: Manuel Bachmann <manuel.bachmann@open.eurogiciel.org>
+Date: Wed, 16 Jul 2014 15:25:48 +0200
+Subject: [PATCH 13/15] README.md : add better video from upstream developer
+ (bugs.tizen.org)
+
+Change-Id: I31a296a86912e64cb5e35b766746b09280a18cec
+Signed-off-by: Manuel Bachmann <manuel.bachmann@open.eurogiciel.org>
+---
+ README.md | 3 ++-
+ 1 file changed, 2 insertions(+), 1 deletion(-)
+
+diff --git a/README.md b/README.md
+index 0104fc0..7d7bec3 100644
+--- a/README.md
++++ b/README.md
+@@ -14,7 +14,8 @@ contact : TANIBATA Nabuhiko (https://github.com/ntanibata)</strong>
+ 
+ ![IVI-Shell screenshots](http://lists.freedesktop.org/archives/wayland-devel/attachments/20140625/abbfc064/attachment-0001.png)
+ 
+- (Video : http://www.youtube.com/watch?v=DO8oWvAPwhk)
++ (Video 1 : https://bugs.tizen.org/jira/secure/attachment/14722/ivi-shell-on-tizenIVI.mp4)
++ (Video 2 -of lesser quality : http://www.youtube.com/watch?v=DO8oWvAPwhk)
+ 
+ ## Installation
+ 
+-- 
+1.9.3
+

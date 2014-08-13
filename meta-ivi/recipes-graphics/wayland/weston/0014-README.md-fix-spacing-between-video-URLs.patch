@@ -1,0 +1,26 @@
+From 0b5c1e7047addef4d883e07295ba3acbb3a46bc8 Mon Sep 17 00:00:00 2001
+From: Manuel Bachmann <manuel.bachmann@open.eurogiciel.org>
+Date: Wed, 16 Jul 2014 15:27:35 +0200
+Subject: [PATCH 14/15] README.md : fix spacing between video URLs
+
+Change-Id: If38b699ddc64c7515bc632cd381c5d8c0770380c
+Signed-off-by: Manuel Bachmann <manuel.bachmann@open.eurogiciel.org>
+---
+ README.md | 1 +
+ 1 file changed, 1 insertion(+)
+
+diff --git a/README.md b/README.md
+index 7d7bec3..636e48c 100644
+--- a/README.md
++++ b/README.md
+@@ -15,6 +15,7 @@ contact : TANIBATA Nabuhiko (https://github.com/ntanibata)</strong>
+ ![IVI-Shell screenshots](http://lists.freedesktop.org/archives/wayland-devel/attachments/20140625/abbfc064/attachment-0001.png)
+ 
+  (Video 1 : https://bugs.tizen.org/jira/secure/attachment/14722/ivi-shell-on-tizenIVI.mp4)
++
+  (Video 2 -of lesser quality : http://www.youtube.com/watch?v=DO8oWvAPwhk)
+ 
+ ## Installation
+-- 
+1.9.3
+

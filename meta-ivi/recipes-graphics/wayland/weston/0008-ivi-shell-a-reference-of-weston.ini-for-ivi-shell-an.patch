@@ -1,0 +1,164 @@
+From 918f29c8aa9d6b8b3dfca65caf9a63b011673807 Mon Sep 17 00:00:00 2001
+From: root <root@debian70>
+Date: Wed, 9 Jul 2014 13:03:06 +0200
+Subject: [PATCH 08/15] ivi-shell: a reference of weston.ini for ivi-shell and
+ ivi-hmi-controller
+
+Signed-off-by: Nobuhiko Tanibata <NOBUHIKO_TANIBATA at xddp.denso.co.jp>
+---
+
+Changes for v2:
+  - squash Makefile to this patch
+
+Changes for v3 and v4:
+  - nothing. Version number aligned to the first patch
+
+Changes for v5:
+  - rebase weston v1.5 branch
+
+Changes for v6:
+  - the same as v5
+---
+ Makefile.am             | 13 +++++--
+ ivi-shell/weston.ini.in | 91 +++++++++++++++++++++++++++++++++++++++++++++++++
+ 2 files changed, 101 insertions(+), 3 deletions(-)
+ create mode 100644 ivi-shell/weston.ini.in
+
+diff --git a/Makefile.am b/Makefile.am
+index f561a54..2bf3c61 100644
+--- a/Makefile.am
++++ b/Makefile.am
+@@ -8,7 +8,7 @@ BUILT_SOURCES =
+ 
+ DISTCHECK_CONFIGURE_FLAGS = --disable-setuid-install
+ 
+-EXTRA_DIST = weston.ini.in
++EXTRA_DIST = weston.ini.in ivi-shell/weston.ini.in
+ 
+ weston.ini : $(srcdir)/weston.ini.in
+ 	$(AM_V_GEN)$(SED) \
+@@ -17,7 +17,14 @@ weston.ini : $(srcdir)/weston.ini.in
+ 		-e 's|@libexecdir[@]|$(libexecdir)|g' \
+ 		$< > $@
+ 
+-all-local : weston.ini
++ivi-shell/weston.ini : $(srcdir)/ivi-shell/weston.ini.in
++	$(AM_V_GEN)$(SED) \
++		-e 's|@bindir[@]|$(bindir)|g' \
++		-e 's|@abs_top_builddir[@]|$(abs_top_builddir)|g' \
++		-e 's|@libexecdir[@]|$(libexecdir)|g' \
++		$< > $@
++
++all-local : weston.ini ivi-shell/weston.ini
+ 
+ AM_CFLAGS = $(GCC_CFLAGS)
+ 
+@@ -33,7 +40,7 @@ AM_CPPFLAGS = 					\
+ 	-DLIBEXECDIR='"$(libexecdir)"'		\
+ 	-DBINDIR='"$(bindir)"'
+ 
+-CLEANFILES = weston.ini $(BUILT_SOURCES)
++CLEANFILES = weston.ini ivi-shell/weston.ini $(BUILT_SOURCES)
+ 
+ bin_PROGRAMS += weston
+ 
+diff --git a/ivi-shell/weston.ini.in b/ivi-shell/weston.ini.in
+new file mode 100644
+index 0000000..3c9fb6a
+--- /dev/null
++++ b/ivi-shell/weston.ini.in
+@@ -0,0 +1,91 @@
++[core]
++shell=ivi-shell.so
++
++[ivi-shell]
++ivi-module=hmi-controller.so
++ivi-shell-user-interface=@abs_top_builddir@/weston-ivi-shell-user-interface
++
++cursor-theme=default
++cursor-size=32
++
++base-layer-id=1000
++workspace-background-layer-id=2000
++workspace-layer-id=3000
++application-layer-id=4000
++
++background-image=@abs_top_builddir@/data/background.png
++background-id=1001
++panel-image=@abs_top_builddir@/data/panel.png
++panel-id=1002
++tiling-image=@abs_top_builddir@/data/tiling.png
++tiling-id=1003
++sidebyside-image=@abs_top_builddir@/data/sidebyside.png
++sidebyside-id=1004
++fullscreen-image=@abs_top_builddir@/data/fullscreen.png
++fullscreen-id=1005
++random-image=@abs_top_builddir@/data/random.png
++random-id=1006
++home-image=@abs_top_builddir@/data/home.png
++home-id=1007
++workspace-background-color=0x99000000
++workspace-background-id=2001
++
++[ivi-launcher]
++workspace-id=0
++icon-id=4001
++icon=@abs_top_builddir@/data/icon_ivi_flower.png
++path=@abs_top_builddir@/clients/weston-flower
++
++[ivi-launcher]
++workspace-id=0
++icon-id=4002
++icon=@abs_top_builddir@/data/icon_ivi_clickdot.png
++path=@abs_top_builddir@/clients/weston-clickdot
++
++[ivi-launcher]
++workspace-id=1
++icon-id=4003
++icon=@abs_top_builddir@/data/icon_ivi_simple-egl.png
++path=@abs_top_builddir@/clients/weston-simple-egl
++
++[ivi-launcher]
++workspace-id=1
++icon-id=4004
++icon=@abs_top_builddir@/data/icon_ivi_simple-shm.png
++path=@abs_top_builddir@/clients/weston-simple-shm
++
++[ivi-launcher]
++workspace-id=2
++icon-id=4005
++icon=@abs_top_builddir@/data/icon_ivi_smoke.png
++path=@abs_top_builddir@/clients/weston-smoke
++
++[ivi-launcher]
++workspace-id=3
++icon-id=4006
++icon=@abs_top_builddir@/data/icon_ivi_flower.png
++path=@abs_top_builddir@/clients/weston-flower
++
++[ivi-launcher]
++workspace-id=3
++icon-id=4007
++icon=@abs_top_builddir@/data/icon_ivi_clickdot.png
++path=@abs_top_builddir@/clients/weston-clickdot
++
++[ivi-launcher]
++workspace-id=3
++icon-id=4008
++icon=@abs_top_builddir@/data/icon_ivi_simple-egl.png
++path=@abs_top_builddir@/clients/weston-simple-egl
++
++[ivi-launcher]
++workspace-id=3
++icon-id=4009
++icon=@abs_top_builddir@/data/icon_ivi_simple-shm.png
++path=@abs_top_builddir@/clients/weston-simple-shm
++
++[ivi-launcher]
++workspace-id=3
++icon-id=4010
++icon=@abs_top_builddir@/data/icon_ivi_smoke.png
++path=@abs_top_builddir@/clients/weston-smoke
+-- 
+1.9.3
+
