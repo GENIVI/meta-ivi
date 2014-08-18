@@ -1,7 +1,7 @@
 # Base this image on generic IVI image
 require recipes-yocto-ivi/images/ivi-image.inc
 
-PV = "0.1+snapshot-${DATE}"
+PV = "0.2+snapshot-${DATE}"
 
 
 IMAGE_INSTALL_append = " \
@@ -14,6 +14,4 @@ IMAGE_INSTALL_append = " \
     packagegroup-gdp-gps \
     boost \
     automotive-message-broker \
-    persistence-common-object \
-    persistence-administrator \
     "
