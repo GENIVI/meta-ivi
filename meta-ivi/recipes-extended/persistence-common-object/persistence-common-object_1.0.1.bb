@@ -12,7 +12,7 @@ SRC_URI = "git://git.projects.genivi.org/persistence/persistence-common-object.g
 
 SRCREV = "8779f2dc2801bc273e0251a3aaff867ab07ed6f2"
 
-DEPENDS = "libitzam dlt-daemon"
+DEPENDS = "glib-2.0 libitzam dlt-daemon"
 
 S = "${WORKDIR}/git"
 
