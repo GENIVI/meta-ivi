@@ -12,22 +12,6 @@
 # variable as required.
 
 #
-# Parallelism Options
-#
-# These two options control how much parallelism BitBake should use. The first 
-# option determines how many tasks bitbake should run in parallel:
-#
-#BB_NUMBER_THREADS ?= "4"
-# 
-# The second option controls how many processes make should run in parallel when
-# running compile tasks:
-#
-#PARALLEL_MAKE ?= "-j 4"
-#
-# For a quad-core machine, BB_NUMBER_THREADS = "4", PARALLEL_MAKE = "-j 4" would
-# be appropriate for example.
-
-#
 # Machine Selection
 #
 # You need to select a specific machine to target the build with. There are a selection
@@ -219,6 +203,18 @@ BB_DISKMON_DIRS = "\
 #SSTATE_MIRRORS ?= "\
 #file://.* http://someserver.tld/share/sstate/PATH;downloadfilename=PATH \n \
 #file://.* file:///some/local/dir/sstate/PATH"
+
+
+#
+# Qemu configuration
+#
+# By default qemu will build with a builtin VNC server where graphical output can be
+# seen. The two lines below enable the SDL backend too. This assumes there is a
+# libsdl library available on your build system.
+PACKAGECONFIG_append_pn-qemu-native = " sdl"
+PACKAGECONFIG_append_pn-nativesdk-qemu = " sdl"
+ASSUME_PROVIDED += "libsdl-native"
+
 
 # CONF_VERSION is increased each time build/conf/ changes incompatibly and is used to
 # track the version of this file when it was generated. This can safely be ignored if
