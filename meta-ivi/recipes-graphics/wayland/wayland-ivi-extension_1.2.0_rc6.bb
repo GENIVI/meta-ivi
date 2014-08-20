@@ -13,7 +13,7 @@ SRC_URI = "git://git.projects.genivi.org/wayland-ivi-extension.git \
            file://use_sysroot_dir.patch \
            file://fix_compositor_include.patch \
           "
-SRCREV  = "19788f888163cdf4d16ee6bb0ad090a34b974477"
+SRCREV  = "8049908e734cf40fb11519f3c820b45041db4fe1"
 S = "${WORKDIR}/git"
 
 inherit cmake autotools
