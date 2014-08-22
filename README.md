@@ -14,17 +14,17 @@ The meta-ivi project welcomes contributions. You can contribute code,
 submit patches, report bugs, answer questions on our mailing lists and
 review and edit our documentation and much more.
 
-Subscribe to the mailing list
-    [here](https://lists.genivi.org/mailman/listinfo/genivi-meta-ivi).
-View or Report bugs
-    [here](https://bugs.genivi.org/buglist.cgi?product=meta-ivi).
-Read or Edit the wiki
-    [here](http://wiki.projects.genivi.org/index.php/meta-ivi).
-Vote or Comment on our plan
-    [here](https://trello.com/b/HplBZa2l/meta-ivi-development).
-For information about the Yocto Project, see the
-    [Yocto Project website](https://www.yoctoproject.org).
-For information about the Yocto GENIVI Baseline, see the
+Subscribe to the mailing list  
+    [here](https://lists.genivi.org/mailman/listinfo/genivi-meta-ivi).  
+View or Report bugs  
+    [here](https://bugs.genivi.org/buglist.cgi?product=meta-ivi).  
+Read or Edit the wiki  
+    [here](http://wiki.projects.genivi.org/index.php/meta-ivi).  
+Vote or Comment on our plan  
+    [here](https://trello.com/b/HplBZa2l/meta-ivi-development).  
+For information about the Yocto Project, see the  
+    [Yocto Project website](https://www.yoctoproject.org).  
+For information about the Yocto GENIVI Baseline, see the  
     [Yocto GENIVI Baseline website](http://projects.genivi.org/GENIVI_Baselines/meta-ivi).
 
 Layer Dependencies
@@ -32,15 +32,15 @@ Layer Dependencies
 
 URI: git://git.yoctoproject.org/poky
 > branch:   master
-> revision: f3d08464ef0e8ee11fe9d59857f4be314cd64580
+> revision: 34436672f3ef4915e7526770a0fa8dcff328f93d
 
-Using the above git sha's and master meta-ivi, bitbaking horizon-image is
-known to work (the horizon-image build should be GENIVI 6.0 compliant).
+Using the above git sha's and the meta-ivi 7.0 branch, bitbaking intrepid-image
+is known to work (the intrepid-image build should be GENIVI 7.0 compliant).
 
 For creating a specific GENIVI compliant image version, please make sure you
 git checkout the related meta-ivi branch and follow the build instructions
 located in the README.md file of that branch.  So for example, to build
-an image that should be GENIVI 5.0 compliant, checkout the meta-ivi 5.0 branch,
+an image that should be GENIVI 6.0 compliant, checkout the meta-ivi 6.0 branch,
 and follow the README.md part of that branch.  As does the GENIVI Alliance
 we only support the current and the previous version.  Any version older
 than that is not supported any more, and therefore may not build or run.
@@ -83,18 +83,18 @@ instruction-set maschine respectively.
 BB_NUMBER_THREADS = "4" and PARALLEL_MAKE = "-j 4" if you build on a
 quad-core machine.
 
-7. Build horizon-image including GENIVI 6.0 (Horizon) components
-   > $ bitbake horizon-image
+7. Build intrepid-image including GENIVI 7.0 (Intrepid) components
+   > $ bitbake intrepid-image
 
 8. Run the emulator:
    > for qemu vexpressa9:  
-   > $ PATH_TO_META_IVI/meta-ivi/scripts/runqemu horizon-image vexpressa9
-
+   > $ PATH_TO_META_IVI/meta-ivi/scripts/runqemu intrepid-image vexpressa9
+   >
    > for qemu x86:  
-   > $ PATH_TO_POKY/poky/scripts/runqemu horizon-image qemux86
-
+   > $ PATH_TO_POKY/poky/scripts/runqemu intrepid-image qemux86
+   >
    > for qemu x86-64:  
-   > $ PATH_TO_POKY/poky/scripts/runqemu horizon-image qemux86-64
+   > $ PATH_TO_POKY/poky/scripts/runqemu intrepid-image qemux86-64
 
 9. To login use these credentials:
    > User - root
