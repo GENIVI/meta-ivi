@@ -1,4 +1,4 @@
 Common targets are:
-    horizon-image
+    intrepid-image
     ivi-image
 
