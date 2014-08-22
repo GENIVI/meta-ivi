@@ -12,7 +12,7 @@ DEPENDS = "dlt-daemon dbus libcheck persistence-common-object"
 PV = "0.9.0+git${SRCPV}"
 
 SRC_URI = "git://git.projects.genivi.org/persistence/persistence-client-library.git"
-SRCREV  = "04e2e006dd596da9f9b4b3b644ad1f34b592f989"
+SRCREV  = "58015bd30ca5f9060b756aa7e7249b09850d0e7b"
 S = "${WORKDIR}/git"
 
 inherit pkgconfig autotools-brokensep
