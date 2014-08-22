@@ -1,6 +1,6 @@
 SUMARY = "Common persistence object used by client library and administrator"
-
-HOMEPAGE = "https://www.genivi.org/"
+HOMEPAGE = "http://projects.genivi.org/persistence-client-library"
+BUGTRACKER = "http://bugs.genivi.org/enter_bug.cgi?product=Persistence"
 SECTION = "base"
 
 LICENSE = "MPLv2"
@@ -18,6 +18,7 @@ S = "${WORKDIR}/git"
 
 inherit autotools-brokensep pkgconfig
 
-FILES_${PN} += "${datadir}"
+EXTRA_OECONF = "--with-dbuspolicydir=${sysconfdir}"
 
+FILES_${PN} += "${datadir}"
 
