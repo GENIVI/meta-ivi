@@ -3,7 +3,7 @@ SUMMARY = "itzam/C"
 HOMEPAGE = "https://www.genivi.org/"
 SECTION = "base"
 
-LICENSE = "Simplified BSD"
+LICENSE = "BSD-2-Clause"
 LIC_FILES_CHKSUM = "file://LicenseOpenSource.txt;md5=757d512d8e160c938b85a8b6487cd126"
 
 SRC_URI = "http://coyotegulch.scottrobertladd.net/products/itzam/c/libitzam-6.0.4.tar.gz \
