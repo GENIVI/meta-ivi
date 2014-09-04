@@ -13,7 +13,7 @@ SRC_URI = "git://git.projects.genivi.org/persistence/persistence-administrator.g
 SRCREV = "3a6cc3228b93c647f0ffed4b53641572e78f71d7"
 
 DEPENDS = "glib-2.0 dbus dlt-daemon libarchive zlib json-c node-state-manager \
-           systemd persistence-common-object libffi libitzam libgcc eglibc"
+           systemd persistence-common-object libffi libitzam"
 
 S = "${WORKDIR}/git"
 
