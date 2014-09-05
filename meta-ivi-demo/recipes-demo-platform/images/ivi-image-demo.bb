@@ -16,3 +16,7 @@ IMAGE_INSTALL_append = " \
     boost \
     automotive-message-broker \
     "
+IMAGE_INSTALL_append_koelsch = " \
+    wayland-wsegl \
+    wayland-wsegl-dev \
+    "
