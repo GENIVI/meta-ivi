@@ -10,6 +10,7 @@ IMAGE_INSTALL_append = " \
     packagegroup-specific-component-p2 \
     packagegroup-abstract-component-p2 \
     packagegroup-specific-component-p1 \
+    packagegroup-gdp-browser \
     packagegroup-gdp-qt5 \
     packagegroup-gdp-gps \
     boost \
