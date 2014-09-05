@@ -40,16 +40,19 @@ URI: git://git.yoctoproject.org/meta-renesas/meta-rcar-gen2
 
 URI: https://github.com/meta-qt5/meta-qt5.git
 > branch:   master
-> revision: 
+> revision: 02861e677ab95b537efb331fb7faea4e5851d2ea
 
 URI: git://git.openembedded.org/meta-openembedded
 > branch:   master
-> revision: 
+> revision: 1513d0e31f609ffcde9a116a50bfb0360b9e7ecf
 
 URI: git://git.yoctoproject.org/poky
 > branch:   master
-> revision: 
+> revision: fd0398f2c1355597a95242e6c8400eae6ad60fa4
 
+URI: git://git.linaro.org/openembedded/meta-linaro.git
+> branch: master
+> revision: 7345c6089b2afbf65baf64224c14bbb9d38e2241
 
 Supported Machines
 ------------------
