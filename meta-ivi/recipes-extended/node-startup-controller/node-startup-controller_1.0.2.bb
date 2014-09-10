@@ -33,7 +33,8 @@ do_configure_prepend () {
 
 PACKAGES =+ "${PN}-nsm-dummy ${PN}-nsm-dummy-dbg"
 
-SYSTEMD_SERVICE = "node-startup-controller.service"
+SYSTEMD_PACKAGES = "${PN}"
+SYSTEMD_SERVICE_${PN} = "node-startup-controller.service"
 SYSTEMD_AUTO_ENABLE = "disable"
 
 FILES_${PN} += "\
