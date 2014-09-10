@@ -19,7 +19,8 @@ S = "${WORKDIR}/git"
 
 inherit gettext cmake systemd
 
-SYSTEMD_SERVICE = "layermanager.service"
+SYSTEMD_PACKAGES = "${PN}"
+SYSTEMD_SERVICE_${PN} = "layermanager.service"
 SYSTEMD_AUTO_ENABLE = "disable"
 
 EXTRA_OECMAKE += "-DWITH_EXAMPLE_SCENE_PROVIDER=ON"
