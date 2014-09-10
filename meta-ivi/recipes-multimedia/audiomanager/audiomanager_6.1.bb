@@ -16,7 +16,8 @@ SRC_URI = "git://git.projects.genivi.org/AudioManager.git;branch=${BRANCH};tag=$
 S = "${WORKDIR}/git"
 inherit autotools gettext cmake pkgconfig systemd
 
-SYSTEMD_SERVICE = "AudioManager.service"
+SYSTEMD_PACKAGES = "${PN}"
+SYSTEMD_SERVICE_${PN} = "AudioManager.service"
 SYSTEMD_AUTO_ENABLE = "disable"
 
 EXTRA_OECMAKE += "-DWITH_TESTS=OFF -DUSE_BUILD_LIBS=OFF"
