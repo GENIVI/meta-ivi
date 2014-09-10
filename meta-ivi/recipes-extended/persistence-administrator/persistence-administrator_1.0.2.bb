@@ -21,5 +21,6 @@ inherit autotools-brokensep systemd pkgconfig
 
 FILES_${PN}-dev += "${datadir}/dbus-1/"
 
-SYSTEMD_SERVICE = "pas-daemon.service"
+SYSTEMD_PACKAGES = "${PN}"
+SYSTEMD_SERVICE_${PN} = "pas-daemon.service"
 SYSTEMD_AUTO_ENABLE = "disable"
