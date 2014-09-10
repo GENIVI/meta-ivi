@@ -20,7 +20,8 @@ SRC_URI[sha256sum] = "4a200176542d46439c5297021f2c7fd7343b871c20c6f73f6e6c9fc4e5
 
 inherit pkgconfig autotools systemd
 
-SYSTEMD_SERVICE = "ecryptfs.service"
+SYSTEMD_PACKAGES = "${PN}"
+SYSTEMD_SERVICE_${PN} = "ecryptfs.service"
 
 EXTRA_OECONF += "--disable-nss --disable-pywrap --enable-openssl --prefix=/ --sbindir=/sbin --datarootdir=/usr/share"
 EXTRA_OEMAKE += "'CFLAGS+= -lgcrypt '"
