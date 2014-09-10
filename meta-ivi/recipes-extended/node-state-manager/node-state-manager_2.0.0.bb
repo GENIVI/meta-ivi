@@ -28,7 +28,8 @@ S = "${WORKDIR}/git"
 
 inherit pkgconfig autotools-brokensep systemd
 
-SYSTEMD_SERVICE = "nodestatemanager-daemon.service"
+SYSTEMD_PACKAGES = "${PN}"
+SYSTEMD_SERVICE_${PN} = "nodestatemanager-daemon.service"
 SYSTEMD_AUTO_ENABLE = "disable"
 
 
