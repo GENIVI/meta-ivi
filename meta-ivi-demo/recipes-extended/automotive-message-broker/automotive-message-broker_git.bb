@@ -23,7 +23,8 @@ S = "${WORKDIR}/git"
 
 inherit cmake systemd cmake_qt5
 
-SYSTEMD_SERVICE = "ambd.service"
+SYSTEMD_PACKAGES = "${PN}"
+SYSTEMD_SERVICE_${PN} = "ambd.service"
 
 EXTRA_OECMAKE += " -Denable_icecc=OFF -Dqtmainloop=On"
 
