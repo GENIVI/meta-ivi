@@ -2,7 +2,8 @@ FILESEXTRAPATHS_append := ":${THISDIR}/${PN}"
 
 inherit systemd
 
-SYSTEMD_SERVICE = "X.service"
+SYSTEMD_PACKAGES = "${PN}"
+SYSTEMD_SERVICE_${PN} = "X.service"
 
 SRC_URI_append = " file://X.service \
                  "
