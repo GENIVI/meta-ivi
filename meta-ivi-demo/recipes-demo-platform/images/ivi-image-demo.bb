@@ -15,6 +15,7 @@ IMAGE_INSTALL_append = " \
     packagegroup-gdp-gps \
     boost \
     automotive-message-broker \
+    dropbear \
     "
 IMAGE_INSTALL_append_koelsch = " \
     wayland-wsegl \
