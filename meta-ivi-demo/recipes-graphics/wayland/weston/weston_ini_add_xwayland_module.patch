@@ -1,0 +1,11 @@
+Index: weston-1.5.0/weston.ini.in
+===================================================================
+--- weston-1.5.0.orig/weston.ini.in	2014-09-18 15:28:58.543218581 +0300
++++ weston-1.5.0/weston.ini.in	2014-09-18 15:29:07.039218332 +0300
+@@ -1,5 +1,6 @@
+ [core]
+ #modules=xwayland.so,cms-colord.so
++modules=xwayland.so
+ shell=desktop-shell.so
+ gbm-format=xrgb8888
+ 
