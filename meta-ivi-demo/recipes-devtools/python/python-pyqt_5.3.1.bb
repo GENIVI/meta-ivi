@@ -102,7 +102,7 @@ do_install() {
         echo "from PyQt5.${module} import *\n" >> ${D}${libdir}/${PYTHON_DIR}/site-packages/PyQt5/Qt.py
         install -m 0755 ${module}/lib${module}.so ${D}${libdir}/${PYTHON_DIR}/site-packages/PyQt5/${module}.so
     done
-    install -m -755 ${S}/dbus/libpyqt5.so.1.0.0 ${D}${libdir}/${PYTHON_DIR}/site-packages/dbus/mainloop/pyqt5.so
+    install -m 0755 ${S}/dbus/libpyqt5.so.1.0.0 ${D}${libdir}/${PYTHON_DIR}/site-packages/dbus/mainloop/pyqt5.so
     cp __init__.py ${D}${libdir}/${PYTHON_DIR}/site-packages/PyQt5/
 }
 
