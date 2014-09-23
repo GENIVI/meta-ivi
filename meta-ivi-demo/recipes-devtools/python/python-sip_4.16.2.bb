@@ -4,7 +4,7 @@ HOMEPAGE = "http://www.riverbankcomputing.co.uk/sip"
 AUTHOR = "Phil Thompson"
 LICENSE = "GPLv2+"
 LIC_FILES_CHKSUM = "file://../LICENSE-GPL2;md5=e91355d8a6f8bd8f7c699d62863c7303"
-DEPENDS = "python"
+DEPENDS = "python qtbase"
 RDEPENDS_${PN} = "python-core"
 
 # riverbankcomputing is upstream, but keeps only latest version, sf usually have few older
