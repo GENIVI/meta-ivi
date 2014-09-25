@@ -19,13 +19,16 @@ inherit qmake5
 do_install_append() {
     mkdir -p ${D}/opt/browser/bin/
     install ${B}/browser/browser ${D}/opt/browser/bin/
+    cp -r ${S}/demoui/images ${D}/opt/demoui
     mkdir -p ${D}/opt/testapp/bin/
     install ${B}/testapp/testapp ${D}/opt/testapp/bin/
+    cp -r ${S}/testapp/images ${D}/opt/testapp
+    cp -r ${S}/testapp/qml ${D}/opt/testapp
 }
 
 FILES_${PN} += "/opt/browser/bin/* \
                 /opt/demoui/* \
-                /opt/testapp/bin/* \
+                /opt/testapp/* \
                "
 
 FILES_${PN}-dbg += "/opt/browser/bin/.debug/* \
