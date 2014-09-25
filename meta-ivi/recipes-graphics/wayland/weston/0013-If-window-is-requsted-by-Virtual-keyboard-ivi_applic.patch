@@ -1,0 +1,39 @@
+From a34086db0ad4c46aed9ef400c6524378f9aac84d Mon Sep 17 00:00:00 2001
+From: Nobuhiko Tanibata <NOBUHIKO_TANIBATA@xddp.denso.co.jp>
+Date: Wed, 14 May 2014 16:10:06 +0900
+Subject: [PATCH 13/31] If window is requsted by "Virtual keyboard",
+ ivi_application surface is not created.
+
+The positioning of it is done by ivi_shell directly without ivi_application surface.
+
+Signed-off-by: Nobuhiko Tanibata <NOBUHIKO_TANIBATA@xddp.denso.co.jp>
+---
+ clients/window.c | 5 +++--
+ 1 file changed, 3 insertions(+), 2 deletions(-)
+
+diff --git a/clients/window.c b/clients/window.c
+index 47434dc..684f98e 100644
+--- a/clients/window.c
++++ b/clients/window.c
+@@ -1381,7 +1381,7 @@ surface_create_surface(struct surface *surface, uint32_t flags)
+ 
+ 	if (display->ivi_application)
+ 	{
+-		if (!surface->toysurface) {
++		if (!surface->toysurface && strcmp(surface->window->title,"Virtual keyboard")!=0) {
+ 			uint32_t id_ivisurf = IVI_SURFACE_ID + (uint32_t)getpid();
+ 			surface->window->ivi_surface =
+ 				ivi_application_surface_create(display->ivi_application,
+@@ -1498,7 +1498,8 @@ surface_destroy(struct surface *surface)
+ 
+ 	if (surface->window->display->ivi_application)
+ 	{
+-		ivi_surface_destroy(surface->window->ivi_surface);
++		if(strcmp(surface->window->title,"Virtual keyboard")!=0)
++			ivi_surface_destroy(surface->window->ivi_surface);
+ 		ivi_application_destroy(surface->window->display->ivi_application);
+ 	}
+ 
+-- 
+1.9.3
+

@@ -1,23 +1,10 @@
-From 918f29c8aa9d6b8b3dfca65caf9a63b011673807 Mon Sep 17 00:00:00 2001
-From: root <root@debian70>
-Date: Wed, 9 Jul 2014 13:03:06 +0200
-Subject: [PATCH 08/15] ivi-shell: a reference of weston.ini for ivi-shell and
- ivi-hmi-controller
+From 93a62d17c4673d40b3b83807d20c2e2cdd508f35 Mon Sep 17 00:00:00 2001
+From: Nobuhiko Tanibata <NOBUHIKO_TANIBATA@xddp.denso.co.jp>
+Date: Thu, 6 Mar 2014 11:03:05 +0900
+Subject: [PATCH 09/31] ivi-shell: a reference of weston.ini for ivi-shell and
+ ivi-hmi-controller.
 
-Signed-off-by: Nobuhiko Tanibata <NOBUHIKO_TANIBATA at xddp.denso.co.jp>
----
-
-Changes for v2:
-  - squash Makefile to this patch
-
-Changes for v3 and v4:
-  - nothing. Version number aligned to the first patch
-
-Changes for v5:
-  - rebase weston v1.5 branch
-
-Changes for v6:
-  - the same as v5
+Signed-off-by: Nobuhiko Tanibata <NOBUHIKO_TANIBATA@xddp.denso.co.jp>
 ---
  Makefile.am             | 13 +++++--
  ivi-shell/weston.ini.in | 91 +++++++++++++++++++++++++++++++++++++++++++++++++
@@ -25,7 +12,7 @@ Changes for v6:
  create mode 100644 ivi-shell/weston.ini.in
 
 diff --git a/Makefile.am b/Makefile.am
-index f561a54..2bf3c61 100644
+index 98995b4..835d721 100644
 --- a/Makefile.am
 +++ b/Makefile.am
 @@ -8,7 +8,7 @@ BUILT_SOURCES =

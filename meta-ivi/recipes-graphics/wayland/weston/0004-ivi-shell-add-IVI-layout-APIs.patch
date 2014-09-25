@@ -1,7 +1,7 @@
-From 7ba4e9aa78b4cdbf64a6ffb6c547b227466e7cc3 Mon Sep 17 00:00:00 2001
-From: root <root@debian70>
-Date: Wed, 9 Jul 2014 12:23:12 +0200
-Subject: [PATCH 03/15] ivi-shell: add IVI layout APIs
+From 8ace41517c3cdf2545652def228044e2523a2644 Mon Sep 17 00:00:00 2001
+From: Nobuhiko Tanibata <NOBUHIKO_TANIBATA@xddp.denso.co.jp>
+Date: Tue, 6 May 2014 17:25:31 +0900
+Subject: [PATCH 04/31] ivi-shell: add IVI layout APIs
 
 API set of controlling properties of surface and layer which groups
 surfaces. An unique ID whose type is integer is required to create
@@ -19,74 +19,42 @@ surface and layers about followings,
 - commit to apply property changes.
 - notifications of property change.
 
-Signed-off-by: Nobuhiko Tanibata <NOBUHIKO_TANIBATA at xddp.denso.co.jp>
+Signed-off-by: Nobuhiko Tanibata <NOBUHIKO_TANIBATA@xddp.denso.co.jp>
 ---
-Changes for v2:
-  - move this patch in front of ivi-shell patch to be compiled successfully.
-  - unsupport weston_layout_takeSurfaceScreenshot because implementation needs to
-    be discussed more. It is pending.
-  - support inherit propoerties of id_surface when client attaches another
-    wl_surface with id_surface after destroying ivi_surface once.
-  - bug fix of https://bugs.tizen.org/jira/browse/TIVI-2882
-
-Changes for v3 and v4
-  - nothing. Version number aligned to the first patch
-
-Changes for v5:
- - rebase weston v1.5 branch
- - apply review comments from mailing list
-
-Changes for v6:
- - apply bug fixes found in TIZEN IVI and GENIVI
- - apply review comments from Mailing list
-   - use signed integers except flags, bitfields, object ids.
-   - access views via weston_surface
-   - access width_from_buffer and height_from_buffer via weston_surface
-   - remove dependency on CAIRO
----
- Makefile.am                   |   25 +-
- ivi-shell/ivi-layout-export.h |  952 +++++++++++++
- ivi-shell/ivi-layout.c        | 2940 +++++++++++++++++++++++++++++++++++++++++
- 3 files changed, 3916 insertions(+), 1 deletion(-)
+ Makefile.am                   |   17 +-
+ ivi-shell/ivi-layout-export.h |  964 +++++++++++++
+ ivi-shell/ivi-layout.c        | 3066 +++++++++++++++++++++++++++++++++++++++++
+ 3 files changed, 4046 insertions(+), 1 deletion(-)
  create mode 100644 ivi-shell/ivi-layout-export.h
  create mode 100644 ivi-shell/ivi-layout.c
 
 diff --git a/Makefile.am b/Makefile.am
-index 5cd4f69..a1b6573 100644
+index e825fdd..148529f 100644
 --- a/Makefile.am
 +++ b/Makefile.am
-@@ -679,8 +679,11 @@ endif
- 
+@@ -703,7 +703,8 @@ endif
  if ENABLE_IVI_SHELL
  
--module_LTLIBRARIES += ivi-shell.la
-+module_LTLIBRARIES +=		\
-+	$(ivi_shell)		\
+ module_LTLIBRARIES +=				\
+-	$(ivi_shell)
++	$(ivi_shell)				\
 +	$(ivi_layout)
  
-+ivi_shell = ivi-shell.la
+ ivi_shell = ivi-shell.la
  ivi_shell_la_LDFLAGS = -module -avoid-version
- ivi_shell_la_LIBADD =		\
- 	$(COMPOSITOR_LIBS)	\
-@@ -700,6 +703,26 @@ nodist_ivi_shell_la_SOURCES =				\
+@@ -719,6 +720,20 @@ nodist_ivi_shell_la_SOURCES =			\
  
  BUILT_SOURCES += $(nodist_ivi_shell_la_SOURCES)
  
 +ivi_layout = ivi-layout.la
 +ivi_layout_la_LDFLAGS = -module -avoid-version
-+ivi_layout_la_LIBADD =		\
-+	$(COMPOSITOR_LIBS)	\
-+	$(IVI_SHELL_LIBS)	\
-+	libshared.la
-+ivi_layout_la_CFLAGS =		\
-+	$(COMPOSITOR_CFLAGS)	\
-+	$(IVI_SHELL_CFLAGS)	\
-+	$(GCC_CFLAGS)
-+ivi_layout_la_SOURCES =			\
-+	ivi-shell/ivi-layout.h		\
-+	ivi-shell/ivi-layout-export.h	\
++ivi_layout_la_LIBADD = $(COMPOSITOR_LIBS) $(IVI_SHELL_LIBS) libshared.la
++ivi_layout_la_CFLAGS = $(GCC_CFLAGS) $(COMPOSITOR_CFLAGS) $(IVI_SHELL_CFLAGS)
++ivi_layout_la_SOURCES =				\
++	ivi-shell/ivi-layout.h			\
++	ivi-shell/ivi-layout-export.h		\
 +	ivi-shell/ivi-layout.c
-+nodist_ivi_layout_la_SOURCES =				\
++nodist_ivi_layout_la_SOURCES =			\
 +	protocol/ivi-application-protocol.c		\
 +	protocol/ivi-application-server-protocol.h
 +
@@ -94,13 +62,13 @@ index 5cd4f69..a1b6573 100644
 +
  endif
  
- if ENABLE_FULLSCREEN_SHELL
+ 
 diff --git a/ivi-shell/ivi-layout-export.h b/ivi-shell/ivi-layout-export.h
 new file mode 100644
-index 0000000..796dd96
+index 0000000..81dd6f3
 --- /dev/null
 +++ b/ivi-shell/ivi-layout-export.h
-@@ -0,0 +1,952 @@
+@@ -0,0 +1,964 @@
 +/*
 + * Copyright (C) 2013 DENSO CORPORATION
 + *
@@ -224,6 +192,10 @@ index 0000000..796dd96
 +    IVI_NOTIFICATION_ALL         = 0xFFFF
 +};
 +
++typedef void(*shellWarningNotificationFunc)(uint32_t id_surface,
++                                            enum ivi_layout_warning_flag warn,
++                                            void *userdata);
++
 +typedef void(*layerPropertyNotificationFunc)(struct ivi_layout_layer *ivilayer,
 +                                            struct ivi_layout_LayerProperties*,
 +                                            enum ivi_layout_notification_mask mask,
@@ -252,6 +224,14 @@ index 0000000..796dd96
 +typedef void(*ivi_controller_surface_content_callback)(struct ivi_layout_surface *ivisurf,
 +                                            int32_t content,
 +                                            void *userdata);
++
++int32_t
++ivi_layout_addNotificationShellWarning(shellWarningNotificationFunc callback,
++                                       void *userdata);
++
++void
++ivi_layout_removeNotificationShellWarning(shellWarningNotificationFunc callback,
++                                          void *userdata);
 +
 +/**
 + * \brief to be called by ivi-shell in order to set initail view of
@@ -1055,10 +1035,10 @@ index 0000000..796dd96
 +#endif /* _IVI_LAYOUT_EXPORT_H_ */
 diff --git a/ivi-shell/ivi-layout.c b/ivi-shell/ivi-layout.c
 new file mode 100644
-index 0000000..af9e73e
+index 0000000..985798a
 --- /dev/null
 +++ b/ivi-shell/ivi-layout.c
-@@ -0,0 +1,2940 @@
+@@ -0,0 +1,3066 @@
 +/*
 + * Copyright (C) 2013 DENSO CORPORATION
 + *
@@ -1146,53 +1126,16 @@ index 0000000..af9e73e
 +    struct wl_list link_to_screen;
 +};
 +
-+struct link_layerPropertyNotification {
-+    layerPropertyNotificationFunc callback;
++struct listener_layoutNotification {
 +    void *userdata;
-+    struct wl_list link;
-+};
-+
-+struct link_surfacePropertyNotification {
-+    surfacePropertyNotificationFunc callback;
-+    void *userdata;
-+    struct wl_list link;
-+};
-+
-+struct link_layerCreateNotification {
-+    layerCreateNotificationFunc callback;
-+    void *userdata;
-+    struct wl_list link;
-+};
-+
-+struct link_layerRemoveNotification {
-+    layerRemoveNotificationFunc callback;
-+    void *userdata;
-+    struct wl_list link;
-+};
-+
-+struct link_surfaceCreateNotification {
-+    surfaceCreateNotificationFunc callback;
-+    void *userdata;
-+    struct wl_list link;
-+};
-+
-+struct link_surfaceRemoveNotification {
-+    surfaceRemoveNotificationFunc callback;
-+    void *userdata;
-+    struct wl_list link;
-+};
-+
-+struct link_surfaceConfigureNotification {
-+    surfaceConfigureNotificationFunc callback;
-+    void *userdata;
-+    struct wl_list link;
++    struct wl_listener listener;
 +};
 +
 +struct ivi_layout;
 +
 +struct ivi_layout_surface {
 +    struct wl_list link;
-+    struct wl_list list_notification;
++    struct wl_signal property_changed;
 +    struct wl_list list_layer;
 +    int32_t update_count;
 +    uint32_t id_surface;
@@ -1228,7 +1171,7 @@ index 0000000..af9e73e
 +
 +struct ivi_layout_layer {
 +    struct wl_list link;
-+    struct wl_list list_notification;
++    struct wl_signal property_changed;
 +    struct wl_list list_screen;
 +    struct wl_list link_to_surface;
 +    uint32_t id_layer;
@@ -1279,17 +1222,28 @@ index 0000000..af9e73e
 +    struct wl_list list_screen;
 +
 +    struct {
-+        struct wl_list list_create;
-+        struct wl_list list_remove;
++        struct wl_signal created;
++        struct wl_signal removed;
 +    } layer_notification;
 +
 +    struct {
-+        struct wl_list list_create;
-+        struct wl_list list_remove;
-+        struct wl_list list_configure;
++        struct wl_signal created;
++        struct wl_signal removed;
++        struct wl_signal configure_changed;
 +    } surface_notification;
 +
 +    struct weston_layer layout_layer;
++    struct wl_signal warning_signal;
++};
++
++struct ivi_layout_notificationCallback {
++    void *callback;
++    void *data;
++};
++
++struct shellWarningArgs {
++    uint32_t id_surface;
++    enum ivi_layout_warning_flag flag;
 +};
 +
 +static struct ivi_layout ivilayout = {0};
@@ -1298,6 +1252,25 @@ index 0000000..af9e73e
 +get_instance(void)
 +{
 +    return &ivilayout;
++}
++
++static void
++ivi_layout_emitWarningSignal(uint32_t id_surface,
++                             enum ivi_layout_warning_flag flag)
++{
++    struct ivi_layout *layout = get_instance();
++    struct shellWarningArgs *args = malloc(sizeof *args);
++
++    if (args == NULL) {
++        weston_log("ivi_layout_emitWarningSignal: failed to allocate memory\n");
++        return;
++    }
++
++    args->id_surface = id_surface;
++    args->flag = flag;
++
++    wl_signal_emit(&layout->warning_signal, args);
++    free(args);
 +}
 +
 +/**
@@ -2074,28 +2047,14 @@ index 0000000..af9e73e
 +static void
 +send_surface_prop(struct ivi_layout_surface *ivisurf)
 +{
-+    struct link_surfacePropertyNotification *notification = NULL;
-+
-+    wl_list_for_each(notification, &ivisurf->list_notification, link) {
-+        notification->callback(ivisurf, &ivisurf->prop,
-+                               ivisurf->event_mask,
-+                               notification->userdata);
-+    }
-+
++    wl_signal_emit(&ivisurf->property_changed, ivisurf);
 +    ivisurf->event_mask = 0;
 +}
 +
 +static void
 +send_layer_prop(struct ivi_layout_layer *ivilayer)
 +{
-+    struct link_layerPropertyNotification *notification = NULL;
-+
-+    wl_list_for_each(notification, &ivilayer->list_notification, link) {
-+        notification->callback(ivilayer, &ivilayer->prop,
-+                               ivilayer->event_mask,
-+                               notification->userdata);
-+    }
-+
++    wl_signal_emit(&ivilayer->property_changed, ivilayer);
 +    ivilayer->event_mask = 0;
 +}
 +
@@ -2150,6 +2109,217 @@ index 0000000..af9e73e
 +    ivilayer->event_mask |= IVI_NOTIFICATION_REMOVE;
 +}
 +
++static void
++layer_created(struct wl_listener *listener, void *data)
++{
++    struct ivi_layout_layer *ivilayer = (struct ivi_layout_layer *)data;
++
++    struct listener_layoutNotification *notification =
++        container_of(listener,
++                     struct listener_layoutNotification,
++                     listener);
++
++    struct ivi_layout_notificationCallback *created_callback =
++        (struct ivi_layout_notificationCallback *)notification->userdata;
++
++    ((layerCreateNotificationFunc)created_callback->callback)
++        (ivilayer, created_callback->data);
++}
++
++static void
++layer_removed(struct wl_listener *listener, void *data)
++{
++    struct ivi_layout_layer *ivilayer = (struct ivi_layout_layer *)data;
++
++    struct listener_layoutNotification *notification =
++        container_of(listener,
++                     struct listener_layoutNotification,
++                     listener);
++
++    struct ivi_layout_notificationCallback *removed_callback =
++        (struct ivi_layout_notificationCallback *)notification->userdata;
++
++    ((layerRemoveNotificationFunc)removed_callback->callback)
++        (ivilayer, removed_callback->data);
++}
++
++static void
++layer_prop_changed(struct wl_listener *listener, void *data)
++{
++    struct ivi_layout_layer *ivilayer = (struct ivi_layout_layer *)data;
++
++    struct listener_layoutNotification *layout_listener =
++        container_of(listener,
++                     struct listener_layoutNotification,
++                     listener);
++
++    struct ivi_layout_notificationCallback *prop_callback =
++        (struct ivi_layout_notificationCallback *)layout_listener->userdata;
++
++    ((layerPropertyNotificationFunc)prop_callback->callback)
++        (ivilayer, &ivilayer->prop, ivilayer->event_mask, prop_callback->data);
++}
++
++static void
++surface_created(struct wl_listener *listener, void *data)
++{
++    struct ivi_layout_surface *ivisurface = (struct ivi_layout_surface *)data;
++
++    struct listener_layoutNotification *notification =
++        container_of(listener,
++                     struct listener_layoutNotification,
++                     listener);
++
++    struct ivi_layout_notificationCallback *created_callback =
++        (struct ivi_layout_notificationCallback *)notification->userdata;
++
++    ((surfaceCreateNotificationFunc)created_callback->callback)
++        (ivisurface, created_callback->data);
++}
++
++static void
++surface_removed(struct wl_listener *listener, void *data)
++{
++    struct ivi_layout_surface *ivisurface = (struct ivi_layout_surface *)data;
++
++    struct listener_layoutNotification *notification =
++        container_of(listener,
++                     struct listener_layoutNotification,
++                     listener);
++
++    struct ivi_layout_notificationCallback *removed_callback =
++        (struct ivi_layout_notificationCallback *)notification->userdata;
++
++    ((surfaceRemoveNotificationFunc)removed_callback->callback)
++        (ivisurface, removed_callback->data);
++}
++
++static void
++surface_prop_changed(struct wl_listener *listener, void *data)
++{
++    struct ivi_layout_surface *ivisurf = (struct ivi_layout_surface *)data;
++
++    struct listener_layoutNotification *layout_listener =
++        container_of(listener,
++                     struct listener_layoutNotification,
++                     listener);
++
++    struct ivi_layout_notificationCallback *prop_callback =
++        (struct ivi_layout_notificationCallback *)layout_listener->userdata;
++
++    ((surfacePropertyNotificationFunc)prop_callback->callback)
++        (ivisurf, &ivisurf->prop, ivisurf->event_mask, prop_callback->data);
++
++    ivisurf->event_mask = 0;
++}
++
++static void
++surface_configure_changed(struct wl_listener *listener,
++                          void *data)
++{
++    struct ivi_layout_surface *ivisurface = (struct ivi_layout_surface *)data;
++
++    struct listener_layoutNotification *notification =
++        container_of(listener,
++                     struct listener_layoutNotification,
++                     listener);
++
++    struct ivi_layout_notificationCallback *configure_changed_callback =
++        (struct ivi_layout_notificationCallback *)notification->userdata;
++
++    ((surfaceConfigureNotificationFunc)configure_changed_callback->callback)
++        (ivisurface, configure_changed_callback->data);
++}
++
++static void
++warning_occurred(struct wl_listener *listener, void *data)
++{
++    struct shellWarningArgs *args = (struct shellWarningArgs *)data;
++
++    struct listener_layoutNotification *layout_listener =
++        container_of(listener,
++                     struct listener_layoutNotification,
++                     listener);
++
++    struct ivi_layout_notificationCallback *callback =
++        (struct ivi_layout_notificationCallback *)layout_listener->userdata;
++
++    ((shellWarningNotificationFunc)callback->callback)
++        (args->id_surface, args->flag, callback->data);
++}
++
++static int32_t
++add_notification(struct wl_signal *signal,
++                 wl_notify_func_t callback,
++                 void *userdata)
++{
++    struct listener_layoutNotification *notification = NULL;
++
++    notification = malloc(sizeof *notification);
++    if (notification == NULL) {
++        weston_log("fails to allocate memory\n");
++        free(userdata);
++        return -1;
++    }
++
++    notification->listener.notify = callback;
++    notification->userdata = userdata;
++
++    wl_signal_add(signal, &notification->listener);
++
++    return 0;
++}
++
++static void
++remove_notification(struct wl_list *listener_list, void *callback, void *userdata)
++{
++    struct wl_listener *listener = NULL;
++    struct wl_listener *next = NULL;
++
++    wl_list_for_each_safe(listener, next, listener_list, link) {
++        struct listener_layoutNotification *notification =
++            container_of(listener,
++                         struct listener_layoutNotification,
++                         listener);
++
++        struct ivi_layout_notificationCallback *notification_callback =
++            (struct ivi_layout_notificationCallback *)notification->userdata;
++
++        if ((notification_callback->callback != callback) ||
++            (notification_callback->data != userdata)) {
++            continue;
++        }
++
++        if (!wl_list_empty(&listener->link)) {
++            wl_list_remove(&listener->link);
++        }
++
++        free(notification->userdata);
++        free(notification);
++    }
++}
++
++static void
++remove_all_notification(struct wl_list *listener_list)
++{
++    struct wl_listener *listener = NULL;
++    struct wl_listener *next = NULL;
++
++    wl_list_for_each_safe(listener, next, listener_list, link) {
++        if (!wl_list_empty(&listener->link)) {
++            wl_list_remove(&listener->link);
++        }
++
++        struct listener_layoutNotification *notification =
++            container_of(listener,
++                         struct listener_layoutNotification,
++                         listener);
++
++        free(notification->userdata);
++        free(notification);
++    }
++}
++
 +/**
 + * Exported APIs of ivi-layout library are implemented from here.
 + * Brief of APIs is described in ivi-layout-export.h.
@@ -2159,25 +2329,25 @@ index 0000000..af9e73e
 +                                      void *userdata)
 +{
 +    struct ivi_layout *layout = get_instance();
-+    struct link_layerCreateNotification *notification = NULL;
++    struct ivi_layout_notificationCallback *created_callback = NULL;
 +
 +    if (callback == NULL) {
 +        weston_log("ivi_layout_addNotificationCreateLayer: invalid argument\n");
 +        return -1;
 +    }
 +
-+    notification = malloc(sizeof *notification);
-+    if (notification == NULL) {
++    created_callback = malloc(sizeof *created_callback);
++    if (created_callback == NULL) {
 +        weston_log("fails to allocate memory\n");
 +        return -1;
 +    }
 +
-+    notification->callback = callback;
-+    notification->userdata = userdata;
-+    wl_list_init(&notification->link);
-+    wl_list_insert(&layout->layer_notification.list_create, &notification->link);
++    created_callback->callback = callback;
++    created_callback->data = userdata;
 +
-+    return 0;
++    return add_notification(&layout->layer_notification.created,
++                            layer_created,
++                            created_callback);
 +}
 +
 +WL_EXPORT void
@@ -2185,19 +2355,7 @@ index 0000000..af9e73e
 +                                         void *userdata)
 +{
 +    struct ivi_layout *layout = get_instance();
-+    struct link_layerCreateNotification *link = NULL;
-+    struct link_layerCreateNotification *next = NULL;
-+
-+    wl_list_for_each_safe(link, next, &layout->layer_notification.list_create, link) {
-+        if ((link->callback == callback) &&
-+            (link->userdata == userdata)) {
-+            if (!wl_list_empty(&link->link)) {
-+                wl_list_remove(&link->link);
-+            }
-+
-+            free(link);
-+        }
-+    }
++    remove_notification(&layout->layer_notification.created.listener_list, callback, userdata);
 +}
 +
 +WL_EXPORT int32_t
@@ -2205,23 +2363,24 @@ index 0000000..af9e73e
 +                                      void *userdata)
 +{
 +    struct ivi_layout *layout = get_instance();
-+    struct link_layerRemoveNotification *notification = NULL;
++    struct ivi_layout_notificationCallback *removed_callback = NULL;
 +
 +    if (callback == NULL) {
 +        weston_log("ivi_layout_addNotificationRemoveLayer: invalid argument\n");
 +        return -1;
 +    }
 +
-+    notification = malloc(sizeof *notification);
-+    if (notification == NULL) {
++    removed_callback = malloc(sizeof *removed_callback);
++    if (removed_callback == NULL) {
 +        weston_log("fails to allocate memory\n");
 +        return -1;
 +    }
 +
-+    notification->callback = callback;
-+    notification->userdata = userdata;
-+    wl_list_init(&notification->link);
-+    wl_list_insert(&layout->layer_notification.list_remove, &notification->link);
++    removed_callback->callback = callback;
++    removed_callback->data = userdata;
++    add_notification(&layout->layer_notification.removed,
++                     layer_removed,
++                     removed_callback);
 +
 +    return 0;
 +}
@@ -2231,19 +2390,7 @@ index 0000000..af9e73e
 +                                         void *userdata)
 +{
 +    struct ivi_layout *layout = get_instance();
-+    struct link_layerRemoveNotification *link = NULL;
-+    struct link_layerRemoveNotification *next = NULL;
-+
-+    wl_list_for_each_safe(link, next, &layout->layer_notification.list_remove, link) {
-+        if ((link->callback == callback) &&
-+            (link->userdata == userdata)) {
-+            if (!wl_list_empty(&link->link)) {
-+                wl_list_remove(&link->link);
-+            }
-+
-+            free(link);
-+        }
-+    }
++    remove_notification(&layout->layer_notification.removed.listener_list, callback, userdata);
 +}
 +
 +WL_EXPORT int32_t
@@ -2251,24 +2398,25 @@ index 0000000..af9e73e
 +                                        void *userdata)
 +{
 +    struct ivi_layout *layout = get_instance();
-+    struct link_surfaceCreateNotification *notification = NULL;
++    struct ivi_layout_notificationCallback *created_callback = NULL;
 +
 +    if (callback == NULL) {
 +        weston_log("ivi_layout_addNotificationCreateSurface: invalid argument\n");
 +        return -1;
 +    }
 +
-+    notification = malloc(sizeof *notification);
-+    if (notification == NULL) {
++    created_callback = malloc(sizeof *created_callback);
++    if (created_callback == NULL) {
 +        weston_log("fails to allocate memory\n");
 +        return -1;
 +    }
 +
-+    notification->callback = callback;
-+    notification->userdata = userdata;
-+    wl_list_init(&notification->link);
-+    wl_list_insert(&layout->surface_notification.list_create, &notification->link);
++    created_callback->callback = callback;
++    created_callback->data = userdata;
 +
++    add_notification(&layout->surface_notification.created,
++                     surface_created,
++                     created_callback);
 +    return 0;
 +}
 +
@@ -2277,19 +2425,7 @@ index 0000000..af9e73e
 +                                           void *userdata)
 +{
 +    struct ivi_layout *layout = get_instance();
-+    struct link_surfaceCreateNotification *link = NULL;
-+    struct link_surfaceCreateNotification *next = NULL;
-+
-+    wl_list_for_each_safe(link, next, &layout->surface_notification.list_create, link) {
-+        if ((link->callback == callback) &&
-+            (link->userdata == userdata)) {
-+            if (!wl_list_empty(&link->link)) {
-+                wl_list_remove(&link->link);
-+            }
-+
-+            free(link);
-+        }
-+    }
++    remove_notification(&layout->surface_notification.created.listener_list, callback, userdata);
 +}
 +
 +WL_EXPORT int32_t
@@ -2297,23 +2433,25 @@ index 0000000..af9e73e
 +                                        void *userdata)
 +{
 +    struct ivi_layout *layout = get_instance();
-+    struct link_surfaceRemoveNotification *notification = NULL;
++    struct ivi_layout_notificationCallback *removed_callback = NULL;
 +
 +    if (callback == NULL) {
 +        weston_log("ivi_layout_addNotificationRemoveSurface: invalid argument\n");
 +        return -1;
 +    }
 +
-+    notification = malloc(sizeof *notification);
-+    if (notification == NULL) {
++    removed_callback = malloc(sizeof *removed_callback);
++    if (removed_callback == NULL) {
 +        weston_log("fails to allocate memory\n");
 +        return -1;
 +    }
 +
-+    notification->callback = callback;
-+    notification->userdata = userdata;
-+    wl_list_init(&notification->link);
-+    wl_list_insert(&layout->surface_notification.list_remove, &notification->link);
++    removed_callback->callback = callback;
++    removed_callback->data = userdata;
++
++    add_notification(&layout->surface_notification.removed,
++                     surface_removed,
++                     removed_callback);
 +
 +    return 0;
 +}
@@ -2323,19 +2461,7 @@ index 0000000..af9e73e
 +                                           void *userdata)
 +{
 +    struct ivi_layout *layout = get_instance();
-+    struct link_surfaceRemoveNotification *link = NULL;
-+    struct link_surfaceRemoveNotification *next = NULL;
-+
-+    wl_list_for_each_safe(link, next, &layout->surface_notification.list_remove, link) {
-+        if ((link->callback == callback) &&
-+            (link->userdata == userdata)) {
-+            if (!wl_list_empty(&link->link)) {
-+                wl_list_remove(&link->link);
-+            }
-+
-+            free(link);
-+        }
-+    }
++    remove_notification(&layout->surface_notification.removed.listener_list, callback, userdata);
 +}
 +
 +WL_EXPORT int32_t
@@ -2343,24 +2469,24 @@ index 0000000..af9e73e
 +                                           void *userdata)
 +{
 +    struct ivi_layout *layout = get_instance();
-+    struct link_surfaceConfigureNotification *notification = NULL;
-+
++    struct ivi_layout_notificationCallback *configure_changed_callback = NULL;
 +    if (callback == NULL) {
 +        weston_log("ivi_layout_addNotificationConfigureSurface: invalid argument\n");
 +        return -1;
 +    }
 +
-+    notification = malloc(sizeof *notification);
-+    if (notification == NULL) {
++    configure_changed_callback = malloc(sizeof *configure_changed_callback);
++    if (configure_changed_callback == NULL) {
 +        weston_log("fails to allocate memory\n");
 +        return -1;
 +    }
 +
-+    notification->callback = callback;
-+    notification->userdata = userdata;
-+    wl_list_init(&notification->link);
-+    wl_list_insert(&layout->surface_notification.list_configure, &notification->link);
++    configure_changed_callback->callback = callback;
++    configure_changed_callback->data = userdata;
 +
++    add_notification(&layout->surface_notification.configure_changed,
++                     surface_configure_changed,
++                     configure_changed_callback);
 +    return 0;
 +}
 +
@@ -2369,19 +2495,41 @@ index 0000000..af9e73e
 +                                              void *userdata)
 +{
 +    struct ivi_layout *layout = get_instance();
-+    struct link_surfaceConfigureNotification *link = NULL;
-+    struct link_surfaceConfigureNotification *next = NULL;
++    remove_notification(&layout->surface_notification.configure_changed.listener_list, callback, userdata);
++}
 +
-+    wl_list_for_each_safe(link, next, &layout->surface_notification.list_configure, link) {
-+        if ((link->callback == callback) &&
-+            (link->userdata == userdata)) {
-+            if (!wl_list_empty(&link->link)) {
-+                wl_list_remove(&link->link);
-+            }
++WL_EXPORT int32_t
++ivi_layout_addNotificationShellWarning(shellWarningNotificationFunc callback,
++                                       void *userdata)
++{
++    struct ivi_layout *layout = get_instance();
++    struct ivi_layout_notificationCallback *warn_callback = NULL;
 +
-+            free(link);
-+        }
++    if (callback == NULL) {
++        weston_log("ivi_layout_addNotificationShellWarning: invalid argument\n");
++        return -1;
 +    }
++
++    warn_callback = malloc(sizeof *warn_callback);
++    if (warn_callback == NULL) {
++        weston_log("fails to allocate memory\n");
++        return -1;
++    }
++
++    warn_callback->callback = callback;
++    warn_callback->data = userdata;
++
++    return add_notification(&layout->warning_signal,
++                            warning_occurred,
++                            warn_callback);
++}
++
++WL_EXPORT void
++ivi_layout_removeNotificationShellWarning(shellWarningNotificationFunc callback,
++                                          void *userdata)
++{
++    struct ivi_layout *layout = get_instance();
++    remove_notification(&layout->warning_signal.listener_list, callback, userdata);
 +}
 +
 +WL_EXPORT uint32_t
@@ -2465,7 +2613,8 @@ index 0000000..af9e73e
 +                                  surfacePropertyNotificationFunc callback,
 +                                  void *userdata)
 +{
-+    struct link_surfacePropertyNotification *notification = NULL;
++    struct listener_layoutNotification* notification = NULL;
++    struct ivi_layout_notificationCallback *prop_callback = NULL;
 +
 +    if (ivisurf == NULL || callback == NULL) {
 +        weston_log("ivi_layout_surfaceAddNotification: invalid argument\n");
@@ -2478,10 +2627,19 @@ index 0000000..af9e73e
 +        return -1;
 +    }
 +
-+    notification->callback = callback;
-+    notification->userdata = userdata;
-+    wl_list_init(&notification->link);
-+    wl_list_insert(&ivisurf->list_notification, &notification->link);
++    prop_callback = malloc(sizeof *prop_callback);
++    if (prop_callback == NULL) {
++        weston_log("fails to allocate memory\n");
++        return -1;
++    }
++
++    prop_callback->callback = callback;
++    prop_callback->data = userdata;
++
++    notification->listener.notify = surface_prop_changed;
++    notification->userdata = prop_callback;
++
++    wl_signal_add(&ivisurf->property_changed, &notification->listener);
 +
 +    return 0;
 +}
@@ -2489,22 +2647,12 @@ index 0000000..af9e73e
 +WL_EXPORT int32_t
 +ivi_layout_surfaceRemoveNotification(struct ivi_layout_surface *ivisurf)
 +{
-+    struct link_surfacePropertyNotification *notification = NULL;
-+    struct link_surfacePropertyNotification *next = NULL;
-+
 +    if (ivisurf == NULL) {
 +        weston_log("ivi_layout_surfaceRemoveNotification: invalid argument\n");
 +        return -1;
 +    }
 +
-+    wl_list_for_each_safe(notification, next,
-+                          &ivisurf->list_notification, link) {
-+        if (!wl_list_empty(&notification->link)) {
-+            wl_list_remove(&notification->link);
-+        }
-+        free(notification);
-+    }
-+    wl_list_init(&ivisurf->list_notification);
++    remove_all_notification(&ivisurf->property_changed.listener_list);
 +
 +    return 0;
 +}
@@ -2513,7 +2661,6 @@ index 0000000..af9e73e
 +ivi_layout_surfaceRemove(struct ivi_layout_surface *ivisurf)
 +{
 +    struct ivi_layout *layout = get_instance();
-+    struct link_surfaceRemoveNotification *notification = NULL;
 +
 +    if (ivisurf == NULL) {
 +        weston_log("ivi_layout_surfaceRemove: invalid argument\n");
@@ -2531,12 +2678,8 @@ index 0000000..af9e73e
 +    }
 +    remove_ordersurface_from_layer(ivisurf);
 +
-+    wl_list_for_each(notification,
-+            &layout->surface_notification.list_remove, link) {
-+        if (notification->callback != NULL) {
-+            notification->callback(ivisurf, notification->userdata);
-+        }
-+    }
++    wl_signal_emit(&layout->surface_notification.removed, ivisurf);
++
 +    ivi_layout_surfaceRemoveNotification(ivisurf);
 +
 +    free(ivisurf);
@@ -2830,7 +2973,6 @@ index 0000000..af9e73e
 +{
 +    struct ivi_layout *layout = get_instance();
 +    struct ivi_layout_layer *ivilayer = NULL;
-+    struct link_layerCreateNotification *notification = NULL;
 +
 +    ivilayer = get_layer(&layout->list_layer, id_layer);
 +    if (ivilayer != NULL) {
@@ -2845,7 +2987,7 @@ index 0000000..af9e73e
 +    }
 +
 +    wl_list_init(&ivilayer->link);
-+    wl_list_init(&ivilayer->list_notification);
++    wl_signal_init(&ivilayer->property_changed);
 +    wl_list_init(&ivilayer->list_screen);
 +    wl_list_init(&ivilayer->link_to_surface);
 +    ivilayer->layout = layout;
@@ -2863,12 +3005,7 @@ index 0000000..af9e73e
 +
 +    wl_list_insert(&layout->list_layer, &ivilayer->link);
 +
-+    wl_list_for_each(notification,
-+            &layout->layer_notification.list_create, link) {
-+        if (notification->callback != NULL) {
-+            notification->callback(ivilayer, notification->userdata);
-+        }
-+    }
++    wl_signal_emit(&layout->layer_notification.created, ivilayer);
 +
 +    return ivilayer;
 +}
@@ -2877,19 +3014,13 @@ index 0000000..af9e73e
 +ivi_layout_layerRemove(struct ivi_layout_layer *ivilayer)
 +{
 +    struct ivi_layout *layout = get_instance();
-+    struct link_layerRemoveNotification *notification = NULL;
 +
 +    if (ivilayer == NULL) {
 +        weston_log("ivi_layout_layerRemove: invalid argument\n");
 +        return -1;
 +    }
 +
-+    wl_list_for_each(notification,
-+            &layout->layer_notification.list_remove, link) {
-+        if (notification->callback != NULL) {
-+            notification->callback(ivilayer, notification->userdata);
-+        }
-+    }
++    wl_signal_emit(&layout->layer_notification.removed, ivilayer);
 +
 +    clear_surface_pending_list(ivilayer);
 +    clear_surface_order_list(ivilayer);
@@ -3574,46 +3705,36 @@ index 0000000..af9e73e
 +                                layerPropertyNotificationFunc callback,
 +                                void *userdata)
 +{
-+    struct link_layerPropertyNotification *notification = NULL;
++    struct ivi_layout_notificationCallback *prop_callback = NULL;
 +
 +    if (ivilayer == NULL || callback == NULL) {
 +        weston_log("ivi_layout_layerAddNotification: invalid argument\n");
 +        return -1;
 +    }
 +
-+    notification = malloc(sizeof *notification);
-+    if (notification == NULL) {
++    prop_callback = malloc(sizeof *prop_callback);
++    if (prop_callback == NULL) {
 +        weston_log("fails to allocate memory\n");
 +        return -1;
 +    }
 +
-+    notification->callback = callback;
-+    notification->userdata = userdata;
-+    wl_list_init(&notification->link);
-+    wl_list_insert(&ivilayer->list_notification, &notification->link);
++    prop_callback->callback = callback;
++    prop_callback->data = userdata;
 +
-+    return 0;
++    return add_notification(&ivilayer->property_changed,
++                            layer_prop_changed,
++                            prop_callback);
 +}
 +
 +WL_EXPORT int32_t
 +ivi_layout_layerRemoveNotification(struct ivi_layout_layer *ivilayer)
 +{
-+    struct link_layerPropertyNotification *notification = NULL;
-+    struct link_layerPropertyNotification *next = NULL;
-+
 +    if (ivilayer == NULL) {
 +        weston_log("ivi_layout_layerRemoveNotification: invalid argument\n");
 +        return -1;
 +    }
 +
-+    wl_list_for_each_safe(notification, next,
-+                          &ivilayer->list_notification, link) {
-+        if (!wl_list_empty(&notification->link)) {
-+            wl_list_remove(&notification->link);
-+        }
-+        free(notification);
-+    }
-+    wl_list_init(&ivilayer->list_notification);
++    remove_all_notification(&ivilayer->property_changed.listener_list);
 +
 +    return 0;
 +}
@@ -3756,17 +3877,11 @@ index 0000000..af9e73e
 +                               int32_t width, int32_t height)
 +{
 +    struct ivi_layout *layout = get_instance();
-+    struct link_surfaceCreateNotification *notification = NULL;
 +
 +    ivisurf->surface->width_from_buffer  = width;
 +    ivisurf->surface->height_from_buffer = height;
 +
-+    wl_list_for_each(notification,
-+            &layout->surface_notification.list_configure, link) {
-+        if (notification->callback != NULL) {
-+            notification->callback(ivisurf, notification->userdata);
-+        }
-+    }
++    wl_signal_emit(&layout->surface_notification.configure_changed, ivisurf);
 +}
 +
 +static int32_t
@@ -3777,7 +3892,6 @@ index 0000000..af9e73e
 +{
 +    struct ivi_layout *layout = get_instance();
 +    struct ivi_layout_surface *ivisurf;
-+    struct link_surfaceCreateNotification *notification = NULL;
 +
 +    ivisurf = get_surface(&layout->list_surface, id_surface);
 +    if (ivisurf == NULL) {
@@ -3835,12 +3949,7 @@ index 0000000..af9e73e
 +    ivisurf->surface->height_from_buffer = height;
 +    ivisurf->pixelformat = IVI_LAYOUT_SURFACE_PIXELFORMAT_RGBA_8888;
 +
-+    wl_list_for_each(notification,
-+            &layout->surface_notification.list_create, link) {
-+        if (notification->callback != NULL) {
-+            notification->callback(ivisurf, notification->userdata);
-+        }
-+    }
++    wl_signal_emit(&layout->surface_notification.created, ivisurf);
 +
 +    if (ivisurf->content_observer.callback) {
 +        (*(ivisurf->content_observer.callback))(ivisurf,
@@ -3870,7 +3979,6 @@ index 0000000..af9e73e
 +{
 +    struct ivi_layout *layout = get_instance();
 +    struct ivi_layout_surface *ivisurf = NULL;
-+    struct link_surfaceCreateNotification *notification = NULL;
 +
 +    if (wl_surface == NULL) {
 +        weston_log("ivi_layout_surfaceCreate: invalid argument\n");
@@ -3901,7 +4009,7 @@ index 0000000..af9e73e
 +    }
 +
 +    wl_list_init(&ivisurf->link);
-+    wl_list_init(&ivisurf->list_notification);
++    wl_signal_init(&ivisurf->property_changed);
 +    wl_list_init(&ivisurf->list_layer);
 +    ivisurf->id_surface = id_surface;
 +    ivisurf->layout = layout;
@@ -3944,12 +4052,7 @@ index 0000000..af9e73e
 +
 +    wl_list_insert(&layout->list_surface, &ivisurf->link);
 +
-+    wl_list_for_each(notification,
-+            &layout->surface_notification.list_create, link) {
-+        if (notification->callback != NULL) {
-+            notification->callback(ivisurf, notification->userdata);
-+        }
-+    }
++    wl_signal_emit(&layout->surface_notification.created, ivisurf);
 +
 +    return ivisurf;
 +}
@@ -3965,12 +4068,14 @@ index 0000000..af9e73e
 +    wl_list_init(&layout->list_layer);
 +    wl_list_init(&layout->list_screen);
 +
-+    wl_list_init(&layout->layer_notification.list_create);
-+    wl_list_init(&layout->layer_notification.list_remove);
++    wl_signal_init(&layout->layer_notification.created);
++    wl_signal_init(&layout->layer_notification.removed);
 +
-+    wl_list_init(&layout->surface_notification.list_create);
-+    wl_list_init(&layout->surface_notification.list_remove);
-+    wl_list_init(&layout->surface_notification.list_configure);
++    wl_signal_init(&layout->surface_notification.created);
++    wl_signal_init(&layout->surface_notification.removed);
++    wl_signal_init(&layout->surface_notification.configure_changed);
++
++    wl_signal_init(&layout->warning_signal);
 +
 +    /* Add layout_layer at the last of weston_compositor.layer_list */
 +    weston_layer_init(&layout->layout_layer, ec->layer_list.prev);
@@ -3997,7 +4102,8 @@ index 0000000..af9e73e
 +	.surfaceConfigure = ivi_layout_surfaceConfigure,
 +	.surfaceSetNativeContent = ivi_layout_surfaceSetNativeContent,
 +	.surfaceCreate = ivi_layout_surfaceCreate,
-+	.initWithCompositor = ivi_layout_initWithCompositor
++	.initWithCompositor = ivi_layout_initWithCompositor,
++	.emitWarningSignal = ivi_layout_emitWarningSignal
 +};
 -- 
 1.9.3

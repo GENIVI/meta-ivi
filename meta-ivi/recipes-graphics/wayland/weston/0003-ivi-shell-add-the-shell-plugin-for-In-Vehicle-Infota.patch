@@ -1,7 +1,7 @@
-From a24823b4a8e7a59a0a8d689ffd106dcd7dfd5857 Mon Sep 17 00:00:00 2001
-From: root <root@debian70>
-Date: Wed, 9 Jul 2014 12:13:56 +0200
-Subject: [PATCH 02/15] ivi-shell: add the shell plugin for In-Vehicle
+From 2764ba27394f6aceedfbab9059e4dca29341b789 Mon Sep 17 00:00:00 2001
+From: Nobuhiko Tanibata <NOBUHIKO_TANIBATA@xddp.denso.co.jp>
+Date: Tue, 6 May 2014 17:05:47 +0900
+Subject: [PATCH 03/31] ivi-shell: add the shell plugin for In-Vehicle
  Infotainment system
 
 In-Vehicle Infotainment system traditionally manages surfaces with global
@@ -12,66 +12,40 @@ ivi_application.xml.
 The ivi-shell explicitly loads ivi-layout.so and a module to add business
 logic like how to layout surfaces by using ivi-layout APIs.
 
-Signed-off-by: Nobuhiko Tanibata <NOBUHIKO_TANIBATA at xddp.denso.co.jp>
+Signed-off-by: Nobuhiko Tanibata <NOBUHIKO_TANIBATA@xddp.denso.co.jp>
 ---
-Changes for v2:
- - apply review comments of mailing list.
- - squash update of Makefile into this patch.
- - move this patch after patch of weston-layout.
- - support inherit propoerties of id_surface when client attaches another
-   wl_surface with id_surface after destroying ivi_surface once.
-
-Changes for v3:
- - squash internal method, configure, to ivi_shell_surface_configure.
-
-Changes for v4:
- - nothing. Version number aligned to the first patch
-
-Changes for v5:
- - rebase weston v1.5 branch
- - apply review comments from mailing list
-
-Changes for v6:
- - apply bug fixes found in TIZEN IVI and GENIVI
- - apply review comments from Mailing list
-   - use signed integers except flags, bitfields, object ids.
----
- Makefile.am            |  25 +++
+ Makefile.am            |  22 +++
  configure.ac           |  12 ++
- ivi-shell/ivi-layout.h |  75 +++++++++
- ivi-shell/ivi-shell.c  | 413 +++++++++++++++++++++++++++++++++++++++++++++++++
+ ivi-shell/ivi-layout.h |  82 ++++++++++
+ ivi-shell/ivi-shell.c  | 416 +++++++++++++++++++++++++++++++++++++++++++++++++
  ivi-shell/ivi-shell.h  |  35 +++++
- 5 files changed, 560 insertions(+)
+ 5 files changed, 567 insertions(+)
  create mode 100644 ivi-shell/ivi-layout.h
  create mode 100644 ivi-shell/ivi-shell.c
  create mode 100644 ivi-shell/ivi-shell.h
 
 diff --git a/Makefile.am b/Makefile.am
-index 57b725a..5cd4f69 100644
+index b45e8f2..e825fdd 100644
 --- a/Makefile.am
 +++ b/Makefile.am
-@@ -677,6 +677,31 @@ nodist_desktop_shell_la_SOURCES =			\
- BUILT_SOURCES += $(nodist_desktop_shell_la_SOURCES)
+@@ -700,6 +700,28 @@ nodist_fullscreen_shell_la_SOURCES =			\
+ BUILT_SOURCES += $(nodist_fullscreen_shell_la_SOURCES)
  endif
  
 +if ENABLE_IVI_SHELL
 +
-+module_LTLIBRARIES += ivi-shell.la
++module_LTLIBRARIES +=				\
++	$(ivi_shell)
 +
++ivi_shell = ivi-shell.la
 +ivi_shell_la_LDFLAGS = -module -avoid-version
-+ivi_shell_la_LIBADD =		\
-+	$(COMPOSITOR_LIBS)	\
-+	$(IVI_SHELL_LIBS)	\
-+	libshared.la
-+ivi_shell_la_CFLAGS =		\
-+	$(COMPOSITOR_CFLAGS)	\
-+	$(IVI_SHELL_CFLAGS)	\
-+	$(GCC_CFLAGS)
-+ivi_shell_la_SOURCES =		\
-+	ivi-shell/ivi-shell.h	\
-+	ivi-shell/ivi-shell.c	\
++ivi_shell_la_LIBADD = $(COMPOSITOR_LIBS) $(IVI_SHELL_LIBS) libshared.la
++ivi_shell_la_CFLAGS = $(GCC_CFLAGS) $(COMPOSITOR_CFLAGS) $(IVI_SHELL_CFLAGS)
++ivi_shell_la_SOURCES =				\
++	ivi-shell/ivi-shell.h			\
++	ivi-shell/ivi-shell.c			\
 +	ivi-shell/ivi-layout.h
-+nodist_ivi_shell_la_SOURCES =				\
++nodist_ivi_shell_la_SOURCES =			\
 +	protocol/ivi-application-protocol.c		\
 +	protocol/ivi-application-server-protocol.h
 +
@@ -79,31 +53,32 @@ index 57b725a..5cd4f69 100644
 +
 +endif
 +
- if ENABLE_FULLSCREEN_SHELL
++
+ if ENABLE_SCREEN_SHARING
  
- module_LTLIBRARIES += fullscreen-shell.la
+ module_LTLIBRARIES += screen-share.la
 diff --git a/configure.ac b/configure.ac
-index f55cea8..a5e68f7 100644
+index 1a1bd3b..d14ed16 100644
 --- a/configure.ac
 +++ b/configure.ac
-@@ -385,6 +385,16 @@ AM_CONDITIONAL(BUILD_SUBSURFACES_CLIENT,
+@@ -446,6 +446,16 @@ if test "x$enable_dbus" != "xno"; then
+ fi
+ AM_CONDITIONAL(ENABLE_DBUS, test "x$enable_dbus" = "xyes")
  
- AM_CONDITIONAL(ENABLE_DESKTOP_SHELL, true)
- 
++# ivi-shell support
 +AC_ARG_ENABLE(ivi-shell,
 +              AS_HELP_STRING([--disable-ivi-shell],
 +                             [do not build ivi-shell server plugin and client]),,
 +	      enable_ivi_shell=yes)
-+AM_CONDITIONAL(ENABLE_IVI_SHELL,
-+	       test "x$enable_ivi_shell" = "xyes")
-+if test "x$enable_ivi_shell" = "xyes"; then
-+	PKG_CHECK_MODULES(IVI_SHELL, [cairo])
++AM_CONDITIONAL(ENABLE_IVI_SHELL, test "x$enable_ivi_shell" = "xyes")
++if test x$enable_ivi_shell = xyes; then
++  PKG_CHECK_MODULES(IVI_SHELL, [cairo])
 +fi
 +
- AC_ARG_ENABLE(fullscreen-shell,
-               AS_HELP_STRING([--disable-fullscreen-shell],
-                              [do not build fullscreen-shell server plugin]),,
-@@ -522,6 +532,8 @@ AC_MSG_RESULT([
+ AC_ARG_ENABLE(wcap-tools, [  --disable-wcap-tools],, enable_wcap_tools=yes)
+ AM_CONDITIONAL(BUILD_WCAP_TOOLS, test x$enable_wcap_tools = xyes)
+ if test x$enable_wcap_tools = xyes; then
+@@ -547,6 +557,8 @@ AC_MSG_RESULT([
  	XWayland			${enable_xwayland}
  	dbus				${enable_dbus}
  
@@ -114,10 +89,10 @@ index f55cea8..a5e68f7 100644
  
 diff --git a/ivi-shell/ivi-layout.h b/ivi-shell/ivi-layout.h
 new file mode 100644
-index 0000000..2027d89
+index 0000000..5d7488a
 --- /dev/null
 +++ b/ivi-shell/ivi-layout.h
-@@ -0,0 +1,75 @@
+@@ -0,0 +1,82 @@
 +/*
 + * Copyright (C) 2013 DENSO CORPORATION
 + *
@@ -173,6 +148,11 @@ index 0000000..2027d89
 +
 +struct ivi_layout_surface;
 +
++enum ivi_layout_warning_flag {
++    IVI_WARNING_INVALID_WL_SURFACE,
++    IVI_WARNING_IVI_ID_IN_USE
++};
++
 +struct ivi_layout_interface {
 +	struct weston_view* (*get_weston_view)(struct ivi_layout_surface *surface);
 +	void (*surfaceConfigure)(struct ivi_layout_surface *ivisurf,
@@ -184,6 +164,8 @@ index 0000000..2027d89
 +	struct ivi_layout_surface* (*surfaceCreate)(struct weston_surface *wl_surface,
 +							      uint32_t id_surface);
 +	void (*initWithCompositor)(struct weston_compositor *ec);
++	void (*emitWarningSignal)(uint32_t id_surface,
++				enum ivi_layout_warning_flag flag);
 +};
 +
 +WL_EXPORT struct ivi_layout_interface ivi_layout_interface;
@@ -195,10 +177,10 @@ index 0000000..2027d89
 +#endif /* _IVI_LAYOUT_H_ */
 diff --git a/ivi-shell/ivi-shell.c b/ivi-shell/ivi-shell.c
 new file mode 100644
-index 0000000..1f188ce
+index 0000000..bd650b7
 --- /dev/null
 +++ b/ivi-shell/ivi-shell.c
-@@ -0,0 +1,413 @@
+@@ -0,0 +1,416 @@
 +/*
 + * Copyright (C) 2013 DENSO CORPORATION
 + *
@@ -362,11 +344,11 @@ index 0000000..1f188ce
 +}
 +
 +static const struct {
-+    uint32_t warning_code; /* enum ivi_surface_warning_code */
-+    const char *msg;
++    enum ivi_layout_warning_flag flag;
++    const char *message;
 +} warning_strings[] = {
-+    {IVI_SURFACE_WARNING_CODE_INVALID_WL_SURFACE, "wl_surface is invalid"},
-+    {IVI_SURFACE_WARNING_CODE_IVI_ID_IN_USE, "surface_id is already assigned by another app"}
++    { IVI_WARNING_INVALID_WL_SURFACE, "wl_surface is invalid" },
++    { IVI_WARNING_IVI_ID_IN_USE, "surface_id is already assigned by another app" },
 +};
 +
 +/**
@@ -416,9 +398,12 @@ index 0000000..1f188ce
 +    if (warn_idx >= 0) {
 +        wl_resource_set_implementation(res, &surface_implementation,
 +                                       NULL, NULL);
-+        ivi_surface_send_warning(res,
-+                                 warning_strings[warn_idx].warning_code,
-+                                 warning_strings[warn_idx].msg);
++
++        ivi_layout->emitWarningSignal(id_surface, warning_strings[warn_idx].flag);
++
++        wl_resource_post_error(res,
++                               WL_DISPLAY_ERROR_INVALID_OBJECT,
++                               warning_strings[warn_idx].message);
 +        return;
 +    }
 +

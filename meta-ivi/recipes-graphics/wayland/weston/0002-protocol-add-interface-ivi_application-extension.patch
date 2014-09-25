@@ -1,46 +1,24 @@
-From 8f4dc815d247617a1f55a0716cd1050cc69bfa05 Mon Sep 17 00:00:00 2001
-From: root <root@debian70>
-Date: Wed, 9 Jul 2014 11:54:56 +0200
-Subject: [PATCH 01/15] protocol: add interface ivi_application extension
+From 7ca2bb54ccadb6dc53643cfad12cb5939c853734 Mon Sep 17 00:00:00 2001
+From: Andrei Gherzan <andrei.gherzan@windriver.com>
+Date: Thu, 25 Sep 2014 16:46:57 +0200
+Subject: [PATCH 02/31] protocol: add interface ivi_application extension
 
-ivi_application extension creates ivi_surface objects tied
+ivi_applicatoin extension creates ivi_surface objects tied
 to a given wl_surface with a given id. The given id can be used in a
 shell to identify which application is assigned to a wl_surface and
 layout the surface wherever the shell wants. ivi_surface objects can
 be used to receive status of wl_surface in the scenegraph of the
 compositor.
 
-Signed-off-by: Nobuhiko Tanibata <NOBUHIKO_TANIBATA at xddp.denso.co.jp>
+Signed-off-by: Nobuhiko Tanibata <NOBUHIKO_TANIBATA@xddp.denso.co.jp>
 ---
-Changes for v2:
-   - Rename "error" to "warning" because meaning of "error" in wayland is fatal.
-
-Changes for v3:
-   - Move "warning" from ivi_application to ivi_surface.
-   - Squash Makefile.
-   - Add description to ivi_surface:destroy.
-   - Update description of ivi_application:surface_create.
-
-Changes for v4:
-   - Remove detail description of server side from ivi_surface::destroy
-   - Add clear discripton what client shall do if it encounters warning in ivi_surface
-     ::warning.
-   - Add decription what happens when client tries to tie a wl_surface to multiple
-     ivi_surfaces.
-
-Changes for v5:
-   - apply review comments from mailing list
-
-Changes for v6:
-   - the same as v5
----
- Makefile.am                  |   3 +-
- protocol/ivi-application.xml | 101 +++++++++++++++++++++++++++++++++++++++++++
- 2 files changed, 103 insertions(+), 1 deletion(-)
+ Makefile.am                  |  3 +-
+ protocol/ivi-application.xml | 70 ++++++++++++++++++++++++++++++++++++++++++++
+ 2 files changed, 72 insertions(+), 1 deletion(-)
  create mode 100644 protocol/ivi-application.xml
 
 diff --git a/Makefile.am b/Makefile.am
-index 343adc6..57b725a 100644
+index 343adc6..b45e8f2 100644
 --- a/Makefile.am
 +++ b/Makefile.am
 @@ -969,7 +969,8 @@ EXTRA_DIST +=					\
@@ -48,17 +26,17 @@ index 343adc6..57b725a 100644
  	protocol/xdg-shell.xml			\
  	protocol/fullscreen-shell.xml		\
 -	protocol/scaler.xml
-+	protocol/scaler.xml			\
++	protocol/scaler.xml \
 +	protocol/ivi-application.xml
  
  man_MANS = weston.1 weston.ini.5
  
 diff --git a/protocol/ivi-application.xml b/protocol/ivi-application.xml
 new file mode 100644
-index 0000000..833fd38
+index 0000000..80ab790
 --- /dev/null
 +++ b/protocol/ivi-application.xml
-@@ -0,0 +1,101 @@
+@@ -0,0 +1,70 @@
 +<?xml version="1.0" encoding="UTF-8"?>
 +<protocol name="ivi_application">
 +
@@ -102,37 +80,6 @@ index 0000000..833fd38
 +            </description>
 +            <arg name="visibility" type="int"/>
 +        </event>
-+
-+        <enum name="warning_code">
-+            <description summary="possible warning codes returned by ivi compositor">
-+                These define all possible warning codes returned by ivi compositor on server-side warnings.
-+                invalid_wl_surface:
-+                    - wl_surface already has a another role.
-+		    - wl_surface is destroyed before the ivi_surface is destroyed.
-+                ivi_id_in_use: ivi_id is already assigned by another application.
-+            </description>
-+            <entry name="invalid_wl_surface" value="1" summary="wl_surface is invalid"/>
-+            <entry name="ivi_id_in_use" value="2" summary="ivi_id is in use and can not be shared"/>
-+        </enum>
-+
-+        <event name="warning">
-+            <description summary="server-side warning detected">
-+                The ivi compositor encountered warning while processing a request by this
-+                application. The warning is defined by argument warning_code and optional
-+                warning_text. If the warning is detected, client shall destroy the ivi_surface
-+                object.
-+
-+		When a warning event is sent, the compositor turns the ivi_surface object inert.
-+		The ivi_surface will not deliver further events, all requests on it are ignored
-+		except 'destroy', and the association to the ivi_id is removed. The client
-+		should destroy the ivi_surface object. If an inert ivi_surface object is used as
-+		an argument to any other object's request, that request will [produce a fatal
-+		error / produce a warning / be ignored].
-+            </description>
-+            <arg name="warning_code" type="int"/>
-+            <arg name="warning_text" type="string" allow-null="true"/>
-+        </event>
-+
 +    </interface>
 +
 +    <interface name="ivi_application" version="1">

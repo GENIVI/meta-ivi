@@ -1,45 +1,26 @@
-From 48570e9dd69b68415dd2eba9a5ebcd390dde89d5 Mon Sep 17 00:00:00 2001
-From: root <root@debian70>
-Date: Wed, 9 Jul 2014 13:09:16 +0200
-Subject: [PATCH 09/15] clients: modify example clients to support
+From 44182c3ce1867ee7bad801824a9af62a2c1a6a4d Mon Sep 17 00:00:00 2001
+From: Nobuhiko Tanibata <NOBUHIKO_TANIBATA@xddp.denso.co.jp>
+Date: Tue, 18 Mar 2014 14:19:48 +0900
+Subject: [PATCH 10/31] clients: modify example clients to support
  ivi-application.xml
 
-Signed-off-by: Nobuhiko Tanibata <NOBUHIKO_TANIBATA at xddp.denso.co.jp>
+Signed-off-by: Nobuhiko Tanibata <NOBUHIKO_TANIBATA@xddp.denso.co.jp>
 ---
-
-Changes for v2, v3 and v4:
-  - nothing. Version number aligned to the first patch
-
-Changes for v5:
-  - rebase weston v1.5 branch
-  - remove Macros to enable ivi-application
-
-Changes for v6:
-  - the same as v5
----
- Makefile.am          | 20 ++++++++-----
+ Makefile.am          | 12 ++++++--
  clients/simple-egl.c | 70 +++++++++++++++++++++++++++++++++++--------
  clients/simple-shm.c | 34 ++++++++++++++++++++-
  clients/window.c     | 84 ++++++++++++++++++++++++++++++++++++++--------------
- 4 files changed, 165 insertions(+), 43 deletions(-)
+ 4 files changed, 161 insertions(+), 39 deletions(-)
 
 diff --git a/Makefile.am b/Makefile.am
-index 2bf3c61..239afd7 100644
+index 835d721..869567d 100644
 --- a/Makefile.am
 +++ b/Makefile.am
-@@ -402,11 +402,13 @@ demo_clients +=					\
- 	weston-multi-resource
- 
- weston_simple_shm_SOURCES = clients/simple-shm.c
--nodist_weston_simple_shm_SOURCES =		\
--	protocol/xdg-shell-protocol.c		\
--	protocol/xdg-shell-client-protocol.h	\
--	protocol/fullscreen-shell-protocol.c	\
+@@ -406,7 +406,9 @@ nodist_weston_simple_shm_SOURCES =		\
+ 	protocol/xdg-shell-protocol.c		\
+ 	protocol/xdg-shell-client-protocol.h	\
+ 	protocol/fullscreen-shell-protocol.c	\
 -	protocol/fullscreen-shell-client-protocol.h
-+nodist_weston_simple_shm_SOURCES =			\
-+	protocol/xdg-shell-protocol.c			\
-+	protocol/xdg-shell-client-protocol.h		\
-+	protocol/fullscreen-shell-protocol.c		\
 +	protocol/fullscreen-shell-client-protocol.h	\
 +	protocol/ivi-application-protocol.c		\
 +	protocol/ivi-application-client-protocol.h
@@ -51,8 +32,8 @@ index 2bf3c61..239afd7 100644
  nodist_weston_simple_egl_SOURCES =		\
  	protocol/xdg-shell-protocol.c		\
 -	protocol/xdg-shell-client-protocol.h
-+	protocol/xdg-shell-client-protocol.h	\
-+	protocol/ivi-application-protocol.c	\
++	protocol/xdg-shell-client-protocol.h		\
++	protocol/ivi-application-protocol.c		\
 +	protocol/ivi-application-client-protocol.h
  weston_simple_egl_CFLAGS = $(AM_CFLAGS) $(SIMPLE_EGL_CLIENT_CFLAGS)
  weston_simple_egl_LDADD = $(SIMPLE_EGL_CLIENT_LIBS) -lm

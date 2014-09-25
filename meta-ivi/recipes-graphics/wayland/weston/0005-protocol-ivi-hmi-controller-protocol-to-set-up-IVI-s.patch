@@ -1,7 +1,7 @@
-From 5188b3dddce16c4cc8af1260337ddab1efcb2e6d Mon Sep 17 00:00:00 2001
-From: root <root@debian70>
-Date: Wed, 9 Jul 2014 12:28:14 +0200
-Subject: [PATCH 04/15] protocol: ivi hmi controller protocol to set up IVI
+From f1bb1117bd4e0a99bb1ae44385343735e686df8e Mon Sep 17 00:00:00 2001
+From: Andrei Gherzan <andrei.gherzan@windriver.com>
+Date: Thu, 25 Sep 2014 16:49:58 +0200
+Subject: [PATCH 05/31] protocol: ivi hmi controller protocol to set up IVI
  style UI
 
 This protocol realizes following features,
@@ -11,21 +11,8 @@ This protocol realizes following features,
 - Display/undisplay a surface; home contains sevaral workspaces to launch
   application
 
-Signed-off-by: Nobuhiko Tanibata <NOBUHIKO_TANIBATA at xddp.denso.co.jp>
----
-
-Changes for v2:
- - squash Makefile to this patch
-
-Changes for v3 and v4
-  - nothing. Version number aligned to the first patch
-
-Changes for v5:
- - rebase weston v1.5 branch
- - apply review comments from mailing list
-
-Changes for v6:
- - the same as v5
+Signed-off-by: Nobuhiko Tanibata <NOBUHIKO_TANIBATA@xddp.denso.co.jp>
+Signed-off-by: Andrei Gherzan <andrei.gherzan@windriver.com>
 ---
  Makefile.am                     |  3 +-
  protocol/ivi-hmi-controller.xml | 96 +++++++++++++++++++++++++++++++++++++++++
@@ -33,15 +20,15 @@ Changes for v6:
  create mode 100644 protocol/ivi-hmi-controller.xml
 
 diff --git a/Makefile.am b/Makefile.am
-index a1b6573..a60b755 100644
+index 148529f..748556b 100644
 --- a/Makefile.am
 +++ b/Makefile.am
-@@ -1018,7 +1018,8 @@ EXTRA_DIST +=					\
+@@ -1007,7 +1007,8 @@ EXTRA_DIST +=					\
  	protocol/xdg-shell.xml			\
  	protocol/fullscreen-shell.xml		\
- 	protocol/scaler.xml			\
+ 	protocol/scaler.xml \
 -	protocol/ivi-application.xml
-+	protocol/ivi-application.xml		\
++	protocol/ivi-application.xml \
 +	protocol/ivi-hmi-controller.xml
  
  man_MANS = weston.1 weston.ini.5

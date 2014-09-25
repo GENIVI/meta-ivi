@@ -1,0 +1,181 @@
+From fe535096b569f1337a512618775684779eace11f Mon Sep 17 00:00:00 2001
+From: Nobuhiko Tanibata <NOBUHIKO_TANIBATA@xddp.denso.co.jp>
+Date: Fri, 19 Sep 2014 10:13:16 +0900
+Subject: [PATCH 26/31] ivi-layout: Add configured signal in ivi_layout_surface
+
+Signed-off-by: Nobuhiko Tanibata <NOBUHIKO_TANIBATA@xddp.denso.co.jp>
+---
+ ivi-shell/ivi-layout-private.h    |  2 ++
+ ivi-shell/ivi-layout-transition.c | 21 ++++++++++++++++++
+ ivi-shell/ivi-layout-transition.h |  3 +++
+ ivi-shell/ivi-layout.c            | 45 ++++++++++++++++++++++++++++++++++++++-
+ ivi-shell/ivi-layout.h            |  6 ++++++
+ 5 files changed, 76 insertions(+), 1 deletion(-)
+
+diff --git a/ivi-shell/ivi-layout-private.h b/ivi-shell/ivi-layout-private.h
+index f05f8e9..812a3d4 100644
+--- a/ivi-shell/ivi-layout-private.h
++++ b/ivi-shell/ivi-layout-private.h
+@@ -61,6 +61,8 @@ struct ivi_layout_surface {
+         ivi_controller_surface_content_callback callback;
+         void* userdata;
+     } content_observer;
++
++    struct wl_signal configured;
+ };
+ 
+ struct ivi_layout_layer {
+diff --git a/ivi-shell/ivi-layout-transition.c b/ivi-shell/ivi-layout-transition.c
+index 1f1e846..ce369f9 100644
+--- a/ivi-shell/ivi-layout-transition.c
++++ b/ivi-shell/ivi-layout-transition.c
+@@ -80,6 +80,21 @@ get_transition_from_type_and_id(enum ivi_layout_inner_transition_type type, void
+     return NULL;
+ }
+ 
++WL_EXPORT int32_t
++is_surface_transition(struct ivi_layout_surface* surface)
++{
++    struct ivi_layout* layout = get_instance();
++    struct transition_node *node=NULL;
++    wl_list_for_each(node, &layout->transitions->transition_list, link){
++        if ( node->transition->type == IVI_LAYOUT_INNER_TRANSITION_VIEW_MOVE_RESIZE ||
++             node->transition->type == IVI_LAYOUT_INNER_TRANSITION_VIEW_RESIZE)
++            if ( node->transition->id_func(node->transition->private_data, surface))
++                return 1; /* true */
++    }
++
++    return 0; /* false */
++}
++
+ static void
+ tick_transition(struct ivi_layout_transition *transition, uint32_t timestamp)
+ {
+@@ -246,6 +261,12 @@ struct move_resize_view_data {
+ static void
+ transition_move_resize_view_destroy(struct ivi_layout_transition* transition)
+ {
++    struct move_resize_view_data* data =
++        (struct move_resize_view_data*)transition->private_data;
++    struct ivi_layout_surface* layout_surface = data->surface;
++
++    wl_signal_emit(&layout_surface->configured, layout_surface);
++
+     if(transition->private_data){
+         free(transition->private_data);
+         transition->private_data = NULL;
+diff --git a/ivi-shell/ivi-layout-transition.h b/ivi-shell/ivi-layout-transition.h
+index e8e5509..2c556ed 100644
+--- a/ivi-shell/ivi-layout-transition.h
++++ b/ivi-shell/ivi-layout-transition.h
+@@ -74,4 +74,7 @@ ivi_layout_transition_layer_render_order(struct ivi_layout_layer* layer,
+                                             uint32_t surface_num,
+                                             uint32_t duration);
+ 
++WL_EXPORT int32_t
++is_surface_transition(struct ivi_layout_surface* surface);
++
+ #endif
+diff --git a/ivi-shell/ivi-layout.c b/ivi-shell/ivi-layout.c
+index 562e0bc..e25c4dc 100644
+--- a/ivi-shell/ivi-layout.c
++++ b/ivi-shell/ivi-layout.c
+@@ -838,14 +838,32 @@ commit_list_surface(struct ivi_layout *layout)
+                 ivi_layout_transition_visibility_off(ivisurf, ivisurf->pending.prop.transitionDuration);
+             }
+ 
++            int32_t configured = 0;
++            if (ivisurf->prop.destWidth  != ivisurf->pending.prop.destWidth ||
++                ivisurf->prop.destHeight != ivisurf->pending.prop.destHeight) {
++                configured = 1;
++            }
++
+             ivisurf->prop = ivisurf->pending.prop;
+             ivisurf->prop.transitionType = IVI_LAYOUT_TRANSITION_NONE;
+             ivisurf->pending.prop.transitionType = IVI_LAYOUT_TRANSITION_NONE;
++
++            if (configured && !is_surface_transition(ivisurf))
++                wl_signal_emit(&ivisurf->configured, ivisurf);
+         }
+         else{
++            int32_t configured = 0;
++            if (ivisurf->prop.destWidth  != ivisurf->pending.prop.destWidth ||
++                ivisurf->prop.destHeight != ivisurf->pending.prop.destHeight) {
++                configured = 1;
++            }
++
+             ivisurf->prop = ivisurf->pending.prop;
+             ivisurf->prop.transitionType = IVI_LAYOUT_TRANSITION_NONE;
+             ivisurf->pending.prop.transitionType = IVI_LAYOUT_TRANSITION_NONE;
++
++            if (configured && !is_surface_transition(ivisurf))
++                wl_signal_emit(&ivisurf->configured, ivisurf);
+         }
+     }
+ }
+@@ -3079,6 +3097,7 @@ ivi_layout_surfaceCreate(struct weston_surface *wl_surface,
+ 
+     wl_list_init(&ivisurf->link);
+     wl_signal_init(&ivisurf->property_changed);
++    wl_signal_init(&ivisurf->configured);
+     wl_list_init(&ivisurf->list_layer);
+     ivisurf->id_surface = id_surface;
+     ivisurf->layout = layout;
+@@ -3209,6 +3228,27 @@ ivi_layout_grabKeyboardKey(struct weston_keyboard_grab *grab,
+     }
+ }
+ 
++static void
++ivi_layout_surfaceAddConfiguredListener(struct ivi_layout_surface* ivisurf,
++                                       struct wl_listener* listener)
++{
++    wl_signal_add(&ivisurf->configured, listener);
++}
++
++static void
++ivi_layout_surfaceRemoveConfiguredListener(struct ivi_layout_surface* ivisurf,
++                                           struct wl_listener* target)
++{
++    struct wl_listener *listener = NULL;
++    struct wl_listener *next = NULL;
++
++    wl_list_for_each_safe(listener, next, &ivisurf->configured.listener_list, link) {
++        if (target == listener) {
++            wl_list_remove(&listener->link);
++        }
++    }
++}
++
+ WL_EXPORT struct ivi_layout_interface ivi_layout_interface = {
+ 	.get_weston_view = ivi_layout_get_weston_view,
+ 	.surfaceConfigure = ivi_layout_surfaceConfigure,
+@@ -3216,5 +3256,8 @@ WL_EXPORT struct ivi_layout_interface ivi_layout_interface = {
+ 	.surfaceCreate = ivi_layout_surfaceCreate,
+ 	.initWithCompositor = ivi_layout_initWithCompositor,
+ 	.emitWarningSignal = ivi_layout_emitWarningSignal,
+-        .grab_keyboard_key = ivi_layout_grabKeyboardKey
++        .grab_keyboard_key = ivi_layout_grabKeyboardKey,
++        .get_surface_dimension = ivi_layout_surfaceGetDimension,
++        .add_surface_configured_listener = ivi_layout_surfaceAddConfiguredListener,
++        .remove_surface_configured_listener = ivi_layout_surfaceRemoveConfiguredListener
+ };
+diff --git a/ivi-shell/ivi-layout.h b/ivi-shell/ivi-layout.h
+index 073a1e1..6d4ad73 100644
+--- a/ivi-shell/ivi-layout.h
++++ b/ivi-shell/ivi-layout.h
+@@ -137,6 +137,12 @@ struct ivi_layout_interface {
+ 				enum ivi_layout_warning_flag flag);
+         void (*grab_keyboard_key)(struct weston_keyboard_grab *grab,
+                                   uint32_t time, uint32_t key, uint32_t state);
++        int32_t (*get_surface_dimension)(struct ivi_layout_surface *ivisurf,
++                                         int32_t *pDimension);
++        void (*add_surface_configured_listener)(struct ivi_layout_surface *ivisurf,
++                                                struct wl_listener* listener);
++        void (*remove_surface_configured_listener)(struct ivi_layout_surface *ivisurf,
++                                                   struct wl_listener* listener);
+ };
+ 
+ WL_EXPORT struct ivi_layout_interface ivi_layout_interface;
+-- 
+1.9.3
+

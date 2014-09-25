@@ -1,0 +1,27 @@
+From ffee67a374d6373122845caf0ef269f7f7bd5535 Mon Sep 17 00:00:00 2001
+From: Nobuhiko Tanibata <NOBUHIKO_TANIBATA@xddp.denso.co.jp>
+Date: Fri, 8 Aug 2014 09:59:01 +0900
+Subject: [PATCH 17/31] ivi-shell: Fix incorrect member reference in
+ wl_list_for_each.
+
+Signed-off-by: Nobuhiko Tanibata <NOBUHIKO_TANIBATA@xddp.denso.co.jp>
+---
+ ivi-shell/ivi-layout.c | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
+
+diff --git a/ivi-shell/ivi-layout.c b/ivi-shell/ivi-layout.c
+index 82ff868..8ba60ca 100644
+--- a/ivi-shell/ivi-layout.c
++++ b/ivi-shell/ivi-layout.c
+@@ -2287,7 +2287,7 @@ ivi_layout_layerSetRenderOrder(struct ivi_layout_layer *ivilayer,
+     for (i = 0; i < number; i++) {
+         id_surface = &pSurface[i]->id_surface;
+ 
+-        wl_list_for_each_safe(ivisurf, next, &layout->list_surface, pending.link) {
++        wl_list_for_each_safe(ivisurf, next, &layout->list_surface, link) {
+             if (*id_surface != ivisurf->id_surface) {
+                 continue;
+             }
+-- 
+1.9.3
+

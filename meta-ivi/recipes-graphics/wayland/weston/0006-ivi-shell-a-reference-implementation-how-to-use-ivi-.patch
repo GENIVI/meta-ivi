@@ -1,7 +1,7 @@
-From 59bf7a7de20a4d15eed439aba92c4d23294b0c48 Mon Sep 17 00:00:00 2001
-From: root <root@debian70>
-Date: Wed, 9 Jul 2014 12:39:11 +0200
-Subject: [PATCH 05/15] ivi-shell: a reference implementation how to use
+From 0db90d2ae7da57e453c2bde193be73394e5deb68 Mon Sep 17 00:00:00 2001
+From: Nobuhiko Tanibata <NOBUHIKO_TANIBATA@xddp.denso.co.jp>
+Date: Tue, 24 Jun 2014 23:06:02 +0900
+Subject: [PATCH 06/31] ivi-shell: a reference implementation how to use
  ivi-layout internal APIs
 
 The library is used to manage layout of surfaces/layers. Layout change
@@ -24,59 +24,47 @@ consists of
   this layer is longer than the size of screen because a workspace
   has several pages and is controlled by motion of input.
 
-Signed-off-by: Nobuhiko Tanibata <NOBUHIKO_TANIBATA at xddp.denso.co.jp>
+Signed-off-by: Nobuhiko Tanibata <NOBUHIKO_TANIBATA@xddp.denso.co.jp>
 ---
-
-Changes for v2:
- - squash Makefile to this patch
-
-Changes for v3 and v4
- - nothing. Version number aligned to the first patch
-
-Changes for v5:
- - rebase weston v1.5 branch
- - apply review comments from mailing list
-
-Changes for v6:
- - apply review comments from mailing list
- - use signed integers except flags, bitfields, object ids.
----
- Makefile.am                |   24 +-
+ Makefile.am                |   20 +-
  ivi-shell/.gitignore       |    7 +
  ivi-shell/hmi-controller.c | 1925 ++++++++++++++++++++++++++++++++++++++++++++
- 3 files changed, 1955 insertions(+), 1 deletion(-)
+ 3 files changed, 1951 insertions(+), 1 deletion(-)
  create mode 100644 ivi-shell/.gitignore
  create mode 100644 ivi-shell/hmi-controller.c
 
 diff --git a/Makefile.am b/Makefile.am
-index a60b755..d1caf95 100644
+index 748556b..9dd492b 100644
 --- a/Makefile.am
 +++ b/Makefile.am
-@@ -681,7 +681,8 @@ if ENABLE_IVI_SHELL
+@@ -704,7 +704,8 @@ if ENABLE_IVI_SHELL
  
- module_LTLIBRARIES +=		\
- 	$(ivi_shell)		\
+ module_LTLIBRARIES +=				\
+ 	$(ivi_shell)				\
 -	$(ivi_layout)
-+	$(ivi_layout)		\
-+	$(hmi_controller)
++	$(ivi_layout)				\
++        $(hmi_controller)
  
  ivi_shell = ivi-shell.la
  ivi_shell_la_LDFLAGS = -module -avoid-version
-@@ -723,6 +724,27 @@ nodist_ivi_layout_la_SOURCES =				\
+@@ -720,6 +721,7 @@ nodist_ivi_shell_la_SOURCES =			\
+ 
+ BUILT_SOURCES += $(nodist_ivi_shell_la_SOURCES)
+ 
++
+ ivi_layout = ivi-layout.la
+ ivi_layout_la_LDFLAGS = -module -avoid-version
+ ivi_layout_la_LIBADD = $(COMPOSITOR_LIBS) $(IVI_SHELL_LIBS) libshared.la
+@@ -734,6 +736,22 @@ nodist_ivi_layout_la_SOURCES =			\
  
  BUILT_SOURCES += $(nodist_ivi_layout_la_SOURCES)
  
 +hmi_controller = hmi-controller.la
 +hmi_controller_la_LDFLAGS = -module -avoid-version
-+hmi_controller_la_LIBADD =	\
-+	$(IVI_SHELL_LIBS)	\
-+	$(CLIENT_LIBS)		\
-+	libshared-cairo.la
-+hmi_controller_la_CFLAGS =	\
-+	$(IVI_SHELL_CFLAGS)	\
-+	$(GCC_CFLAGS)
-+hmi_controller_la_SOURCES =		\
-+	ivi-shell/ivi-layout-export.h	\
++hmi_controller_la_LIBADD = $(CLIENT_LIBS) $(IVI_SHELL_LIBS) libshared-cairo.la
++hmi_controller_la_CFLAGS = $(GCC_CFLAGS) $(IVI_SHELL_CFLAGS)
++hmi_controller_la_SOURCES =				\
++	ivi-shell/ivi-layout-export.h			\
 +	ivi-shell/hmi-controller.c
 +nodist_hmi_controller_la_SOURCES =			\
 +	protocol/ivi-application-protocol.c		\
@@ -89,7 +77,7 @@ index a60b755..d1caf95 100644
 +
  endif
  
- if ENABLE_FULLSCREEN_SHELL
+ 
 diff --git a/ivi-shell/.gitignore b/ivi-shell/.gitignore
 new file mode 100644
 index 0000000..9f31bfd

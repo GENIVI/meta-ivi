@@ -1,0 +1,114 @@
+From d625ef81bf48050819d487df0859ae4c51e8a5b4 Mon Sep 17 00:00:00 2001
+From: Nobuhiko Tanibata <NOBUHIKO_TANIBATA@xddp.denso.co.jp>
+Date: Tue, 16 Sep 2014 16:48:23 +0900
+Subject: [PATCH 23/31] ivi-layout: send key event to clients that are binding
+ wl_keyboard.
+
+Signed-off-by: Nobuhiko Tanibata <NOBUHIKO_TANIBATA@xddp.denso.co.jp>
+---
+ ivi-shell/ivi-layout.c | 42 +++++++++++++++++++++++++++++++++++++++++-
+ ivi-shell/ivi-layout.h |  2 ++
+ ivi-shell/ivi-shell.c  |  9 +++++++++
+ 3 files changed, 52 insertions(+), 1 deletion(-)
+
+diff --git a/ivi-shell/ivi-layout.c b/ivi-shell/ivi-layout.c
+index 5ed5513..562e0bc 100644
+--- a/ivi-shell/ivi-layout.c
++++ b/ivi-shell/ivi-layout.c
+@@ -3169,6 +3169,45 @@ ivi_layout_initWithCompositor(struct weston_compositor *ec)
+ 
+ }
+ 
++static struct wl_resource *
++find_resource_for_surface(struct wl_list *list, struct weston_surface *surface)
++{
++	if (!surface)
++		return NULL;
++
++	if (!surface->resource)
++		return NULL;
++
++	return wl_resource_find_for_client(list, wl_resource_get_client(surface->resource));
++}
++
++static void
++ivi_layout_grabKeyboardKey(struct weston_keyboard_grab *grab,
++                uint32_t time, uint32_t key, uint32_t state)
++{
++    struct weston_keyboard *keyboard = grab->keyboard;
++    struct wl_display *display = keyboard->seat->compositor->wl_display;
++    uint32_t serial;
++    struct wl_resource *resource;
++
++    wl_resource_for_each(resource, &keyboard->focus_resource_list) {
++        serial = wl_display_next_serial(display);
++        wl_keyboard_send_key(resource,
++                             serial,
++                             time,
++                             key,
++                             state);
++    }
++
++    wl_resource_for_each(resource, &keyboard->resource_list) {
++        serial = wl_display_next_serial(display);
++        wl_keyboard_send_key(resource,
++                             serial,
++                             time,
++                             key,
++                             state);
++    }
++}
+ 
+ WL_EXPORT struct ivi_layout_interface ivi_layout_interface = {
+ 	.get_weston_view = ivi_layout_get_weston_view,
+@@ -3176,5 +3215,6 @@ WL_EXPORT struct ivi_layout_interface ivi_layout_interface = {
+ 	.surfaceSetNativeContent = ivi_layout_surfaceSetNativeContent,
+ 	.surfaceCreate = ivi_layout_surfaceCreate,
+ 	.initWithCompositor = ivi_layout_initWithCompositor,
+-	.emitWarningSignal = ivi_layout_emitWarningSignal
++	.emitWarningSignal = ivi_layout_emitWarningSignal,
++        .grab_keyboard_key = ivi_layout_grabKeyboardKey
+ };
+diff --git a/ivi-shell/ivi-layout.h b/ivi-shell/ivi-layout.h
+index 8cca33c..073a1e1 100644
+--- a/ivi-shell/ivi-layout.h
++++ b/ivi-shell/ivi-layout.h
+@@ -135,6 +135,8 @@ struct ivi_layout_interface {
+ 	void (*initWithCompositor)(struct weston_compositor *ec);
+ 	void (*emitWarningSignal)(uint32_t id_surface,
+ 				enum ivi_layout_warning_flag flag);
++        void (*grab_keyboard_key)(struct weston_keyboard_grab *grab,
++                                  uint32_t time, uint32_t key, uint32_t state);
+ };
+ 
+ WL_EXPORT struct ivi_layout_interface ivi_layout_interface;
+diff --git a/ivi-shell/ivi-shell.c b/ivi-shell/ivi-shell.c
+index d7d7bb5..bf4affd 100644
+--- a/ivi-shell/ivi-shell.c
++++ b/ivi-shell/ivi-shell.c
+@@ -48,6 +48,13 @@
+ 
+ #include "../shared/os-compatibility.h"
+ 
++// for input focus step1
++typedef void
++(*keyboard_key)(struct weston_keyboard_grab *grab,
++                uint32_t time, uint32_t key, uint32_t state);
++
++extern keyboard_key keyboard_key_func;
++
+ struct ivi_shell_surface
+ {
+     struct ivi_shell *shell;
+@@ -442,6 +449,8 @@ module_init(struct weston_compositor *compositor,
+ 	 return -1;
+     }
+ 
++    keyboard_key_func = ivi_layout->grab_keyboard_key;
++
+     free(setting.ivi_module);
+     return 0;
+ }
+-- 
+1.9.3
+
