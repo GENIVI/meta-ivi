@@ -32,10 +32,14 @@ Layer Dependencies
 
 URI: git://git.yoctoproject.org/poky
 > branch:   master
-> revision: 52b788c6df9201764130ab744bf67b770b24b896 
+> revision: 8ac8eca2e3bd8c78e2b31ea974930ed0243258a3
+
+URI: git://git.openembedded.org/meta-openembedded
+> branch:   master
+> revision: 0d01e1b72333f49c29d1a27ad844c4cd9f90341c
 
 Using the above git sha's and the master meta-ivi branch, bitbaking intrepid-image
-is known to work (the intrepid-image build should be GENIVI 7.0 compliant).
+is known to work (the intrepid-image build should be aligned with GENIVI 7.0).
 
 For creating a specific GENIVI compliant image version, please make sure you
 git checkout the related meta-ivi branch and follow the build instructions
@@ -68,8 +72,8 @@ following steps:
 1. Run the following command:
    > $ source poky/oe-init-build-env
 
-2. Add the meta-ivi and meta-ivi-bsp path to the $BUILDDIR/conf/bblayers.conf
-BBLAYERS variable.
+2. Add the meta-oe, meta-ivi and meta-ivi-bsp layer path to the
+$BUILDDIR/conf/bblayers.conf BBLAYERS variable.
 
 3. Set MACHINE ??= "vexpressa9", MACHINE ??= "qemux86" or MACHINE ??= "qemux86-64"
 in $BUILDDIR/conf/local.conf file to build for an emulated ARMv7a, x86 or x86-64
