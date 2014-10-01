@@ -14,7 +14,7 @@ PACKAGECONFIG_append = " bluez5"
 
 RDEPENDS_pulseaudio-module-systemd-login =+ "systemd"
 RDEPENDS_pulseaudio-server += "\
-        ${@base_contains('DISTRO_FEATURES', 'x11', 'pulseaudio-module-systemd-login', '', d)}"
+        ${@bb.utils.contains('DISTRO_FEATURES', 'x11', 'pulseaudio-module-systemd-login', '', d)}"
 
 python __anonymous () {
     '''
@@ -32,7 +32,7 @@ python __anonymous () {
 }
 
 do_install_append() {
-    if ${@base_contains('DISTRO_FEATURES','systemd','true','false',d)}; then
+    if ${@bb.utils.contains('DISTRO_FEATURES','systemd','true','false',d)}; then
         install -d ${D}${systemd_unitdir}/system/
         install -m 0644 ${WORKDIR}/pulseaudio.service ${D}${systemd_unitdir}/system
     fi
