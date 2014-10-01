@@ -4,7 +4,7 @@ DESCRIPTION = "Proof of Concept of the Genivi AudioManager"
 LICENSE = "MPLv2"
 LIC_FILES_CHKSUM = "file://AudioManagerPoC/README;md5=a14727a1c077b5b52e8574824a2f9458"
 
-DEPENDS = "qtbase qtdeclarative"
+DEPENDS = "qtbase qtdeclarative qtwebkit"
 
 BRANCH = "Intreprid_stable_branch"
 VERSION = "6.1"
