@@ -20,7 +20,7 @@ SRC_URI = "git://git.projects.genivi.org/lifecycle/node-state-manager.git \
 
 PR = "r1"
 
-EXTRA_OECONF = "${@base_contains('DISTRO_FEATURES', 'systemd', '--with-systemdsystemunitdir=${systemd_unitdir}/system/', '', d)}"
+EXTRA_OECONF = "${@bb.utils.contains('DISTRO_FEATURES', 'systemd', '--with-systemdsystemunitdir=${systemd_unitdir}/system/', '', d)}"
 
 DEPENDS = "dbus glib-2.0 dlt-daemon persistence-client-library systemd"
 

@@ -50,7 +50,7 @@ FILES_${PN}-dbg += " \
     "
 
 do_install_append() {
-    if ${@base_contains('DISTRO_FEATURES','systemd','true','false',d)}; then
+    if ${@bb.utils.contains('DISTRO_FEATURES','systemd','true','false',d)}; then
         install -d ${D}${systemd_unitdir}/system/
         install -m 0644 ${WORKDIR}/layermanager.service ${D}${systemd_unitdir}/system
     fi
