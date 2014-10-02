@@ -1,0 +1,12 @@
+Index: 3.0.14-r89/profile
+===================================================================
+--- 3.0.14-r89.orig/profile	2014-10-02 21:10:40.228250437 +0300
++++ 3.0.14-r89/profile	2014-10-02 21:13:58.292244646 +0300
+@@ -32,5 +32,7 @@
+ 
+ export PATH PS1 OPIEDIR QPEDIR QTDIR EDITOR TERM
+ 
++export LD_PRELOAD="/usr/lib/libEGL.so"
++
+ umask 022
+ 
