@@ -68,4 +68,3 @@ When building for koelsch, add the following to your local.conf:
 WAYLAND_ENABLE = "1"
 GLES_ENABLE = "1"
 WAYLAND_GFX_ENABLE = "1"
-BBMASK .= "|meta-ivi/meta-ivi-demo/recipes-graphics/wayland"
