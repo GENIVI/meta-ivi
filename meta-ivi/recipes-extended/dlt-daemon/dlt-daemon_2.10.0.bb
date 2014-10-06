@@ -45,7 +45,7 @@ EXTRA_OECMAKE = "-DWITH_SYSTEMD=ON"
 do_install_append() {
     sed -i '/User/d' ${D}/${systemd_unitdir}/system/*.service
 
-    if [ ${@base_contains('EXTRA_OECMAKE', '-DWITH_SYSTEMD=ON', 'yes', 'no', d)} = yes ]; then
+    if [ ${@bb.utils.contains('EXTRA_OECMAKE', '-DWITH_SYSTEMD=ON', 'yes', 'no', d)} = yes ]; then
         # Install the required systemd services links
         install -d ${D}${base_libdir}/systemd/system/basic.target.wants
         ln -sf ../dlt.service ${D}${base_libdir}/systemd/system/basic.target.wants/dlt.service

@@ -20,7 +20,7 @@ SRC_URI = "git://git.projects.genivi.org/lifecycle/node-state-manager.git \
 
 PR = "r1"
 
-EXTRA_OECONF = "${@base_contains('DISTRO_FEATURES', 'systemd', '--with-systemdsystemunitdir=${systemd_unitdir}/system/', '', d)}"
+EXTRA_OECONF = "${@bb.utils.contains('DISTRO_FEATURES', 'systemd', '--with-systemdsystemunitdir=${systemd_unitdir}/system/', '', d)}"
 
 DEPENDS = "dbus glib-2.0 dlt-daemon persistence-client-library systemd"
 
@@ -28,7 +28,8 @@ S = "${WORKDIR}/git"
 
 inherit pkgconfig autotools-brokensep systemd
 
-SYSTEMD_SERVICE = "nodestatemanager-daemon.service"
+SYSTEMD_PACKAGES = "${PN}"
+SYSTEMD_SERVICE_${PN} = "nodestatemanager-daemon.service"
 SYSTEMD_AUTO_ENABLE = "disable"
 
 

@@ -1,0 +1,35 @@
+From f530dd6b41c86478750a0a3bf0bfe9c434182559 Mon Sep 17 00:00:00 2001
+From: Nobuhiko Tanibata <NOBUHIKO_TANIBATA@xddp.denso.co.jp>
+Date: Tue, 24 Jun 2014 11:59:01 +0900
+Subject: [PATCH 14/31] input-panel:Change unsigned to signed to follow weston
+ coding manner.
+
+---
+ ivi-shell/input-panel-ivi.c | 4 ++--
+ 1 file changed, 2 insertions(+), 2 deletions(-)
+
+diff --git a/ivi-shell/input-panel-ivi.c b/ivi-shell/input-panel-ivi.c
+index 218da6e..32be989 100644
+--- a/ivi-shell/input-panel-ivi.c
++++ b/ivi-shell/input-panel-ivi.c
+@@ -45,7 +45,7 @@ struct input_panel_surface {
+ 	struct wl_listener surface_destroy_listener;
+ 
+ 	struct weston_output *output;
+-	uint32_t panel;
++	int32_t panel;
+ };
+ 
+ static void
+@@ -305,7 +305,7 @@ unbind_input_panel(struct wl_resource *resource)
+ 
+ static void
+ bind_input_panel(struct wl_client *client,
+-	      void *data, uint32_t version, uint32_t id)
++             void *data, uint32_t version, uint32_t id)
+ {
+ 	struct ivi_shell *shell = data;
+ 	struct wl_resource *resource;
+-- 
+1.9.3
+

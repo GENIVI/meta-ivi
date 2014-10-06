@@ -1,0 +1,32 @@
+From 472f0e7c5abcb5808964c44235eab9cf00d94649 Mon Sep 17 00:00:00 2001
+From: Nobuhiko Tanibata <NOBUHIKO_TANIBATA@xddp.denso.co.jp>
+Date: Mon, 28 Jul 2014 17:56:01 +0900
+Subject: [PATCH 18/31] ivi-shell: Set source surface size if surfaceConfigure
+ event occurred.
+
+Signed-off-by: Nobuhiko Tanibata <NOBUHIKO_TANIBATA@xddp.denso.co.jp>
+---
+ ivi-shell/ivi-layout.c | 7 +++++++
+ 1 file changed, 7 insertions(+)
+
+diff --git a/ivi-shell/ivi-layout.c b/ivi-shell/ivi-layout.c
+index 8ba60ca..5e9c1d7 100644
+--- a/ivi-shell/ivi-layout.c
++++ b/ivi-shell/ivi-layout.c
+@@ -2866,6 +2866,13 @@ ivi_layout_surfaceConfigure(struct ivi_layout_surface *ivisurf,
+     ivisurf->surface->width_from_buffer  = width;
+     ivisurf->surface->height_from_buffer = height;
+ 
++    if (ivisurf->prop.sourceWidth == 0 || ivisurf->prop.sourceHeight == 0) {
++        ivisurf->pending.prop.sourceWidth = width;
++        ivisurf->pending.prop.sourceHeight = height;
++        ivisurf->prop.sourceWidth = width;
++        ivisurf->prop.sourceHeight = height;
++    }
++
+     wl_signal_emit(&layout->surface_notification.configure_changed, ivisurf);
+ }
+ 
+-- 
+1.9.3
+

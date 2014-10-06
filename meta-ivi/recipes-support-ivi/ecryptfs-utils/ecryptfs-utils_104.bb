@@ -20,7 +20,8 @@ SRC_URI[sha256sum] = "4a200176542d46439c5297021f2c7fd7343b871c20c6f73f6e6c9fc4e5
 
 inherit pkgconfig autotools systemd
 
-SYSTEMD_SERVICE = "ecryptfs.service"
+SYSTEMD_PACKAGES = "${PN}"
+SYSTEMD_SERVICE_${PN} = "ecryptfs.service"
 
 EXTRA_OECONF += "--disable-nss --disable-pywrap --enable-openssl --prefix=/ --sbindir=/sbin --datarootdir=/usr/share"
 EXTRA_OEMAKE += "'CFLAGS+= -lgcrypt '"
@@ -39,7 +40,7 @@ FILES_${PN}-dbg += "${libdir}/ecryptfs/.debug \
                     ${libdir}/security/.debug \
                    "
 do_install_append() {
-    if ${@base_contains('DISTRO_FEATURES','systemd','true','false',d)}; then
+    if ${@bb.utils.contains('DISTRO_FEATURES','systemd','true','false',d)}; then
         install -d ${D}${systemd_unitdir}/system/
         install -m 0644 ${WORKDIR}/ecryptfs.service ${D}${systemd_unitdir}/system
     fi

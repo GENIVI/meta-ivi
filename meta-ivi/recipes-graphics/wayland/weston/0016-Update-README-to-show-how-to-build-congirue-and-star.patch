@@ -1,0 +1,37 @@
+From 428ef287660b50a71ca4f9849b126885b305a1a3 Mon Sep 17 00:00:00 2001
+From: Nobuhiko Tanibata <NOBUHIKO_TANIBATA@xddp.denso.co.jp>
+Date: Wed, 9 Jul 2014 18:31:56 +0900
+Subject: [PATCH 16/31] Update README to show how to build, congirue, and start
+ ivi-shell.
+
+Signed-off-by: Nobuhiko Tanibata <NOBUHIKO_TANIBATA@xddp.denso.co.jp>
+---
+ README | 12 ++++++++++++
+ 1 file changed, 12 insertions(+)
+
+diff --git a/README b/README
+index cf7eca5..5ca1aed 100644
+--- a/README
++++ b/README
+@@ -14,6 +14,18 @@ ivi-shell proposes two features
+   starts to move, the wl_surface drawn by Car navigation is expected to
+   move top of surfaces.
+ 
++How to compile:
++same as weston. To disable, use option: --disable-ivi-shell for configure.
++
++How to configure weston.ini:
++reference ini file will be generated in <build_dir>/ivi-shell.
++
++How to run:
++same as weston. exec weston.
++
++How to use UI:
++http://lists.freedesktop.org/archives/wayland-devel/attachments/20140625/abbfc064/attachment-0001.png
++
+ -----------------------------
+ Weston
+ 
+-- 
+1.9.3
+

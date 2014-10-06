@@ -4,6 +4,8 @@ LIC_FILES_CHKSUM = "file://${IVI_COREBASE}/meta-ivi/COPYING.MIT;md5=3da9cfbcb788
 # Avoid hardcoding the full layer path into the checksums
 LIC_FILES_CHKSUM[vardepsexclude] += "IVI_COREBASE"
 
+PACKAGE_ARCH = "${MACHINE_ARCH}"
+
 inherit packagegroup
 
 XSERVER ?= "xserver-xorg \
@@ -13,7 +15,4 @@ XSERVER ?= "xserver-xorg \
             xf86-input-keyboard \
             "
 
-RDEPENDS_${PN} = " \
-                  ${XSERVER}"
-
-PACKAGE_ARCH = "${MACHINE_ARCH}"
+RDEPENDS_${PN} = "${XSERVER}"

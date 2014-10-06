@@ -15,7 +15,8 @@ SRC_URI = "git://git.projects.genivi.org/AudioManager.git;protocol=git;tag=67fd2
 S = "${WORKDIR}/git"
 inherit autotools gettext cmake pkgconfig systemd
 
-SYSTEMD_SERVICE = "AudioManager.service"
+SYSTEMD_PACKAGES = "${PN}"
+SYSTEMD_SERVICE_${PN} = "AudioManager.service"
 SYSTEMD_AUTO_ENABLE = "disable"
 
 DEFAULT_PREFERENCE = "-1"
@@ -35,7 +36,7 @@ FILES_${PN}-dbg += "${libdir}/audioManager/command/.debug/* \
                     ${libdir}/audioManager/routing/.debug/* \
 "
 do_install_append() {
-    if ${@base_contains('DISTRO_FEATURES','systemd','true','false',d)}; then
+    if ${@bb.utils.contains('DISTRO_FEATURES','systemd','true','false',d)}; then
         mkdir -p ${D}${systemd_unitdir}/scripts/
         install -m 0755 ${WORKDIR}/setup_amgr.sh ${D}${systemd_unitdir}/scripts/setup_amgr.sh
         install -d ${D}${systemd_unitdir}/system/

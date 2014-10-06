@@ -1,0 +1,27 @@
+From 69bfaed8f4ac7d36d3b1f53df6e5ec963f9f7a3e Mon Sep 17 00:00:00 2001
+From: Holger Behrens <holger.behrens@windriver.com>
+Date: Tue, 19 Aug 2014 15:54:07 +0200
+Subject: [PATCH] CMakeLists.txt: replaced APPEND with SET
+
+Signed-off-by: Holger Behrens <holger.behrens@windriver.com>
+---
+ CMakeLists.txt | 3 ++-
+ 1 file changed, 2 insertions(+), 1 deletion(-)
+
+diff --git a/CMakeLists.txt b/CMakeLists.txt
+index 825786e..1eff316 100644
+--- a/CMakeLists.txt
++++ b/CMakeLists.txt
+@@ -42,7 +42,8 @@ option(usebluez5 "use bluez 5 API" OFF)
+ 
+ #turn on -fpic/-fpie:
+ set(CMAKE_POSITION_INDEPENDENT_CODE ON)
+-list(APPEND CMAKE_CXX_FLAGS "-fpie -pie -std=c++11")
++#list(APPEND CMAKE_CXX_FLAGS "-fpie -pie -std=c++11")
++set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -fpie -pie -std=c++11")
+ 
+ if(opencvlux_plugin)
+    message(STATUS "OpenCV Lux plugin enabled")
+-- 
+2.0.4
+

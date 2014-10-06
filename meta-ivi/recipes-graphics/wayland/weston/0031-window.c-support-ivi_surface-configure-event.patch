@@ -1,0 +1,48 @@
+From 8803555db2e6f1cd6e2001935216774260774875 Mon Sep 17 00:00:00 2001
+From: Nobuhiko Tanibata <NOBUHIKO_TANIBATA@xddp.denso.co.jp>
+Date: Tue, 16 Sep 2014 15:40:25 +0900
+Subject: [PATCH 31/31] window.c: support ivi_surface configure event.
+
+Signed-off-by: Nobuhiko Tanibata <NOBUHIKO_TANIBATA@xddp.denso.co.jp>
+---
+ clients/window.c | 17 +++++++++++++++++
+ 1 file changed, 17 insertions(+)
+
+diff --git a/clients/window.c b/clients/window.c
+index 684f98e..99460b8 100644
+--- a/clients/window.c
++++ b/clients/window.c
+@@ -1374,6 +1374,20 @@ window_get_display(struct window *window)
+ }
+ 
+ static void
++handle_ivi_surface_configure(void *data, struct ivi_surface *ivi_surface,
++                             int32_t width, int32_t height)
++{
++	struct window *window = data;
++
++	window_schedule_resize(window, width, height);
++}
++
++static const struct ivi_surface_listener ivi_surface_listener = {
++        NULL,
++        handle_ivi_surface_configure,
++};
++
++static void
+ surface_create_surface(struct surface *surface, uint32_t flags)
+ {
+ 	struct display *display = surface->window->display;
+@@ -1390,6 +1404,9 @@ surface_create_surface(struct surface *surface, uint32_t flags)
+ 				fprintf(stderr, "Failed to create ivi_client_surface\n");
+ 				abort();
+ 			}
++
++                        ivi_surface_add_listener(surface->window->ivi_surface,
++                                                 &ivi_surface_listener, surface->window);
+ 		}
+ 	}
+ 
+-- 
+1.9.3
+

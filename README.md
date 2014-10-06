@@ -14,17 +14,17 @@ The meta-ivi project welcomes contributions. You can contribute code,
 submit patches, report bugs, answer questions on our mailing lists and
 review and edit our documentation and much more.
 
-Subscribe to the mailing list  
+Subscribe to the mailing list
     [here](https://lists.genivi.org/mailman/listinfo/genivi-meta-ivi).  
-View or Report bugs  
+View or Report bugs
     [here](https://bugs.genivi.org/buglist.cgi?product=meta-ivi).  
-Read or Edit the wiki  
+Read or Edit the wiki
     [here](http://wiki.projects.genivi.org/index.php/meta-ivi).  
-Vote or Comment on our plan  
+Vote or Comment on our plan
     [here](https://trello.com/b/HplBZa2l/meta-ivi-development).  
-For information about the Yocto Project, see the  
+For information about the Yocto Project, see the
     [Yocto Project website](https://www.yoctoproject.org).  
-For information about the Yocto GENIVI Baseline, see the  
+For information about the Yocto GENIVI Baseline, see the
     [Yocto GENIVI Baseline website](http://projects.genivi.org/GENIVI_Baselines/meta-ivi).
 
 Layer Dependencies
@@ -32,10 +32,14 @@ Layer Dependencies
 
 URI: git://git.yoctoproject.org/poky
 > branch:   master
-> revision: 34436672f3ef4915e7526770a0fa8dcff328f93d
+> revision: 39ca8b429b6244e9649e7303cbb240adf007bf22
 
-Using the above git sha's and the meta-ivi 7.0 branch, bitbaking intrepid-image
-is known to work (the intrepid-image build should be GENIVI 7.0 compliant).
+URI: git://git.openembedded.org/meta-openembedded
+> branch:   master
+> revision: 0d01e1b72333f49c29d1a27ad844c4cd9f90341c
+
+Using the above git sha's and the 7.0 meta-ivi branch, bitbaking intrepid-image
+is known to work (the intrepid-image build should be aligned with GENIVI 7.0).
 
 For creating a specific GENIVI compliant image version, please make sure you
 git checkout the related meta-ivi branch and follow the build instructions
@@ -68,8 +72,8 @@ following steps:
 1. Run the following command:
    > $ source poky/oe-init-build-env
 
-2. Add the meta-ivi and meta-ivi-bsp path to the $BUILDDIR/conf/bblayers.conf
-BBLAYERS variable.
+2. Add the meta-oe, meta-ivi and meta-ivi-bsp layer path to the
+$BUILDDIR/conf/bblayers.conf BBLAYERS variable.
 
 3. Set MACHINE ??= "vexpressa9", MACHINE ??= "qemux86" or MACHINE ??= "qemux86-64"
 in $BUILDDIR/conf/local.conf file to build for an emulated ARMv7a, x86 or x86-64
