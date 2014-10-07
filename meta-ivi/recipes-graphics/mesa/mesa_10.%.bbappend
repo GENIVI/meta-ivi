@@ -1,1 +1,1 @@
-PACKAGECONFIG_append = "gallium gallium-egl gallium-llvm"
+PACKAGECONFIG_append = " gallium gallium-egl gallium-llvm"
