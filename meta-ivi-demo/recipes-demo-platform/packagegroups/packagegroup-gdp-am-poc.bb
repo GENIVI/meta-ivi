@@ -16,7 +16,6 @@ PACKAGES = "\
 ALLOW_EMPTY_${PN} = "1"
 
 RDEPENDS_${PN} += "\
-    alsa-plugins \
     audiomanager-poc \
     libasound-module-conf-pulse \
     libasound-module-ctl-pulse \
