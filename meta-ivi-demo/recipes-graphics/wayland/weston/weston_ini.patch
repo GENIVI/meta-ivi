@@ -26,7 +26,7 @@ Index: weston-1.5.0/ivi-shell/weston.ini.in
 -icon=@abs_top_builddir@/data/icon_ivi_clickdot.png
 -path=@abs_top_builddir@/clients/weston-clickdot
 +icon=@abs_top_builddir@/data/GDP_AM_Button.png
-+path=@abs_top_builddir@/clients/am-poc/falcon_hmi
++path=@abs_top_builddir@/clients/am-poc/start_am-poc.sh
  
  [ivi-launcher]
  workspace-id=1
