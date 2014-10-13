@@ -20,6 +20,8 @@ RDEPENDS_${PN} += "\
     libasound-module-conf-pulse \
     libasound-module-ctl-pulse \
     libasound-module-pcm-pulse \
+    pulseaudio-module-loopback \
     pulseaudio-module-native-protocol-tcp \
+    pulseaudio-module-pipe-sink \
     pulseaudio-module-remap-sink \
     "
