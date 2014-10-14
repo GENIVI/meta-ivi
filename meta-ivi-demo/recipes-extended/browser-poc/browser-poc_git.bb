@@ -10,6 +10,7 @@ SRCREV = "531bd41d00509840cf5dfc767995549c27211341"
 DEPENDS = "qtbase qtwebkit"
 
 SRC_URI = "git://git.projects.genivi.org/browser-poc.git \
+           file://browser_poc_smaller_bookmarks_qml.patch \
            file://COPYING \
           "
 

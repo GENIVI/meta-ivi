@@ -6,6 +6,7 @@ SRC_URI_append = " file://weston_ini.patch \
              file://GDP_Background.png \
              file://GDP_Browser_Button.png \
              file://start_browser-poc.sh \
+             file://browser_poc_hack.patch \
                  "
 
 do_install_append() {
