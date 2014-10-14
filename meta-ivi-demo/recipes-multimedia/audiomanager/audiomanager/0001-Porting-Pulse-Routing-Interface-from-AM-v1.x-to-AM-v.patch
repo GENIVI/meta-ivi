@@ -1,6 +1,6 @@
-From 68c0d6ef9b1070505c1664fe567948a9f661da28 Mon Sep 17 00:00:00 2001
+From f6e5e17d6508469ec0faf6b9f6780b02a6d10352 Mon Sep 17 00:00:00 2001
 From: Adrian Scarlat <adrian.scarlat@windriver.com>
-Date: Thu, 21 Aug 2014 14:52:46 +0300
+Date: Mon, 13 Oct 2014 19:42:19 +0300
 Subject: [PATCH] Porting Pulse Routing Interface from AM v1.x to AM v3.0
 
 This Routing Interface is needed for any application that will
@@ -9,11 +9,9 @@ to control the sources and sinks present on the system. It must
 be loaded by AM;
 
 The interface can be built by supplying cmake with the -DWITH_PULSE_ROUTING_PLUGIN=ON;
-There are two configuration files that are use for the moment:
+After building one configuration file will be available:
   1. libPluginRoutingInterfacePULSE.conf - configuration file for
      Pulse Routing Plugin; it will be loaded at runtime by the Pulse Routing Interface;
-  2. genivi-amgr.pa - configuration file for PulseAudio;
-     It must be used to start PulseAudio daemon on the system;
 
 Changed files:
   CMakeLists.txt
@@ -24,11 +22,6 @@ Added new folders:
 Added new files:
   PluginRoutingInterfacePulse/CMakeLists.txt
   PluginRoutingInterfacePulse/README
-  PluginRoutingInterfacePulse/cmake/FindDBUS.cmake
-  PluginRoutingInterfacePulse/data/asound.conf
-  PluginRoutingInterfacePulse/data/client.conf
-  PluginRoutingInterfacePulse/data/daemon.conf
-  PluginRoutingInterfacePulse/data/genivi-amgr.pa
   PluginRoutingInterfacePulse/data/libPluginRoutingInterfacePULSE.conf
   PluginRoutingInterfacePulse/include/RoutingSenderMainloopPULSE.h
   PluginRoutingInterfacePulse/include/RoutingSenderPULSE.h
@@ -38,27 +31,17 @@ Added new files:
 Signed-off-by: Adrian Scarlat <adrian.scarlat@windriver.com>
 ---
  CMakeLists.txt                                     |   24 +-
- PluginRoutingInterfacePulse/CMakeLists.txt         |  120 +++
- PluginRoutingInterfacePulse/README                 |   11 +
- PluginRoutingInterfacePulse/cmake/FindDBUS.cmake   |   38 +
- PluginRoutingInterfacePulse/data/asound.conf       |   35 +
- PluginRoutingInterfacePulse/data/client.conf       |   22 +
- PluginRoutingInterfacePulse/data/daemon.conf       |   44 +
- PluginRoutingInterfacePulse/data/genivi-amgr.pa    |   68 ++
- .../data/libPluginRoutingInterfacePULSE.conf       |   59 ++
- .../include/RoutingSenderMainloopPULSE.h           |   97 ++
+ PluginRoutingInterfacePulse/CMakeLists.txt         |  103 +++
+ PluginRoutingInterfacePulse/README                 |   50 ++
+ .../data/libPluginRoutingInterfacePULSE.conf       |   55 ++
+ .../include/RoutingSenderMainloopPULSE.h           |   97 +++
  .../include/RoutingSenderPULSE.h                   |  131 +++
  .../src/RoutingSenderMainloopPULSE.cpp             |  610 +++++++++++++
- .../src/RoutingSenderPULSE.cpp                     |  923 ++++++++++++++++++++
- 13 files changed, 2176 insertions(+), 6 deletions(-)
+ .../src/RoutingSenderPULSE.cpp                     |  914 ++++++++++++++++++++
+ 8 files changed, 1978 insertions(+), 6 deletions(-)
  create mode 100644 PluginRoutingInterfacePulse/CMakeLists.txt
  create mode 100644 PluginRoutingInterfacePulse/README
- create mode 100644 PluginRoutingInterfacePulse/cmake/FindDBUS.cmake
- create mode 100644 PluginRoutingInterfacePulse/data/asound.conf
- create mode 100644 PluginRoutingInterfacePulse/data/client.conf
- create mode 100644 PluginRoutingInterfacePulse/data/daemon.conf
- create mode 100644 PluginRoutingInterfacePulse/data/genivi-amgr.pa
- create mode 100644 PluginRoutingInterfacePulse/data/libPluginRoutingInterfacePULSE.conf
+ create mode 100755 PluginRoutingInterfacePulse/data/libPluginRoutingInterfacePULSE.conf
  create mode 100644 PluginRoutingInterfacePulse/include/RoutingSenderMainloopPULSE.h
  create mode 100644 PluginRoutingInterfacePulse/include/RoutingSenderPULSE.h
  create mode 100644 PluginRoutingInterfacePulse/src/RoutingSenderMainloopPULSE.cpp
@@ -109,10 +92,10 @@ index 3e70e4f..48e7ae2 100755
  if(WITH_PLUGIN_CONTROL)
 diff --git a/PluginRoutingInterfacePulse/CMakeLists.txt b/PluginRoutingInterfacePulse/CMakeLists.txt
 new file mode 100644
-index 0000000..b889f6a
+index 0000000..90501bb
 --- /dev/null
 +++ b/PluginRoutingInterfacePulse/CMakeLists.txt
-@@ -0,0 +1,120 @@
+@@ -0,0 +1,103 @@
 +############################################################################
 +# SPDX license identifier: MPL-2.0
 +#
@@ -144,7 +127,7 @@ index 0000000..b889f6a
 +FIND_PACKAGE(PkgConfig)
 +
 +OPTION( WITH_DOCUMENTATION
-+	"Build together with Doxygen Documentation" OFF )
++        "Build together with Doxygen Documentation" OFF )
 +
 +SET(CMAKE_MODULE_PATH ${CMAKE_MODULE_PATH} ${CMAKE_SOURCE_DIR}/cmake)
 +SET(PLUGINS_OUTPUT_PATH ${CMAKE_SOURCE_DIR}/bin/plugins)
@@ -157,9 +140,9 @@ index 0000000..b889f6a
 +FIND_PATH(AUDIO_INCLUDE_FOLDER audiomanagertypes.h /usr/include)
 +
 +if(DEFINED AUDIO_INCLUDE_FOLDER)
-+	message(STATUS "Found AudioManager include: ${AUDIO_INCLUDE_FOLDER}")
++        message(STATUS "Found AudioManager include: ${AUDIO_INCLUDE_FOLDER}")
 +else(DEFINED AUDIO_INCLUDE_FOLDER)
-+	message(STATUS "Did not found AudioManager include!")
++        message(STATUS "Did not found AudioManager include!")
 +endif(DEFINED AUDIO_INCLUDE_FOLDER)
 +
 +FILE(READ "${AUDIO_INCLUDE_FOLDER}/routing/IAmRoutingSend.h" VERSION_BUFFER LIMIT 6000)
@@ -171,12 +154,12 @@ index 0000000..b889f6a
 +FIND_PACKAGE(DBUS REQUIRED)
 +
 +INCLUDE_DIRECTORIES(
-+	${CMAKE_SOURCE_DIR} 
-+ 	${CMAKE_CURRENT_BINARY_DIR}
-+ 	${DBUS_INCLUDE_DIR}
-+	${DBUS_ARCH_INCLUDE_DIR}
-+	${AUDIO_INCLUDE_FOLDER}
-+	${INCLUDES_FOLDER}
++        ${CMAKE_SOURCE_DIR} 
++        ${CMAKE_CURRENT_BINARY_DIR}
++        ${DBUS_INCLUDE_DIR}
++        ${DBUS_ARCH_INCLUDE_DIR}
++        ${AUDIO_INCLUDE_FOLDER}
++        ${INCLUDES_FOLDER}
 +)
 +
 +# all source files go here
@@ -191,12 +174,12 @@ index 0000000..b889f6a
 +)
 +
 +IF(WITH_DOCUMENTATION)
-+	file(MAKE_DIRECTORY ${DOC_OUTPUT_PATH})
-+	configure_file(${DOXY_FILE}  ${DOC_OUTPUT_PATH}/Doxyfile  @ONLY IMMEDIATE)
-+  	add_custom_target (PluginRoutingInterfacePULSEDocs ALL 
-+  		COMMAND ${DOXYGEN_EXECUTABLE} ${DOC_OUTPUT_PATH}/Doxyfile WORKING_DIRECTORY ${DOC_OUTPUT_PATH}
-+  		SOURCES ${PROJECT_BINARY_DIR} ${DOC_OUTPUT_PATH}/Doxyfile
-+	)
++        file(MAKE_DIRECTORY ${DOC_OUTPUT_PATH})
++        configure_file(${DOXY_FILE}  ${DOC_OUTPUT_PATH}/Doxyfile  @ONLY IMMEDIATE)
++        add_custom_target (PluginRoutingInterfacePULSEDocs ALL 
++                COMMAND ${DOXYGEN_EXECUTABLE} ${DOC_OUTPUT_PATH}/Doxyfile WORKING_DIRECTORY ${DOC_OUTPUT_PATH}
++                SOURCES ${PROJECT_BINARY_DIR} ${DOC_OUTPUT_PATH}/Doxyfile
++        )
 +ENDIF(WITH_DOCUMENTATION)
 +
 +INSTALL(TARGETS PluginRoutingInterfacePULSE 
@@ -210,289 +193,74 @@ index 0000000..b889f6a
 +        PERMISSIONS OWNER_EXECUTE OWNER_WRITE OWNER_READ GROUP_EXECUTE GROUP_READ WORLD_EXECUTE WORLD_READ
 +        COMPONENT sampleplugins
 +)
-+INSTALL(FILES data/client.conf
-+        DESTINATION "lib/${LIB_INSTALL_SUFFIX}/routing"
-+        PERMISSIONS OWNER_EXECUTE OWNER_WRITE OWNER_READ GROUP_EXECUTE GROUP_READ WORLD_EXECUTE WORLD_READ
-+        COMPONENT sampleplugins
-+)
-+INSTALL(FILES data/daemon.conf
-+        DESTINATION "lib/${LIB_INSTALL_SUFFIX}/routing"
-+        PERMISSIONS OWNER_EXECUTE OWNER_WRITE OWNER_READ GROUP_EXECUTE GROUP_READ WORLD_EXECUTE WORLD_READ
-+        COMPONENT sampleplugins
-+)
-+INSTALL(FILES data/asound.conf
-+        DESTINATION "lib/${LIB_INSTALL_SUFFIX}/routing"
-+        PERMISSIONS OWNER_EXECUTE OWNER_WRITE OWNER_READ GROUP_EXECUTE GROUP_READ WORLD_EXECUTE WORLD_READ
-+        COMPONENT sampleplugins
-+)
-+INSTALL(FILES data/genivi-amgr.pa
-+        DESTINATION "lib/${LIB_INSTALL_SUFFIX}/routing"
-+        PERMISSIONS OWNER_EXECUTE OWNER_WRITE OWNER_READ GROUP_EXECUTE GROUP_READ WORLD_EXECUTE WORLD_READ
-+        COMPONENT sampleplugins
-+)
 +
-+CONFIGURE_FILE( ${CMAKE_SOURCE_DIR}/PluginRoutingInterfacePulse/data/libPluginRoutingInterfacePULSE.conf ${PLUGINS_OUTPUT_PATH}/routing/libPluginRoutingInterfacePULSE.conf )
-+CONFIGURE_FILE( ${CMAKE_SOURCE_DIR}/PluginRoutingInterfacePulse/data/genivi-amgr.pa ${PLUGINS_OUTPUT_PATH}/routing/genivi-amgr.pa )
++# Uncomment the following five lines bellow (that start with #CONFIGURE_FILE...)
++# to make those files available in build environment;
++# For meta-ivi deployment purposes leave them commented.
++
++#CONFIGURE_FILE( ${CMAKE_SOURCE_DIR}/PluginRoutingInterfacePulse/data/libPluginRoutingInterfacePULSE.conf ${PLUGINS_OUTPUT_PATH}/routing/libPluginRoutingInterfacePULSE.conf )
 diff --git a/PluginRoutingInterfacePulse/README b/PluginRoutingInterfacePulse/README
 new file mode 100644
-index 0000000..7c9b082
+index 0000000..8238b94
 --- /dev/null
 +++ b/PluginRoutingInterfacePulse/README
-@@ -0,0 +1,11 @@
-+Description of PluginRoutingInterfacePulse
-+------------------------------------------
-+- The PluginRoutingInterfacePulse is used by the AM PoC application to communicate with Pulse
-+  present on the system on which the AM PoC application will be deployed;
+@@ -0,0 +1,50 @@
++GENIVI_AudioManager_PluginRoutingInterfacePulse
++===============================================
++:Author: Adrian Scarlat <adrian.scarlat@windriver.com>
++:doctitle: GENIVI_AudioManager_PluginRoutingInterfacePulse
 +
-+Build intstructions
-+-------------------
-+- To build the Pulse Routing Plugin pass the following option to CMake: -DWITH_PULSE_ROUTING_PLUGIN=ON
++SPDX license identifier: MPL-2.0
 +
++Copyright (C) 2011-2014, Wind River Systems
++Copyright (C) 2014, GENIVI Alliance
 +
++This file is part of AudioManager Pulse Audio Interface Routing Plugin.
 +
-diff --git a/PluginRoutingInterfacePulse/cmake/FindDBUS.cmake b/PluginRoutingInterfacePulse/cmake/FindDBUS.cmake
-new file mode 100644
-index 0000000..9a24f18
---- /dev/null
-+++ b/PluginRoutingInterfacePulse/cmake/FindDBUS.cmake
-@@ -0,0 +1,38 @@
-+############################################################################
-+# SPDX license identifier: MPL-2.0
-+#
-+# Copyright (C) 2012-2014, Wind River Systems
-+# Copyright (C) 2014, GENIVI Alliance
-+#
-+# This file is part of Pulse Audio Interface Routing Plugin.
-+#
-+# This Source Code Form is subject to the terms of the Mozilla Public
-+# License (MPL), v. 2.0. If a copy of the MPL was not distributed with this
-+# file, You can obtain one at http://mozilla.org/MPL/2.0/.
-+#
-+# For further information see http://www.genivi.org/.
-+#
-+# List of changes:
-+#
-+# 21.08.2014, Adrian Scarlat, First version of the code;
-+#                             Porting code from AM ver1.x to AM ver3.0;
-+#                             Added Copyright and License information;
-+############################################################################
++This Source Code Form is subject to the terms of the Mozilla Public
++License (MPL), v. 2.0. If a copy of the MPL was not distributed with this
++file, You can obtain one at http://mozilla.org/MPL/2.0/.
 +
-+FIND_PATH(DBUS_INCLUDE_DIR dbus/dbus.h /usr/include/dbus-1.0)
-+FIND_PATH(DBUS_ARCH_INCLUDE_DIR dbus/dbus-arch-deps.h /usr/lib/dbus-1.0/include /usr/lib/*/dbus-1.0/include )
-+FIND_LIBRARY(DBUS_LIBRARY NAMES dbus-1 PATHS /lib)
++For further information see http://www.genivi.org/.
 +
-+SET( DBUS_FOUND "NO" )
-+IF(DBUS_LIBRARY)
-+    SET( DBUS_FOUND "YES" )
-+    message(STATUS "Found DBUS libs: ${DBUS_LIBRARY}")
-+    message(STATUS "Found DBUS include: ${DBUS_INCLUDE_DIR}")
-+    message(STATUS "Found DBUS arch dependent include: ${DBUS_ARCH_INCLUDE_DIR}")
-+ENDIF(DBUS_LIBRARY)
++== Documentation
++Documentation is provided by doxygen. In order to use this, please compile the
++AudioManager like this:
++cmake -DWITH_DOCUMENTATION=ON
++make
 +
-+MARK_AS_ADVANCED(
-+  DBUS_INCLUDE_DIR
-+  DBUS_ARCH_INCLUDE_DIR
-+  DBUS_LIBRARY
-+)
-diff --git a/PluginRoutingInterfacePulse/data/asound.conf b/PluginRoutingInterfacePulse/data/asound.conf
-new file mode 100644
-index 0000000..e17f837
---- /dev/null
-+++ b/PluginRoutingInterfacePulse/data/asound.conf
-@@ -0,0 +1,35 @@
-+############################################################################
-+# SPDX license identifier: MPL-2.0
-+#
-+# Copyright (C) 2012-2014, Wind River Systems
-+# Copyright (C) 2014, GENIVI Alliance
-+#
-+# This file is part of Pulse Audio Interface Routing Plugin.
-+#
-+# This Source Code Form is subject to the terms of the Mozilla Public
-+# License (MPL), v. 2.0. If a copy of the MPL was not distributed with this
-+# file, You can obtain one at http://mozilla.org/MPL/2.0/.
-+#
-+# For further information see http://www.genivi.org/.
-+#
-+# List of changes:
-+#
-+# 21.08.2014, Adrian Scarlat, First version of the code;
-+#                             Porting code from AM ver1.x to AM ver3.0;
-+#                             Added Copyright and License information;
-+############################################################################
-+pcm.pulse {
-+  type pulse
-+}
++== Description of Pulse Routing Plugin
++The PluginRoutingInterfacePulse is used by the AM PoC application to communicate
++with PulseAudio present on the system on which the AM PoC application will be
++deployed.
 +
-+ctl.pulse {
-+  type pulse
-+}
++== Build intstructions
++Execute the following command from audiomanager/ folder:
++mkdir BUILD
++cd BUILD
++cmake -DWITH_ENABLED_IPC=DBUS -DWITH_PULSE_ROUTING_PLUGIN=ON ..
++make  [ add to make command "-j 4" if you have a 4 CPU.
 +
-+pcm.!default {
-+  type pulse
-+}
++If all goes well a bin/ folder will be made.
++Change to it by executing cd ../bin/
 +
-+ctl.!default {
-+  type pulse
-+}
-diff --git a/PluginRoutingInterfacePulse/data/client.conf b/PluginRoutingInterfacePulse/data/client.conf
-new file mode 100644
-index 0000000..c607b8d
---- /dev/null
-+++ b/PluginRoutingInterfacePulse/data/client.conf
-@@ -0,0 +1,22 @@
-+############################################################################
-+# SPDX license identifier: MPL-2.0
-+#
-+# Copyright (C) 2012-2014, Wind River Systems
-+# Copyright (C) 2014, GENIVI Alliance
-+#
-+# This file is part of Pulse Audio Interface Routing Plugin.
-+#
-+# This Source Code Form is subject to the terms of the Mozilla Public
-+# License (MPL), v. 2.0. If a copy of the MPL was not distributed with this
-+# file, You can obtain one at http://mozilla.org/MPL/2.0/.
-+#
-+# For further information see http://www.genivi.org/.
-+#
-+# List of changes:
-+#
-+# 21.08.2014, Adrian Scarlat, First version of the code;
-+#                             Porting code from AM ver1.x to AM ver3.0;
-+#                             Added Copyright and License information;
-+############################################################################
++In order to use the AudioManager with the PluginRoutingInterfacePulse, the
++AudioManager must be compiled with PluginRoutingInterfacePulse and with
++PluginControlInterfacePulse.For achieving this please consult the README
++from the PluginControlInterfacePulse Project also.
 +
-+default-server = 127.0.0.1
-diff --git a/PluginRoutingInterfacePulse/data/daemon.conf b/PluginRoutingInterfacePulse/data/daemon.conf
-new file mode 100644
-index 0000000..0a291d4
---- /dev/null
-+++ b/PluginRoutingInterfacePulse/data/daemon.conf
-@@ -0,0 +1,44 @@
-+# SPDX license identifier: LGPL-2.0
-+#
-+# This file is part of PulseAudio.
-+#
-+# PulseAudio is free software; you can redistribute it and/or modify
-+# it under the terms of the GNU Lesser General Public License as published by
-+# the Free Software Foundation; either version 2 of the License, or
-+# (at your option) any later version.
-+#
-+# PulseAudio is distributed in the hope that it will be useful, but
-+# WITHOUT ANY WARRANTY; without even the implied warranty of
-+# MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the GNU
-+# General Public License for more details.
-+#
-+# You should have received a copy of the GNU Lesser General Public License
-+# along with PulseAudio; if not, write to the Free Software
-+# Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA 02111-1307
-+# USA.
-+
-+## Configuration file for the PulseAudio daemon. See pulse-daemon.conf(5) for
-+## more information. Default values are commented out.  Use either ; or # for
-+## commenting.
-+#
-+# For further information see http://www.genivi.org/.
-+#
-+# List of changes:
-+#
-+# 21.08.2014, Adrian Scarlat, First version of the code;
-+#                             Porting code from AM ver1.x to AM ver3.0;
-+############################################################################
-+enable-shm=yes
-+shm-size-bytes=8388608 #8MB # setting this 0 will use the system-default, usually 64 MiB
-+exit-idle-time=-1
-+high-priority=yes
-+nice-level=-11
-+realtime-scheduling=yes
-+realtime-priority=5
-+resample-method=trivial
-+flat-volumes=no
-+default-sample-format = s16le
-+default-sample-rate = 44100
-+default-sample-channels = 2
-+default-fragment-size-msec = 3
-+default-fragments = 8
-diff --git a/PluginRoutingInterfacePulse/data/genivi-amgr.pa b/PluginRoutingInterfacePulse/data/genivi-amgr.pa
-new file mode 100644
-index 0000000..596ec19
---- /dev/null
-+++ b/PluginRoutingInterfacePulse/data/genivi-amgr.pa
-@@ -0,0 +1,68 @@
-+############################################################################
-+# SPDX license identifier: MPL-2.0
-+#
-+# Copyright (C) 2012-2014, Wind River Systems
-+# Copyright (C) 2014, GENIVI Alliance
-+#
-+# This file is part of Pulse Audio Interface Routing Plugin.
-+#
-+# This Source Code Form is subject to the terms of the Mozilla Public
-+# License (MPL), v. 2.0. If a copy of the MPL was not distributed with this
-+# file, You can obtain one at http://mozilla.org/MPL/2.0/.
-+#
-+# For further information see http://www.genivi.org/.
-+#
-+# List of changes:
-+#
-+# 21.08.2014, Adrian Scarlat, First version of the code;
-+#                             Porting code from AM ver1.x to AM ver3.0;
-+#                             Added Copyright and License information;
-+############################################################################
-+.nofail
-+
-+.fail
-+
-+### Automatically restore the volume of streams and devices
-+load-module module-device-restore
-+load-module module-stream-restore
-+load-module module-card-restore
-+
-+### Automatically load driver modules depending on the hardware available
-+.ifexists module-udev-detect.so
-+load-module module-udev-detect
-+.else
-+### Use the static hardware detection module (for systems that lack udev support)
-+load-module module-detect
-+.endif
-+
-+### Load several protocols
-+.ifexists module-esound-protocol-unix.so
-+load-module module-esound-protocol-unix
-+.endif
-+load-module module-native-protocol-unix
-+
-+### Automatically restore the default sink/source when changed by the user
-+### during runtime
-+### NOTE: This should be loaded as early as possible so that subsequent modules
-+### that look up the default sink/source get the right value
-+load-module module-default-device-restore
-+
-+### Automatically move streams to the default sink if the sink they are
-+### connected to dies, similar for sources
-+load-module module-rescue-streams
-+
-+### Make sure we always have a sink around, even if it is a null sink.
-+load-module module-always-sink
-+
-+### Modules to allow autoloading of filters (such as echo cancellation)
-+### on demand. module-filter-heuristics tries to determine what filters
-+### make sense, and module-filter-apply does the heavy-lifting of
-+### loading modules and rerouting streams.
-+load-module module-filter-heuristics
-+load-module module-filter-apply
-+
-+#Make  the  specified  sink (identified by its symbolic name) the  default sink.
-+set-default-sink 0
-+# Make the specified source (identified by its symbolic name) the default source.
-+set-default-source 0
-+
++== Available files after building
++libPluginRoutingInterfacePULSE.conf -- This is Pulse Routing Interface
++configuration files.It is used for configuring Sources and Sinks on the system.
++The contend on this file must be in sync with libPluginControlInterface.conf
++file from the PluginControlInterfacePulse Projec.Also some PulseAudio knowledge
++is advisable.
 diff --git a/PluginRoutingInterfacePulse/data/libPluginRoutingInterfacePULSE.conf b/PluginRoutingInterfacePulse/data/libPluginRoutingInterfacePULSE.conf
-new file mode 100644
-index 0000000..43fae53
+new file mode 100755
+index 0000000..d8b9868
 --- /dev/null
 +++ b/PluginRoutingInterfacePulse/data/libPluginRoutingInterfacePULSE.conf
-@@ -0,0 +1,59 @@
+@@ -0,0 +1,55 @@
 +############################################################################
 +# SPDX license identifier: MPL-2.0
 +#
@@ -536,22 +304,18 @@ index 0000000..43fae53
 +####################
 +# Sources
 +####################
-+## Test purpose audio sources
-+Source|Sink Input|Entertainment|Media player|application.process.binary|MediaServiceGlueLogic
-+Source|Sink Input|Entertainment|Browser|application.process.binary|WebRenderingGlueLogic
-+Source|Sink Input|Navigation|Navigation|application.name|Test AMGRv2 TTS
-+## Real audio sources
-+#Source|Sink Input|Entertainment|Browser|application.process.binary|PilotHMI
-+#Source|Sink Input|Entertainment|Gst Launch command line player|application.process.binary|gst-launch-0.10
-+#Source|Sink Input|Navigation|ALSA command line player|application.process.binary|aplay
-+#Source|Sink Input|Entertainment|Microphone Loopback|media.icon_name|audio-input-microphone
-+#Source|Source|Entertainment|Microphone|device.string|hw:0,1
++Source|Sink Input|Entertainment|MediaPlayer|media.role|MEDIA
++Source|Sink Input|Navigation|NaviPlayer|media.role|NAVI
++Source|Sink Input|TTS|TTSPlayer|media.role|TextToSpeach
++Source|Sink Input|Telephony|Skype|media.role|skype
++Source|Sink Input|Analogic|ReverseBeep|media.role|reverse
 +####################
 +# Sinks
 +####################
-+Sink|Sink|HifiAudio|Alsa Primary|ievice.string|hw:0,1
-+Sink|Sink|HifiAudio|Alsa Secondary|device.string|hw:0,0
++Sink|Sink|HifiAudio|AlsaPrimary|na|na
++Sink|Sink|HifiAudio|AlsaSecondary|na|na
 +# !END
++
 diff --git a/PluginRoutingInterfacePulse/include/RoutingSenderMainloopPULSE.h b/PluginRoutingInterfacePulse/include/RoutingSenderMainloopPULSE.h
 new file mode 100644
 index 0000000..ff0c1d8
@@ -1410,10 +1174,10 @@ index 0000000..0def61f
 +//TODO - IMPORTANT !! implement volume change for sink input even multiple sink inputs are created during one connection
 diff --git a/PluginRoutingInterfacePulse/src/RoutingSenderPULSE.cpp b/PluginRoutingInterfacePulse/src/RoutingSenderPULSE.cpp
 new file mode 100644
-index 0000000..05259b0
+index 0000000..89c1a83
 --- /dev/null
 +++ b/PluginRoutingInterfacePulse/src/RoutingSenderPULSE.cpp
-@@ -0,0 +1,923 @@
+@@ -0,0 +1,914 @@
 +/**
 + * SPDX license identifier: MPL-2.0
 + *
@@ -1511,7 +1275,6 @@ index 0000000..05259b0
 +    this->m_paSinkNullIndex = -1;
 +    this->m_paSourceNullIndex = -1;
 +    this->m_paContext = p_paContext;
-+    this->loadConfig();
 +}
 +
 +
@@ -1648,7 +1411,7 @@ index 0000000..05259b0
 +    //TODO: do not register sinks with the same name
 +
 +    int i;
-+
++    this->loadConfig();
 +    //first register Domain = PulseAudio
 +    this->m_domain.name     = "PulseAudio";
 +    this->returnBusName(this->m_domain.busname);//set domain bus name = current interface bus name
@@ -1713,18 +1476,11 @@ index 0000000..05259b0
 +        this->m_sinks[i].sink.listSoundProperties.push_back(l_spTreble);
 +        this->m_sinks[i].sink.listSoundProperties.push_back(l_spMid);
 +        this->m_sinks[i].sink.listSoundProperties.push_back(l_spBass);
-+
 +        this->m_sinks[i].sink.listConnectionFormats.push_back(am::CF_GENIVI_STEREO);
 +
-+        //printf("\nADS:Before: this->m_sinks[i].clazz = %s\n", this->m_sinks[i].clazz.c_str());
-+        //printf("\nADS:Before: this->m_sinks[i].sink.sinkClassID = %d\n", this->m_sinks[i].sink.sinkClassID);
 +        this->m_routingReceiver->peekSinkClassID(
 +                this->m_sinks[i].clazz,
 +                this->m_sinks[i].sink.sinkClassID);
-+        //this->m_sinks[i].sink.sinkClassID = 1;
-+        //printf("\nADS:After: this->m_sinks[i].clazz = %s\n", this->m_sinks[i].clazz.c_str());
-+        //printf("\nADS:After: this->m_sinks[i].sink.sinkClassID = %d\n", this->m_sinks[i].sink.sinkClassID);
-+
 +        this->m_routingReceiver->registerSink(this->m_sinks[i].sink, l_newsinkID);
 +        this->m_sinks[i].sink.sinkID = l_newsinkID;
 +        m_sinkToPASourceOutput[l_newsinkID] = -1;
@@ -1763,7 +1519,6 @@ index 0000000..05259b0
 +        const am_CustomConnectionFormat_t connectionFormat)
 +{
 +    //TODO: check stuff like connectionFormat
-+    //printf("ADS--> asyncConnect\n");
 +    logInfo("PULSE - asyncConnect() - start");
 +    //add source,sink & connectionID to a list of connections maintained by Routing Pulse Engine
 +    RoutingSenderPULSEConnection l_newConnection;

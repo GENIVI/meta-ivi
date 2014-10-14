@@ -1,12 +1,12 @@
-From 3e41213883357530c83c96f2eef2d0614056d497 Mon Sep 17 00:00:00 2001
+From 82dc586142402d92bf0c93ae6e35da729ba97256 Mon Sep 17 00:00:00 2001
 From: Adrian Scarlat <adrian.scarlat@windriver.com>
-Date: Mon, 8 Sep 2014 16:51:55 +0300
+Date: Mon, 13 Oct 2014 19:45:55 +0300
 Subject: [PATCH] Porting Pulse Control Interface from AM v1.x to AM v3.0
 
 This Control Interface is the "heart" of the AM; It is needed
-by any application that will be developed on top of AM and
-will use PulseAudio Sound Server to control the sources and
-sinks present on the system. It must be loaded by AM;
+ by any application that will be developed on top of AM and will use
+ PulseAudio Sound Server to control the sources and sinks present on the
+ system. It must be loaded by AM;
 
 The interface can be built by supplying cmake with the -DWITH_PULSE_CONTROL_PLUGIN=ON;
 There is one configuration file that is used at the moment by the Control Interface:
@@ -21,6 +21,7 @@ Added new folders:
 
 Added new files:
   PluginControlInterfacePulse/CMakeLists.txt
+  PluginControlInterfacePulse/README
   PluginControlInterfacePulse/data/libPluginControlInterface.conf
   PluginControlInterfacePulse/include/ControlConfig.h
   PluginControlInterfacePulse/include/ControlSender.h
@@ -28,51 +29,54 @@ Added new files:
 
 Signed-off-by: Adrian Scarlat <adrian.scarlat@windriver.com>
 ---
- CMakeLists.txt                                     |    7 +
- PluginControlInterfacePulse/CMakeLists.txt         |   93 ++
- .../data/libPluginControlInterface.conf            |   93 ++
+ CMakeLists.txt                                     |    9 +-
+ PluginControlInterfacePulse/CMakeLists.txt         |   97 ++
+ PluginControlInterfacePulse/README                 |   44 +
+ .../data/libPluginControlInterface.conf            |   86 +
  .../include/ControlConfig.h                        |  221 +++
  .../include/ControlSender.h                        |  283 ++++
- PluginControlInterfacePulse/src/ControlSender.cpp  | 1763 ++++++++++++++++++++
- 6 files changed, 2460 insertions(+)
+ PluginControlInterfacePulse/src/ControlSender.cpp  | 1762 ++++++++++++++++++++
+ 7 files changed, 2501 insertions(+), 1 deletion(-)
  create mode 100644 PluginControlInterfacePulse/CMakeLists.txt
- create mode 100755 PluginControlInterfacePulse/data/libPluginControlInterface.conf
+ create mode 100644 PluginControlInterfacePulse/README
+ create mode 100644 PluginControlInterfacePulse/data/libPluginControlInterface.conf
  create mode 100644 PluginControlInterfacePulse/include/ControlConfig.h
  create mode 100644 PluginControlInterfacePulse/include/ControlSender.h
  create mode 100644 PluginControlInterfacePulse/src/ControlSender.cpp
 
 diff --git a/CMakeLists.txt b/CMakeLists.txt
-index 48e7ae2..25c8e95 100755
+index 3e70e4f..abf2a20 100755
 --- a/CMakeLists.txt
 +++ b/CMakeLists.txt
-@@ -98,6 +98,9 @@ OPTION ( WITH_NSM
- OPTION( WITH_PULSE_ROUTING_PLUGIN
-     "Enable PULSE Audio routing plugin interface" OFF )
+@@ -95,6 +95,9 @@ OPTION ( WITH_NSM
+  OPTION ( WITH_DATABASE_STORAGE
+     "build with sqlite as in memory storage" OFF)
  
 +OPTION( WITH_PULSE_CONTROL_PLUGIN
 +    "Enable PULSE Audio control plugin interface" OFF)
 +
  SET (WITH_COMMON_API_GEN ON CACHE INTERNAL "hide this!" FORCE)
- 
- IF (WITH_PULSE_ROUTING_PLUGIN)
-@@ -260,7 +263,11 @@ if(WITH_PLUGIN_ROUTING)
+  
+ IF (WITH_ENABLED_IPC STREQUAL "DBUS")
+@@ -248,7 +251,11 @@ if(WITH_PLUGIN_ROUTING)
  endif(WITH_PLUGIN_ROUTING)
  
  if(WITH_PLUGIN_CONTROL)
+-	add_subdirectory (PluginControlInterface)
 +    if(WITH_PULSE_CONTROL_PLUGIN)
 +        add_subdirectory (PluginControlInterfacePulse)
 +    else ()
- 	add_subdirectory (PluginControlInterface)
++        add_subdirectory (PluginControlInterface)
 +    endif(WITH_PULSE_CONTROL_PLUGIN)
  endif(WITH_PLUGIN_CONTROL)
  
  add_subdirectory (AudioManagerDaemon)
 diff --git a/PluginControlInterfacePulse/CMakeLists.txt b/PluginControlInterfacePulse/CMakeLists.txt
 new file mode 100644
-index 0000000..567fc35
+index 0000000..06f3928
 --- /dev/null
 +++ b/PluginControlInterfacePulse/CMakeLists.txt
-@@ -0,0 +1,93 @@
+@@ -0,0 +1,97 @@
 +############################################################################
 +# SPDX license identifier: MPL-2.0
 +#
@@ -165,13 +169,67 @@ index 0000000..567fc35
 +        COMPONENT sampleplugins
 +)
 +
-+CONFIGURE_FILE( ${CMAKE_SOURCE_DIR}/PluginControlInterfacePulse/data/libPluginControlInterface.conf ${PLUGINS_OUTPUT_PATH}/control/libPluginControlInterface.conf)
++# Uncomment the following five line bellow, that start with #CONFIGURE_FILE...,
++# to make libPluginControlInterface.conf file available in build environment;
++# For meta-ivi deployment purposes leave it commented.
++
++#CONFIGURE_FILE( ${CMAKE_SOURCE_DIR}/PluginControlInterfacePulse/data/libPluginControlInterface.conf ${PLUGINS_OUTPUT_PATH}/control/libPluginControlInterface.conf)
+diff --git a/PluginControlInterfacePulse/README b/PluginControlInterfacePulse/README
+new file mode 100644
+index 0000000..dc898f2
+--- /dev/null
++++ b/PluginControlInterfacePulse/README
+@@ -0,0 +1,44 @@
++GENIVI_AudioManager_PluginRoutingInterfacePulse
++===============================================
++:Author: Adrian Scarlat <adrian.scarlat@windriver.com>
++:doctitle: GENIVI_AudioManager_PluginControlInterfacePulse
++
++SPDX license identifier: MPL-2.0
++
++Copyright (C) 2011-2014, Wind River Systems
++Copyright (C) 2014, GENIVI Alliance
++
++This file is part of AudioManager Pulse Audio Interface Control Plugin.
++
++This Source Code Form is subject to the terms of the Mozilla Public
++License (MPL), v. 2.0. If a copy of the MPL was not distributed with this
++file, You can obtain one at http://mozilla.org/MPL/2.0/.
++
++For further information see http://www.genivi.org/.
++
++== Documentation
++Documentation is provided by doxygen. In order to use this, please compile the AudioManager with
++----
++cmake -DWITH_DOCUMENTATION=ON
++make
++----
++
++== Description of Pulse Control Plugin
++The PluginControlInterfacePulse is the "heart" of the AM.It is needed by any application that will be developed on top of AM and will use PulseAudio Sound Server to control the sources and sinks present on the system. It must be loaded by AudioManager at startup. Please run AudioManager --help to find out how to achieve this.
++
++== Build intstructions
++Execute the following command from audiomanager/ folder:
++mkdir BUILD
++cd BUILD
++cmake -DWITH_ENABLED_IPC=DBUS -DWITH_PULSE_CONTROL_PLUGIN=ON ..
++make  [ add to make command "-j 4" if you have a 4 CPU.
++
++If all goes well a bin/ folder will be made. Change to it by executing cd ../bin/
++
++In order to use the AudioManager with the PluginControlInterfacePulse, the AudioManager
++must be compiled with PluginRoutingInterfacePulse and with PluginControlInterfacePulse.
++For achieving run cmake -DWITH_ENABLED_IPC=DBUS -DWITH_PULSE_ROUTING_PLUGIN=ON -DWITH_PULSE_CONTROL_PLUGIN=ON ..
++
++== Available files after building
++libPluginControlInterface.conf -- This is Pulse Control Interface configuration files.It is used for configuring Source Classes and Sink Classes on the system, Audio Routes and Mixing Rules.
++Plsease consult libPluginControlInterface.conf for a description of these and also please consult libPluginRoutingInterfacePulse.conf file also for a better understanding.
 diff --git a/PluginControlInterfacePulse/data/libPluginControlInterface.conf b/PluginControlInterfacePulse/data/libPluginControlInterface.conf
-new file mode 100755
-index 0000000..2976c97
+new file mode 100644
+index 0000000..d2547c8
 --- /dev/null
 +++ b/PluginControlInterfacePulse/data/libPluginControlInterface.conf
-@@ -0,0 +1,93 @@
+@@ -0,0 +1,86 @@
 +############################################################################
 +# SPDX license identifier: MPL-2.0
 +#
@@ -199,15 +257,15 @@ index 0000000..2976c97
 +# SourceClass has the following format: SourceClassName|SourceClassType
 +[SourceClass]
 +Entertainment|Main
-+Browser|Main
 +Navigation|Interrupt
-+TTS|Interrupt
-+Analogic|Main
++Telephony|Interrupt
++TTS|Main
++Analogic|Interrupt
 +Digital|Main
 +############################################################################
 +# SinkClass has the following format: SinkClassName|SinkClassType
 +[SinkClass]
-+HifiAudio|Main
++AlsaPrimary|Main
 +############################################################################
 +# Sinks and sources are clustered into independent parts which are capable of
 +# exchanging audio with each other (AudioDomains).
@@ -236,14 +294,11 @@ index 0000000..2976c97
 +#   Route2: SourceClass1 > Gateway1 > Sink 2
 +# If and only if Gateway1 = Sink1 > Source2
 +[Route]
-+Entertainment>Entertainment>HifiAudio
-+Browser>Browser>HifiAudio
-+Navigation>Navigation>HifiAudio
-+Analogic>Analogic>HifiAudio
-+Digital>Digital>HifiAudio
-+#Entertainment>Pulse2Dirana Primary>HifiAudio
-+#Navigation>Pulse2Dirana Secondary>HifiAudio
-+#Analogic>HifiAudio
++Entertainment>AlsaPrimary
++Analogic>AlsaSecondary
++Navigation>AlsaSecondary
++Telephony>AlsaSecondary
++TTS>AlsaSecondary
 +############################################################################
 +# Mixing rule should be something like:
 +# - if a new source is in the class XXX
@@ -254,17 +309,13 @@ index 0000000..2976c97
 +# Where ACTION_TYPE = Mute, Unmute, Pause, Resume, DecreaseVolume, IncreaseVolume, Disconnect
 +# ActionTarget = Domain/Sink or Domain/Source
 +[Mixing]
-+#Entertainment:Entertainment>Hifi Audio:Disconnect:PulseAudio:Source|Entertainment>Hifi Audio:Disconnect:RoutingSenderDIRANA:Source|Browser>Hifi Audio:Disconnect:PulseAudio:Source|Browser>Hifi Audio:Disconnect:RoutingSenderDIRANA:Source|Analogic>Hifi Audio:Disconnect:RoutingSenderDIRANA:Source
-+Entertainment:Entertainment>HifiAudio:Disconnect:PulseAudio:Source|Entertainment>HifiAudio:Disconnect:RoutingSenderPulse:Source|Browser>HifiAudio:Disconnect:PulseAudio:Source|Browser>HifiAudio:Disconnect:RoutingSenderPulse:Source|Analogic>HifiAudio:Disconnect:RoutingSenderPulse:Source
-+#Analogic:Entertainment>Hifi Audio:Disconnect:PulseAudio:Source|Entertainment>Hifi Audio:Disconnect:RoutingSenderDIRANA:Source|Browser>Hifi Audio:Disconnect:PulseAudio:Source|Browser>Hifi Audio:Disconnect:RoutingSenderDIRANA:Source|Analogic>Hifi Audio:Disconnect:RoutingSenderDIRANA:Source
-+Analogic:Entertainment>HifiAudio:Disconnect:PulseAudio:Source|Entertainment>HifiAudio:Disconnect:RoutingSenderPulse:Source|Browser>HifiAudio:Disconnect:PulseAudio:Source|Browser>HifiAudio:Disconnect:RoutingSenderPulse:Source|Analogic>HifiAudio:Disconnect:RoutingSenderPulse:Source
-+#Navigation:Entertainment>Hifi Audio:DecreaseVolume:RoutingSenderDIRANA:Source|Analogic>Hifi Audio:DecreaseVolume:RoutingSenderDIRANA:Source|Browser>Hifi Audio:Mute:PulseAudio:Source|
-+#Browser:Entertainment>Hifi Audio:Disconnect:PulseAudio:Source|Entertainment>Hifi Audio:Disconnect:RoutingSenderDIRANA:Source|Analogic>Hifi Audio:Disconnect:RoutingSenderDIRANA:Source
-+#|TTS>HifiAudio Sink:Disconnect:Pulse:Source
-+#TTS:Entertainment>HifiAudio Sink:DecreaseVolume:Dirana:Source
-+#
-+#TODO: define default mixing rule ?
-+#
++Entertainment:Entertainment>AlsaPrimary:Disconnect:PulseAudio:Source
++Analogic:Analogic>AlsaSecondary:Disconnect:PulseAudio:Source|Entertainment>AlsaPrimary:Disconnect:PulseAudio:Source|Navigation>AlsaSecondary:Disconnect:PulseAudio:Source|TTS>AlsaSecondary:Disconnect:PulseAudio:Source
++Navigation:Entertainment>AlsaPrimary:DecreaseVolume:PulseAudio:Sink|TTS>AlsaSecondary:Mute:PulseAudio:Source|Analogic>AlsaSecondary:Disconnect:PulseAudio:Source
++TTS:Entertainment>AlsaPrimary:DecreaseVolume:PulseAudio:Sink
++Telephony:Entertainment>AlsaPrimary:Disconnect:PulseAudio:Source|Analogic>AlsaSecondary:Disconnect:PulseAudio:Source|Navigation>AlsaSecondary:Mute:PulseAudio:Source|TTS>AlsaSecondary:Disconnect:PulseAudio:Source
++# !END
++
 diff --git a/PluginControlInterfacePulse/include/ControlConfig.h b/PluginControlInterfacePulse/include/ControlConfig.h
 new file mode 100644
 index 0000000..7dbf73e
@@ -783,10 +834,10 @@ index 0000000..940661b
 +#endif /* CONTROLSENDER_H_ */
 diff --git a/PluginControlInterfacePulse/src/ControlSender.cpp b/PluginControlInterfacePulse/src/ControlSender.cpp
 new file mode 100644
-index 0000000..eb02b0e
+index 0000000..a4057c8
 --- /dev/null
 +++ b/PluginControlInterfacePulse/src/ControlSender.cpp
-@@ -0,0 +1,1763 @@
+@@ -0,0 +1,1762 @@
 +/**
 + * SPDX license identifier: MPL-2.0
 + *
@@ -861,8 +912,8 @@ index 0000000..eb02b0e
 +{
 +    //here is a good place to insert Source and SinkClasses into the database...
 +    loadConfig();
-+    mControlReceiveInterface->setRoutingReady();
 +    mControlReceiveInterface->setCommandReady();
++    mControlReceiveInterface->setRoutingReady();
 +}
 +
 +void ControlSenderPlugin::setControllerRundown(const int16_t signal)
@@ -2090,7 +2141,6 @@ index 0000000..eb02b0e
 +                        l_newSinkClass;
 +
 +                logInfo("New sink class name:", l_newSinkClass.name, "sinkClassId:", l_newSinkClass.sinkClassID);
-+                std::cout << "New sink class name:" << l_newSinkClass.name << "sinkClassId:" << l_newSinkClass.sinkClassID << "\n";
 +                break;
 +            }//end case 1 - sink class
 +            case 2:
