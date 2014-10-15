@@ -11,6 +11,8 @@ DEPENDS = "qtbase qtwebkit"
 
 SRC_URI = "git://git.projects.genivi.org/browser-poc.git \
            file://browser_poc_smaller_bookmarks_qml.patch \
+           file://browser.service \
+           file://demoui.service \
            file://COPYING \
           "
 
@@ -25,6 +27,8 @@ do_install_append() {
     install ${B}/testapp/testapp ${D}/opt/testapp/bin/
     cp -r ${S}/testapp/images ${D}/opt/testapp
     cp -r ${S}/testapp/qml ${D}/opt/testapp
+    mkdir -p ${D}/etc/systemd/user
+    cp ${WORKDIR}/browser.service ${WORKDIR}/demoui.service ${D}/etc/systemd/user
 }
 
 FILES_${PN} += "/opt/browser/bin/* \
