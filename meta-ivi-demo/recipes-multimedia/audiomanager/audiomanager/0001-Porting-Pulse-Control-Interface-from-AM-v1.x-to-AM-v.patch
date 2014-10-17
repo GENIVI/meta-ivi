@@ -1,4 +1,4 @@
-From 82dc586142402d92bf0c93ae6e35da729ba97256 Mon Sep 17 00:00:00 2001
+From a6b08fb8e2d31b66b6064171e43c6cf1dc76e019 Mon Sep 17 00:00:00 2001
 From: Adrian Scarlat <adrian.scarlat@windriver.com>
 Date: Mon, 13 Oct 2014 19:45:55 +0300
 Subject: [PATCH] Porting Pulse Control Interface from AM v1.x to AM v3.0
@@ -31,12 +31,12 @@ Signed-off-by: Adrian Scarlat <adrian.scarlat@windriver.com>
 ---
  CMakeLists.txt                                     |    9 +-
  PluginControlInterfacePulse/CMakeLists.txt         |   97 ++
- PluginControlInterfacePulse/README                 |   44 +
+ PluginControlInterfacePulse/README                 |   54 +
  .../data/libPluginControlInterface.conf            |   86 +
  .../include/ControlConfig.h                        |  221 +++
- .../include/ControlSender.h                        |  283 ++++
+ .../include/ControlSender.h                        |  334 ++++
  PluginControlInterfacePulse/src/ControlSender.cpp  | 1762 ++++++++++++++++++++
- 7 files changed, 2501 insertions(+), 1 deletion(-)
+ 7 files changed, 2562 insertions(+), 1 deletion(-)
  create mode 100644 PluginControlInterfacePulse/CMakeLists.txt
  create mode 100644 PluginControlInterfacePulse/README
  create mode 100644 PluginControlInterfacePulse/data/libPluginControlInterface.conf
@@ -73,7 +73,7 @@ index 3e70e4f..abf2a20 100755
  add_subdirectory (AudioManagerDaemon)
 diff --git a/PluginControlInterfacePulse/CMakeLists.txt b/PluginControlInterfacePulse/CMakeLists.txt
 new file mode 100644
-index 0000000..06f3928
+index 0000000..3aa3049
 --- /dev/null
 +++ b/PluginControlInterfacePulse/CMakeLists.txt
 @@ -0,0 +1,97 @@
@@ -131,13 +131,13 @@ index 0000000..06f3928
 +FIND_PACKAGE(NSM REQUIRED)
 +
 +INCLUDE_DIRECTORIES(
-+	${CMAKE_SOURCE_DIR} 
++	${CMAKE_SOURCE_DIR}
 +	${STD_INCLUDE_DIRS}
-+ 	${CMAKE_CURRENT_BINARY_DIR}
-+ 	${AUDIO_INCLUDE_FOLDER}
-+        ${PROJECT_INCLUDE_FOLDER}
-+        ${INCLUDE_FOLDER}
-+        ${NSM_INCLUDE_DIR}
++	${CMAKE_CURRENT_BINARY_DIR}
++	${AUDIO_INCLUDE_FOLDER}
++	${PROJECT_INCLUDE_FOLDER}
++	${INCLUDE_FOLDER}
++	${NSM_INCLUDE_DIR}
 +)
 +
 +# all source files go here
@@ -145,19 +145,19 @@ index 0000000..06f3928
 +
 +add_library(PluginControlInterface SHARED ${PLUGIN_CONTROL_SRCS_CXX})
 +
-+TARGET_LINK_LIBRARIES(PluginControlInterface 
++TARGET_LINK_LIBRARIES(PluginControlInterface
 +    ${DLT_LIBRARIES})
 +
 +IF(WITH_DOCUMENTATION)
 +	file(MAKE_DIRECTORY ${DOC_OUTPUT_PATH})
 +	configure_file(${DOXY_FILE}  ${DOC_OUTPUT_PATH}/Doxyfile  @ONLY IMMEDIATE)
-+  	add_custom_target (PluginControlInterfaceDBusDocs ALL 
-+  		COMMAND ${DOXYGEN_EXECUTABLE} ${DOC_OUTPUT_PATH}/Doxyfile WORKING_DIRECTORY ${DOC_OUTPUT_PATH}
-+  		SOURCES ${PROJECT_BINARY_DIR} ${DOC_OUTPUT_PATH}/Doxyfile
++	add_custom_target (PluginControlInterfaceDBusDocs ALL
++		COMMAND ${DOXYGEN_EXECUTABLE} ${DOC_OUTPUT_PATH}/Doxyfile WORKING_DIRECTORY ${DOC_OUTPUT_PATH}
++		SOURCES ${PROJECT_BINARY_DIR} ${DOC_OUTPUT_PATH}/Doxyfile
 +	)
 +ENDIF(WITH_DOCUMENTATION)
 +
-+INSTALL(TARGETS PluginControlInterface 
++INSTALL(TARGETS PluginControlInterface
 +        DESTINATION "lib/${LIB_INSTALL_SUFFIX}/control/"
 +        PERMISSIONS OWNER_EXECUTE OWNER_WRITE OWNER_READ GROUP_EXECUTE GROUP_READ WORLD_EXECUTE WORLD_READ
 +        COMPONENT sampleplugins
@@ -176,10 +176,10 @@ index 0000000..06f3928
 +#CONFIGURE_FILE( ${CMAKE_SOURCE_DIR}/PluginControlInterfacePulse/data/libPluginControlInterface.conf ${PLUGINS_OUTPUT_PATH}/control/libPluginControlInterface.conf)
 diff --git a/PluginControlInterfacePulse/README b/PluginControlInterfacePulse/README
 new file mode 100644
-index 0000000..dc898f2
+index 0000000..be0eb12
 --- /dev/null
 +++ b/PluginControlInterfacePulse/README
-@@ -0,0 +1,44 @@
+@@ -0,0 +1,54 @@
 +GENIVI_AudioManager_PluginRoutingInterfacePulse
 +===============================================
 +:Author: Adrian Scarlat <adrian.scarlat@windriver.com>
@@ -199,14 +199,17 @@ index 0000000..dc898f2
 +For further information see http://www.genivi.org/.
 +
 +== Documentation
-+Documentation is provided by doxygen. In order to use this, please compile the AudioManager with
-+----
++Documentation is provided by doxygen. In order to use this, please compile the
++AudioManager like this:
 +cmake -DWITH_DOCUMENTATION=ON
 +make
-+----
 +
 +== Description of Pulse Control Plugin
-+The PluginControlInterfacePulse is the "heart" of the AM.It is needed by any application that will be developed on top of AM and will use PulseAudio Sound Server to control the sources and sinks present on the system. It must be loaded by AudioManager at startup. Please run AudioManager --help to find out how to achieve this.
++The PluginControlInterfacePulse is the "heart" of the AM.It is needed by any
++application that will be developed on top of AM and will use PulseAudio Sound
++Server to control the sources and sinks present on the system. It must be
++loaded by AudioManager at startup.
++Please run AudioManager --help to find out how to achieve this.
 +
 +== Build intstructions
 +Execute the following command from audiomanager/ folder:
@@ -215,15 +218,22 @@ index 0000000..dc898f2
 +cmake -DWITH_ENABLED_IPC=DBUS -DWITH_PULSE_CONTROL_PLUGIN=ON ..
 +make  [ add to make command "-j 4" if you have a 4 CPU.
 +
-+If all goes well a bin/ folder will be made. Change to it by executing cd ../bin/
++If all goes well a bin/ folder will be made.
++Change to it by executing cd ../bin/
 +
-+In order to use the AudioManager with the PluginControlInterfacePulse, the AudioManager
-+must be compiled with PluginRoutingInterfacePulse and with PluginControlInterfacePulse.
-+For achieving run cmake -DWITH_ENABLED_IPC=DBUS -DWITH_PULSE_ROUTING_PLUGIN=ON -DWITH_PULSE_CONTROL_PLUGIN=ON ..
++In order to use the AudioManager with the PluginControlInterfacePulse,
++the AudioManager must be compiled with PluginRoutingInterfacePulse and with
++PluginControlInterfacePulse. For achieving run:
++cmake -DWITH_ENABLED_IPC=DBUS -DWITH_PULSE_ROUTING_PLUGIN=ON -DWITH_PULSE_CONTROL_PLUGIN=ON ..
 +
 +== Available files after building
-+libPluginControlInterface.conf -- This is Pulse Control Interface configuration files.It is used for configuring Source Classes and Sink Classes on the system, Audio Routes and Mixing Rules.
-+Plsease consult libPluginControlInterface.conf for a description of these and also please consult libPluginRoutingInterfacePulse.conf file also for a better understanding.
++libPluginControlInterface.conf -- This is Pulse Control Interface configuration
++files.It is used for configuring Source Classes and Sink Classes on the system,
++Audio Routes and Mixing Rules.
++
++Plsease consult libPluginControlInterface.conf for a description of these and
++also please consult libPluginRoutingInterfacePulse.conf file also for a better
++understanding.
 diff --git a/PluginControlInterfacePulse/data/libPluginControlInterface.conf b/PluginControlInterfacePulse/data/libPluginControlInterface.conf
 new file mode 100644
 index 0000000..d2547c8
@@ -318,7 +328,7 @@ index 0000000..d2547c8
 +
 diff --git a/PluginControlInterfacePulse/include/ControlConfig.h b/PluginControlInterfacePulse/include/ControlConfig.h
 new file mode 100644
-index 0000000..7dbf73e
+index 0000000..8648c77
 --- /dev/null
 +++ b/PluginControlInterfacePulse/include/ControlConfig.h
 @@ -0,0 +1,221 @@
@@ -426,7 +436,7 @@ index 0000000..7dbf73e
 +            case AT_DISCONNECT:         return (AT_CONNECT);//disconnection is not an invertible action; maybe it is
 +            case AT_CONNECT:            return (AT_MAX);//connection is not an invertible action
 +
-+           default:                     return (AT_MAX); // default return value             
++            default:                     return (AT_MAX); // default return value
 +        }
 +    }
 +
@@ -545,10 +555,10 @@ index 0000000..7dbf73e
 +*/
 diff --git a/PluginControlInterfacePulse/include/ControlSender.h b/PluginControlInterfacePulse/include/ControlSender.h
 new file mode 100644
-index 0000000..940661b
+index 0000000..94b84af
 --- /dev/null
 +++ b/PluginControlInterfacePulse/include/ControlSender.h
-@@ -0,0 +1,283 @@
+@@ -0,0 +1,334 @@
 +/**
 + * SPDX license identifier: MPL-2.0
 + *
@@ -586,174 +596,225 @@ index 0000000..940661b
 +    virtual ~ControlSenderPlugin();
 +
 +    am_Error_e startupController(IAmControlReceive* controlreceiveinterface);
++
 +    void setControllerReady();
++
 +    void setControllerRundown(const int16_t signal);
 +
 +    am_Error_e hookUserConnectionRequest(
-+            const am_sourceID_t sourceID,
-+            const am_sinkID_t sinkID,
-+            am_mainConnectionID_t& mainConnectionID);
++        const am_sourceID_t sourceID,
++        const am_sinkID_t sinkID,
++        am_mainConnectionID_t& mainConnectionID);
 +
 +    am_Error_e hookUserDisconnectionRequest(const am_mainConnectionID_t connectionID);
 +
 +    am_Error_e hookUserSetMainSinkSoundProperty(
-+            const am_sinkID_t sinkID,
-+            const am_MainSoundProperty_s& soundProperty);
++        const am_sinkID_t sinkID,
++        const am_MainSoundProperty_s& soundProperty);
 +
 +    am_Error_e hookUserSetMainSourceSoundProperty(
-+            const am_sourceID_t sourceID,
-+            const am_MainSoundProperty_s& soundProperty);
++        const am_sourceID_t sourceID,
++        const am_MainSoundProperty_s& soundProperty);
 +
 +    am_Error_e hookUserSetSystemProperty(const am_SystemProperty_s& property);
 +
 +    am_Error_e hookUserVolumeChange(
-+            const am_sinkID_t SinkID,
-+            const am_mainVolume_t newVolume);
++        const am_sinkID_t SinkID,
++        const am_mainVolume_t newVolume);
 +
 +    am_Error_e hookUserVolumeStep(
-+            const am_sinkID_t SinkID,
-+            const int16_t increment);
++        const am_sinkID_t SinkID,
++        const int16_t increment);
 +
 +    am_Error_e hookUserSetSinkMuteState(
-+            const am_sinkID_t sinkID,
-+            const am_MuteState_e muteState);
++        const am_sinkID_t sinkID,
++        const am_MuteState_e muteState);
 +
 +    am_Error_e hookSystemRegisterDomain(
-+            const am_Domain_s& domainData,
-+            am_domainID_t& domainID);
++        const am_Domain_s& domainData,
++        am_domainID_t& domainID);
 +
 +    am_Error_e hookSystemDeregisterDomain(const am_domainID_t domainID);
 +
 +    void hookSystemDomainRegistrationComplete(const am_domainID_t domainID);
 +
 +    am_Error_e hookSystemRegisterSink(
-+            const am_Sink_s& sinkData,
-+             am_sinkID_t& sinkID);
++        const am_Sink_s& sinkData,
++        am_sinkID_t& sinkID);
 +
 +    am_Error_e hookSystemDeregisterSink(const am_sinkID_t sinkID);
 +
 +    am_Error_e hookSystemRegisterSource(
-+            const am_Source_s& sourceData,
-+            am_sourceID_t& sourceID);
++        const am_Source_s& sourceData,
++        am_sourceID_t& sourceID);
 +
 +    am_Error_e hookSystemDeregisterSource(const am_sourceID_t sourceID);
 +
 +    am_Error_e hookSystemRegisterGateway(
-+            const am_Gateway_s& gatewayData,
-+            am_gatewayID_t& gatewayID);
++        const am_Gateway_s& gatewayData,
++        am_gatewayID_t& gatewayID);
 +
 +    am_Error_e hookSystemDeregisterGateway(const am_gatewayID_t gatewayID);
 +
 +    am_Error_e hookSystemRegisterCrossfader(
-+            const am_Crossfader_s& crossfaderData,
-+            am_crossfaderID_t& crossfaderID);
++        const am_Crossfader_s& crossfaderData,
++        am_crossfaderID_t& crossfaderID);
 +
 +    am_Error_e hookSystemDeregisterCrossfader(
-+            const am_crossfaderID_t crossfaderID);
++        const am_crossfaderID_t crossfaderID);
 +
 +    void hookSystemSinkVolumeTick(
-+            const am_Handle_s handle,
-+            const am_sinkID_t sinkID,
-+            const am_volume_t volume);
++        const am_Handle_s handle,
++        const am_sinkID_t sinkID,
++        const am_volume_t volume);
 +
 +    void hookSystemSourceVolumeTick(
-+            const am_Handle_s handle,
-+            const am_sourceID_t sourceID,
-+            const am_volume_t volume);
++        const am_Handle_s handle,
++        const am_sourceID_t sourceID,
++        const am_volume_t volume);
 +
 +    void hookSystemInterruptStateChange(
-+            const am_sourceID_t sourceID,
-+            const am_InterruptState_e interruptState);
++        const am_sourceID_t sourceID,
++        const am_InterruptState_e interruptState);
 +
 +    void hookSystemSinkAvailablityStateChange(
-+            const am_sinkID_t sinkID,
-+            const am_Availability_s& availability);
++        const am_sinkID_t sinkID,
++        const am_Availability_s& availability);
 +
 +    void hookSystemSourceAvailablityStateChange(
-+            const am_sourceID_t sourceID,
-+            const am_Availability_s& availability);
++        const am_sourceID_t sourceID,
++        const am_Availability_s& availability);
 +
 +    void hookSystemDomainStateChange(
-+            const am_domainID_t domainID,
-+            const am_DomainState_e state);
++        const am_domainID_t domainID,
++        const am_DomainState_e state);
 +
 +    void hookSystemReceiveEarlyData(const std::vector<am_EarlyData_s>& data);
 +
 +    void hookSystemSpeedChange(const am_speed_t speed);
 +
 +    void hookSystemTimingInformationChanged(
-+            const am_mainConnectionID_t mainConnectionID,
-+            const am_timeSync_t time);
++        const am_mainConnectionID_t mainConnectionID,
++        const am_timeSync_t time);
 +
 +    void cbAckConnect(
-+            const am_Handle_s handle,
-+            const am_Error_e errorID);
++        const am_Handle_s handle,
++        const am_Error_e errorID);
 +
 +    void cbAckDisconnect(
-+            const am_Handle_s handle,
-+             const am_Error_e errorID);
++        const am_Handle_s handle,
++         const am_Error_e errorID);
 +
 +    void cbAckCrossFade(
-+            const am_Handle_s handle,
-+            const am_HotSink_e hostsink,
-+            const am_Error_e error);
++        const am_Handle_s handle,
++        const am_HotSink_e hostsink,
++        const am_Error_e error);
 +
 +    void cbAckSetSinkVolumeChange(
-+            const am_Handle_s handle,
-+            const am_volume_t volume,
-+            const am_Error_e error);
++        const am_Handle_s handle,
++        const am_volume_t volume,
++        const am_Error_e error);
 +
 +    void cbAckSetSourceVolumeChange(
-+            const am_Handle_s handle,
-+            const am_volume_t voulme,
-+            const am_Error_e error);
++        const am_Handle_s handle,
++        const am_volume_t voulme,
++        const am_Error_e error);
 +
 +    void cbAckSetSourceState(
-+            const am_Handle_s handle,
-+            const am_Error_e error);
++        const am_Handle_s handle,
++        const am_Error_e error);
 +
 +    void cbAckSetSourceSoundProperty(
-+            const am_Handle_s handle,
-+            const am_Error_e error);
++        const am_Handle_s handle,
++        const am_Error_e error);
 +
 +    void cbAckSetSourceSoundProperties(
-+            const am_Handle_s handle,
-+            const am_Error_e error);
++        const am_Handle_s handle,
++        const am_Error_e error);
 +
 +    void cbAckSetSinkSoundProperty(
-+            const am_Handle_s handle,
-+            const am_Error_e error);
++        const am_Handle_s handle,
++        const am_Error_e error);
 +
 +    void cbAckSetSinkSoundProperties(
-+            const am_Handle_s handle,
-+            const am_Error_e error);
++        const am_Handle_s handle,
++        const am_Error_e error);
 +
 +    am_Error_e getConnectionFormatChoice(
-+            const am_sourceID_t sourceID,
-+            const am_sinkID_t sinkID,
-+            const am_Route_s listRoute,
-+            const std::vector<am_CustomConnectionFormat_t> listPossibleConnectionFormats,
-+            std::vector<am_CustomConnectionFormat_t>& listPrioConnectionFormats);
++        const am_sourceID_t sourceID,
++        const am_sinkID_t sinkID,
++        const am_Route_s listRoute,
++        const std::vector<am_CustomConnectionFormat_t> listPossibleConnectionFormats,
++        std::vector<am_CustomConnectionFormat_t>& listPrioConnectionFormats);
++
 +    void getInterfaceVersion(std::string& version) const;
 +    void confirmCommandReady(const am_Error_e error);
 +    void confirmRoutingReady(const am_Error_e error);
 +    void confirmCommandRundown(const am_Error_e error);
 +    void confirmRoutingRundown(const am_Error_e error);
-+    
-+    am_Error_e hookSystemUpdateSink(const am_sinkID_t sinkID, const am_sinkClass_t sinkClassID, const std::vector<am_SoundProperty_s>& listSoundProperties, const std::vector<am_CustomConnectionFormat_t>& listConnectionFormats, const std::vector<am_MainSoundProperty_s>& listMainSoundProperties);
-+    am_Error_e hookSystemUpdateSource(const am_sourceID_t sourceID, const am_sourceClass_t sourceClassID, const std::vector<am_SoundProperty_s>& listSoundProperties, const std::vector<am_CustomConnectionFormat_t>& listConnectionFormats, const std::vector<am_MainSoundProperty_s>& listMainSoundProperties);
-+    am_Error_e hookSystemUpdateGateway(const am_gatewayID_t gatewayID, const std::vector<am_CustomConnectionFormat_t>& listSourceConnectionFormats, const std::vector<am_CustomConnectionFormat_t>& listSinkConnectionFormats, const std::vector<bool>& convertionMatrix);
-+    void cbAckSetVolumes(const am_Handle_s handle, const std::vector<am_Volumes_s>& listVolumes, const am_Error_e error) ;
-+    void cbAckSetSinkNotificationConfiguration(const am_Handle_s handle, const am_Error_e error) ;
-+    void cbAckSetSourceNotificationConfiguration(const am_Handle_s handle, const am_Error_e error) ;
-+    void hookSinkNotificationDataChanged(const am_sinkID_t sinkID, const am_NotificationPayload_s& payload) ;
-+    void hookSourceNotificationDataChanged(const am_sourceID_t sourceID, const am_NotificationPayload_s& payload) ;
-+    am_Error_e hookUserSetMainSinkNotificationConfiguration(const am_sinkID_t sinkID, const am_NotificationConfiguration_s& notificationConfiguration) ;
-+    am_Error_e hookUserSetMainSourceNotificationConfiguration(const am_sourceID_t sourceID, const am_NotificationConfiguration_s& notificationConfiguration) ;
-+    void hookSystemNodeStateChanged(const NsmNodeState_e NodeStateId) ;
-+    void hookSystemNodeApplicationModeChanged(const NsmApplicationMode_e ApplicationModeId) ;
-+    void hookSystemSessionStateChanged(const std::string& sessionName, const NsmSeat_e seatID, const NsmSessionState_e sessionStateID) ;
-+    NsmErrorStatus_e hookSystemLifecycleRequest(const uint32_t Request, const uint32_t RequestId) ;
++
++    am_Error_e hookSystemUpdateSink(
++        const am_sinkID_t sinkID,
++        const am_sinkClass_t sinkClassID,
++        const std::vector<am_SoundProperty_s>& listSoundProperties,
++        const std::vector<am_CustomConnectionFormat_t>& listConnectionFormats,
++        const std::vector<am_MainSoundProperty_s>& listMainSoundProperties);
++
++    am_Error_e hookSystemUpdateSource(
++        const am_sourceID_t sourceID,
++        const am_sourceClass_t sourceClassID,
++        const std::vector<am_SoundProperty_s>& listSoundProperties,
++        const std::vector<am_CustomConnectionFormat_t>& listConnectionFormats,
++        const std::vector<am_MainSoundProperty_s>& listMainSoundProperties);
++
++    am_Error_e hookSystemUpdateGateway(
++        const am_gatewayID_t gatewayID,
++        const std::vector<am_CustomConnectionFormat_t>& listSourceConnectionFormats,
++        const std::vector<am_CustomConnectionFormat_t>& listSinkConnectionFormats,
++        const std::vector<bool>& convertionMatrix);
++
++    void cbAckSetVolumes(
++        const am_Handle_s handle,
++        const std::vector<am_Volumes_s>& listVolumes,
++        const am_Error_e error);
++
++    void cbAckSetSinkNotificationConfiguration(
++        const am_Handle_s handle,
++        const am_Error_e error);
++
++    void cbAckSetSourceNotificationConfiguration(
++        const am_Handle_s handle,
++        const am_Error_e error);
++
++    void hookSinkNotificationDataChanged(
++        const am_sinkID_t sinkID,
++        const am_NotificationPayload_s& payload);
++
++    void hookSourceNotificationDataChanged(
++        const am_sourceID_t sourceID,
++        const am_NotificationPayload_s& payload);
++
++    am_Error_e hookUserSetMainSinkNotificationConfiguration(
++        const am_sinkID_t sinkID,
++        const am_NotificationConfiguration_s& notificationConfiguration);
++
++    am_Error_e hookUserSetMainSourceNotificationConfiguration(
++        const am_sourceID_t sourceID,
++        const am_NotificationConfiguration_s& notificationConfiguration);
++
++    void hookSystemNodeStateChanged(const NsmNodeState_e NodeStateId);
++
++    void hookSystemNodeApplicationModeChanged(
++        const NsmApplicationMode_e ApplicationModeId);
++
++    void hookSystemSessionStateChanged(
++        const std::string& sessionName,
++        const NsmSeat_e seatID,
++        const NsmSessionState_e sessionStateID);
++
++    NsmErrorStatus_e hookSystemLifecycleRequest(
++        const uint32_t Request,
++        const uint32_t RequestId);
 +
 +private:
 +    bool isStaticRoutingEnabled() {return true;}
@@ -771,28 +832,28 @@ index 0000000..940661b
 +     * If inverse = true, action is inversely applied: (e.g. action = MUTE and inverse = true, we apply UNMUTE)
 +     */
 +    am_Error_e applyActionOnConnection(
-+            am_mainConnectionID_t connectionID,
-+            am_ConnectAction_s &action,
-+            bool interrupt,
-+            bool inverse,
-+            bool force = false);
++        am_mainConnectionID_t connectionID,
++        am_ConnectAction_s &action,
++        bool interrupt,
++        bool inverse,
++        bool force = false);
 +
 +    am_Error_e applyActionOnSubConnection(
-+            am_mainConnectionID_t connectionID,
-+            am_Connection_s subConnection,
-+            am_ConnectAction_s &action,
-+            bool interrupt,
-+            bool inverse);
++        am_mainConnectionID_t connectionID,
++        am_Connection_s subConnection,
++        am_ConnectAction_s &action,
++        bool interrupt,
++        bool inverse);
 +
 +    am_Error_e getStaticRoute(
-+            const bool onlyfree,
-+            const am_sourceID_t sourceID,
-+            const am_sinkID_t sinkID,
-+            std::vector<am_Route_s>& returnList);
++        const bool onlyfree,
++        const am_sourceID_t sourceID,
++        const am_sinkID_t sinkID,
++        std::vector<am_Route_s>& returnList);
 +
 +    am_Error_e getSourceInfo(
-+            const am_sourceID_t sourceID,
-+            am_Source_s &sourceData);
++        const am_sourceID_t sourceID,
++        am_Source_s &sourceData);
 +
 +/*
 + * TODO: REVIEW DESCRIPTION
@@ -834,7 +895,7 @@ index 0000000..940661b
 +#endif /* CONTROLSENDER_H_ */
 diff --git a/PluginControlInterfacePulse/src/ControlSender.cpp b/PluginControlInterfacePulse/src/ControlSender.cpp
 new file mode 100644
-index 0000000..a4057c8
+index 0000000..f82dfd1
 --- /dev/null
 +++ b/PluginControlInterfacePulse/src/ControlSender.cpp
 @@ -0,0 +1,1762 @@
@@ -2017,7 +2078,7 @@ index 0000000..a4057c8
 +    }
 +
 +    FILE *config = fopen(lib_name, "r");
-+    
++
 +    while (!feof(config))
 +    {
 +        fgets(line, 4095, config);

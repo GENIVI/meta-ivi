@@ -1,4 +1,4 @@
-From f6e5e17d6508469ec0faf6b9f6780b02a6d10352 Mon Sep 17 00:00:00 2001
+From d21f2cc236c96e898c50c92a0a89584053665da7 Mon Sep 17 00:00:00 2001
 From: Adrian Scarlat <adrian.scarlat@windriver.com>
 Date: Mon, 13 Oct 2014 19:42:19 +0300
 Subject: [PATCH] Porting Pulse Routing Interface from AM v1.x to AM v3.0
@@ -92,7 +92,7 @@ index 3e70e4f..48e7ae2 100755
  if(WITH_PLUGIN_CONTROL)
 diff --git a/PluginRoutingInterfacePulse/CMakeLists.txt b/PluginRoutingInterfacePulse/CMakeLists.txt
 new file mode 100644
-index 0000000..90501bb
+index 0000000..1a15b40
 --- /dev/null
 +++ b/PluginRoutingInterfacePulse/CMakeLists.txt
 @@ -0,0 +1,103 @@
@@ -154,7 +154,7 @@ index 0000000..90501bb
 +FIND_PACKAGE(DBUS REQUIRED)
 +
 +INCLUDE_DIRECTORIES(
-+        ${CMAKE_SOURCE_DIR} 
++        ${CMAKE_SOURCE_DIR}
 +        ${CMAKE_CURRENT_BINARY_DIR}
 +        ${DBUS_INCLUDE_DIR}
 +        ${DBUS_ARCH_INCLUDE_DIR}
@@ -167,7 +167,7 @@ index 0000000..90501bb
 +
 +add_library(PluginRoutingInterfacePULSE SHARED ${PLUGINDBUS_SRCS_CXX})
 +
-+TARGET_LINK_LIBRARIES(PluginRoutingInterfacePULSE 
++TARGET_LINK_LIBRARIES(PluginRoutingInterfacePULSE
 +    pulse
 +    ${DLT_LIBRARIES}
 +    ${DBUS_LIBRARY}
@@ -176,13 +176,13 @@ index 0000000..90501bb
 +IF(WITH_DOCUMENTATION)
 +        file(MAKE_DIRECTORY ${DOC_OUTPUT_PATH})
 +        configure_file(${DOXY_FILE}  ${DOC_OUTPUT_PATH}/Doxyfile  @ONLY IMMEDIATE)
-+        add_custom_target (PluginRoutingInterfacePULSEDocs ALL 
++        add_custom_target (PluginRoutingInterfacePULSEDocs ALL
 +                COMMAND ${DOXYGEN_EXECUTABLE} ${DOC_OUTPUT_PATH}/Doxyfile WORKING_DIRECTORY ${DOC_OUTPUT_PATH}
 +                SOURCES ${PROJECT_BINARY_DIR} ${DOC_OUTPUT_PATH}/Doxyfile
 +        )
 +ENDIF(WITH_DOCUMENTATION)
 +
-+INSTALL(TARGETS PluginRoutingInterfacePULSE 
++INSTALL(TARGETS PluginRoutingInterfacePULSE
 +        DESTINATION "lib/${LIB_INSTALL_SUFFIX}/routing"
 +        PERMISSIONS OWNER_EXECUTE OWNER_WRITE OWNER_READ GROUP_EXECUTE GROUP_READ WORLD_EXECUTE WORLD_READ
 +        COMPONENT sampleplugins
@@ -558,7 +558,7 @@ index 0000000..0fc2197
 +#endif
 diff --git a/PluginRoutingInterfacePulse/src/RoutingSenderMainloopPULSE.cpp b/PluginRoutingInterfacePulse/src/RoutingSenderMainloopPULSE.cpp
 new file mode 100644
-index 0000000..0def61f
+index 0000000..5738b42
 --- /dev/null
 +++ b/PluginRoutingInterfacePulse/src/RoutingSenderMainloopPULSE.cpp
 @@ -0,0 +1,610 @@
@@ -910,7 +910,7 @@ index 0000000..0def61f
 +            logError("Unable to create Pulse Audio operation:",
 +                    "pa_context_set_sink_input_volume");
 +            return false;
-+        }        
++        }
 +    }
 +    else
 +    {
@@ -1174,7 +1174,7 @@ index 0000000..0def61f
 +//TODO - IMPORTANT !! implement volume change for sink input even multiple sink inputs are created during one connection
 diff --git a/PluginRoutingInterfacePulse/src/RoutingSenderPULSE.cpp b/PluginRoutingInterfacePulse/src/RoutingSenderPULSE.cpp
 new file mode 100644
-index 0000000..89c1a83
+index 0000000..17422e9
 --- /dev/null
 +++ b/PluginRoutingInterfacePulse/src/RoutingSenderPULSE.cpp
 @@ -0,0 +1,914 @@
@@ -1194,11 +1194,11 @@ index 0000000..89c1a83
 + *
 + * List of changes:
 + *
-+ * 21.08.2014, Adrian Scarlat, First version of the code; 
++ * 21.08.2014, Adrian Scarlat, First version of the code;
 + *                             Porting code from AM ver1.x to AM ver3.0;
 + *                             Added Copyright and License information;
 + *
-+ * 
++ *
 + * DESCRIPTION
 + *
 + * This module is handling requests form AudioManager daemon and redirect them to Pulse Audio server.
