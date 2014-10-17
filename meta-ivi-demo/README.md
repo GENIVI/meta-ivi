@@ -62,3 +62,9 @@ We do support the builds for currently two machines:
 * QEMU (x86-64) - emulated machine: qemux86-64
 * Renesas R-Car Gen2 (R-Car M2) - machine: koelsch
 
+
+When building for koelsch, add the following to your local.conf:
+
+WAYLAND_ENABLE = "1"
+GLES_ENABLE = "1"
+WAYLAND_GFX_ENABLE = "1"

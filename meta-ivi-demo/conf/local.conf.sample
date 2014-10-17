@@ -79,7 +79,7 @@ MACHINE ??= "qemux86-64"
 # these defaults.
 #
 DISTRO ?= "poky-ivi-systemd"
-INCOMPATIBLE_LICENSE ?= "GPLv3"
+# INCOMPATIBLE_LICENSE ?= "GPLv3"
 
 #
 # Package Management configuration
