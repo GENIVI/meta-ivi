@@ -11,6 +11,7 @@ VERSION = "6.1"
 
 SRC_URI = "git://git.projects.genivi.org/AudioManager.git;branch=${BRANCH};tag=${VERSION} \
            file://0001-AudioManager-Proof-of-Concept.patch \
+           file://AudioManager_PoC.service \
           "
 
 S = "${WORKDIR}/git"
@@ -20,6 +21,11 @@ PATCHTOOL = "git"
 QMAKE_PROFILES = "${S}/AudioManagerPoC"
 
 inherit qmake5
+
+do_install_append() {
+    mkdir -p ${D}/etc/systemd/user
+    cp ${WORKDIR}/AudioManager_PoC.service ${D}/etc/systemd/user
+}
 
 FILES_${PN} += "/opt/audiomanager-poc/*"
 FILES_${PN}-dbg += "/usr/bin/am-poc/.debug/*"
