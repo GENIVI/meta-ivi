@@ -14,9 +14,9 @@ SRCREV = "dd64114721edca5808872190e7e2e927ee2e994c"
 SRC_URI = "git://git.kernel.org/pub/scm/linux/kernel/git/dhowells/keyutils.git;protocol=git \
           file://keyutils_fix_library_install.patch \
           "
-SRC_URI_append_arm = "file://keyutils-arm-remove-m32-m64.patch"
-SRC_URI_append_x86 = "file://keyutils_fix_x86_cflags.patch"
-SRC_URI_append_x86-64 = "file://keyutils_fix_x86-64_cflags.patch"
+SRC_URI_append_arm = " file://keyutils-arm-remove-m32-m64.patch"
+SRC_URI_append_x86 = " file://keyutils_fix_x86_cflags.patch"
+SRC_URI_append_x86-64 = " file://keyutils_fix_x86-64_cflags.patch"
 
 S = "${WORKDIR}/git"
 

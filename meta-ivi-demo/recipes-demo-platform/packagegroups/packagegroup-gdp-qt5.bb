@@ -29,6 +29,7 @@ RDEPENDS_${PN} += "\
     qtbase-tools \
     qtdeclarative \
     qtdeclarative-plugins \
+    qtdeclarative-qmlplugins \
     qtdeclarative-tools \
     qtquick1 \
     qtquick1-plugins \
