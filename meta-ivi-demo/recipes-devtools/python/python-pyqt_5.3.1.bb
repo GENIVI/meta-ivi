@@ -11,7 +11,7 @@ DEPENDS = "sip-native python-sip python-dbus qtbase qtdeclarative qtsvg qtwebkit
 RDEPENDS_${PN} = "python-core"
 
 PYQT_OE_VERSION = "Qt_5_3_1"
-PR = "r0"
+PR = "r1"
 
 SRC_URI = "\
     http://sourceforge.net/projects/pyqt/files/PyQt5/PyQt-5.3.1/PyQt-gpl-5.3.1.tar.gz \
@@ -71,7 +71,10 @@ do_generate_prepend() {
 do_configure_prepend() {
     cp ${WORKDIR}/qpycore.pro qpy/QtCore/
     cp ${WORKDIR}/qpygui.pro qpy/QtGui/
-    # mv qpy/QtCore/qpycore_post_init.cpp.in qpy/QtCore/qpycore_post_init.cpp
+    if [ -e qpy/QtCore/qpycore_post_init.cpp.in ]
+    then
+        mv qpy/QtCore/qpycore_post_init.cpp.in qpy/QtCore/qpycore_post_init.cpp
+    fi
     printf "TEMPLATE=subdirs\nSUBDIRS=${MAKE_MODULES}\n" >pyqt.pro
     printf "TEMPLATE=subdirs\nSUBDIRS=QtCore QtGui QtQml QtQuick\n" >qpy/qpy.pro
     ln -sf ./qpycore.pro qpy/QtCore/QtCore.pro
