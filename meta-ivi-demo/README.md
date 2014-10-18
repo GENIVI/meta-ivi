@@ -31,7 +31,7 @@ Layer Dependencies
 ------------------
 
 URI: git://git.yoctoproject.org/meta-ivi
-> branch:   master
+> branch:   7.0
 > revision: 
 
 URI: git://git.yoctoproject.org/meta-renesas/meta-rcar-gen2
@@ -40,15 +40,16 @@ URI: git://git.yoctoproject.org/meta-renesas/meta-rcar-gen2
 
 URI: https://github.com/meta-qt5/meta-qt5.git
 > branch:   master
-> revision: 02861e677ab95b537efb331fb7faea4e5851d2ea
+> revision: 2f1b8fe630ac76c8ff5d184f109449b10fde5a92
 
 URI: git://git.openembedded.org/meta-openembedded
+> layers:   meta-oe, meta-ruby
 > branch:   master
-> revision: 1513d0e31f609ffcde9a116a50bfb0360b9e7ecf
+> revision: fa04f43dee6994bb63374995a6444e72d65bc658
 
 URI: git://git.yoctoproject.org/poky
-> branch:   master
-> revision: fd0398f2c1355597a95242e6c8400eae6ad60fa4
+> branch:   dizzy
+> revision: ccf5a4d2342c4fd40e4e0b332ea7e34e0bf175d4
 
 URI: git://git.linaro.org/openembedded/meta-linaro.git
 > branch: master

@@ -1,22 +1,20 @@
-Index: weston-1.5.0/ivi-shell/hmi-controller.c
-===================================================================
---- weston-1.5.0.orig/ivi-shell/hmi-controller.c	2014-10-14 14:24:03.355817421 +0300
-+++ weston-1.5.0/ivi-shell/hmi-controller.c	2014-10-14 14:16:51.000000000 +0300
-@@ -264,8 +264,15 @@
-                 surface_x = (int32_t)((num - 5) * (surface_width));
-                 surface_y = (int32_t)surface_height;
-             }
--            ret = ivi_layout_surfaceSetDestinationRectangle(ivisurf, surface_x, surface_y,
--                                                            surface_width, surface_height);
-+//            ret = ivi_layout_surfaceSetDestinationRectangle(ivisurf, surface_x, surface_y,
-+//                                                            surface_width, surface_height);
-+
-+            if (num == 1)
-+                ret = ivi_layout_surfaceSetDestinationRectangle(ivisurf, 0, 0, 1024, 80);
-+
-+            if (num != 1)
-+                ret = ivi_layout_surfaceSetDestinationRectangle(ivisurf, 0, 80, 1024, 618);
-+
-             assert(!ret);
+diff -rupN weston-1.5.0.orig/ivi-shell/hmi-controller.c weston-1.5.0/ivi-shell/hmi-controller.c
+--- weston-1.5.0.orig/ivi-shell/hmi-controller.c	2014-10-17 15:58:46.327999060 +0200
++++ weston-1.5.0/ivi-shell/hmi-controller.c	2014-10-17 16:01:56.515996303 +0200
+@@ -233,8 +233,14 @@ mode_divided_into_tiling(struct hmi_cont
  
-             ret = ivi_layout_surfaceSetVisibility(ivisurf, 1);
+             ivi_layout_surfaceSetTransition(ivisurf,IVI_LAYOUT_TRANSITION_VIEW_DEFAULT, duration);
+             ivi_layout_surfaceSetVisibility(ivisurf, 1);
+-            ivi_layout_surfaceSetDestinationRectangle(ivisurf, surface_x, surface_y,
+-                    (uint32_t)surface_width, (uint32_t)surface_height);
++//            ivi_layout_surfaceSetDestinationRectangle(ivisurf, surface_x, surface_y,
++//                    (uint32_t)surface_width, (uint32_t)surface_height);
++            if (num == 1) {
++                ivi_layout_surfaceSetDestinationRectangle(ivisurf, 0, 0, 1024, 80);
++            }
++            else {
++                ivi_layout_surfaceSetDestinationRectangle(ivisurf, 0, 80, 1024, 618);
++            }
+ 
+             num++;
+             continue;
