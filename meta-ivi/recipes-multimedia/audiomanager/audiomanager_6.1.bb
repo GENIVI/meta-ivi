@@ -5,7 +5,7 @@ SECTION = "multimedia"
 LICENSE = "MPLv2"
 LIC_FILES_CHKSUM = "file://LICENCE;md5=815ca599c9df247a0c7f619bab123dad"
 
-DEPENDS = "common-api-c++-dbus dlt-daemon sqlite3 dbus"
+DEPENDS = "common-api-c++-dbus dlt-daemon sqlite3 dbus node-state-manager"
 
 BRANCH = "Intreprid_stable_branch"
 
