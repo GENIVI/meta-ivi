@@ -1,0 +1,27 @@
+From 9a5e655cf57301008cd61d53c8a410a7f397e650 Mon Sep 17 00:00:00 2001
+From: Andrei Gherzan <andrei.gherzan@windriver.com>
+Date: Tue, 18 Nov 2014 15:51:30 +0100
+Subject: [PATCH 4/4] Modify systemd config directory
+
+Upstream-Status: Inappropriate [Configuration Specific]
+Signed-off-by: Andrei Gherzan <andrei.gherzan@windriver.com>
+---
+ systemd/CMakeLists.txt | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
+
+diff --git a/systemd/CMakeLists.txt b/systemd/CMakeLists.txt
+index a9838e4..c8feae5 100644
+--- a/systemd/CMakeLists.txt
++++ b/systemd/CMakeLists.txt
+@@ -16,7 +16,7 @@
+ 
+ if(WITH_SYSTEMD)
+ 
+-    set(SYSTEMD_CONFIGURATIONS_FILES_DIR ${CMAKE_INSTALL_PREFIX}/lib/systemd/system )
++    set(SYSTEMD_CONFIGURATIONS_FILES_DIR /lib/systemd/system )
+         
+     if(WITH_SYSTEMD_WATCHDOG)
+         set( DLT_WatchdogSec 2 )
+-- 
+1.9.3
+
