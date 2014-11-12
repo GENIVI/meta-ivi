@@ -32,12 +32,12 @@ Layer Dependencies
 
 URI: git://git.yoctoproject.org/poky
 > branch:   dizzy
-> revision: ccf5a4d2342c4fd40e4e0b332ea7e34e0bf175d4
+> revision: f3a177cf045b19612b7d2c96889ac24307191c3d
 
 URI: git://git.openembedded.org/meta-openembedded
 > layer:    meta-oe
-> branch:   master
-> revision: fa04f43dee6994bb63374995a6444e72d65bc658
+> branch:   dizzy
+> revision: 9efaed99125b1c4324663d9a1b2d3319c74e7278
 
 Using the above git sha's and the master meta-ivi branch, bitbaking intrepid-image
 is known to work (the intrepid-image build should be aligned with GENIVI 7.0).
