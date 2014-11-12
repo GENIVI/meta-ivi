@@ -70,28 +70,16 @@ Build a QEMU image that contains GENIVI components
 You can build a QEMU image that should be GENIVI compliant using the
 following steps:
 
-1. Run the following command:
+1. Export TEMPLATECONF to pick up correct configuration for the build
+export TEMPLATECONF=/full/path/to/meta-ivi/meta-ivi/conf
+
+2. Run the following command:
    > $ source poky/oe-init-build-env
 
-2. Add the meta-oe, meta-ivi and meta-ivi-bsp layer path to the
-$BUILDDIR/conf/bblayers.conf BBLAYERS variable.
-
-3. Set MACHINE ??= "vexpressa9", MACHINE ??= "qemux86" or MACHINE ??= "qemux86-64"
-in $BUILDDIR/conf/local.conf file to build for an emulated ARMv7a, x86 or x86-64
-instruction-set maschine respectively.
-
-4. Add INCOMPATIBLE_LICENSE = "GPLv3" in $BUILDDIR/conf/local.conf file.
-
-5. Set DISTRO ?= "poky-ivi-systemd" in $BUILDDIR/conf/local.conf file.
-
-6. Optional: In $BUILDDIR/conf/local.conf file, you may uncomment
-BB_NUMBER_THREADS = "4" and PARALLEL_MAKE = "-j 4" if you build on a
-quad-core machine.
-
-7. Build intrepid-image including GENIVI 7.0 (Intrepid) components
+3. Build intrepid-image including GENIVI 7.0 (Intrepid) components
    > $ bitbake intrepid-image
 
-8. Run the emulator:
+4. Run the emulator:
    > for qemu vexpressa9:  
    > $ PATH_TO_META_IVI/meta-ivi/scripts/runqemu intrepid-image vexpressa9
    >
@@ -101,10 +89,6 @@ quad-core machine.
    > for qemu x86-64:  
    > $ PATH_TO_POKY/poky/scripts/runqemu intrepid-image qemux86-64
 
-9. To login use these credentials:
+5. To login use these credentials:
    > User - root
    > Password - root
-
-You may point an environment variable named TEMPLATECONF to the meta-ivi/conf
-directory for the template local.conf & bblayers.conf files; in which case you
-may skip steps 2. to 6.
