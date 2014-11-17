@@ -6,7 +6,9 @@ SECTION = "base"
 LICENSE = "MPLv2"
 LIC_FILES_CHKSUM = "file://COPYING;md5=815ca599c9df247a0c7f619bab123dad"
 
-SRC_URI = "git://git.projects.genivi.org/persistence/persistence-administrator.git;protocol=http \
+PV = "7.0+git${SRCPV}"
+
+SRC_URI = "git://git.projects.genivi.org/persistence/persistence-administrator.git \
           file://libsystemd_daemon.patch \
           "
 
