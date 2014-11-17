@@ -9,10 +9,10 @@ LIC_FILES_CHKSUM = "file://COPYING;md5=6161c6840f21a000e9b52af81d2ca823"
 
 DEPENDS = "dlt-daemon dbus libcheck persistence-common-object"
 
-PV = "0.9.0+git${SRCPV}"
+PV = "7.0+git${SRCPV}"
 
 SRC_URI = "git://git.projects.genivi.org/persistence/persistence-client-library.git"
-SRCREV  = "490eb4c0aea864fb7a9b67d83dda76d344afd5f5"
+SRCREV  = "441b3ce710ec6b7f1e6360cdf29e5c4243af9f1e"
 S = "${WORKDIR}/git"
 
 inherit pkgconfig autotools-brokensep
