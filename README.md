@@ -32,7 +32,7 @@ Layer Dependencies
 
 URI: git://git.yoctoproject.org/poky
 > branch:   dizzy
-> revision: f3a177cf045b19612b7d2c96889ac24307191c3d
+> revision: df87cb27efeaea1455f20692f9f1397c6fcab254
 
 URI: git://git.openembedded.org/meta-openembedded
 > layer:    meta-oe
