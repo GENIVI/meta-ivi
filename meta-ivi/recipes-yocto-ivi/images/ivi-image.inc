@@ -17,3 +17,9 @@ IMAGE_FEATURES += " package-management"
 IMAGE_POSTPROCESS_COMMAND_imx53qsb += "rename_symlink ; "
 
 BUILDHISTORY_COMMIT = "1"
+
+# Set default password for 'root' user
+inherit extrausers
+ROOTPASSWORD = "root"
+ROOTUSERNAME = "root"
+EXTRA_USERS_PARAMS = "usermod -P ${ROOTPASSWORD} ${ROOTUSERNAME};"
