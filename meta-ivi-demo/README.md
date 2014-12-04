@@ -35,17 +35,17 @@ URI: git://git.yoctoproject.org/meta-ivi
 > revision: 
 
 URI: https://github.com/meta-qt5/meta-qt5.git
-> branch:   master  
-> revision: 2f1b8fe630ac76c8ff5d184f109449b10fde5a92
+> branch:   dizzy  
+> revision: 0732e184acef5e0200f46d7f95702774e5de1904
 
 URI: git://git.openembedded.org/meta-openembedded
 > layers:   meta-oe, meta-ruby  
-> branch:   master  
-> revision: fa04f43dee6994bb63374995a6444e72d65bc658
+> branch:   dizzy  
+> revision: 9efaed99125b1c4324663d9a1b2d3319c74e7278
 
 URI: git://git.yoctoproject.org/poky
 > branch:   dizzy  
-> revision: ccf5a4d2342c4fd40e4e0b332ea7e34e0bf175d4
+> revision: df87cb27efeaea1455f20692f9f1397c6fcab254
 
 ## The Renesas R-Car Gen2 (Koelsch) board depends on: ##
 
@@ -96,3 +96,7 @@ When building for koelsch, add the following to your local.conf:
 > GLES_ENABLE = "1"  
 > WAYLAND_GFX_ENABLE = "1"
 
+For the Fuel Stop Advisor Proof of Concept (FSA PoC), a navigation map
+must be downloaded. Once booted, issue the following command on the board:
+
+# cd /usr/share/navit/maps/ && wget http://www.navit-project.org/switzerland.bin
