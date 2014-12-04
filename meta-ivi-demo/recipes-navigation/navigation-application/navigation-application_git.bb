@@ -7,6 +7,7 @@ PR = "r1"
 SRC_URI = "git://git.projects.genivi.org/lbs/navigation-application.git \
            file://remove_amb_link_path.patch \
            file://logreplayerconfig \
+           file://pregenerated_images_and_style_sheets_1024x768.tar.bz2 \
           "
 SRC_REV = "dcf981a6b9997792a526e5710a4e067245adcd60"
 
@@ -47,6 +48,8 @@ do_install() {
 
     install -d ${D}${sysconfdir}/ambd/
     install -m 0755 ${WORKDIR}/logreplayerconfig ${D}${sysconfdir}/ambd/
+
+    cp -r ${WORKDIR}/pregenerated_files/images ${WORKDIR}/pregenerated_files/style-sheets ${D}${bindir}/navigation-application/qml/Core
 }
 
 FILES_${PN} += "${libdir}/navigation/genivilogreplayerplugin.so"
