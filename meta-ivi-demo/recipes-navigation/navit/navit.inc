@@ -42,9 +42,9 @@ SRC_URI += "file://navit.xml \
 
 INSANE_SKIP_${PN} = "dev-so"
 
-FILES_${PN} += "${libdir}/${PN}/*/*.so ${datadir}/icons"
+FILES_${PN} += "${libdir}/${PN}/*/*.so ${datadir}/icons ${datadir}/navit/maps/*"
 FILES_${PN}-dev += "${libdir}/navit/cmake/navit_macros.cmake \
-                    ${datadir}/* \
+                    ${datadir}/cmake_plugin_settings.txt \
                    "
 FILES_${PN}-dbg += "${libdir}/${PN}/*/.debug ${libdir}/${PN}/*/*/.debug"
 FILES_${PN}-maptool = " ${bindir}/maptool "
