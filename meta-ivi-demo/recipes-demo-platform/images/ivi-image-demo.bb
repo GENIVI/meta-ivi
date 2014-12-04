@@ -13,10 +13,10 @@ IMAGE_INSTALL_append = " \
     packagegroup-specific-component-p1 \
     packagegroup-gdp-am-poc \
     packagegroup-gdp-browser \
+    packagegroup-gdp-fsa \
     packagegroup-gdp-qt5 \
     packagegroup-gdp-gps \
     boost \
-    automotive-message-broker \
     dropbear \
     "
 IMAGE_INSTALL_append_koelsch = " \
