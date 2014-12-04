@@ -5,7 +5,7 @@ LIC_FILES_CHKSUM = "file://COPYING;md5=ed539d099d6ce08de6ea0dfed9ecb333 \
                     file://GPL-2;md5=751419260aa954499f7abaabaa882bbe \
 "
 
-DEPENDS = "glib-2.0 gtk+3 gd gypsy librsvg-native"
+DEPENDS = "glib-2.0 gtk+3 gd gypsy librsvg-native virtual/libgl"
 RDEPENDS_${PN} = " ${PN}-icons ${PN}-config "
 RRECOMMENDS_${PN} = "gpsd ${PN}-dbus ${PN}-speech-cmdline ${PN}-gui-internal ${PN}-graphics-gtk"
 RSUGGESTS_${PN} = "flite-alsa espeak ${PN}-speech-dbus ${PN}-gui-gtk ${PN}-gui-qml ${PN}-graphics-sdl ${PN}-graphics-qt ${PN}-maptool"
