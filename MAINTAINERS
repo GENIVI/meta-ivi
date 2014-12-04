@@ -17,11 +17,11 @@ on a particular meta-ivi topic, but please try to do the following first:
     answered.
 
 When creating patches, please use something like:
->    git format-patch -s --subject-prefix='meta-ivi][PATCH' origin
+    git format-patch -s --subject-prefix='meta-ivi][PATCH' origin
 
 When sending patches, please use something like:
->    git send-email --to=andrei.gherzan@windriver.com --to=holger@windriver.com \
->                   --cc=genivi-meta-ivi@lists.genivi.org <generated patch>
+    git send-email --to=andrei.gherzan@windriver.com --to=holger@windriver.com \
+                   --cc=genivi-meta-ivi@lists.genivi.org <generated patch>
 
 Please refer to:
 https://wiki.yoctoproject.org/wiki/Contribution_Guidelines#General_Information
