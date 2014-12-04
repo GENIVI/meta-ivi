@@ -45,7 +45,7 @@ URI: git://git.openembedded.org/meta-openembedded
 
 URI: git://git.yoctoproject.org/poky
 > branch:   dizzy  
-> revision: df87cb27efeaea1455f20692f9f1397c6fcab254
+> revision: 9e8bb322154e67e521e8c982d20d46dda20c024b
 
 ## The Renesas R-Car Gen2 (Koelsch) board depends on: ##
 
@@ -95,6 +95,13 @@ When building for koelsch, add the following to your local.conf:
 > WAYLAND_ENABLE = "1"  
 > GLES_ENABLE = "1"  
 > WAYLAND_GFX_ENABLE = "1"
+
+
+For the QEMU machine, in order to have audio, the emulation should be done like:
+(please adjust to your own paths)
+
+$ QEMU_AUDIO_DRV=alsa ../../poky/scripts/runqemu ivi-image-demo qemux86-64 audio
+
 
 For the Fuel Stop Advisor Proof of Concept (FSA PoC), a navigation map
 must be downloaded. Once booted, issue the following command on the board:
