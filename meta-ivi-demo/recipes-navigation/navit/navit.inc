@@ -37,6 +37,7 @@ SRC_URI += "file://navit.xml \
             file://osd.xml \
             file://speech.xml \
             file://plugins.xml \
+            file://switzerland.xml \
 "
 
 INSANE_SKIP_${PN} = "dev-so"
@@ -90,8 +91,9 @@ do_install() {
     install -d ${D}/${libdir}/${PN}/binding/dbus
     install ${B}/navit/binding/dbus/.libs/libbinding_dbus.so ${D}/${libdir}/${PN}/binding/dbus
 
-    install -d ${D}${datadir}/navit
+    install -d ${D}${datadir}/navit/maps
     install -m 0755 ${WORKDIR}/*.xml ${D}${datadir}/navit
+    mv ${D}${datadir}/navit/switzerland.xml ${D}${datadir}/navit/maps
 }
 
 python do_package_prepend () {
