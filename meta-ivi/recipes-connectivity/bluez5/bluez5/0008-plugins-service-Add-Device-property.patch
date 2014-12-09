@@ -1,0 +1,43 @@
+From d09615e22c2511c8f6404152e80d569e695f8195 Mon Sep 17 00:00:00 2001
+From: Luiz Augusto von Dentz <luiz.von.dentz@intel.com>
+Date: Tue, 28 Jan 2014 09:43:53 -0800
+Subject: [PATCH 08/12] plugins/service: Add Device property
+
+---
+ plugins/service.c | 13 +++++++++++++
+ 1 file changed, 13 insertions(+)
+
+diff --git a/plugins/service.c b/plugins/service.c
+index 69bae8f..128ad7c 100644
+--- a/plugins/service.c
++++ b/plugins/service.c
+@@ -150,6 +150,18 @@ static const char *data_get_state(struct service_data *data)
+ 	return "unknown";
+ }
+ 
++static gboolean get_device(const GDBusPropertyTable *property,
++					DBusMessageIter *iter, void *user_data)
++{
++	struct service_data *data = user_data;
++	struct btd_device *dev = btd_service_get_device(data->service);
++	const char *path = btd_device_get_path(dev);
++
++	dbus_message_iter_append_basic(iter, DBUS_TYPE_OBJECT_PATH, &path);
++
++	return TRUE;
++}
++
+ static gboolean get_state(const GDBusPropertyTable *property,
+ 					DBusMessageIter *iter, void *user_data)
+ {
+@@ -205,6 +217,7 @@ static gboolean get_local_uuid(const GDBusPropertyTable *property,
+ }
+ 
+ static const GDBusPropertyTable service_properties[] = {
++	{ "Device", "o", get_device, NULL, NULL },
+ 	{ "State", "s", get_state, NULL, NULL },
+ 	{ "RemoteUUID", "s", get_remote_uuid, NULL, remote_uuid_exists },
+ 	{ "LocalUUID", "s", get_local_uuid, NULL, local_uuid_exists },
+-- 
+2.2.0
+

@@ -1,0 +1,49 @@
+From 9770dbd83a39f4511d55df26016d2ff955f04031 Mon Sep 17 00:00:00 2001
+From: Luiz Augusto von Dentz <luiz.von.dentz@intel.com>
+Date: Fri, 7 Feb 2014 16:04:32 +0200
+Subject: [PATCH 09/12] plugins/service: Add Version property
+
+---
+ plugins/service.c | 21 +++++++++++++++++++++
+ 1 file changed, 21 insertions(+)
+
+diff --git a/plugins/service.c b/plugins/service.c
+index 128ad7c..c2584c0 100644
+--- a/plugins/service.c
++++ b/plugins/service.c
+@@ -216,11 +216,32 @@ static gboolean get_local_uuid(const GDBusPropertyTable *property,
+ 	return TRUE;
+ }
+ 
++static gboolean version_exists(const GDBusPropertyTable *property,
++								void *user_data)
++{
++	struct service_data *data = user_data;
++	uint16_t version = btd_service_get_version(data->service);
++
++	return version != 0x0000;
++}
++
++static gboolean get_version(const GDBusPropertyTable *property,
++					DBusMessageIter *iter, void *user_data)
++{
++	struct service_data *data = user_data;
++	uint16_t version = btd_service_get_version(data->service);
++
++	dbus_message_iter_append_basic(iter, DBUS_TYPE_UINT16, &version);
++
++	return TRUE;
++}
++
+ static const GDBusPropertyTable service_properties[] = {
+ 	{ "Device", "o", get_device, NULL, NULL },
+ 	{ "State", "s", get_state, NULL, NULL },
+ 	{ "RemoteUUID", "s", get_remote_uuid, NULL, remote_uuid_exists },
+ 	{ "LocalUUID", "s", get_local_uuid, NULL, local_uuid_exists },
++	{ "Version", "q", get_version, NULL, version_exists },
+ 	{ }
+ };
+ 
+-- 
+2.2.0
+
