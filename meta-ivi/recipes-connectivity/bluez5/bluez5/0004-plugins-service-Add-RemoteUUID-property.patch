@@ -1,0 +1,46 @@
+From edff2c3b4438603402241c80d60a51c51200b2f0 Mon Sep 17 00:00:00 2001
+From: Luiz Augusto von Dentz <luiz.von.dentz@intel.com>
+Date: Mon, 6 Jan 2014 16:13:49 +0200
+Subject: [PATCH 04/12] plugins/service: Add RemoteUUID property
+
+---
+ plugins/service.c | 21 +++++++++++++++++++++
+ 1 file changed, 21 insertions(+)
+
+diff --git a/plugins/service.c b/plugins/service.c
+index b660810..7b5783d 100644
+--- a/plugins/service.c
++++ b/plugins/service.c
+@@ -128,8 +128,29 @@ static gboolean get_state(const GDBusPropertyTable *property,
+ 	return TRUE;
+ }
+ 
++static gboolean remote_uuid_exists(const GDBusPropertyTable *property,
++								void *user_data)
++{
++	struct service_data *data = user_data;
++	struct btd_profile *p = btd_service_get_profile(data->service);
++
++	return p->remote_uuid != NULL;
++}
++
++static gboolean get_remote_uuid(const GDBusPropertyTable *property,
++					DBusMessageIter *iter, void *user_data)
++{
++	struct service_data *data = user_data;
++	struct btd_profile *p = btd_service_get_profile(data->service);
++
++	dbus_message_iter_append_basic(iter, DBUS_TYPE_STRING, &p->remote_uuid);
++
++	return TRUE;
++}
++
+ static const GDBusPropertyTable service_properties[] = {
+ 	{ "State", "s", get_state, NULL, NULL },
++	{ "RemoteUUID", "s", get_remote_uuid, NULL, remote_uuid_exists },
+ 	{ }
+ };
+ 
+-- 
+2.2.0
+

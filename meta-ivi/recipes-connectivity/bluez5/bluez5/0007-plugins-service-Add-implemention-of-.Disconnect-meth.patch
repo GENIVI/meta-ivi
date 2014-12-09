@@ -1,0 +1,72 @@
+From 7c830fb36836b73e0b031a0d52e060922c252583 Mon Sep 17 00:00:00 2001
+From: Luiz Augusto von Dentz <luiz.von.dentz@intel.com>
+Date: Mon, 6 Jan 2014 17:11:43 +0200
+Subject: [PATCH 07/12] plugins/service: Add implemention of .Disconnect method
+
+---
+ plugins/service.c | 28 +++++++++++++++++++++++++++-
+ 1 file changed, 27 insertions(+), 1 deletion(-)
+
+diff --git a/plugins/service.c b/plugins/service.c
+index ded4487..69bae8f 100644
+--- a/plugins/service.c
++++ b/plugins/service.c
+@@ -51,6 +51,7 @@ struct service_data {
+ 	struct btd_service *service;
+ 	char *path;
+ 	DBusMessage *connect;
++	DBusMessage *disconnect;
+ };
+ 
+ static struct service_data *find_data(struct btd_service *service)
+@@ -74,6 +75,9 @@ static void data_free(void *user_data)
+ 	if (data->connect)
+ 		dbus_message_unref(data->connect);
+ 
++	if (data->disconnect)
++		dbus_message_unref(data->disconnect);
++
+ 	g_free(data->path);
+ 	g_free(data);
+ }
+@@ -88,7 +92,22 @@ static void data_remove(struct service_data *data)
+ static DBusMessage *service_disconnect(DBusConnection *conn, DBusMessage *msg,
+ 								void *user_data)
+ {
+-	return btd_error_not_available(msg);
++	struct service_data *data = user_data;
++	int err;
++
++	if (data->disconnect)
++		return btd_error_in_progress(msg);
++
++	data->disconnect = dbus_message_ref(msg);
++
++	err = btd_service_disconnect(data->service);
++	if (err == 0)
++		return NULL;
++
++	dbus_message_unref(data->disconnect);
++	data->disconnect = NULL;
++
++	return btd_error_failed(msg, strerror(-err));
+ }
+ 
+ static DBusMessage *service_connect(DBusConnection *conn, DBusMessage *msg,
+@@ -249,6 +268,13 @@ static void service_disconnected(struct service_data *data)
+ 	DBusMessage *reply;
+ 	int err;
+ 
++	if (data->disconnect) {
++		reply = dbus_message_new_method_return(data->disconnect);
++		g_dbus_send_message(btd_get_dbus_connection(), reply);
++		dbus_message_unref(data->disconnect);
++		data->connect = NULL;
++	}
++
+ 	if (!data->connect)
+ 		return;
+ 
+-- 
+2.2.0
+

@@ -15,6 +15,7 @@ ALLOW_EMPTY_${PN} = "1"
 RDEPENDS_${PN} += "\
     bluez5 \
     bluez5-obex \
+    libbluetooth-plugins-service \
     glibc \
     ofono \
     wayland-ivi-extension \
