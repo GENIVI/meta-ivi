@@ -1,11 +1,12 @@
-DESCRIPTION = "QT5 components"
+SUMMARY = "GNSS/GPS package group"
+DESCRIPTION = "Package group bringing in packages needed to support \
+Global Navigation Satellite Systems (GNSS), for example the Global \
+Positioning System (GPS)"
 LICENSE = "MIT"
 LIC_FILES_CHKSUM = "file://${IVI_COREBASE}/meta-ivi/COPYING.MIT;md5=3da9cfbcb788c80a0384361b4de20420"
 
 # Avoid hardcoding the full layer path into the checksums
 LIC_FILES_CHKSUM[vardepsexclude] += "IVI_COREBASE"
-
-PR = "r0"
 
 inherit packagegroup
 
