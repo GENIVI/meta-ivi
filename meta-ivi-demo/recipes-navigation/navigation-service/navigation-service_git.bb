@@ -1,19 +1,17 @@
-SRCREV = "${AUTOREV}"
+SUMMARY = "Navigation software based on Navit and compliant with the Navigation APIs standardized by the GENIVI Alliance"
+SRCREV = "9953bcd40cb4185eaaad1c15c486dd6220253990"
 PV = "1"
-PR = "r1"
 
 SRC_URI = "git://git.projects.genivi.org/lbs/navigation.git \
            file://change_xml_generation_dir.patch \
            file://navit_genivi_mapviewer.xml \
            file://navit_genivi_navigationcore.xml \
           "
-SRC_REV = "dfeb9609b0944109325b554cab2e50a2c7a04079"
-
 DEPENDS = "navit positioning"
 
 S = "${WORKDIR}/git"
 
-LICENSE = "GPLv2+"
+LICENSE = "MPL-2.0"
 LIC_FILES_CHKSUM = "file://src/navigation/LICENSE;md5=50772b2cd18ba00801e433556c1924bc"
 
 inherit cmake
