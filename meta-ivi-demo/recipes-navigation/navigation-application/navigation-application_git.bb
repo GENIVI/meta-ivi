@@ -1,8 +1,13 @@
-inherit autotools cmake
+SUMMARY = "Navigation application (with HMI) of the GENIVI navigation project"
+DESCRIPTION = "Navigation application based on Navit and compliant with the \
+Navigation APIs standardized by the GENIVI Alliance. The GENIVI APIs are \
+implemented into Navit plugins, running on DBus. The HMI is made in QML."
+HOMEPAGE = "http://projects.genivi.org/ivi-navigation"
 
-SRCREV = "${AUTOREV}"
 PV = "1"
-PR = "r1"
+
+DEPENDS = "automotive-message-broker navit navigation-service qtbase qtdeclarative"
+RDEPENDS_${PN} = "qtquickcontrols-qmlplugins"
 
 SRC_URI = "git://git.projects.genivi.org/lbs/navigation-application.git \
            file://remove_amb_link_path.patch \
@@ -10,17 +15,17 @@ SRC_URI = "git://git.projects.genivi.org/lbs/navigation-application.git \
            file://pregenerated_images_and_style_sheets_1024x768.tar.bz2 \
            file://allow_qt_moc_from_build_system.patch \
           "
-SRC_REV = "dcf981a6b9997792a526e5710a4e067245adcd60"
-
-DEPENDS = "automotive-message-broker navit navigation-service qtbase"
-RDEPENDS_${PN} = "qtquickcontrols-qmlplugins"
+SRCREV  = "dc99d60f16a0fc32cdf3ab0b9acc2ecd87af38e1"
 
 S = "${WORKDIR}/git"
 
 LICENSE = "GPLv2+"
 LIC_FILES_CHKSUM = "file://LICENSE;md5=2e0f5070190199ece7f69c3c14e2e7af"
 
+inherit autotools cmake
+
 EXTRA_CMAKEFLAGS = "-DLM=0 -Dgenerated_api_DIR=${STAGING_INCDIR}/navigation-service"
+PARALLEL_MAKE = ""
 
 do_configure() {
     cd ${S}/src/genivilogreplayer && cmake .
