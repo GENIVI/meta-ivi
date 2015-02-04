@@ -40,6 +40,13 @@ SRC_URI_append = " \
     "
 
 #
+# [PATCH] Add the processing which has notice of click event from compositor
+#   Signed-off-by: Nobuhiko Tanibata <NOBUHIKO_TANIBATA at xddp.denso.co.jp>
+SRC_URI_append = "\
+    file://ivi-shell-click-event.patch \
+    "
+
+#
 # TO DO
 # Remove when bug is fixed: https://bugzilla.yoctoproject.org/show_bug.cgi?id=5968
 # Due to a yocto bug, applying patches with something else then quilt fails.
