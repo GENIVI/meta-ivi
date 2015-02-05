@@ -1,0 +1,84 @@
+From 42f5cc1e4436c34dd1c939ff49f403be609f8f1c Mon Sep 17 00:00:00 2001
+From: Imran Zaman <imran.zaman@intel.com>
+Date: Thu, 5 Feb 2015 13:21:44 +0100
+Subject: [PATCH] Enable/disable default virtual keyboard
+
+Adapted from Tizen commit ad9e205ea7fdb859679b63698a931fa127c5523a
+
+<quote>
+Since fullscreen shell does not support virtual keyboard,
+added configure option to enable/disable default virtual
+keyboard. This avoids unnecessary trial of launching vkb
+and hence will improve boot time
+
+Change-Id: I67bdd8ee231d101d6e3747a45968758af42ebc5a
+Bug-Tizen: TC-810
+Signed-off-by: Imran Zaman <imran.zaman@intel.com>
+</quote>
+
+Signed-off-by: Holger Behrens <holger.behrens@windriver.com>
+---
+ configure.ac       | 10 ++++++++++
+ src/text-backend.c | 15 ++++++++++++---
+ 2 files changed, 22 insertions(+), 3 deletions(-)
+
+diff --git a/configure.ac b/configure.ac
+index d14ed16..9f898ca 100644
+--- a/configure.ac
++++ b/configure.ac
+@@ -456,6 +456,15 @@ if test x$enable_ivi_shell = xyes; then
+   PKG_CHECK_MODULES(IVI_SHELL, [cairo])
+ fi
+ 
++AC_ARG_ENABLE([default-vkb],
++              [AC_HELP_STRING([--enable-default-vkb],
++                              [Enable default virtual keyboard])],
++              [],
++              [enable_default_vkb=yes])
++if test "x$enable_default_vkb" = "xyes"; then
++  AC_DEFINE(HAVE_DEFAULT_VKB, [1], [Enable default virtual keyboard])
++fi
++
+ AC_ARG_ENABLE(wcap-tools, [  --disable-wcap-tools],, enable_wcap_tools=yes)
+ AM_CONDITIONAL(BUILD_WCAP_TOOLS, test x$enable_wcap_tools = xyes)
+ if test x$enable_wcap_tools = xyes; then
+@@ -558,6 +567,7 @@ AC_MSG_RESULT([
+ 	dbus				${enable_dbus}
+ 
+ 	ivi-shell			${enable_ivi_shell}
++	default virtual keyboard	${enable_default_vkb}
+ 
+ 	Build wcap utility		${enable_wcap_tools}
+ 	Build Fullscreen Shell		${enable_fullscreen_shell}
+diff --git a/src/text-backend.c b/src/text-backend.c
+index d6a6f3b..4908b8a 100644
+--- a/src/text-backend.c
++++ b/src/text-backend.c
+@@ -939,12 +939,21 @@ static void
+ text_backend_configuration(struct text_backend *text_backend)
+ {
+ 	struct weston_config_section *section;
++	char *client = NULL;
++	int ret = -1;
+ 
+ 	section = weston_config_get_section(text_backend->compositor->config,
+ 					    "input-method", NULL, NULL);
+-	weston_config_section_get_string(section, "path",
+-					 &text_backend->input_method.path,
+-					 LIBEXECDIR "/weston-keyboard");
++#if HAVE_DEFAULT_VKB
++ 	ret = asprintf(&client, "%s/weston-keyboard",
++ 		       weston_config_get_libexec_dir());
++#endif
++ 	if (ret < 0)
++		client = NULL;
++
++ 	weston_config_section_get_string(section, "path",
++ 					 &text_backend->input_method.path,
++ 					 client);
+ }
+ 
+ static void
+-- 
+2.2.2
+
