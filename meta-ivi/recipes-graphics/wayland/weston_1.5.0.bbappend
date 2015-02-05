@@ -45,6 +45,16 @@ SRC_URI_append = " \
 SRC_URI_append = "\
     file://ivi-shell-click-event.patch \
     "
+#
+# [PATCH] Enable/disable default virtual keyboard
+# Signed-off-by: Imran Zaman <imran.zaman@intel.com>
+SRC_URI_append = "\
+    file://0001-Enable-disable-default-virtual-keyboard.patch \
+    "
+
+EXTRA_OECONF += "\
+    --disable-default-vkb \
+    "
 
 #
 # TO DO
