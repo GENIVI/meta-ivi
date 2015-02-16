@@ -18,11 +18,6 @@
 # of emulated machines available which can boot and run in the QEMU emulator:
 #
 #MACHINE ?= "qemux86-64"
-#
-# There are also the following hardware board target machines included for 
-# demonstration purposes:
-#
-#MACHINE ?= "koelsch"
 
 #
 # This sets the default machine to be vexpressa9 if no other machine is selected:
@@ -79,7 +74,7 @@ MACHINE ??= "qemux86-64"
 # these defaults.
 #
 DISTRO ?= "poky-ivi-systemd"
-# INCOMPATIBLE_LICENSE ?= "GPLv3"
+INCOMPATIBLE_LICENSE ?= "GPLv3"
 
 #
 # Package Management configuration
@@ -93,7 +88,7 @@ DISTRO ?= "poky-ivi-systemd"
 #  - 'package_rpm' for rpm style packages
 # E.g.: PACKAGE_CLASSES ?= "package_rpm package_deb package_ipk"
 # We default to rpm:
-PACKAGE_CLASSES ?= "package_rpm package_ipk"
+PACKAGE_CLASSES ?= "package_rpm"
 
 #
 # SDK/ADT target architecture
@@ -203,7 +198,6 @@ BB_DISKMON_DIRS = "\
 #file://.* http://someserver.tld/share/sstate/PATH;downloadfilename=PATH \n \
 #file://.* file:///some/local/dir/sstate/PATH"
 
-
 #
 # Qemu configuration
 #
@@ -213,7 +207,6 @@ BB_DISKMON_DIRS = "\
 #PACKAGECONFIG_append_pn-qemu-native = " sdl"
 #PACKAGECONFIG_append_pn-nativesdk-qemu = " sdl"
 #ASSUME_PROVIDED += "libsdl-native"
-
 
 # CONF_VERSION is increased each time build/conf/ changes incompatibly and is used to
 # track the version of this file when it was generated. This can safely be ignored if
