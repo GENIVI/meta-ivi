@@ -1,12 +1,12 @@
 require ivi-image-demo.bb
 
-DESCRIPTION = "GENIVI Demo Platform image that includes everything within \
+DESCRIPTION = "meta-ivi demo image that includes everything within \
 ivi-image-demo plus meta-toolchain, development headers and libraries to \
 form a standalone SDK."
 
-inherit populate_sdk populate_sdk_qt5
+inherit populate_sdk
 
-QT5PKG = "qtcreator-debug"
+QT5PKG = ""
 
 IMAGE_FEATURES_append = "\
 	debug-tweaks         \
