@@ -40,7 +40,7 @@ URI: git://git.openembedded.org/meta-openembedded
 > revision: 853dcfa0d618dc26bd27b3a1b49494b98d6eee97
 
 Using the above git sha's and the master meta-ivi branch, bitbaking intrepid-image
-is known to work (the intrepid-image build should be aligned with GENIVI 7.0).
+is known to work (the jupiter-image build should be aligned with GENIVI 8.0).
 
 For creating a specific GENIVI compliant image version, please make sure you
 git checkout the related meta-ivi branch and follow the build instructions
@@ -76,7 +76,7 @@ export TEMPLATECONF=/full/path/to/meta-ivi/meta-ivi/conf
 2. Run the following command:
    > $ source poky/oe-init-build-env
 
-3. Build intrepid-image including GENIVI 7.0 (Intrepid) components
+3. Build intrepid-image including GENIVI 8.0 (Jupiter) components
    > $ bitbake intrepid-image
 
 4. Run the emulator:
