@@ -1,0 +1,17 @@
+NodeStateAccess needs to link to libgio.
+
+Signed-off-by: Andrei Gherzan <andrei.gherzan@windriver.com>
+
+Index: git/NodeStateAccess/Makefile.am
+===================================================================
+--- git.orig/NodeStateAccess/Makefile.am
++++ git/NodeStateAccess/Makefile.am
+@@ -33,7 +33,7 @@ libNodeStateAccess_la_LIBDADD = $(GIO_LI
+                                 $(GLIB_LIBS)                 \
+                                 $(GOBJECT_LIBS)
+ 
+-libNodeStateAccess_la_LDFLAGS = -avoid-version
++libNodeStateAccess_la_LDFLAGS = -avoid-version -lgio-2.0
+ 
+ # List generated headers here to assert that they are available when built is started
+ BUILT_SOURCES =  generated/NodeStateConsumer.h          \
