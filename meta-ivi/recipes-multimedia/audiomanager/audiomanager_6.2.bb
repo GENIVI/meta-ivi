@@ -7,11 +7,14 @@ LIC_FILES_CHKSUM = "file://LICENCE;md5=815ca599c9df247a0c7f619bab123dad"
 
 DEPENDS = "common-api-c++-dbus dlt-daemon sqlite3 dbus node-state-manager"
 
-BRANCH = "Intreprid_stable_branch"
+BRANCH = "master"
 
-SRC_URI = "git://git.projects.genivi.org/AudioManager.git;branch=${BRANCH};tag=${PV} \
-           file://0001-src-gen-update-to-CommonAPI-version-2.1.6.patch \
-           file://AudioManager.service file://setup_amgr.sh"
+SRC_URI = " \
+    git://git.projects.genivi.org/AudioManager.git;branch=${BRANCH};tag=${PV} \
+    file://AudioManager.service \
+    file://setup_amgr.sh \
+    file://0001-Add-CommonAPI-sources-generated-with-CommonAPI-2.1.6.patch \
+    "
 
 S = "${WORKDIR}/git"
 inherit autotools gettext cmake pkgconfig systemd
@@ -23,17 +26,20 @@ SYSTEMD_AUTO_ENABLE = "disable"
 EXTRA_OECMAKE += "-DWITH_TESTS=OFF -DUSE_BUILD_LIBS=OFF"
 OECMAKE_CXX_FLAGS +="-ldl"
 
-FILES_${PN} += "${libdir}/audioManager/command/*.so* \
-                ${libdir}/audioManager/control/*.so* \
-                ${libdir}/audioManager/routing/*.so* \
-                ${systemd_unitdir}/AudioManager.service \
-                ${systemd_unitdir}/scripts/setup_amgr.sh \
-"
+FILES_${PN} += " \
+    ${libdir}/audioManager/command/*.so* \
+    ${libdir}/audioManager/control/*.so* \
+    ${libdir}/audioManager/routing/*.so* \
+    ${systemd_unitdir}/AudioManager.service \
+    ${systemd_unitdir}/scripts/setup_amgr.sh \
+    "
 
-FILES_${PN}-dbg += "${libdir}/audioManager/command/.debug/* \
-                    ${libdir}/audioManager/control/.debug/* \
-                    ${libdir}/audioManager/routing/.debug/* \
-"
+FILES_${PN}-dbg += " \
+    ${libdir}/audioManager/command/.debug/* \
+    ${libdir}/audioManager/control/.debug/* \
+    ${libdir}/audioManager/routing/.debug/* \
+    "
+
 do_install_append() {
     if ${@bb.utils.contains('DISTRO_FEATURES','systemd','true','false',d)}; then
         mkdir -p ${D}${systemd_unitdir}/scripts/
