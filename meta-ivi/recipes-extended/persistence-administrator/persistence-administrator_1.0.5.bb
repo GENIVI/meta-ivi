@@ -6,13 +6,10 @@ SECTION = "base"
 LICENSE = "MPLv2"
 LIC_FILES_CHKSUM = "file://COPYING;md5=815ca599c9df247a0c7f619bab123dad"
 
-PV = "7.0+git${SRCPV}"
-
-SRC_URI = "git://git.projects.genivi.org/persistence/persistence-administrator.git \
-          file://libsystemd_daemon.patch \
-          "
-
-SRCREV = "3a6cc3228b93c647f0ffed4b53641572e78f71d7"
+SRC_URI = " \
+    git://git.projects.genivi.org/persistence/persistence-administrator.git;tag=${PV} \
+    file://libsystemd_daemon.patch \
+    "
 
 DEPENDS = "glib-2.0 dbus dlt-daemon libarchive zlib json-c node-state-manager \
            systemd persistence-common-object libffi libitzam"
