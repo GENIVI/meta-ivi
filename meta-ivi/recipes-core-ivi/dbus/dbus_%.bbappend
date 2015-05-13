@@ -9,7 +9,10 @@ SRC_URI_AFBUS = ""
 
 # add support for GENIVI CommonAPI D-Bus runtime
 # - http://projects.genivi.org/commonapi/
-SRC_URI_COMMONAPI = "file://dbus-DBusMessage-add-support-for-custom-marshaling.patch"
+SRC_URI_COMMONAPI = " \
+    file://dbus-DBusMessage-add-support-for-custom-marshaling.patch \
+    file://capi-dbus-add-send-with-reply-set-notify.patch \
+    "
 
 SRC_URI_append = "\
     ${SRC_URI_AFBUS} \
