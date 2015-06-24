@@ -6,7 +6,10 @@ PROVIDES = "common-api2"
 
 BRANCH ?= "maintain/2.1.6"
 TAG ?= "${PV}"
-SRC_URI = "git://git.projects.genivi.org/ipc/common-api-runtime.git;branch=${BRANCH};tag=${TAG}"
+SRC_URI = " \
+    git://git.projects.genivi.org/ipc/common-api-runtime.git;branch=${BRANCH};tag=${TAG} \
+    file://fix-with-automake-1-15.patch \
+    "
 S = "${WORKDIR}/git"
 
 CXXFLAGS := "${@oe_filter_out('-fvisibility-inlines-hidden', '${CXXFLAGS}', d)}"
