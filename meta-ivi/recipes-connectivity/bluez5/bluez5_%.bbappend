@@ -21,23 +21,7 @@ SRC_URI_append = " \
 	file://0011-plugins-service-Add-Blocked-property.patch                 \
 	"
 
-# we copy the EXTRA_OECONF from Poky's bluez5.inc, fix the following QA issue
-# on the way and enable the Service API (--enable-service) option.
-# WARNING: QA Issue: bluez5: configure was passed unrecognised options:
-#                            --with-systemdunitdir [unknown-configure-option]
-# Note: this is an issue only with the Poky "dizzy" branch and should be
-#       removed in case of future/later Poky versions.
-#       Poky rev: 419a37e09565a820fdeb2d49104cc27f6720af5a
-EXTRA_OECONF = "\
-	--enable-tools \
-	--disable-cups \
-	--enable-test \
-	--enable-datafiles \
-	${@bb.utils.contains('DISTRO_FEATURES', 'systemd', '--enable-systemd', '--disable-systemd', d)} \
-	--enable-library \
-	--enable-service \
-"
+EXTRA_OECONF += "--enable-service"
 
 PACKAGES =+ " libbluetooth-plugins-service "
-
 FILES_libbluetooth-plugins-service = "${libdir}/bluetooth/plugins/*.so"
