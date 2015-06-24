@@ -1,0 +1,82 @@
+From 3a6eceb060336dd67bb300f629052fc915bd2f9b Mon Sep 17 00:00:00 2001
+From: Yong-iL Joh <yong-il.joh@windriver.com>
+Date: Mon, 14 Sep 2015 22:12:25 +0900
+Subject: [PATCH] fix up for mismatched off_t among files
+
+root@qemux86:/var/volatile/log# cat ivi-shell-user-interface.log
+[create_ivisurface:937]
+[createShmBuffer:815] sizeof(size) = 4
+[createShmBuffer:816] sizeof(off_t) = 4
+root@qemux86:/var/volatile/log# cat os-compatibility.log
+[os_create_anonymous_file:153] sizeof(size) = 8
+[os_create_anonymous_file:154] sizeof(off_t) = 8
+[os_create_anonymous_file:155] sizeof(long int) = 4
+[os_create_anonymous_file:180] 3145728 < 0, bfeaae38
+[os_create_anonymous_file:187] posix_fallocate(3145728)Invalid argument
+
+Signed-off-by: Yong-iL Joh <yong-il.joh@windriver.com>
+
+%% original patch: build.fix.up.patch
+
+Signed-off-by: Yong-iL Joh <yong-il.joh@windriver.com>
+---
+ clients/ivi-shell-user-interface.c |    2 ++
+ ivi-shell/hmi-controller.c         |    1 +
+ ivi-shell/ivi-layout-transition.c  |    2 ++
+ ivi-shell/ivi-layout.c             |    2 ++
+ 4 files changed, 7 insertions(+)
+
+diff --git a/clients/ivi-shell-user-interface.c b/clients/ivi-shell-user-interface.c
+index 3c69541..c04b589 100644
+--- a/clients/ivi-shell-user-interface.c
++++ b/clients/ivi-shell-user-interface.c
+@@ -20,6 +20,8 @@
+  * CONNECTION WITH THE USE OR PERFORMANCE OF THIS SOFTWARE.
+  */
+ 
++#include "config.h"
++
+ #include <sys/wait.h>
+ #include <unistd.h>
+ #include <stdlib.h>
+diff --git a/ivi-shell/hmi-controller.c b/ivi-shell/hmi-controller.c
+index b7a6c61..0afd866 100644
+--- a/ivi-shell/hmi-controller.c
++++ b/ivi-shell/hmi-controller.c
+@@ -45,6 +45,7 @@
+  * TODO: animation method shall be refined
+  * TODO: support fade-in when UI is ready
+  */
++#include "config.h"
+ 
+ #include <sys/wait.h>
+ #include <unistd.h>
+diff --git a/ivi-shell/ivi-layout-transition.c b/ivi-shell/ivi-layout-transition.c
+index 0c45c4a..f289c93 100644
+--- a/ivi-shell/ivi-layout-transition.c
++++ b/ivi-shell/ivi-layout-transition.c
+@@ -20,6 +20,8 @@
+  * CONNECTION WITH THE USE OR PERFORMANCE OF THIS SOFTWARE.
+  */
+ 
++#include "config.h"
++
+ #include <time.h>
+ #include <assert.h>
+ #include <stdlib.h>
+diff --git a/ivi-shell/ivi-layout.c b/ivi-shell/ivi-layout.c
+index 6f7c3c2..c2c8786 100644
+--- a/ivi-shell/ivi-layout.c
++++ b/ivi-shell/ivi-layout.c
+@@ -53,6 +53,8 @@
+  *
+  */
+ 
++#include "config.h"
++
+ #include <sys/wait.h>
+ #include <unistd.h>
+ #include <stdlib.h>
+-- 
+1.7.9.5
+

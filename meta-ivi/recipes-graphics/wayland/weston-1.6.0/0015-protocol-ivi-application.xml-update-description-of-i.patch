@@ -1,0 +1,32 @@
+From 814f152d3f3ca5973162cad8c19f1e86f85f6d27 Mon Sep 17 00:00:00 2001
+From: Nobuhiko Tanibata <NOBUHIKO_TANIBATA@xddp.denso.co.jp>
+Date: Fri, 21 Nov 2014 01:04:42 +0900
+Subject: [PATCH 15/15] protocol: ivi-application.xml: update description of
+ ivi-application::surface_create. ivi_id can be reused
+ when destruction of ivi_surface or wl_surface
+ happens.
+
+Signed-off-by: Nobuhiko Tanibata <NOBUHIKO_TANIBATA@xddp.denso.co.jp>
+---
+ protocol/ivi-application.xml |    5 ++++-
+ 1 file changed, 4 insertions(+), 1 deletion(-)
+
+diff --git a/protocol/ivi-application.xml b/protocol/ivi-application.xml
+index 6bb90a7..f815baf 100644
+--- a/protocol/ivi-application.xml
++++ b/protocol/ivi-application.xml
+@@ -84,7 +84,10 @@
+         logic of the application about where it shall be located.
+         The server regards following cases as protocol errors and disconnects the client.
+          - wl_surface already has an nother role.
+-         - ivi_id is already assigned to an another wl_surface    
++         - ivi_id is already assigned to an another wl_surface.
++
++        If client destroy ivi_surface or wl_surface which is assigne to the ivi_surface,
++        ivi_id which is assigned to the ivi_surface is free for reuse.
+       </description>
+       <arg name="ivi_id" type="uint"/>
+       <arg name="surface" type="object" interface="wl_surface"/>
+-- 
+1.7.9.5
+
