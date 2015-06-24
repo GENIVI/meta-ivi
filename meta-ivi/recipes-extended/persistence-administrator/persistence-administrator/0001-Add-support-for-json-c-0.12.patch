@@ -1,0 +1,41 @@
+From 23b3053a7062ba38cf39e1b0caeb5ec006287d68 Mon Sep 17 00:00:00 2001
+From: Andrei Gherzan <andrei.gherzan@windriver.com>
+Date: Mon, 22 Jun 2015 22:21:50 +0200
+Subject: [PATCH] Add support for json-c > 0.12
+
+Signed-off-by: Andrei Gherzan <andrei.gherzan@windriver.com>
+Upstream-Status: Submitted [http://bugs.genivi.org/show_bug.cgi?id=354]
+---
+ Administrator/src/ssw_pers_admin_config.c | 2 +-
+ configure.ac                              | 2 +-
+ 2 files changed, 2 insertions(+), 2 deletions(-)
+
+diff --git a/Administrator/src/ssw_pers_admin_config.c b/Administrator/src/ssw_pers_admin_config.c
+index 62671a5..c52af16 100644
+--- a/Administrator/src/ssw_pers_admin_config.c
++++ b/Administrator/src/ssw_pers_admin_config.c
+@@ -25,7 +25,7 @@
+ *
+ **********************************************************************************************************************/
+ 
+-#include <json/json.h>
++#include <json-c/json.h>
+ 
+ #include <sys/types.h>
+ #include <sys/stat.h>
+diff --git a/configure.ac b/configure.ac
+index 5207334..48ed91f 100644
+--- a/configure.ac
++++ b/configure.ac
+@@ -114,7 +114,7 @@ PKG_CHECK_MODULES([DLT], [automotive-dlt >= 2.2.0])
+ PKG_CHECK_MODULES([ZLIB], [zlib >= 1.2.5])		
+ PKG_CHECK_MODULES([ARCHIVELIB], [libarchive >= 3.0.4])	
+ PKG_CHECK_MODULES([PERSCOMMON], [libperscommon >= 1.0.1])
+-PKG_CHECK_MODULES([JSON], [json >= 0.9])
++PKG_CHECK_MODULES([JSON], [json-c >= 0.9])
+ PKG_CHECK_MODULES([NSM], [node-state-manager])
+ PKG_CHECK_MODULES([SYSTEMD], [libsystemd-daemon >= 37 ])
+ 
+-- 
+2.1.0
+
