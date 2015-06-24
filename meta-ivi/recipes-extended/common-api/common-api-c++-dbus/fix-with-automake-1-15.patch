@@ -1,0 +1,30 @@
+Call of AC_CONFIG_AUX_DIR should be made as soon as possible to avoid
+issues with automake 1.15.
+
+https://lists.gnu.org/archive/html/bug-automake/2015-01/txttwTAlDA4OE.txt
+https://bugzilla.redhat.com/show_bug.cgi?id=1179182
+
+Signed-off-by: Andrei Gherzan <andrei.gherzan@windriver.com>
+Upstream-Status: Submitted [http://bugs.genivi.org/show_bug.cgi?id=353]
+
+Index: git/configure.ac
+===================================================================
+--- git.orig/configure.ac
++++ git/configure.ac
+@@ -4,12 +4,14 @@ AC_INIT([GENIVI IPC Common API DBus C++]
+         [],
+         [CommonAPI-DBus])
+ 
++AC_CONFIG_AUX_DIR([build-aux])
++AC_CONFIG_HEADERS([build-aux/config.h])
++
+ AC_USE_SYSTEM_EXTENSIONS
+ 
+ AC_CONFIG_MACRO_DIR([m4])
+ m4_ifdef([AM_PROG_AR], [AM_PROG_AR])
+-AC_CONFIG_AUX_DIR([build-aux])
+-AC_CONFIG_HEADERS([build-aux/config.h])
++
+ AC_CONFIG_FILES([
+         Makefile
+         CommonAPI-DBus.pc
