@@ -1,4 +1,4 @@
 Common targets are:
-    jupiter-image
+    kronos-image
     ivi-image
 
