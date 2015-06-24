@@ -1,0 +1,25 @@
+From 32d9ea1c8acbbc401efc18081a7e912302de9c2d Mon Sep 17 00:00:00 2001
+From: Daniel Stone <daniels@collabora.com>
+Date: Wed, 8 Oct 2014 12:15:48 +0100
+Subject: [PATCH 19/96] Very OCD cosmetic nitpick
+
+---
+ configure.ac | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
+
+diff --git a/configure.ac b/configure.ac
+index 1c133bd..9377774 100644
+--- a/configure.ac
++++ b/configure.ac
+@@ -9,7 +9,7 @@ AC_INIT([weston],
+         [weston_version],
+         [https://bugs.freedesktop.org/enter_bug.cgi?product=Wayland&component=weston&version=weston_version],
+         [weston],
+-        [http://wayland.freedesktop.org/])
++        [http://wayland.freedesktop.org])
+ 
+ AC_SUBST([WESTON_VERSION_MAJOR], [weston_major_version])
+ AC_SUBST([WESTON_VERSION_MINOR], [weston_minor_version])
+-- 
+2.1.0
+

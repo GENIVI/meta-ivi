@@ -1,0 +1,107 @@
+From bff3472e2eb2099e8d9e6e54af73030f25372fb7 Mon Sep 17 00:00:00 2001
+From: Bryce Harrington <bryce@osg.samsung.com>
+Date: Thu, 20 Nov 2014 22:21:56 -0800
+Subject: [PATCH 73/96] Setting members to 0/NULL after a zalloc or calloc is
+ redundant
+
+calloc (and zalloc) set the allocated memory to 0, so there's really no
+need to do it manually.
+
+Signed-off-by: Bryce Harrington <bryce@osg.samsung.com>
+Reviewed-by: Marek Chalupa <mchqwerty@gmail.com>
+[Pekka: dropped the src/evdev.c hunk.]
+Signed-off-by: Pekka Paalanen <pekka.paalanen@collabora.co.uk>
+---
+ src/compositor-fbdev.c |  4 ----
+ src/compositor.c       | 12 ------------
+ src/gl-renderer.c      |  2 --
+ src/rpi-renderer.c     |  1 -
+ 4 files changed, 19 deletions(-)
+
+diff --git a/src/compositor-fbdev.c b/src/compositor-fbdev.c
+index bbc7176..55b7d3c 100644
+--- a/src/compositor-fbdev.c
++++ b/src/compositor-fbdev.c
+@@ -533,10 +533,6 @@ fbdev_output_create(struct fbdev_compositor *compositor,
+ 	output->base.start_repaint_loop = fbdev_output_start_repaint_loop;
+ 	output->base.repaint = fbdev_output_repaint;
+ 	output->base.destroy = fbdev_output_destroy;
+-	output->base.assign_planes = NULL;
+-	output->base.set_backlight = NULL;
+-	output->base.set_dpms = NULL;
+-	output->base.switch_mode = NULL;
+ 
+ 	/* only one static mode in list */
+ 	output->mode.flags =
+diff --git a/src/compositor.c b/src/compositor.c
+index 17e930c..10a2169 100644
+--- a/src/compositor.c
++++ b/src/compositor.c
+@@ -440,10 +440,6 @@ weston_view_create(struct weston_surface *surface)
+ 	wl_list_init(&view->link);
+ 	wl_list_init(&view->layer_link.link);
+ 
+-	view->plane = NULL;
+-	view->layer_link.layer = NULL;
+-	view->parent_view = NULL;
+-
+ 	pixman_region32_init(&view->clip);
+ 	pixman_region32_init(&view->transform.masked_boundingbox);
+ 	pixman_region32_init(&view->transform.masked_opaque);
+@@ -459,8 +455,6 @@ weston_view_create(struct weston_surface *surface)
+ 	pixman_region32_init(&view->transform.boundingbox);
+ 	view->transform.dirty = 1;
+ 
+-	view->output = NULL;
+-
+ 	return view;
+ }
+ 
+@@ -617,8 +611,6 @@ weston_surface_create(struct weston_compositor *compositor)
+ 
+ 	wl_signal_init(&surface->destroy_signal);
+ 
+-	surface->resource = NULL;
+-
+ 	surface->compositor = compositor;
+ 	surface->ref_count = 1;
+ 
+@@ -629,10 +621,6 @@ weston_surface_create(struct weston_compositor *compositor)
+ 
+ 	weston_surface_state_init(&surface->pending);
+ 
+-	surface->output = NULL;
+-
+-	surface->viewport_resource = NULL;
+-
+ 	pixman_region32_init(&surface->damage);
+ 	pixman_region32_init(&surface->opaque);
+ 	region_init_infinite(&surface->input);
+diff --git a/src/gl-renderer.c b/src/gl-renderer.c
+index 40447c7..938d4fa 100644
+--- a/src/gl-renderer.c
++++ b/src/gl-renderer.c
+@@ -1841,8 +1841,6 @@ gl_renderer_output_create(struct weston_output *output,
+ 	for (i = 0; i < BUFFER_DAMAGE_COUNT; i++)
+ 		pixman_region32_init(&go->buffer_damage[i]);
+ 
+-	go->buffer_damage_index = 0;
+-
+ 	output->renderer_state = go;
+ 
+ 	log_egl_config_info(gr->egl_display, egl_config);
+diff --git a/src/rpi-renderer.c b/src/rpi-renderer.c
+index c222eb6..4d0f522 100644
+--- a/src/rpi-renderer.c
++++ b/src/rpi-renderer.c
+@@ -497,7 +497,6 @@ rpir_surface_create(struct rpi_renderer *renderer)
+ 		return NULL;
+ 
+ 	wl_list_init(&surface->views);
+-	surface->visible_views = 0;
+ 	surface->single_buffer = renderer->single_buffer;
+ 	surface->enable_opaque_regions = renderer->enable_opaque_regions;
+ 	rpi_resource_init(&surface->resources[0]);
+-- 
+2.1.0
+

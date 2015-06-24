@@ -1,0 +1,26 @@
+From 86b70e16ebbaa6f1c0ec1a4bd6e88a51710d60f0 Mon Sep 17 00:00:00 2001
+From: Pekka Paalanen <pekka.paalanen@collabora.co.uk>
+Date: Tue, 11 Nov 2014 14:10:46 +0200
+Subject: [PATCH 39/96] compositor: add missing newline to help text
+
+Signed-off-by: Pekka Paalanen <pekka.paalanen@collabora.co.uk>
+---
+ src/compositor.c | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
+
+diff --git a/src/compositor.c b/src/compositor.c
+index 5f9bbd1..3af7f93 100644
+--- a/src/compositor.c
++++ b/src/compositor.c
+@@ -4495,7 +4495,7 @@ usage(int error_code)
+ 			"\t\t\t\tdrm-backend.so\n"
+ #endif
+ #if defined(BUILD_FBDEV_COMPOSITOR)
+-			"\t\t\t\tfbdev-backend.so"
++			"\t\t\t\tfbdev-backend.so\n"
+ #endif
+ #if defined(BUILD_X11_COMPOSITOR)
+ 			"\t\t\t\tx11-backend.so\n"
+-- 
+2.1.0
+

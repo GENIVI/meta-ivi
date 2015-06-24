@@ -1,0 +1,348 @@
+From 6ae7bc982fa9d70f3206713f05f354bbfac59fb5 Mon Sep 17 00:00:00 2001
+From: Derek Foreman <derekf@osg.samsung.com>
+Date: Tue, 4 Nov 2014 10:47:33 -0600
+Subject: [PATCH 25/96] compositor: Refactor weston_output_mode_switch()
+
+This breaks weston_output_mode_switch() into 3 functions:
+weston_output_mode_set_native()
+weston_output_mode_switch_to_temporary()
+weston_output_mode_switch_to_native()
+
+Differences from previous behaviour:
+SET_NATIVE didn't set current_scale (now it does)
+SET_TEMPORARY could set mode and scale independently - now it can't.
+
+Signed-off-by: Derek Foreman <derekf@osg.samsung.com>
+Pekka Paalanen <pekka.paalanen@collabora.co.uk>
+---
+ desktop-shell/shell.c               |  12 +--
+ fullscreen-shell/fullscreen-shell.c |  13 +--
+ src/compositor-rdp.c                |   2 +-
+ src/compositor.c                    | 185 ++++++++++++++++++++----------------
+ src/compositor.h                    |  17 ++--
+ 5 files changed, 123 insertions(+), 106 deletions(-)
+
+diff --git a/desktop-shell/shell.c b/desktop-shell/shell.c
+index 9fafb39..844a322 100644
+--- a/desktop-shell/shell.c
++++ b/desktop-shell/shell.c
+@@ -2247,12 +2247,8 @@ shell_surface_set_class(struct wl_client *client,
+ static void
+ restore_output_mode(struct weston_output *output)
+ {
+-	if (output->original_mode ||
+-	    (int32_t)output->current_scale != output->original_scale)
+-		weston_output_switch_mode(output,
+-					  output->native_mode,
+-					  output->native_scale,
+-					  WESTON_MODE_SWITCH_RESTORE_NATIVE);
++	if (output->original_mode)
++		weston_output_mode_switch_to_native(output);
+ }
+ 
+ static void
+@@ -2876,8 +2872,8 @@ shell_configure_fullscreen(struct shell_surface *shsurf)
+ 				surf_height * surface->buffer_viewport.buffer.scale,
+ 				shsurf->fullscreen.framerate};
+ 
+-			if (weston_output_switch_mode(output, &mode, surface->buffer_viewport.buffer.scale,
+-					WESTON_MODE_SWITCH_SET_TEMPORARY) == 0) {
++			if (weston_output_mode_switch_to_temporary(output, &mode,
++					surface->buffer_viewport.buffer.scale) == 0) {
+ 				weston_view_set_position(shsurf->view,
+ 							 output->x - surf_x,
+ 							 output->y - surf_y);
+diff --git a/fullscreen-shell/fullscreen-shell.c b/fullscreen-shell/fullscreen-shell.c
+index c7950df..35e6d8f 100644
+--- a/fullscreen-shell/fullscreen-shell.c
++++ b/fullscreen-shell/fullscreen-shell.c
+@@ -284,12 +284,8 @@ fs_output_for_output(struct weston_output *output)
+ static void
+ restore_output_mode(struct weston_output *output)
+ {
+-	if (output->original_mode ||
+-	    (int32_t)output->current_scale != output->original_scale)
+-		weston_output_switch_mode(output,
+-					  output->native_mode,
+-					  output->native_scale,
+-					  WESTON_MODE_SWITCH_RESTORE_NATIVE);
++	if (output->original_mode)
++		weston_output_mode_switch_to_native(output);
+ }
+ 
+ /*
+@@ -472,9 +468,8 @@ fs_output_configure_for_mode(struct fs_output *fsout,
+ 	mode.height = surf_height * fsout->output->native_scale;
+ 	mode.refresh = fsout->pending.framerate;
+ 
+-	ret = weston_output_switch_mode(fsout->output, &mode,
+-					fsout->output->native_scale,
+-					WESTON_MODE_SWITCH_SET_TEMPORARY);
++	ret = weston_output_mode_switch_to_temporary(fsout->output, &mode,
++					fsout->output->native_scale);
+ 
+ 	if (ret != 0) {
+ 		/* The mode switch failed.  Clear the pending and
+diff --git a/src/compositor-rdp.c b/src/compositor-rdp.c
+index 9098396..2048f8f 100644
+--- a/src/compositor-rdp.c
++++ b/src/compositor-rdp.c
+@@ -803,7 +803,7 @@ xf_peer_post_connect(freerdp_peer* client)
+ 				weston_log("client mode not found\n");
+ 				return FALSE;
+ 			}
+-			weston_output_switch_mode(&output->base, target_mode, 1, WESTON_MODE_SWITCH_SET_NATIVE);
++			weston_output_mode_set_native(&output->base, target_mode, 1);
+ 			output->base.width = new_mode.width;
+ 			output->base.height = new_mode.height;
+ 		}
+diff --git a/src/compositor.c b/src/compositor.c
+index ff62b5f..1f6700d 100644
+--- a/src/compositor.c
++++ b/src/compositor.c
+@@ -98,76 +98,13 @@ weston_output_transform_scale_init(struct weston_output *output,
+ static void
+ weston_compositor_build_view_list(struct weston_compositor *compositor);
+ 
+-WL_EXPORT int
+-weston_output_switch_mode(struct weston_output *output, struct weston_mode *mode,
+-		int32_t scale, enum weston_mode_switch_op op)
++static void weston_mode_switch_finish(struct weston_output *output,
++				      int mode_changed,
++				      int scale_changed)
+ {
+ 	struct weston_seat *seat;
+ 	struct wl_resource *resource;
+ 	pixman_region32_t old_output_region;
+-	int ret, notify_mode_changed, notify_scale_changed;
+-	int temporary_mode, temporary_scale;
+-
+-	if (!output->switch_mode)
+-		return -1;
+-
+-	temporary_mode = (output->original_mode != 0);
+-	temporary_scale = (output->current_scale != output->original_scale);
+-	ret = 0;
+-
+-	notify_mode_changed = 0;
+-	notify_scale_changed = 0;
+-	switch(op) {
+-	case WESTON_MODE_SWITCH_SET_NATIVE:
+-		output->native_mode = mode;
+-		if (!temporary_mode) {
+-			notify_mode_changed = 1;
+-			ret = output->switch_mode(output, mode);
+-			if (ret < 0)
+-				return ret;
+-		}
+-
+-		output->native_scale = scale;
+-		if(!temporary_scale)
+-			notify_scale_changed = 1;
+-		break;
+-	case WESTON_MODE_SWITCH_SET_TEMPORARY:
+-		if (!temporary_mode)
+-			output->original_mode = output->native_mode;
+-		if (!temporary_scale)
+-			output->original_scale = output->native_scale;
+-
+-		ret = output->switch_mode(output, mode);
+-		if (ret < 0)
+-			return ret;
+-
+-		output->current_scale = scale;
+-		break;
+-	case WESTON_MODE_SWITCH_RESTORE_NATIVE:
+-		if (!temporary_mode) {
+-			weston_log("already in the native mode\n");
+-			return -1;
+-		}
+-
+-		notify_mode_changed = (output->original_mode != output->native_mode);
+-
+-		ret = output->switch_mode(output, mode);
+-		if (ret < 0)
+-			return ret;
+-
+-		if (output->original_scale != output->native_scale) {
+-			notify_scale_changed = 1;
+-			scale = output->native_scale;
+-			output->original_scale = scale;
+-		}
+-		output->original_mode = 0;
+-
+-		output->current_scale = output->native_scale;
+-		break;
+-	default:
+-		weston_log("unknown weston_switch_mode_op %d\n", op);
+-		break;
+-	}
+ 
+ 	pixman_region32_init(&old_output_region);
+ 	pixman_region32_copy(&old_output_region, &output->region);
+@@ -211,25 +148,113 @@ weston_output_switch_mode(struct weston_output *output, struct weston_mode *mode
+ 	pixman_region32_fini(&old_output_region);
+ 
+ 	/* notify clients of the changes */
+-	if (notify_mode_changed || notify_scale_changed) {
+-		wl_resource_for_each(resource, &output->resource_list) {
+-			if(notify_mode_changed) {
+-				wl_output_send_mode(resource,
+-						mode->flags | WL_OUTPUT_MODE_CURRENT,
+-						mode->width,
+-						mode->height,
+-						mode->refresh);
+-			}
++	wl_resource_for_each(resource, &output->resource_list) {
++		if (mode_changed) {
++			wl_output_send_mode(resource,
++					    output->current_mode->flags,
++					    output->current_mode->width,
++					    output->current_mode->height,
++					    output->current_mode->refresh);
++		}
++
++		if (scale_changed)
++			wl_output_send_scale(resource, output->current_scale);
++
++		if (wl_resource_get_version(resource) >= 2)
++			   wl_output_send_done(resource);
++	}
++}
+ 
+-			if (notify_scale_changed)
+-				wl_output_send_scale(resource, scale);
++WL_EXPORT int
++weston_output_mode_set_native(struct weston_output *output,
++			      struct weston_mode *mode,
++			      int32_t scale)
++{
++	int ret;
++	int mode_changed = 0, scale_changed = 0;
+ 
+-			if (wl_resource_get_version(resource) >= 2)
+-				   wl_output_send_done(resource);
++	if (!output->switch_mode)
++		return -1;
++
++	if (!output->original_mode) {
++		mode_changed = 1;
++		ret = output->switch_mode(output, mode);
++		if (ret < 0)
++			return ret;
++		if (output->current_scale != scale) {
++			scale_changed = 1;
++			output->current_scale = scale;
+ 		}
+ 	}
+ 
+-	return ret;
++	output->native_mode = mode;
++	output->native_scale = scale;
++
++	weston_mode_switch_finish(output, mode_changed, scale_changed);
++
++	return 0;
++}
++
++WL_EXPORT int
++weston_output_mode_switch_to_native(struct weston_output *output)
++{
++	int ret;
++	int mode_changed = 0, scale_changed = 0;
++
++	if (!output->switch_mode)
++		return -1;
++
++	if (!output->original_mode) {
++		weston_log("already in the native mode\n");
++		return -1;
++	}
++	/* the non fullscreen clients haven't seen a mode set since we
++	 * switched into a temporary, so we need to notify them if the
++	 * mode at that time is different from the native mode now.
++	 */
++	mode_changed = (output->original_mode != output->native_mode);
++	scale_changed = (output->original_scale != output->native_scale);
++
++	ret = output->switch_mode(output, output->native_mode);
++	if (ret < 0)
++		return ret;
++
++	output->current_scale = output->native_scale;
++
++	output->original_mode = NULL;
++	output->original_scale = 0;
++
++	weston_mode_switch_finish(output, mode_changed, scale_changed);
++
++	return 0;
++}
++
++WL_EXPORT int
++weston_output_mode_switch_to_temporary(struct weston_output *output,
++				       struct weston_mode *mode,
++				       int32_t scale)
++{
++	int ret;
++
++	if (!output->switch_mode)
++		return -1;
++
++	/* original_mode is the last mode non full screen clients have seen,
++	 * so we shouldn't change it if we already have one set.
++	 */
++	if (!output->original_mode) {
++		output->original_mode = output->native_mode;
++		output->original_scale = output->native_scale;
++	}
++	ret = output->switch_mode(output, mode);
++	if (ret < 0)
++		return ret;
++
++	output->current_scale = scale;
++
++	weston_mode_switch_finish(output, 0, 0);
++
++	return 0;
+ }
+ 
+ WL_EXPORT void
+diff --git a/src/compositor.h b/src/compositor.h
+index a8967f0..27ea693 100644
+--- a/src/compositor.h
++++ b/src/compositor.h
+@@ -174,12 +174,6 @@ enum dpms_enum {
+ 	WESTON_DPMS_OFF
+ };
+ 
+-enum weston_mode_switch_op {
+-	WESTON_MODE_SWITCH_SET_NATIVE,
+-	WESTON_MODE_SWITCH_SET_TEMPORARY,
+-	WESTON_MODE_SWITCH_RESTORE_NATIVE
+-};
+-
+ struct weston_output {
+ 	uint32_t id;
+ 	char *name;
+@@ -1434,8 +1428,15 @@ void
+ weston_surface_destroy(struct weston_surface *surface);
+ 
+ int
+-weston_output_switch_mode(struct weston_output *output, struct weston_mode *mode,
+-			int32_t scale, enum weston_mode_switch_op op);
++weston_output_mode_set_native(struct weston_output *output,
++			      struct weston_mode *mode,
++			      int32_t scale);
++int
++weston_output_mode_switch_to_temporary(struct weston_output *output,
++				       struct weston_mode *mode,
++				       int32_t scale);
++int
++weston_output_mode_switch_to_native(struct weston_output *output);
+ 
+ int
+ noop_renderer_init(struct weston_compositor *ec);
+-- 
+2.1.0
+

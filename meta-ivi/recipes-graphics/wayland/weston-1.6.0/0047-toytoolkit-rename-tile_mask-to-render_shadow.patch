@@ -1,0 +1,85 @@
+From 0d7fe8d92574e8cc9ff2195cbade28bab50d1c8d Mon Sep 17 00:00:00 2001
+From: Marek Chalupa <mchqwerty@gmail.com>
+Date: Wed, 29 Oct 2014 14:51:22 +0100
+Subject: [PATCH 47/96] toytoolkit: rename tile_mask to render_shadow
+
+This function is used and clearly designed only for drawing the shadows.
+Rename it so that it has name after what it does and also move some
+common code into the function.
+
+Signed-off-by: Marek Chalupa <mchqwerty@gmail.com>
+Reviewed-by: Pekka Paalanen <pekka.paalanen@collabora.co.uk>
+---
+ shared/cairo-util.c       | 12 ++++++------
+ shared/cairo-util.h       |  4 ++--
+ xwayland/window-manager.c |  4 +---
+ 3 files changed, 9 insertions(+), 11 deletions(-)
+
+diff --git a/shared/cairo-util.c b/shared/cairo-util.c
+index 26286c5..73e3ae7 100644
+--- a/shared/cairo-util.c
++++ b/shared/cairo-util.c
+@@ -137,13 +137,14 @@ blur_surface(cairo_surface_t *surface, int margin)
+ }
+ 
+ void
+-tile_mask(cairo_t *cr, cairo_surface_t *surface,
+-	  int x, int y, int width, int height, int margin, int top_margin)
++render_shadow(cairo_t *cr, cairo_surface_t *surface,
++	      int x, int y, int width, int height, int margin, int top_margin)
+ {
+ 	cairo_pattern_t *pattern;
+ 	cairo_matrix_t matrix;
+ 	int i, fx, fy, vmargin;
+ 
++	cairo_set_source_rgba(cr, 0, 0, 0, 0.45);
+ 	cairo_set_operator(cr, CAIRO_OPERATOR_OVER);
+ 	pattern = cairo_pattern_create_for_surface (surface);
+ 	cairo_pattern_set_filter(pattern, CAIRO_FILTER_NEAREST);
+@@ -429,10 +430,9 @@ theme_render_frame(struct theme *t,
+ 	if (flags & THEME_FRAME_MAXIMIZED)
+ 		margin = 0;
+ 	else {
+-		cairo_set_source_rgba(cr, 0, 0, 0, 0.45);
+-		tile_mask(cr, t->shadow,
+-			  2, 2, width + 8, height + 8,
+-			  64, 64);
++		render_shadow(cr, t->shadow,
++			      2, 2, width + 8, height + 8,
++			      64, 64);
+ 		margin = t->margin;
+ 	}
+ 
+diff --git a/shared/cairo-util.h b/shared/cairo-util.h
+index 11d11d1..dc735a6 100644
+--- a/shared/cairo-util.h
++++ b/shared/cairo-util.h
+@@ -32,8 +32,8 @@ void
+ surface_flush_device(cairo_surface_t *surface);
+ 
+ void
+-tile_mask(cairo_t *cr, cairo_surface_t *surface,
+-	  int x, int y, int width, int height, int margin, int top_margin);
++render_shadow(cairo_t *cr, cairo_surface_t *surface,
++	      int x, int y, int width, int height, int margin, int top_margin);
+ 
+ void
+ tile_source(cairo_t *cr, cairo_surface_t *surface,
+diff --git a/xwayland/window-manager.c b/xwayland/window-manager.c
+index 4977c24..4acb534 100644
+--- a/xwayland/window-manager.c
++++ b/xwayland/window-manager.c
+@@ -973,9 +973,7 @@ weston_wm_window_draw_decoration(void *data)
+ 		cairo_set_source_rgba(cr, 0, 0, 0, 0);
+ 		cairo_paint(cr);
+ 
+-		cairo_set_operator(cr, CAIRO_OPERATOR_OVER);
+-		cairo_set_source_rgba(cr, 0, 0, 0, 0.45);
+-		tile_mask(cr, t->shadow, 2, 2, width + 8, height + 8, 64, 64);
++		render_shadow(cr, t->shadow, 2, 2, width + 8, height + 8, 64, 64);
+ 	}
+ 
+ 	cairo_destroy(cr);
+-- 
+2.1.0
+

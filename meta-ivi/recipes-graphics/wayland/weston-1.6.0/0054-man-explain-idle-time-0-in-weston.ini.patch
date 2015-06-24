@@ -1,0 +1,27 @@
+From b4e976ab56776f3bb21b18979fbb0a9ec04001b9 Mon Sep 17 00:00:00 2001
+From: Pekka Paalanen <pekka.paalanen@collabora.co.uk>
+Date: Fri, 21 Nov 2014 16:11:44 +0200
+Subject: [PATCH 54/96] man: explain idle-time=0 in weston.ini
+
+Signed-off-by: Pekka Paalanen <pekka.paalanen@collabora.co.uk>
+---
+ man/weston.ini.man | 3 ++-
+ 1 file changed, 2 insertions(+), 1 deletion(-)
+
+diff --git a/man/weston.ini.man b/man/weston.ini.man
+index 0f7d2da..7a353c9 100644
+--- a/man/weston.ini.man
++++ b/man/weston.ini.man
+@@ -152,7 +152,8 @@ sets Weston's idle timeout in seconds. This idle timeout is the time
+ after which Weston will enter an "inactive" mode and screen will fade to
+ black. Note that a screensaver may also start at this moment after fade-out
+ (if enabled in the SCREENSAVER section below), but the current idle-time
+-option has nothing to do with screensavers.
++option has nothing to do with screensavers. A value of 0 disables the
++timeout.
+ 
+ .IR Important
+ : This option may also be set via Weston's '-i' command
+-- 
+2.1.0
+

@@ -1,0 +1,48 @@
+From 797ec27d11786191bb58e9e2349c946b472ff4b6 Mon Sep 17 00:00:00 2001
+From: Nobuhiko Tanibata <NOBUHIKO_TANIBATA@xddp.denso.co.jp>
+Date: Fri, 12 Dec 2014 10:46:42 +0900
+Subject: [PATCH 94/96] ivi-shell: clean up unnecesary header
+
+Signed-off-by: Nobuhiko Tanibata <NOBUHIKO_TANIBATA@xddp.denso.co.jp>
+---
+ ivi-shell/ivi-layout.c | 5 -----
+ ivi-shell/ivi-shell.c  | 5 -----
+ 2 files changed, 10 deletions(-)
+
+diff --git a/ivi-shell/ivi-layout.c b/ivi-shell/ivi-layout.c
+index 5d89eb0..67ccf6e 100644
+--- a/ivi-shell/ivi-layout.c
++++ b/ivi-shell/ivi-layout.c
+@@ -53,12 +53,7 @@
+  *
+  */
+ 
+-#include <sys/wait.h>
+-#include <unistd.h>
+-#include <stdlib.h>
+-#include <stdio.h>
+ #include <string.h>
+-#include <linux/input.h>
+ 
+ #include "compositor.h"
+ #include "ivi-layout-export.h"
+diff --git a/ivi-shell/ivi-shell.c b/ivi-shell/ivi-shell.c
+index a14010e..1e068e2 100644
+--- a/ivi-shell/ivi-shell.c
++++ b/ivi-shell/ivi-shell.c
+@@ -32,12 +32,7 @@
+  */
+ #include "config.h"
+ 
+-#include <sys/wait.h>
+-#include <unistd.h>
+-#include <stdlib.h>
+-#include <stdio.h>
+ #include <string.h>
+-#include <linux/input.h>
+ #include <dlfcn.h>
+ #include <limits.h>
+ #include <assert.h>
+-- 
+2.1.0
+

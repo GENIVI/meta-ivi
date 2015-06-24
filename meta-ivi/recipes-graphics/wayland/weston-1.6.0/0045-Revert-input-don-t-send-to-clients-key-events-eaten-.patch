@@ -1,0 +1,209 @@
+From 86b5396d896a747495721d9c00670a039b704d18 Mon Sep 17 00:00:00 2001
+From: Pekka Paalanen <pekka.paalanen@collabora.co.uk>
+Date: Wed, 19 Nov 2014 13:43:32 +0200
+Subject: [PATCH 45/96] Revert "input: don't send to clients key events eaten
+ by bindings"
+
+This reverts commit 5c11fc6fb7d9b1bccd50fc982c0798c9e09a2a04.
+
+According to two input specialists, this was the wrong way:
+http://lists.freedesktop.org/archives/wayland-devel/2014-November/018287.html
+
+Cc: Peter Hutterer <peter.hutterer@who-t.net>
+Cc: Daniel Stone <daniel@fooishbar.org>
+Cc: Giulio Camuffo <giuliocamuffo@gmail.com>
+Signed-off-by: Pekka Paalanen <pekka.paalanen@collabora.co.uk>
+---
+ src/bindings.c   |  7 ++----
+ src/compositor.h |  3 +--
+ src/input.c      | 67 ++++++++++++++++----------------------------------------
+ 3 files changed, 22 insertions(+), 55 deletions(-)
+
+diff --git a/src/bindings.c b/src/bindings.c
+index 369c81a..5e24725 100644
+--- a/src/bindings.c
++++ b/src/bindings.c
+@@ -255,17 +255,16 @@ install_binding_grab(struct weston_seat *seat, uint32_t time, uint32_t key)
+ 	weston_keyboard_start_grab(seat->keyboard, &grab->grab);
+ }
+ 
+-WL_EXPORT int
++WL_EXPORT void
+ weston_compositor_run_key_binding(struct weston_compositor *compositor,
+ 				  struct weston_seat *seat,
+ 				  uint32_t time, uint32_t key,
+ 				  enum wl_keyboard_key_state state)
+ {
+ 	struct weston_binding *b, *tmp;
+-	int eaten = 0;
+ 
+ 	if (state == WL_KEYBOARD_KEY_STATE_RELEASED)
+-		return eaten;
++		return;
+ 
+ 	/* Invalidate all active modifier bindings. */
+ 	wl_list_for_each(b, &compositor->modifier_binding_list, link)
+@@ -282,10 +281,8 @@ weston_compositor_run_key_binding(struct weston_compositor *compositor,
+ 			if (seat->keyboard->grab ==
+ 			    &seat->keyboard->default_grab)
+ 				install_binding_grab(seat, time, key);
+-			++eaten;
+ 		}
+ 	}
+-	return eaten;
+ }
+ 
+ WL_EXPORT void
+diff --git a/src/compositor.h b/src/compositor.h
+index e936eda..002816e 100644
+--- a/src/compositor.h
++++ b/src/compositor.h
+@@ -473,7 +473,6 @@ struct weston_keyboard {
+ 	uint32_t grab_time;
+ 
+ 	struct wl_array keys;
+-	struct wl_array eaten_keys;
+ 
+ 	struct {
+ 		uint32_t mods_depressed;
+@@ -1147,7 +1146,7 @@ weston_binding_destroy(struct weston_binding *binding);
+ void
+ weston_binding_list_destroy_all(struct wl_list *list);
+ 
+-int
++void
+ weston_compositor_run_key_binding(struct weston_compositor *compositor,
+ 				  struct weston_seat *seat, uint32_t time,
+ 				  uint32_t key,
+diff --git a/src/input.c b/src/input.c
+index 5f19875..80aa34e 100644
+--- a/src/input.c
++++ b/src/input.c
+@@ -528,7 +528,6 @@ weston_keyboard_create(void)
+ 	wl_list_init(&keyboard->focus_resource_listener.link);
+ 	keyboard->focus_resource_listener.notify = keyboard_focus_resource_destroyed;
+ 	wl_array_init(&keyboard->keys);
+-	wl_array_init(&keyboard->eaten_keys);
+ 	keyboard->default_grab.interface = &default_keyboard_grab_interface;
+ 	keyboard->default_grab.keyboard = keyboard;
+ 	keyboard->grab = &keyboard->default_grab;
+@@ -555,7 +554,6 @@ weston_keyboard_destroy(struct weston_keyboard *keyboard)
+ #endif
+ 
+ 	wl_array_release(&keyboard->keys);
+-	wl_array_release(&keyboard->eaten_keys);
+ 	wl_list_remove(&keyboard->focus_resource_listener.link);
+ 	free(keyboard);
+ }
+@@ -1311,26 +1309,6 @@ update_keymap(struct weston_seat *seat)
+ }
+ #endif
+ 
+-/* remove the key from the array if it is being released,
+- * else return -1 and do nothing */
+-static int
+-remove_key(uint32_t key, enum wl_keyboard_key_state state,
+-	   struct wl_array *array)
+-{
+-	uint32_t *k, *end;
+-	end = array->data + array->size;
+-	for (k = array->data; k < end; k++) {
+-		if (*k == key) {
+-			/* Ignore server-generated repeats. */
+-			if (state == WL_KEYBOARD_KEY_STATE_PRESSED)
+-				return -1;
+-			*k = *--end;
+-		}
+-	}
+-	array->size = (void *) end - array->data;
+-	return 0;
+-}
+-
+ WL_EXPORT void
+ notify_key(struct weston_seat *seat, uint32_t time, uint32_t key,
+ 	   enum wl_keyboard_key_state state,
+@@ -1339,9 +1317,7 @@ notify_key(struct weston_seat *seat, uint32_t time, uint32_t key,
+ 	struct weston_compositor *compositor = seat->compositor;
+ 	struct weston_keyboard *keyboard = seat->keyboard;
+ 	struct weston_keyboard_grab *grab = keyboard->grab;
+-	uint32_t *k;
+-	int eaten = 0;
+-	struct wl_array *array;
++	uint32_t *k, *end;
+ 
+ 	if (state == WL_KEYBOARD_KEY_STATE_PRESSED) {
+ 		weston_compositor_idle_inhibit(compositor);
+@@ -1351,31 +1327,32 @@ notify_key(struct weston_seat *seat, uint32_t time, uint32_t key,
+ 		weston_compositor_idle_release(compositor);
+ 	}
+ 
+-	/* Ignore server-generated repeats, so return if remove_key()
+-	 * returns -1, signaling the key is in the array already. */
+-	if (remove_key(key, state, &keyboard->keys) == -1)
+-		return;
+-	if (remove_key(key, state, &keyboard->eaten_keys) == -1)
+-		return;
++	end = keyboard->keys.data + keyboard->keys.size;
++	for (k = keyboard->keys.data; k < end; k++) {
++		if (*k == key) {
++			/* Ignore server-generated repeats. */
++			if (state == WL_KEYBOARD_KEY_STATE_PRESSED)
++				return;
++			*k = *--end;
++		}
++	}
++	keyboard->keys.size = (void *) end - keyboard->keys.data;
++	if (state == WL_KEYBOARD_KEY_STATE_PRESSED) {
++		k = wl_array_add(&keyboard->keys, sizeof *k);
++		*k = key;
++	}
+ 
+ 	if (grab == &keyboard->default_grab ||
+ 	    grab == &keyboard->input_method_grab) {
+-		eaten = weston_compositor_run_key_binding(compositor, seat,
+-		                                          time, key, state);
++		weston_compositor_run_key_binding(compositor, seat, time, key,
++						  state);
+ 		grab = keyboard->grab;
+ 	}
+ 
+-	array = eaten == 0 ? &keyboard->keys : &keyboard->eaten_keys;
+-	if (state == WL_KEYBOARD_KEY_STATE_PRESSED) {
+-		k = wl_array_add(array, sizeof *k);
+-		*k = key;
+-	}
+-
+ 	grab->interface->key(grab, time, key, state);
+ 
+ 	if (keyboard->pending_keymap &&
+-	    keyboard->keys.size == 0 &&
+-	    keyboard->eaten_keys.size == 0)
++	    keyboard->keys.size == 0)
+ 		update_keymap(seat);
+ 
+ 	if (update_state == STATE_UPDATE_AUTOMATIC) {
+@@ -1455,11 +1432,6 @@ notify_keyboard_focus_out(struct weston_seat *seat)
+ 		update_modifier_state(seat, serial, *k,
+ 				      WL_KEYBOARD_KEY_STATE_RELEASED);
+ 	}
+-	wl_array_for_each(k, &keyboard->eaten_keys) {
+-		weston_compositor_idle_release(compositor);
+-		/* No need to update the modifier state here, modifiers
+-		 * can't be in the eaten_keys array */
+-	}
+ 
+ 	seat->modifier_state = 0;
+ 
+@@ -2113,8 +2085,7 @@ weston_seat_update_keymap(struct weston_seat *seat, struct xkb_keymap *keymap)
+ 	xkb_keymap_unref(seat->keyboard->pending_keymap);
+ 	seat->keyboard->pending_keymap = xkb_keymap_ref(keymap);
+ 
+-	if (seat->keyboard->keys.size == 0 &&
+-	    seat->keyboard->eaten_keys.size == 0)
++	if (seat->keyboard->keys.size == 0)
+ 		update_keymap(seat);
+ #endif
+ }
+-- 
+2.1.0
+

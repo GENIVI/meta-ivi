@@ -1,0 +1,56 @@
+From 6bef23794390403f8a1d9e37994cbc353762c93b Mon Sep 17 00:00:00 2001
+From: Derek Foreman <derekf@osg.samsung.com>
+Date: Wed, 19 Nov 2014 15:06:20 -0800
+Subject: [PATCH 59/96] tests: Allow tests to use customized command line
+ parameters
+
+Tests will now return the extra command line parameters they need
+when run with --params
+
+Signed-off-by: Bryce Harrington <bryce@osg.samsung.com>
+Reviewed-by: Pekka Paalanen <pekka.paalanen@collabora.co.uk>
+---
+ tests/weston-test-runner.c | 8 ++++++++
+ tests/weston-tests-env     | 1 +
+ 2 files changed, 9 insertions(+)
+
+diff --git a/tests/weston-test-runner.c b/tests/weston-test-runner.c
+index ef45bae..ce0a670 100644
+--- a/tests/weston-test-runner.c
++++ b/tests/weston-test-runner.c
+@@ -34,6 +34,8 @@
+ 
+ #define SKIP 77
+ 
++char __attribute__((weak)) *server_parameters="";
++
+ extern const struct weston_test __start_test_section, __stop_test_section;
+ 
+ static const struct weston_test *
+@@ -154,6 +156,12 @@ int main(int argc, char *argv[])
+ 			exit(EXIT_SUCCESS);
+ 		}
+ 
++		if (strcmp(testname, "--params") == 0 ||
++		    strcmp(testname, "-p") == 0) {
++			printf("%s", server_parameters);
++			exit(EXIT_SUCCESS);
++		}
++
+ 		t = find_test(argv[1]);
+ 		if (t == NULL) {
+ 			fprintf(stderr, "unknown test: \"%s\"\n", argv[1]);
+diff --git a/tests/weston-tests-env b/tests/weston-tests-env
+index e332354..aaf3ee1 100755
+--- a/tests/weston-tests-env
++++ b/tests/weston-tests-env
+@@ -46,5 +46,6 @@ case $TESTNAME in
+ 			--shell=$SHELL_PLUGIN \
+ 			--log="$SERVERLOG" \
+ 			--modules=$TEST_PLUGIN,$XWAYLAND_PLUGIN \
++			$($abs_builddir/$TESTNAME --params) \
+ 			&> "$OUTLOG"
+ esac
+-- 
+2.1.0
+

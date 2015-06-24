@@ -1,0 +1,90 @@
+From 641307ca2190fbb1aded28fe0f95c0d9cdab1338 Mon Sep 17 00:00:00 2001
+From: Pekka Paalanen <pekka.paalanen@collabora.co.uk>
+Date: Tue, 23 Sep 2014 22:08:47 -0400
+Subject: [PATCH 11/96] compositor-drm: deliver frame seq for feedback
+
+Add 'msc' field to weston_output to maintain the refresh counter, and
+use it in presentation_feedback.presented.
+
+Make compositor-drm update the per-output refresh counter with the
+values reported by DRM. If the DRM reported value jumps backwards,
+assume it wrapped around once.
+
+Other backends do not update weston_output::msc, and there
+presentation_feedback will always deliver refresh counter as zero.
+
+Signed-off-by: Pekka Paalanen <pekka.paalanen@collabora.co.uk>
+v3 Reviewed-by: Mario Kleiner <mario.kleiner.de@gmail.com>
+---
+ src/compositor-drm.c | 14 ++++++++++++++
+ src/compositor.c     |  2 +-
+ src/compositor.h     |  1 +
+ 3 files changed, 16 insertions(+), 1 deletion(-)
+
+diff --git a/src/compositor-drm.c b/src/compositor-drm.c
+index 626a2de..07b83a7 100644
+--- a/src/compositor-drm.c
++++ b/src/compositor-drm.c
+@@ -726,6 +726,17 @@ finish_frame:
+ }
+ 
+ static void
++drm_output_update_msc(struct drm_output *output, unsigned int seq)
++{
++	uint64_t msc_hi = output->base.msc >> 32;
++
++	if (seq < (output->base.msc & 0xffffffff))
++		msc_hi++;
++
++	output->base.msc = (msc_hi << 32) + seq;
++}
++
++static void
+ vblank_handler(int fd, unsigned int frame, unsigned int sec, unsigned int usec,
+ 	       void *data)
+ {
+@@ -733,6 +744,7 @@ vblank_handler(int fd, unsigned int frame, unsigned int sec, unsigned int usec,
+ 	struct drm_output *output = s->output;
+ 	struct timespec ts;
+ 
++	drm_output_update_msc(output, frame);
+ 	output->vblank_pending = 0;
+ 
+ 	drm_output_release_fb(output, s->current);
+@@ -756,6 +768,8 @@ page_flip_handler(int fd, unsigned int frame,
+ 	struct drm_output *output = (struct drm_output *) data;
+ 	struct timespec ts;
+ 
++	drm_output_update_msc(output, frame);
++
+ 	/* We don't set page_flip_pending on start_repaint_loop, in that case
+ 	 * we just want to page flip to the current buffer to get an accurate
+ 	 * timestamp */
+diff --git a/src/compositor.c b/src/compositor.c
+index 5d54227..29731c7 100644
+--- a/src/compositor.c
++++ b/src/compositor.c
+@@ -2065,7 +2065,7 @@ weston_output_finish_frame(struct weston_output *output,
+ 	refresh_nsec = 1000000000000UL / output->current_mode->refresh;
+ 	weston_presentation_feedback_present_list(&output->feedback_list,
+ 						  output, refresh_nsec, stamp,
+-						  0);
++						  output->msc);
+ 
+ 	output->frame_time = stamp->tv_sec * 1000 + stamp->tv_nsec / 1000000;
+ 
+diff --git a/src/compositor.h b/src/compositor.h
+index c405589..44379fe 100644
+--- a/src/compositor.h
++++ b/src/compositor.h
+@@ -203,6 +203,7 @@ struct weston_output {
+ 	struct wl_signal destroy_signal;
+ 	int move_x, move_y;
+ 	uint32_t frame_time; /* presentation timestamp in milliseconds */
++	uint64_t msc;        /* media stream counter */
+ 	int disable_planes;
+ 	int destroying;
+ 	struct wl_list feedback_list;
+-- 
+2.1.0
+

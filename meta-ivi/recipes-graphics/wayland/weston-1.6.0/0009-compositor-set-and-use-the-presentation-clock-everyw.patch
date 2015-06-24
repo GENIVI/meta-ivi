@@ -1,0 +1,636 @@
+From b5eedade367098c61e656c1c5b795760da60b978 Mon Sep 17 00:00:00 2001
+From: Pekka Paalanen <pekka.paalanen@collabora.co.uk>
+Date: Tue, 23 Sep 2014 22:08:45 -0400
+Subject: [PATCH 09/96] compositor: set and use the presentation clock
+ everywhere
+
+Add presentation clock setters that verify the given clock actually
+works. Offer an automatic choice of a software fallback clock, when a
+backend has to always use clock_gettime() to approximate the
+presentation time.
+
+The DRM backend already queried the DRM about the clock id, just let the
+DRM backend set the presentation clock from that.
+
+For all other backends which do not get a timestamp from the driver,
+call the software clock setter to choose a suitable clock.
+
+Report the chosen clock via presentation.clock_id event to clients.
+
+In finish_frame(), upgrade the argument from uint32_t milliseconds to
+struct timespec which can accurately hold the presentation clock values.
+This will be needed when weston_output_finish_frame() starts to send out
+presentation_feedback.presented events.
+
+While at it, replace gettimeofday() calls with clock_gettime() using the
+chosen presentation clock, so we manufacture presentation timestamps
+from the presentation clock when the gfx drivers cannot give us a proper
+timestamp.
+
+Rpi patch is more verbose due to not having the compositor pointer
+available in rpi_flippipe_update_complete(). Explicitly carry the clock
+id with flippipe so it is available in the thread.
+
+Changes in v4:
+
+* rpi debug build fix
+
+v4 Signed-off-by: Pekka Paalanen <pekka.paalanen@collabora.co.uk>
+v3 Reviewed-by: Mario Kleiner <mario.kleiner.de@gmail.com>
+---
+ src/compositor-drm.c      | 32 +++++++++++--------
+ src/compositor-fbdev.c    | 12 ++++---
+ src/compositor-headless.c | 11 ++++---
+ src/compositor-rdp.c      | 11 ++++---
+ src/compositor-rpi.c      | 49 ++++++++++++++---------------
+ src/compositor-wayland.c  | 11 +++++--
+ src/compositor-x11.c      | 11 ++++---
+ src/compositor.c          | 79 ++++++++++++++++++++++++++++++++++++++++++-----
+ src/compositor.h          | 14 +++++++--
+ 9 files changed, 161 insertions(+), 69 deletions(-)
+
+diff --git a/src/compositor-drm.c b/src/compositor-drm.c
+index e4496e7..626a2de 100644
+--- a/src/compositor-drm.c
++++ b/src/compositor-drm.c
+@@ -118,7 +118,6 @@ struct drm_compositor {
+ 
+ 	uint32_t prev_state;
+ 
+-	clockid_t clock;
+ 	struct udev_input input;
+ 
+ 	uint32_t cursor_width;
+@@ -700,7 +699,6 @@ drm_output_start_repaint_loop(struct weston_output *output_base)
+ 	struct drm_compositor *compositor = (struct drm_compositor *)
+ 		output_base->compositor;
+ 	uint32_t fb_id;
+-	uint32_t msec;
+ 	struct timespec ts;
+ 
+ 	if (output->destroy_pending)
+@@ -723,9 +721,8 @@ drm_output_start_repaint_loop(struct weston_output *output_base)
+ 
+ finish_frame:
+ 	/* if we cannot page-flip, immediately finish frame */
+-	clock_gettime(compositor->clock, &ts);
+-	msec = ts.tv_sec * 1000 + ts.tv_nsec / 1000000;
+-	weston_output_finish_frame(output_base, msec);
++	clock_gettime(compositor->base.presentation_clock, &ts);
++	weston_output_finish_frame(output_base, &ts);
+ }
+ 
+ static void
+@@ -734,7 +731,7 @@ vblank_handler(int fd, unsigned int frame, unsigned int sec, unsigned int usec,
+ {
+ 	struct drm_sprite *s = (struct drm_sprite *)data;
+ 	struct drm_output *output = s->output;
+-	uint32_t msecs;
++	struct timespec ts;
+ 
+ 	output->vblank_pending = 0;
+ 
+@@ -743,8 +740,9 @@ vblank_handler(int fd, unsigned int frame, unsigned int sec, unsigned int usec,
+ 	s->next = NULL;
+ 
+ 	if (!output->page_flip_pending) {
+-		msecs = sec * 1000 + usec / 1000;
+-		weston_output_finish_frame(&output->base, msecs);
++		ts.tv_sec = sec;
++		ts.tv_nsec = usec * 1000;
++		weston_output_finish_frame(&output->base, &ts);
+ 	}
+ }
+ 
+@@ -756,7 +754,7 @@ page_flip_handler(int fd, unsigned int frame,
+ 		  unsigned int sec, unsigned int usec, void *data)
+ {
+ 	struct drm_output *output = (struct drm_output *) data;
+-	uint32_t msecs;
++	struct timespec ts;
+ 
+ 	/* We don't set page_flip_pending on start_repaint_loop, in that case
+ 	 * we just want to page flip to the current buffer to get an accurate
+@@ -772,8 +770,9 @@ page_flip_handler(int fd, unsigned int frame,
+ 	if (output->destroy_pending)
+ 		drm_output_destroy(&output->base);
+ 	else if (!output->vblank_pending) {
+-		msecs = sec * 1000 + usec / 1000;
+-		weston_output_finish_frame(&output->base, msecs);
++		ts.tv_sec = sec;
++		ts.tv_nsec = usec * 1000;
++		weston_output_finish_frame(&output->base, &ts);
+ 
+ 		/* We can't call this from frame_notify, because the output's
+ 		 * repaint needed flag is cleared just after that */
+@@ -1282,6 +1281,7 @@ init_drm(struct drm_compositor *ec, struct udev_device *device)
+ 	const char *filename, *sysnum;
+ 	uint64_t cap;
+ 	int fd, ret;
++	clockid_t clk_id;
+ 
+ 	sysnum = udev_device_get_sysnum(device);
+ 	if (sysnum)
+@@ -1307,9 +1307,15 @@ init_drm(struct drm_compositor *ec, struct udev_device *device)
+ 
+ 	ret = drmGetCap(fd, DRM_CAP_TIMESTAMP_MONOTONIC, &cap);
+ 	if (ret == 0 && cap == 1)
+-		ec->clock = CLOCK_MONOTONIC;
++		clk_id = CLOCK_MONOTONIC;
+ 	else
+-		ec->clock = CLOCK_REALTIME;
++		clk_id = CLOCK_REALTIME;
++
++	if (weston_compositor_set_presentation_clock(&ec->base, clk_id) < 0) {
++		weston_log("Error: failed to set presentation clock %d.\n",
++			   clk_id);
++		return -1;
++	}
+ 
+ 	ret = drmGetCap(fd, DRM_CAP_CURSOR_WIDTH, &cap);
+ 	if (ret == 0)
+diff --git a/src/compositor-fbdev.c b/src/compositor-fbdev.c
+index e703e0e..138aaab 100644
+--- a/src/compositor-fbdev.c
++++ b/src/compositor-fbdev.c
+@@ -114,12 +114,10 @@ to_fbdev_compositor(struct weston_compositor *base)
+ static void
+ fbdev_output_start_repaint_loop(struct weston_output *output)
+ {
+-	uint32_t msec;
+-	struct timeval tv;
++	struct timespec ts;
+ 
+-	gettimeofday(&tv, NULL);
+-	msec = tv.tv_sec * 1000 + tv.tv_usec / 1000;
+-	weston_output_finish_frame(output, msec);
++	clock_gettime(output->compositor->presentation_clock, &ts);
++	weston_output_finish_frame(output, &ts);
+ }
+ 
+ static void
+@@ -883,6 +881,10 @@ fbdev_compositor_create(struct wl_display *display, int *argc, char *argv[],
+ 	                           config) < 0)
+ 		goto out_free;
+ 
++	if (weston_compositor_set_presentation_clock_software(
++							&compositor->base) < 0)
++		goto out_compositor;
++
+ 	compositor->udev = udev_new();
+ 	if (compositor->udev == NULL) {
+ 		weston_log("Failed to initialize udev context.\n");
+diff --git a/src/compositor-headless.c b/src/compositor-headless.c
+index 4ecb8d4..f883aaf 100644
+--- a/src/compositor-headless.c
++++ b/src/compositor-headless.c
+@@ -44,12 +44,10 @@ struct headless_output {
+ static void
+ headless_output_start_repaint_loop(struct weston_output *output)
+ {
+-	uint32_t msec;
+-	struct timeval tv;
++	struct timespec ts;
+ 
+-	gettimeofday(&tv, NULL);
+-	msec = tv.tv_sec * 1000 + tv.tv_usec / 1000;
+-	weston_output_finish_frame(output, msec);
++	clock_gettime(output->compositor->presentation_clock, &ts);
++	weston_output_finish_frame(output, &ts);
+ }
+ 
+ static int
+@@ -181,6 +179,9 @@ headless_compositor_create(struct wl_display *display,
+ 	if (weston_compositor_init(&c->base, display, argc, argv, config) < 0)
+ 		goto err_free;
+ 
++	if (weston_compositor_set_presentation_clock_software(&c->base) < 0)
++		goto err_compositor;
++
+ 	if (headless_input_create(c) < 0)
+ 		goto err_compositor;
+ 
+diff --git a/src/compositor-rdp.c b/src/compositor-rdp.c
+index b749129..9098396 100644
+--- a/src/compositor-rdp.c
++++ b/src/compositor-rdp.c
+@@ -305,12 +305,10 @@ rdp_peer_refresh_region(pixman_region32_t *region, freerdp_peer *peer)
+ static void
+ rdp_output_start_repaint_loop(struct weston_output *output)
+ {
+-	uint32_t msec;
+-	struct timeval tv;
++	struct timespec ts;
+ 
+-	gettimeofday(&tv, NULL);
+-	msec = tv.tv_sec * 1000 + tv.tv_usec / 1000;
+-	weston_output_finish_frame(output, msec);
++	clock_gettime(output->compositor->presentation_clock, &ts);
++	weston_output_finish_frame(output, &ts);
+ }
+ 
+ static int
+@@ -1115,6 +1113,9 @@ rdp_compositor_create(struct wl_display *display,
+ 		c->tls_enabled = 1;
+ 	}
+ 
++	if (weston_compositor_set_presentation_clock_software(&c->base) < 0)
++		goto err_compositor;
++
+ 	if (pixman_renderer_init(&c->base) < 0)
+ 		goto err_compositor;
+ 
+diff --git a/src/compositor-rpi.c b/src/compositor-rpi.c
+index 287451d..97f07d9 100644
+--- a/src/compositor-rpi.c
++++ b/src/compositor-rpi.c
+@@ -61,6 +61,7 @@ struct rpi_output;
+ struct rpi_flippipe {
+ 	int readfd;
+ 	int writefd;
++	clockid_t clk_id;
+ 	struct wl_event_source *source;
+ };
+ 
+@@ -113,29 +114,19 @@ to_rpi_compositor(struct weston_compositor *base)
+ 	return container_of(base, struct rpi_compositor, base);
+ }
+ 
+-static uint64_t
+-rpi_get_current_time(void)
+-{
+-	struct timeval tv;
+-
+-	/* XXX: use CLOCK_MONOTONIC instead? */
+-	gettimeofday(&tv, NULL);
+-	return (uint64_t)tv.tv_sec * 1000 + tv.tv_usec / 1000;
+-}
+-
+ static void
+ rpi_flippipe_update_complete(DISPMANX_UPDATE_HANDLE_T update, void *data)
+ {
+ 	/* This function runs in a different thread. */
+ 	struct rpi_flippipe *flippipe = data;
+-	uint64_t time;
++	struct timespec ts;
+ 	ssize_t ret;
+ 
+ 	/* manufacture flip completion timestamp */
+-	time = rpi_get_current_time();
++	clock_gettime(flippipe->clk_id, &ts);
+ 
+-	ret = write(flippipe->writefd, &time, sizeof time);
+-	if (ret != sizeof time)
++	ret = write(flippipe->writefd, &ts, sizeof ts);
++	if (ret != sizeof ts)
+ 		weston_log("ERROR: %s failed to write, ret %zd, errno %d\n",
+ 			   __func__, ret, errno);
+ }
+@@ -159,26 +150,27 @@ rpi_dispmanx_update_submit(DISPMANX_UPDATE_HANDLE_T update,
+ }
+ 
+ static void
+-rpi_output_update_complete(struct rpi_output *output, uint64_t time);
++rpi_output_update_complete(struct rpi_output *output,
++			   const struct timespec *stamp);
+ 
+ static int
+ rpi_flippipe_handler(int fd, uint32_t mask, void *data)
+ {
+ 	struct rpi_output *output = data;
+ 	ssize_t ret;
+-	uint64_t time;
++	struct timespec ts;
+ 
+ 	if (mask != WL_EVENT_READABLE)
+ 		weston_log("ERROR: unexpected mask 0x%x in %s\n",
+ 			   mask, __func__);
+ 
+-	ret = read(fd, &time, sizeof time);
+-	if (ret != sizeof time) {
++	ret = read(fd, &ts, sizeof ts);
++	if (ret != sizeof ts) {
+ 		weston_log("ERROR: %s failed to read, ret %zd, errno %d\n",
+ 			   __func__, ret, errno);
+ 	}
+ 
+-	rpi_output_update_complete(output, time);
++	rpi_output_update_complete(output, &ts);
+ 
+ 	return 1;
+ }
+@@ -194,6 +186,7 @@ rpi_flippipe_init(struct rpi_flippipe *flippipe, struct rpi_output *output)
+ 
+ 	flippipe->readfd = fd[0];
+ 	flippipe->writefd = fd[1];
++	flippipe->clk_id = output->compositor->base.presentation_clock;
+ 
+ 	loop = wl_display_get_event_loop(output->compositor->base.wl_display);
+ 	flippipe->source = wl_event_loop_add_fd(loop, flippipe->readfd,
+@@ -220,10 +213,10 @@ rpi_flippipe_release(struct rpi_flippipe *flippipe)
+ static void
+ rpi_output_start_repaint_loop(struct weston_output *output)
+ {
+-	uint64_t time;
++	struct timespec ts;
+ 
+-	time = rpi_get_current_time();
+-	weston_output_finish_frame(output, time);
++	clock_gettime(output->compositor->presentation_clock, &ts);
++	weston_output_finish_frame(output, &ts);
+ }
+ 
+ static int
+@@ -254,11 +247,13 @@ rpi_output_repaint(struct weston_output *base, pixman_region32_t *damage)
+ }
+ 
+ static void
+-rpi_output_update_complete(struct rpi_output *output, uint64_t time)
++rpi_output_update_complete(struct rpi_output *output,
++			   const struct timespec *stamp)
+ {
+-	DBG("frame update complete(%" PRIu64 ")\n", time);
++	DBG("frame update complete(%ld.%09ld)\n",
++	    (long)stamp->tv_sec, (long)stamp->tv_nsec);
+ 	rpi_renderer_finish_frame(&output->base);
+-	weston_output_finish_frame(&output->base, time);
++	weston_output_finish_frame(&output->base, stamp);
+ }
+ 
+ static void
+@@ -503,6 +498,10 @@ rpi_compositor_create(struct wl_display *display, int *argc, char *argv[],
+ 				   config) < 0)
+ 		goto out_free;
+ 
++	if (weston_compositor_set_presentation_clock_software(
++							&compositor->base) < 0)
++		goto out_compositor;
++
+ 	compositor->udev = udev_new();
+ 	if (compositor->udev == NULL) {
+ 		weston_log("Failed to initialize udev context.\n");
+diff --git a/src/compositor-wayland.c b/src/compositor-wayland.c
+index 5f73c78..bf71a76 100644
+--- a/src/compositor-wayland.c
++++ b/src/compositor-wayland.c
+@@ -306,9 +306,14 @@ static void
+ frame_done(void *data, struct wl_callback *callback, uint32_t time)
+ {
+ 	struct weston_output *output = data;
++	struct timespec ts;
+ 
+ 	wl_callback_destroy(callback);
+-	weston_output_finish_frame(output, time);
++
++	/* XXX: use the presentation extension for proper timings */
++	ts.tv_sec = time / 1000;
++	ts.tv_nsec = (time % 1000) * 1000000;
++	weston_output_finish_frame(output, &ts);
+ }
+ 
+ static const struct wl_callback_listener frame_listener = {
+@@ -1943,8 +1948,10 @@ wayland_compositor_create(struct wl_display *display, int use_pixman,
+ 				   config) < 0)
+ 		goto err_free;
+ 
+-	c->parent.wl_display = wl_display_connect(display_name);
++	if (weston_compositor_set_presentation_clock_software(&c->base) < 0)
++		goto err_compositor;
+ 
++	c->parent.wl_display = wl_display_connect(display_name);
+ 	if (c->parent.wl_display == NULL) {
+ 		weston_log("failed to create display: %m\n");
+ 		goto err_compositor;
+diff --git a/src/compositor-x11.c b/src/compositor-x11.c
+index b602bc9..1baee29 100644
+--- a/src/compositor-x11.c
++++ b/src/compositor-x11.c
+@@ -338,12 +338,10 @@ x11_input_destroy(struct x11_compositor *compositor)
+ static void
+ x11_output_start_repaint_loop(struct weston_output *output)
+ {
+-	uint32_t msec;
+-	struct timeval tv;
++	struct timespec ts;
+ 
+-	gettimeofday(&tv, NULL);
+-	msec = tv.tv_sec * 1000 + tv.tv_usec / 1000;
+-	weston_output_finish_frame(output, msec);
++	clock_gettime(output->compositor->presentation_clock, &ts);
++	weston_output_finish_frame(output, &ts);
+ }
+ 
+ static int
+@@ -1498,6 +1496,9 @@ x11_compositor_create(struct wl_display *display,
+ 	if (weston_compositor_init(&c->base, display, argc, argv, config) < 0)
+ 		goto err_free;
+ 
++	if (weston_compositor_set_presentation_clock_software(&c->base) < 0)
++		goto err_free;
++
+ 	c->dpy = XOpenDisplay(NULL);
+ 	if (c->dpy == NULL)
+ 		goto err_free;
+diff --git a/src/compositor.c b/src/compositor.c
+index d789508..f34d712 100644
+--- a/src/compositor.c
++++ b/src/compositor.c
+@@ -1896,7 +1896,7 @@ weston_compositor_build_view_list(struct weston_compositor *compositor)
+ }
+ 
+ static int
+-weston_output_repaint(struct weston_output *output, uint32_t msecs)
++weston_output_repaint(struct weston_output *output)
+ {
+ 	struct weston_compositor *ec = output->compositor;
+ 	struct weston_view *ev;
+@@ -1951,13 +1951,13 @@ weston_output_repaint(struct weston_output *output, uint32_t msecs)
+ 	wl_event_loop_dispatch(ec->input_loop, 0);
+ 
+ 	wl_list_for_each_safe(cb, cnext, &frame_callback_list, link) {
+-		wl_callback_send_done(cb->resource, msecs);
++		wl_callback_send_done(cb->resource, output->frame_time);
+ 		wl_resource_destroy(cb->resource);
+ 	}
+ 
+ 	wl_list_for_each_safe(animation, next, &output->animation_list, link) {
+ 		animation->frame_counter++;
+-		animation->frame(animation, output, msecs);
++		animation->frame(animation, output, output->frame_time);
+ 	}
+ 
+ 	return r;
+@@ -1974,19 +1974,20 @@ weston_compositor_read_input(int fd, uint32_t mask, void *data)
+ }
+ 
+ WL_EXPORT void
+-weston_output_finish_frame(struct weston_output *output, uint32_t msecs)
++weston_output_finish_frame(struct weston_output *output,
++			   const struct timespec *stamp)
+ {
+ 	struct weston_compositor *compositor = output->compositor;
+ 	struct wl_event_loop *loop =
+ 		wl_display_get_event_loop(compositor->wl_display);
+ 	int fd, r;
+ 
+-	output->frame_time = msecs;
++	output->frame_time = stamp->tv_sec * 1000 + stamp->tv_nsec / 1000000;
+ 
+ 	if (output->repaint_needed &&
+ 	    compositor->state != WESTON_COMPOSITOR_SLEEPING &&
+ 	    compositor->state != WESTON_COMPOSITOR_OFFSCREEN) {
+-		r = weston_output_repaint(output, msecs);
++		r = weston_output_repaint(output);
+ 		if (!r)
+ 			return;
+ 	}
+@@ -3773,7 +3774,7 @@ bind_presentation(struct wl_client *client,
+ 
+ 	wl_resource_set_implementation(resource, &presentation_implementation,
+ 				       compositor, NULL);
+-	presentation_send_clock_id(resource, CLOCK_MONOTONIC);
++	presentation_send_clock_id(resource, compositor->presentation_clock);
+ }
+ 
+ static void
+@@ -3974,6 +3975,48 @@ weston_compositor_set_default_pointer_grab(struct weston_compositor *ec,
+ 	}
+ }
+ 
++WL_EXPORT int
++weston_compositor_set_presentation_clock(struct weston_compositor *compositor,
++					 clockid_t clk_id)
++{
++	struct timespec ts;
++
++	if (clock_gettime(clk_id, &ts) < 0)
++		return -1;
++
++	compositor->presentation_clock = clk_id;
++
++	return 0;
++}
++
++/*
++ * For choosing the software clock, when the display hardware or API
++ * does not expose a compatible presentation timestamp.
++ */
++WL_EXPORT int
++weston_compositor_set_presentation_clock_software(
++					struct weston_compositor *compositor)
++{
++	/* In order of preference */
++	static const clockid_t clocks[] = {
++		CLOCK_MONOTONIC_RAW,	/* no jumps, no crawling */
++		CLOCK_MONOTONIC_COARSE,	/* no jumps, may crawl, fast & coarse */
++		CLOCK_MONOTONIC,	/* no jumps, may crawl */
++		CLOCK_REALTIME_COARSE,	/* may jump and crawl, fast & coarse */
++		CLOCK_REALTIME		/* may jump and crawl */
++	};
++	unsigned i;
++
++	for (i = 0; i < ARRAY_LENGTH(clocks); i++)
++		if (weston_compositor_set_presentation_clock(compositor,
++							     clocks[i]) == 0)
++			return 0;
++
++	weston_log("Error: no suitable presentation clock available.\n");
++
++	return -1;
++}
++
+ WL_EXPORT void
+ weston_version(int *major, int *minor, int *micro)
+ {
+@@ -3982,6 +4025,24 @@ weston_version(int *major, int *minor, int *micro)
+ 	*micro = WESTON_VERSION_MICRO;
+ }
+ 
++static const char *
++clock_name(clockid_t clk_id)
++{
++	static const char *names[] = {
++		[CLOCK_REALTIME] =		"CLOCK_REALTIME",
++		[CLOCK_MONOTONIC] =		"CLOCK_MONOTONIC",
++		[CLOCK_MONOTONIC_RAW] =		"CLOCK_MONOTONIC_RAW",
++		[CLOCK_REALTIME_COARSE] =	"CLOCK_REALTIME_COARSE",
++		[CLOCK_MONOTONIC_COARSE] =	"CLOCK_MONOTONIC_COARSE",
++		[CLOCK_BOOTTIME] =		"CLOCK_BOOTTIME",
++	};
++
++	if (clk_id < 0 || (unsigned)clk_id >= ARRAY_LENGTH(names))
++		return "unknown";
++
++	return names[clk_id];
++}
++
+ static const struct {
+ 	uint32_t bit; /* enum weston_capability */
+ 	const char *desc;
+@@ -4003,6 +4064,10 @@ weston_compositor_log_capabilities(struct weston_compositor *compositor)
+ 				    capability_strings[i].desc,
+ 				    yes ? "yes" : "no");
+ 	}
++
++	weston_log_continue(STAMP_SPACE "presentation clock: %s, id %d\n",
++			    clock_name(compositor->presentation_clock),
++			    compositor->presentation_clock);
+ }
+ 
+ static int on_term_signal(int signal_number, void *data)
+diff --git a/src/compositor.h b/src/compositor.h
+index f4263d8..61b374f 100644
+--- a/src/compositor.h
++++ b/src/compositor.h
+@@ -28,6 +28,7 @@
+ extern "C" {
+ #endif
+ 
++#include <time.h>
+ #include <pixman.h>
+ #include <xkbcommon/xkbcommon.h>
+ 
+@@ -201,7 +202,7 @@ struct weston_output {
+ 	struct wl_signal frame_signal;
+ 	struct wl_signal destroy_signal;
+ 	int move_x, move_y;
+-	uint32_t frame_time;
++	uint32_t frame_time; /* presentation timestamp in milliseconds */
+ 	int disable_planes;
+ 	int destroying;
+ 
+@@ -663,6 +664,8 @@ struct weston_compositor {
+ 
+ 	int32_t kb_repeat_rate;
+ 	int32_t kb_repeat_delay;
++
++	clockid_t presentation_clock;
+ };
+ 
+ struct weston_buffer {
+@@ -1046,7 +1049,8 @@ weston_compositor_stack_plane(struct weston_compositor *ec,
+ 			      struct weston_plane *above);
+ 
+ void
+-weston_output_finish_frame(struct weston_output *output, uint32_t msecs);
++weston_output_finish_frame(struct weston_output *output,
++			   const struct timespec *stamp);
+ void
+ weston_output_schedule_repaint(struct weston_output *output);
+ void
+@@ -1234,6 +1238,12 @@ weston_compositor_get_time(void);
+ int
+ weston_compositor_init(struct weston_compositor *ec, struct wl_display *display,
+ 		       int *argc, char *argv[], struct weston_config *config);
++int
++weston_compositor_set_presentation_clock(struct weston_compositor *compositor,
++					 clockid_t clk_id);
++int
++weston_compositor_set_presentation_clock_software(
++					struct weston_compositor *compositor);
+ void
+ weston_compositor_shutdown(struct weston_compositor *ec);
+ void
+-- 
+2.1.0
+

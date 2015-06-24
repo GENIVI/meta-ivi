@@ -1,0 +1,84 @@
+From 2cd82b7692224bc6fdbe8965465df5029aaeddc9 Mon Sep 17 00:00:00 2001
+From: Bryce Harrington <bryce@osg.samsung.com>
+Date: Wed, 19 Nov 2014 17:18:36 -0800
+Subject: [PATCH 70/96] tests: Use one shared xzalloc implementation
+
+Since this is an inlined function, move it to a common header file.
+
+Signed-off-by: Bryce Harrington <bryce@osg.samsung.com>
+Reviewed-by: Marek Chalupa <mchqwerty@gmail.com>
+---
+ tests/presentation-test.c         | 11 -----------
+ tests/weston-test-client-helper.c | 11 -----------
+ tests/weston-test-client-helper.h | 11 +++++++++++
+ 3 files changed, 11 insertions(+), 22 deletions(-)
+
+diff --git a/tests/presentation-test.c b/tests/presentation-test.c
+index f97e5b3..59cca8e 100644
+--- a/tests/presentation-test.c
++++ b/tests/presentation-test.c
+@@ -31,17 +31,6 @@
+ #include "weston-test-client-helper.h"
+ #include "presentation_timing-client-protocol.h"
+ 
+-static inline void *
+-xzalloc(size_t size)
+-{
+-	void *p;
+-
+-	p = calloc(1, size);
+-	assert(p);
+-
+-	return p;
+-}
+-
+ static struct presentation *
+ get_presentation(struct client *client)
+ {
+diff --git a/tests/weston-test-client-helper.c b/tests/weston-test-client-helper.c
+index eadc29b..e374a96 100644
+--- a/tests/weston-test-client-helper.c
++++ b/tests/weston-test-client-helper.c
+@@ -32,17 +32,6 @@
+ #include "../shared/os-compatibility.h"
+ #include "weston-test-client-helper.h"
+ 
+-static inline void *
+-xzalloc(size_t size)
+-{
+-	void *p;
+-
+-	p = calloc(1, size);
+-	assert(p);
+-
+-	return p;
+-}
+-
+ int
+ surface_contains(struct surface *surface, int x, int y)
+ {
+diff --git a/tests/weston-test-client-helper.h b/tests/weston-test-client-helper.h
+index 684afc6..2cf3d8f 100644
+--- a/tests/weston-test-client-helper.h
++++ b/tests/weston-test-client-helper.h
+@@ -101,6 +101,17 @@ struct surface {
+ 	void *data;
+ };
+ 
++static inline void *
++xzalloc(size_t size)
++{
++        void *p;
++
++        p = calloc(1, size);
++        assert(p);
++
++        return p;
++}
++
+ struct client *
+ client_create(int x, int y, int width, int height);
+ 
+-- 
+2.1.0
+

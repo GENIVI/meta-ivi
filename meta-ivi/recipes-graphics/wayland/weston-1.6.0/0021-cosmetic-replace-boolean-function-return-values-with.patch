@@ -1,0 +1,221 @@
+From 280e7dd918f1717c7d677676384a9cd991097741 Mon Sep 17 00:00:00 2001
+From: Derek Foreman <derekf@osg.samsung.com>
+Date: Fri, 3 Oct 2014 13:13:42 -0500
+Subject: [PATCH 21/96] cosmetic: replace boolean function return values with
+ bool
+
+For functions that test if something is true/valid and return a 1
+or 0, it makes sense to switch to bool.
+
+Reviewed-by: Bryce Harrington <b.harrington@samsung.com>
+Reviewed-by: Pekka Paalanen <pekka.paalanen@collabora.co.uk>
+---
+ src/cms-colord.c    | 10 +++++-----
+ src/compositor.c    | 20 ++++++++++----------
+ src/compositor.h    |  5 +++--
+ src/input.c         |  8 ++++----
+ src/weston-launch.c | 11 ++++++-----
+ 5 files changed, 28 insertions(+), 26 deletions(-)
+
+diff --git a/src/cms-colord.c b/src/cms-colord.c
+index 4ff3aac..c541a34 100644
+--- a/src/cms-colord.c
++++ b/src/cms-colord.c
+@@ -83,16 +83,16 @@ colord_idle_cancel_for_output(struct cms_colord *cms, struct weston_output *o)
+ 	g_mutex_unlock(&cms->pending_mutex);
+ }
+ 
+-static int
++static bool
+ edid_value_valid(const char *str)
+ {
+ 	if (str == NULL)
+-		return 0;
++		return false;
+ 	if (str[0] == '\0')
+-		return 0;
++		return false;
+ 	if (strcmp(str, "unknown") == 0)
+-		return 0;
+-	return 1;
++		return false;
++	return true;
+ }
+ 
+ static gchar *
+diff --git a/src/compositor.c b/src/compositor.c
+index 4540911..ac5bda2 100644
+--- a/src/compositor.c
++++ b/src/compositor.c
+@@ -1370,22 +1370,22 @@ weston_view_set_transform_parent(struct weston_view *view,
+ 	weston_view_geometry_dirty(view);
+ }
+ 
+-WL_EXPORT int
++WL_EXPORT bool
+ weston_view_is_mapped(struct weston_view *view)
+ {
+ 	if (view->output)
+-		return 1;
++		return true;
+ 	else
+-		return 0;
++		return false;
+ }
+ 
+-WL_EXPORT int
++WL_EXPORT bool
+ weston_surface_is_mapped(struct weston_surface *surface)
+ {
+ 	if (surface->output)
+-		return 1;
++		return true;
+ 	else
+-		return 0;
++		return false;
+ }
+ 
+ static void
+@@ -2626,20 +2626,20 @@ weston_subsurface_commit_to_cache(struct weston_subsurface *sub)
+ 	sub->has_cached_data = 1;
+ }
+ 
+-static int
++static bool
+ weston_subsurface_is_synchronized(struct weston_subsurface *sub)
+ {
+ 	while (sub) {
+ 		if (sub->synchronized)
+-			return 1;
++			return true;
+ 
+ 		if (!sub->parent)
+-			return 0;
++			return false;
+ 
+ 		sub = weston_surface_to_subsurface(sub->parent);
+ 	}
+ 
+-	return 0;
++	return true;
+ }
+ 
+ static void
+diff --git a/src/compositor.h b/src/compositor.h
+index 0fbca33..a8967f0 100644
+--- a/src/compositor.h
++++ b/src/compositor.h
+@@ -28,6 +28,7 @@
+ extern "C" {
+ #endif
+ 
++#include <stdbool.h>
+ #include <time.h>
+ #include <pixman.h>
+ #include <xkbcommon/xkbcommon.h>
+@@ -1206,13 +1207,13 @@ void
+ weston_view_set_transform_parent(struct weston_view *view,
+ 				 struct weston_view *parent);
+ 
+-int
++bool
+ weston_view_is_mapped(struct weston_view *view);
+ 
+ void
+ weston_view_schedule_repaint(struct weston_view *view);
+ 
+-int
++bool
+ weston_surface_is_mapped(struct weston_surface *surface);
+ 
+ void
+diff --git a/src/input.c b/src/input.c
+index 1c71b2c..b504d06 100644
+--- a/src/input.c
++++ b/src/input.c
+@@ -1732,7 +1732,7 @@ static const struct wl_keyboard_interface keyboard_interface = {
+ 	keyboard_release
+ };
+ 
+-static int
++static bool
+ should_send_modifiers_to_client(struct weston_seat *seat,
+ 				struct wl_client *client)
+ {
+@@ -1740,15 +1740,15 @@ should_send_modifiers_to_client(struct weston_seat *seat,
+ 	    seat->keyboard->focus &&
+ 	    seat->keyboard->focus->resource &&
+ 	    wl_resource_get_client(seat->keyboard->focus->resource) == client)
+-		return 1;
++		return true;
+ 
+ 	if (seat->pointer &&
+ 	    seat->pointer->focus &&
+ 	    seat->pointer->focus->surface->resource &&
+ 	    wl_resource_get_client(seat->pointer->focus->surface->resource) == client)
+-		return 1;
++		return true;
+ 
+-	return 0;
++	return false;
+ }
+ 
+ static void
+diff --git a/src/weston-launch.c b/src/weston-launch.c
+index 56e22b1..10c66de 100644
+--- a/src/weston-launch.c
++++ b/src/weston-launch.c
+@@ -22,6 +22,7 @@
+ 
+ #include "config.h"
+ 
++#include <stdbool.h>
+ #include <stdio.h>
+ #include <stdlib.h>
+ #include <string.h>
+@@ -133,7 +134,7 @@ read_groups(void)
+ 	return groups;
+ }
+ 
+-static int
++static bool
+ weston_launch_allowed(struct weston_launch *wl)
+ {
+ 	struct group *gr;
+@@ -145,7 +146,7 @@ weston_launch_allowed(struct weston_launch *wl)
+ #endif
+ 
+ 	if (getuid() == 0)
+-		return 1;
++		return true;
+ 
+ 	gr = getgrnam("weston-launch");
+ 	if (gr) {
+@@ -154,7 +155,7 @@ weston_launch_allowed(struct weston_launch *wl)
+ 			for (i = 0; groups[i]; ++i) {
+ 				if (groups[i] == gr->gr_gid) {
+ 					free(groups);
+-					return 1;
++					return true;
+ 				}
+ 			}
+ 			free(groups);
+@@ -168,13 +169,13 @@ weston_launch_allowed(struct weston_launch *wl)
+ 		    sd_session_get_seat(session, &seat) == 0) {
+ 			free(seat);
+ 			free(session);
+-			return 1;
++			return true;
+ 		}
+ 		free(session);
+ 	}
+ #endif
+ 	
+-	return 0;
++	return false;
+ }
+ 
+ static int
+-- 
+2.1.0
+

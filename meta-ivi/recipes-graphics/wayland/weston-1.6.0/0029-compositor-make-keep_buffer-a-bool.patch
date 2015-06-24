@@ -1,0 +1,46 @@
+From 0fd6d4ec53fe46fd14d21c27881e324c33adbc5e Mon Sep 17 00:00:00 2001
+From: Derek Foreman <derekf@osg.samsung.com>
+Date: Fri, 10 Oct 2014 09:36:45 -0500
+Subject: [PATCH 29/96] compositor: make keep_buffer a bool
+
+The comments already call it bool, so let's just make it one
+
+Reviewed-by: Bryce Harrington <b.harrington@samsung.com>
+Reviewed-by: Pekka Paalanen <pekka.paalanen@collabora.co.uk>
+---
+ src/compositor-drm.c | 4 ++--
+ src/compositor.h     | 2 +-
+ 2 files changed, 3 insertions(+), 3 deletions(-)
+
+diff --git a/src/compositor-drm.c b/src/compositor-drm.c
+index 07b83a7..bee41ef 100644
+--- a/src/compositor-drm.c
++++ b/src/compositor-drm.c
+@@ -1106,9 +1106,9 @@ drm_assign_planes(struct weston_output *output)
+ 		    (es->buffer_ref.buffer &&
+ 		    (!wl_shm_buffer_get(es->buffer_ref.buffer->resource) ||
+ 		     (ev->surface->width <= 64 && ev->surface->height <= 64))))
+-			es->keep_buffer = 1;
++			es->keep_buffer = true;
+ 		else
+-			es->keep_buffer = 0;
++			es->keep_buffer = false;
+ 
+ 		pixman_region32_init(&surface_overlap);
+ 		pixman_region32_intersect(&surface_overlap, &overlap,
+diff --git a/src/compositor.h b/src/compositor.h
+index 27ea693..95f9644 100644
+--- a/src/compositor.h
++++ b/src/compositor.h
+@@ -880,7 +880,7 @@ struct weston_surface {
+ 	struct weston_buffer_viewport buffer_viewport;
+ 	int32_t width_from_buffer; /* before applying viewport */
+ 	int32_t height_from_buffer;
+-	int keep_buffer; /* bool for backends to prevent early release */
++	bool keep_buffer; /* for backends to prevent early release */
+ 
+ 	/* wl_viewport resource for this surface */
+ 	struct wl_resource *viewport_resource;
+-- 
+2.1.0
+

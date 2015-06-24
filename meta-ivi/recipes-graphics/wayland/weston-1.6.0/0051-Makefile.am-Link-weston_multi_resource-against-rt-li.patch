@@ -1,0 +1,35 @@
+From c47931e0f95f30b03f085dc5b2faf92a865b1312 Mon Sep 17 00:00:00 2001
+From: =?UTF-8?q?Javier=20Jard=C3=B3n?= <jjardon@gnome.org>
+Date: Mon, 27 Oct 2014 15:13:19 +0000
+Subject: [PATCH 51/96] Makefile.am: Link weston_multi_resource against rt
+ library
+
+This fixes this build failure:
+
+/usr/lib/gcc/x86_64-unknown-linux-gnu/4.7.3/../../../../x86_64-unknown-linux-gnu/bin/ld:
+clients/weston_multi_resource-multi-resource.o: undefined reference to
+symbol 'clock_gettime@@GLIBC_2.2.5'
+/usr/lib/gcc/x86_64-unknown-linux-gnu/4.7.3/../../../../x86_64-unknown-linux-gnu/bin/ld:
+note: 'clock_gettime@@GLIBC_2.2.5' is defined in DSO /lib64/librt.so.1
+so try adding it to the linker command line
+/lib64/librt.so.1: could not read symbols: Invalid operation
+---
+ Makefile.am | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
+
+diff --git a/Makefile.am b/Makefile.am
+index 1e7cc81..2fc171e 100644
+--- a/Makefile.am
++++ b/Makefile.am
+@@ -429,7 +429,7 @@ weston_presentation_shm_LDADD = $(SIMPLE_CLIENT_LIBS) libshared.la -lm
+ 
+ weston_multi_resource_SOURCES = clients/multi-resource.c
+ weston_multi_resource_CFLAGS = $(AM_CFLAGS) $(SIMPLE_CLIENT_CFLAGS)
+-weston_multi_resource_LDADD = $(SIMPLE_CLIENT_LIBS) libshared.la -lm
++weston_multi_resource_LDADD = $(SIMPLE_CLIENT_LIBS) libshared.la -lrt -lm
+ endif
+ 
+ if BUILD_SIMPLE_EGL_CLIENTS
+-- 
+2.1.0
+

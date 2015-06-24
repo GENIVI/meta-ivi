@@ -1,0 +1,76 @@
+From c8e41868fd488fe796cea4cde0b98acbee7a2551 Mon Sep 17 00:00:00 2001
+From: "Jasper St. Pierre" <jstpierre@mecheye.net>
+Date: Sun, 12 Oct 2014 18:57:31 -0700
+Subject: [PATCH 31/96] smoke: Don't commit an xdg_surface with a NULL buffer
+
+Committing to an xdg_surface with a NULL buffer is currently illegal in
+the mutter implementation, so this simply causes the client to error and
+exit.
+
+It seems the reason the client did this was so it could add its own
+frame callback, but toytoolkit actually provides accurate everything we
+need. Just use its functions instead to get the time and schedule a
+redraw.
+
+Reviewed-by: Bryce Harrington <b.harrington@samsung.com>
+Reviewed-by: Giulio Camuffo <giuliocamuffo@gmail.com>
+Reviewed-by: Pekka Paalanen <pekka.paalanen@collabora.co.uk>
+---
+ clients/smoke.c | 24 ++----------------------
+ 1 file changed, 2 insertions(+), 22 deletions(-)
+
+diff --git a/clients/smoke.c b/clients/smoke.c
+index 65b6e03..7f0d5e5 100644
+--- a/clients/smoke.c
++++ b/clients/smoke.c
+@@ -39,7 +39,6 @@ struct smoke {
+ 	struct widget *widget;
+ 	int width, height;
+ 	int current;
+-	uint32_t time;
+ 	struct { float *d, *u, *v; } b[2];
+ };
+ 
+@@ -171,27 +170,10 @@ static void render(struct smoke *smoke, cairo_surface_t *surface)
+ }
+ 
+ static void
+-frame_callback(void *data, struct wl_callback *callback, uint32_t time)
+-{
+-	struct smoke *smoke = data;
+-
+-	window_schedule_redraw(smoke->window);
+-	smoke->time = time;
+-
+-	if (callback)
+-		wl_callback_destroy(callback);
+-}
+-
+-static const struct wl_callback_listener listener = {
+-	frame_callback,
+-};
+-
+-static void
+ redraw_handler(struct widget *widget, void *data)
+ {
+ 	struct smoke *smoke = data;
+-	uint32_t time = smoke->time;
+-	struct wl_callback *callback;
++	uint32_t time = widget_get_last_time(smoke->widget);
+ 	cairo_surface_t *surface;
+ 
+ 	diffuse(smoke, time / 30, smoke->b[0].u, smoke->b[1].u);
+@@ -222,9 +204,7 @@ redraw_handler(struct widget *widget, void *data)
+ 
+ 	cairo_surface_destroy(surface);
+ 
+-	callback = wl_surface_frame(window_get_wl_surface(smoke->window));
+-	wl_callback_add_listener(callback, &listener, smoke);
+-	wl_surface_commit(window_get_wl_surface(smoke->window));
++	widget_schedule_redraw(smoke->widget);
+ }
+ 
+ static void
+-- 
+2.1.0
+

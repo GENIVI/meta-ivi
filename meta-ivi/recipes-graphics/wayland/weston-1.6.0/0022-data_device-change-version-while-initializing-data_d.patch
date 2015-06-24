@@ -1,0 +1,71 @@
+From 3a510d8f52f76d12c030de6a7aa0597f8619b557 Mon Sep 17 00:00:00 2001
+From: kabeer khan <kabeer.khan@samsung.com>
+Date: Mon, 20 Oct 2014 11:47:15 +0530
+Subject: [PATCH 22/96] data_device : change version while initializing
+ data_device_manager interface and data_device interface
+
+[Pekka Paalanen: split long lines, dropped MIN().]
+
+Signed-off-by: kabeer khan <kabeer.khan@samsung.com>
+Reviewed-by: Pekka Paalanen <pekka.paalanen@collabora.co.uk>
+---
+ src/data-device.c | 18 +++++++++++++-----
+ 1 file changed, 13 insertions(+), 5 deletions(-)
+
+diff --git a/src/data-device.c b/src/data-device.c
+index a8ab4e8..d28325d 100644
+--- a/src/data-device.c
++++ b/src/data-device.c
+@@ -762,10 +762,16 @@ data_device_set_selection(struct wl_client *client,
+ 				  wl_resource_get_user_data(source_resource),
+ 				  serial);
+ }
++static void
++data_device_release(struct wl_client *client, struct wl_resource *resource)
++{
++	wl_resource_destroy(resource);
++}
+ 
+ static const struct wl_data_device_interface data_device_interface = {
+ 	data_device_start_drag,
+ 	data_device_set_selection,
++	data_device_release
+ };
+ 
+ static void
+@@ -845,7 +851,9 @@ get_data_device(struct wl_client *client,
+ 	struct wl_resource *resource;
+ 
+ 	resource = wl_resource_create(client,
+-				      &wl_data_device_interface, 1, id);
++				      &wl_data_device_interface,
++				      wl_resource_get_version(manager_resource),
++				      id);
+ 	if (resource == NULL) {
+ 		wl_resource_post_no_memory(manager_resource);
+ 		return;
+@@ -868,9 +876,9 @@ bind_manager(struct wl_client *client,
+ {
+ 	struct wl_resource *resource;
+ 
+-	resource =
+-		wl_resource_create(client,
+-				   &wl_data_device_manager_interface, 1, id);
++	resource = wl_resource_create(client,
++				      &wl_data_device_manager_interface,
++				      version, id);
+ 	if (resource == NULL) {
+ 		wl_client_post_no_memory(client);
+ 		return;
+@@ -910,7 +918,7 @@ WL_EXPORT int
+ wl_data_device_manager_init(struct wl_display *display)
+ {
+ 	if (wl_global_create(display,
+-			     &wl_data_device_manager_interface, 1,
++			     &wl_data_device_manager_interface, 2,
+ 			     NULL, bind_manager) == NULL)
+ 		return -1;
+ 
+-- 
+2.1.0
+

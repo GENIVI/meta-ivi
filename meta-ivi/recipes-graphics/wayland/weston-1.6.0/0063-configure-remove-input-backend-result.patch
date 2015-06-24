@@ -1,0 +1,28 @@
+From ba5ebf83640731dd194abf507694685384059ec7 Mon Sep 17 00:00:00 2001
+From: Pekka Paalanen <pekka.paalanen@collabora.co.uk>
+Date: Wed, 26 Nov 2014 13:48:29 +0200
+Subject: [PATCH 63/96] configure: remove input backend result
+
+Don't print a line with empty value.
+
+Signed-off-by: Pekka Paalanen <pekka.paalanen@collabora.co.uk>
+---
+ configure.ac | 2 --
+ 1 file changed, 2 deletions(-)
+
+diff --git a/configure.ac b/configure.ac
+index f30f189..2f23771 100644
+--- a/configure.ac
++++ b/configure.ac
+@@ -533,8 +533,6 @@ AC_MSG_RESULT([
+ 	RDP Compositor			${enable_rdp_compositor}
+ 	Screen Sharing			${enable_screen_sharing}
+ 
+-	libinput Backend		${enable_libinput_backend}
+-
+ 	Raspberry Pi BCM headers	${have_bcm_host}
+ 
+ 	Build Clients			${enable_clients}
+-- 
+2.1.0
+

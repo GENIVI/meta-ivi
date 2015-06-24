@@ -1,0 +1,32 @@
+From 61a9bf5557b7924b710bd561b30f6b27401f9461 Mon Sep 17 00:00:00 2001
+From: Carlos Olmedo Escobar <carlos.olmedo.e@gmail.com>
+Date: Tue, 4 Nov 2014 14:38:39 +0100
+Subject: [PATCH 24/96] compositor: Fix weston_subsurface_is_synchronized()
+ return value.
+
+Commit 280e7dd918f1717c7d677676384a9cd991097741 introduced a bug in the
+return value of weston_subsurface_is_synchronized().
+
+Signed-off-by: Carlos Olmedo Escobar <carlos.olmedo.e@gmail.com>
+Reviewed-by: Derek Foreman <derekf@osg.samsung.com>
+Reviewed-by: Pekka Paalanen <pekka.paalanen@collabora.co.uk>
+---
+ src/compositor.c | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
+
+diff --git a/src/compositor.c b/src/compositor.c
+index ac5bda2..ff62b5f 100644
+--- a/src/compositor.c
++++ b/src/compositor.c
+@@ -2639,7 +2639,7 @@ weston_subsurface_is_synchronized(struct weston_subsurface *sub)
+ 		sub = weston_surface_to_subsurface(sub->parent);
+ 	}
+ 
+-	return true;
++	return false;
+ }
+ 
+ static void
+-- 
+2.1.0
+

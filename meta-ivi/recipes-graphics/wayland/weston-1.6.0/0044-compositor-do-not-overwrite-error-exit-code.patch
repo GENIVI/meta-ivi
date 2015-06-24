@@ -1,0 +1,32 @@
+From f5ef88ff6088ed03bf13bb052dda615c8623609e Mon Sep 17 00:00:00 2001
+From: Pekka Paalanen <pekka.paalanen@collabora.co.uk>
+Date: Tue, 18 Nov 2014 15:57:04 +0200
+Subject: [PATCH 44/96] compositor: do not overwrite error exit code
+
+If there are several things that cause an exit, keep the error code from
+the first one, not the last one. The latter ones could be just fallout
+from the first.
+
+Signed-off-by: Pekka Paalanen <pekka.paalanen@collabora.co.uk>
+---
+ src/compositor.c | 4 +++-
+ 1 file changed, 3 insertions(+), 1 deletion(-)
+
+diff --git a/src/compositor.c b/src/compositor.c
+index 18e6570..24f1ef0 100644
+--- a/src/compositor.c
++++ b/src/compositor.c
+@@ -4155,7 +4155,9 @@ WL_EXPORT void
+ weston_compositor_exit_with_code(struct weston_compositor *compositor,
+ 				 int exit_code)
+ {
+-	compositor->exit_code = exit_code;
++	if (compositor->exit_code == EXIT_SUCCESS)
++		compositor->exit_code = exit_code;
++
+ 	wl_display_terminate(compositor->wl_display);
+ }
+ 
+-- 
+2.1.0
+

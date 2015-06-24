@@ -1,0 +1,33 @@
+From fde9490d7ed604eb900b932ff846f394c2bde810 Mon Sep 17 00:00:00 2001
+From: Giulio Camuffo <giuliocamuffo@gmail.com>
+Date: Thu, 20 Nov 2014 23:03:22 +0200
+Subject: [PATCH 60/96] input: don't run the key bindings on focus in
+
+When getting the focus we get the list of pressed keys, but we are
+not supposed to run the key binding on them.
+
+Reviewed-by: Daniel Stone <daniel@fooishbar.org>
+---
+ src/input.c | 6 ------
+ 1 file changed, 6 deletions(-)
+
+diff --git a/src/input.c b/src/input.c
+index 80aa34e..15ff6ed 100644
+--- a/src/input.c
++++ b/src/input.c
+@@ -1404,12 +1404,6 @@ notify_keyboard_focus_in(struct weston_seat *seat, struct wl_array *keys,
+ 					      WL_KEYBOARD_KEY_STATE_PRESSED);
+ 	}
+ 
+-	/* Run key bindings after we've updated the state. */
+-	wl_array_for_each(k, &keyboard->keys) {
+-		weston_compositor_run_key_binding(compositor, seat, 0, *k,
+-						  WL_KEYBOARD_KEY_STATE_PRESSED);
+-	}
+-
+ 	surface = seat->saved_kbd_focus;
+ 
+ 	if (surface) {
+-- 
+2.1.0
+

@@ -1,0 +1,27 @@
+From b94403b0ec5a0b3a62a48c97b79f51379b2509f2 Mon Sep 17 00:00:00 2001
+From: Pekka Paalanen <pekka.paalanen@collabora.co.uk>
+Date: Mon, 22 Sep 2014 10:02:17 +0300
+Subject: [PATCH 01/96] configure.ac: bump version to 1.6.90
+
+Open master for new features again.
+
+Signed-off-by: Pekka Paalanen <pekka.paalanen@collabora.co.uk>
+---
+ configure.ac | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
+
+diff --git a/configure.ac b/configure.ac
+index 05e883d..1c133bd 100644
+--- a/configure.ac
++++ b/configure.ac
+@@ -1,6 +1,6 @@
+ m4_define([weston_major_version], [1])
+ m4_define([weston_minor_version], [6])
+-m4_define([weston_micro_version], [0])
++m4_define([weston_micro_version], [90])
+ m4_define([weston_version],
+           [weston_major_version.weston_minor_version.weston_micro_version])
+ 
+-- 
+2.1.0
+

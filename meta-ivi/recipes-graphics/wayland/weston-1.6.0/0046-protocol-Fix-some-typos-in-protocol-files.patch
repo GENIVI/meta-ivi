@@ -1,0 +1,100 @@
+From 95292f22f4bba332fb41340c7662fd92a49b0336 Mon Sep 17 00:00:00 2001
+From: Seedo Eldho Paul <seedoeldhopaul@gmail.com>
+Date: Sun, 16 Nov 2014 19:04:04 +0530
+Subject: [PATCH 46/96] protocol: Fix some typos in protocol files
+
+Signed-off-by: Seedo Eldho Paul <seedoeldhopaul@gmail.com>
+Reviewed-by: Pekka Paalanen <pekka.paalanen@collabora.co.uk>
+---
+ protocol/fullscreen-shell.xml    | 10 +++++-----
+ protocol/input-method.xml        |  2 +-
+ protocol/presentation_timing.xml |  4 ++--
+ protocol/text.xml                |  2 +-
+ 4 files changed, 9 insertions(+), 9 deletions(-)
+
+diff --git a/protocol/fullscreen-shell.xml b/protocol/fullscreen-shell.xml
+index 939c2ba..8d7a87f 100644
+--- a/protocol/fullscreen-shell.xml
++++ b/protocol/fullscreen-shell.xml
+@@ -45,7 +45,7 @@
+ 
+ 	ARBITRARY_MODE:
+ 	This is a hint to the client that indicates that the compositor is
+-	capable of setting practially any mode on its outputs.  If this
++	capable of setting practically any mode on its outputs.  If this
+ 	capability is provided, wl_fullscreen_shell.present_surface_for_mode
+ 	will almost never fail and clients should feel free to set whatever
+ 	mode they like.  If the compositor does not advertise this, it may
+@@ -72,9 +72,9 @@
+ 	When the wl_fullscreen_shell interface is bound, this event is emitted
+ 	once for each capability advertised.  Valid capabilities are given by
+ 	the wl_fullscreen_shell.capability enum.  If clients want to take
+-	advantage of any of these capabilities, they sould use a
+-	wl_display.sync request immediatly after binding to ensure that they
+-	recieve all the capability events.
++	advantage of any of these capabilities, they should use a
++	wl_display.sync request immediately after binding to ensure that they
++	receive all the capability events.
+       </description>
+       <arg name="capabilty" type="uint"/>
+     </event>
+@@ -103,7 +103,7 @@
+ 	outputs.
+ 
+ 	The method parameter is a hint to the compositor for how the surface
+-	is to be presented.  In particular, it tells the compostior how to
++	is to be presented.  In particular, it tells the compositor how to
+ 	handle a size mismatch between the presented surface and the
+ 	output.  The compositor is free to ignore this parameter.
+ 
+diff --git a/protocol/input-method.xml b/protocol/input-method.xml
+index 70afdcb..5fbc6a0 100644
+--- a/protocol/input-method.xml
++++ b/protocol/input-method.xml
+@@ -110,7 +110,7 @@
+     <request name="cursor_position">
+       <description summary="set cursor to a new position">
+         Sets the cursor and anchor to a new position. Index is the new cursor
+-        position in bytess (when >= 0 relative to the end of inserted text
++        position in bytes (when >= 0 relative to the end of inserted text
+         else relative to beginning of inserted text). Anchor is the new anchor
+         position in bytes (when >= 0 relative to the end of inserted text, else
+         relative to beginning of inserted text). When there should be no
+diff --git a/protocol/presentation_timing.xml b/protocol/presentation_timing.xml
+index b5855d3..5752c13 100644
+--- a/protocol/presentation_timing.xml
++++ b/protocol/presentation_timing.xml
+@@ -105,7 +105,7 @@
+         able to query the current clock value directly, not by asking
+         the compositor.
+ 
+-        On Linux/glibc, the identifer value is one of the clockid_t
++        On Linux/glibc, the identifier value is one of the clockid_t
+         values accepted by clock_gettime(). clock_gettime() is defined
+         by POSIX.1-2001.
+ 
+@@ -183,7 +183,7 @@
+         completion events from the system, and the latency of the
+         physical display path if known.
+ 
+-        This event is preceeded by all related sync_output events
++        This event is preceded by all related sync_output events
+         telling which output's refresh cycle the feedback corresponds
+         to, i.e. the main output for the surface. Compositors are
+         recommended to choose the output containing the largest part
+diff --git a/protocol/text.xml b/protocol/text.xml
+index 1b5284d..def7c27 100644
+--- a/protocol/text.xml
++++ b/protocol/text.xml
+@@ -214,7 +214,7 @@
+ 	(for example on unfocus).
+ 
+ 	The text input should also handle all preedit_style and preedit_cursor
+-	events occuring directly before preedit_string.
++	events occurring directly before preedit_string.
+       </description>
+       <arg name="serial" type="uint" summary="serial of the latest known text input state"/>
+       <arg name="text" type="string"/>
+-- 
+2.1.0
+

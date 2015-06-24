@@ -1,0 +1,67 @@
+From de44761a1a51a7fb79f7d239b802fd3f1660f744 Mon Sep 17 00:00:00 2001
+From: Bryce Harrington <bryce@osg.samsung.com>
+Date: Thu, 20 Nov 2014 22:21:55 -0800
+Subject: [PATCH 72/96] Use zalloc rather than malloc and manually setting
+ members to 0
+
+Signed-off-by: Bryce Harrington <bryce@osg.samsung.com>
+Reviewed-by: Pekka Paalanen <pekka.paalanen@collabora.co.uk>
+---
+ src/clipboard.c     | 5 +++--
+ src/screenshooter.c | 9 ++-------
+ 2 files changed, 5 insertions(+), 9 deletions(-)
+
+diff --git a/src/clipboard.c b/src/clipboard.c
+index 5a3a02d..dbd8c9b 100644
+--- a/src/clipboard.c
++++ b/src/clipboard.c
+@@ -214,9 +214,10 @@ clipboard_client_create(struct clipboard_source *source, int fd)
+ 	struct wl_event_loop *loop =
+ 		wl_display_get_event_loop(seat->compositor->wl_display);
+ 
+-	client = malloc(sizeof *client);
++	client = zalloc(sizeof *client);
++	if (client == NULL)
++		return;
+ 
+-	client->offset = 0;
+ 	client->source = source;
+ 	source->refcount++;
+ 	client->event_source =
+diff --git a/src/screenshooter.c b/src/screenshooter.c
+index cafbf10..6246cda 100644
+--- a/src/screenshooter.c
++++ b/src/screenshooter.c
+@@ -481,7 +481,7 @@ weston_recorder_create(struct weston_output *output, const char *filename)
+ 
+ 	do_yflip = !!(compositor->capabilities & WESTON_CAP_CAPTURE_YFLIP);
+ 
+-	recorder = malloc(sizeof *recorder);
++	recorder = zalloc(sizeof *recorder);
+ 	if (recorder == NULL) {
+ 		weston_log("%s: out of memory\n", __func__);
+ 		return;
+@@ -491,9 +491,6 @@ weston_recorder_create(struct weston_output *output, const char *filename)
+ 	size = stride * 4 * output->current_mode->height;
+ 	recorder->frame = zalloc(size);
+ 	recorder->rect = malloc(size);
+-	recorder->total = 0;
+-	recorder->count = 0;
+-	recorder->destroying = 0;
+ 	recorder->output = output;
+ 
+ 	if ((recorder->frame == NULL) || (recorder->rect == NULL)) {
+@@ -502,9 +499,7 @@ weston_recorder_create(struct weston_output *output, const char *filename)
+ 		return;
+ 	}
+ 
+-	if (do_yflip)
+-		recorder->tmpbuf = NULL;
+-	else
++	if (!do_yflip)
+ 		recorder->tmpbuf = malloc(size);
+ 
+ 	header.magic = WCAP_HEADER_MAGIC;
+-- 
+2.1.0
+

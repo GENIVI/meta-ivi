@@ -1,0 +1,61 @@
+From 69c6273f28e75ce8f42ccc36eb9257f1871a9ef2 Mon Sep 17 00:00:00 2001
+From: Derek Foreman <derekf@osg.samsung.com>
+Date: Fri, 19 Sep 2014 14:43:23 -0500
+Subject: [PATCH 05/96] shell: fix weston_output_mode_switch() usage
+
+Calling weston_output_mode_switch() with WESTON_MODE_SWITCH_RESTORE_NATIVE
+will result in the mode being set "back" to the passed in mode - so the
+passed mode should be the native mode.
+
+Additionally, weston_output_mode_switch() should be called when
+output->original_mode is non-NULL (which indicates we had a temporary
+mode set).  The comparison to current_mode results in a lot of
+log chatter.
+
+Acked-by: Pekka Paalanen <pekka.paalanen@collabora.co.uk>
+---
+ desktop-shell/shell.c               | 6 +++---
+ fullscreen-shell/fullscreen-shell.c | 6 +++---
+ 2 files changed, 6 insertions(+), 6 deletions(-)
+
+diff --git a/desktop-shell/shell.c b/desktop-shell/shell.c
+index 3a5a702..6ef36b5 100644
+--- a/desktop-shell/shell.c
++++ b/desktop-shell/shell.c
+@@ -2247,11 +2247,11 @@ shell_surface_set_class(struct wl_client *client,
+ static void
+ restore_output_mode(struct weston_output *output)
+ {
+-	if (output->current_mode != output->original_mode ||
++	if (output->original_mode ||
+ 	    (int32_t)output->current_scale != output->original_scale)
+ 		weston_output_switch_mode(output,
+-					  output->original_mode,
+-					  output->original_scale,
++					  output->native_mode,
++					  output->native_scale,
+ 					  WESTON_MODE_SWITCH_RESTORE_NATIVE);
+ }
+ 
+diff --git a/fullscreen-shell/fullscreen-shell.c b/fullscreen-shell/fullscreen-shell.c
+index 25932d4..c7950df 100644
+--- a/fullscreen-shell/fullscreen-shell.c
++++ b/fullscreen-shell/fullscreen-shell.c
+@@ -284,11 +284,11 @@ fs_output_for_output(struct weston_output *output)
+ static void
+ restore_output_mode(struct weston_output *output)
+ {
+-	if (output->current_mode != output->original_mode ||
++	if (output->original_mode ||
+ 	    (int32_t)output->current_scale != output->original_scale)
+ 		weston_output_switch_mode(output,
+-					  output->original_mode,
+-					  output->original_scale,
++					  output->native_mode,
++					  output->native_scale,
+ 					  WESTON_MODE_SWITCH_RESTORE_NATIVE);
+ }
+ 
+-- 
+2.1.0
+

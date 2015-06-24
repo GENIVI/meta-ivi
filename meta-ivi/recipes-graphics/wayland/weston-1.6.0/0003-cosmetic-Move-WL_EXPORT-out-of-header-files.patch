@@ -1,0 +1,88 @@
+From d1be3128d0d6b6dc6d301bb2bd674697bd64dafc Mon Sep 17 00:00:00 2001
+From: Derek Foreman <derekf@osg.samsung.com>
+Date: Thu, 18 Sep 2014 16:46:49 -0500
+Subject: [PATCH 03/96] cosmetic: Move WL_EXPORT out of header files
+
+Most of the code only puts WL_EXPORT in .c files.  Remove the few
+instances in header files.
+
+If it's missing form the associated .c, put it there instead.
+---
+ src/compositor.h | 6 +++---
+ src/filter.c     | 4 ++--
+ src/filter.h     | 4 ++--
+ 3 files changed, 7 insertions(+), 7 deletions(-)
+
+diff --git a/src/compositor.h b/src/compositor.h
+index 9611dea..f4263d8 100644
+--- a/src/compositor.h
++++ b/src/compositor.h
+@@ -963,10 +963,10 @@ weston_view_from_global_fixed(struct weston_view *view,
+ 			      wl_fixed_t x, wl_fixed_t y,
+ 			      wl_fixed_t *vx, wl_fixed_t *vy);
+ 
+-WL_EXPORT void
++void
+ weston_surface_to_buffer_float(struct weston_surface *surface,
+ 			       float x, float y, float *bx, float *by);
+-WL_EXPORT void
++void
+ weston_surface_to_buffer(struct weston_surface *surface,
+ 			 int sx, int sy, int *bx, int *by);
+ pixman_box32_t
+@@ -1196,7 +1196,7 @@ weston_view_schedule_repaint(struct weston_view *view);
+ int
+ weston_surface_is_mapped(struct weston_surface *surface);
+ 
+-WL_EXPORT void
++void
+ weston_surface_set_size(struct weston_surface *surface,
+ 			int32_t width, int32_t height);
+ 
+diff --git a/src/filter.c b/src/filter.c
+index 89237bf..20488a1 100644
+--- a/src/filter.c
++++ b/src/filter.c
+@@ -32,7 +32,7 @@
+ #include "compositor.h"
+ #include "filter.h"
+ 
+-void
++WL_EXPORT void
+ weston_filter_dispatch(struct weston_motion_filter *filter,
+ 		       struct weston_motion_params *motion,
+ 		       void *data, uint32_t time)
+@@ -313,7 +313,7 @@ struct weston_motion_filter_interface accelerator_interface = {
+ 	accelerator_destroy
+ };
+ 
+-struct weston_motion_filter *
++WL_EXPORT struct weston_motion_filter *
+ create_pointer_accelator_filter(accel_profile_func_t profile)
+ {
+ 	struct pointer_accelerator *filter;
+diff --git a/src/filter.h b/src/filter.h
+index 34d0f81..3e094fa 100644
+--- a/src/filter.h
++++ b/src/filter.h
+@@ -35,7 +35,7 @@ struct weston_motion_params {
+ 
+ struct weston_motion_filter;
+ 
+-WL_EXPORT void
++void
+ weston_filter_dispatch(struct weston_motion_filter *filter,
+ 		       struct weston_motion_params *motion,
+ 		       void *data, uint32_t time);
+@@ -57,7 +57,7 @@ typedef double (*accel_profile_func_t)(struct weston_motion_filter *filter,
+ 				       double velocity,
+ 				       uint32_t time);
+ 
+-WL_EXPORT struct weston_motion_filter *
++struct weston_motion_filter *
+ create_pointer_accelator_filter(accel_profile_func_t filter);
+ 
+ #endif // _FILTER_H_
+-- 
+2.1.0
+

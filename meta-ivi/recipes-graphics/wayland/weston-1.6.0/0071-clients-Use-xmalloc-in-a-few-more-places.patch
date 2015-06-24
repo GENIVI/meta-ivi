@@ -1,0 +1,53 @@
+From 2204492636cb4612952f28a163ee9599b15b7724 Mon Sep 17 00:00:00 2001
+From: Derek Foreman <derekf@osg.samsung.com>
+Date: Thu, 20 Nov 2014 15:42:35 -0600
+Subject: [PATCH 71/96] clients: Use xmalloc in a few more places
+
+Just changes some places where a malloc failure is unhandled
+to our xmalloc function that exit()s a little more gracefully.
+
+Signed-off-by: Derek Foreman <derekf@osg.samsung.com>
+Reviewed-by: Bryce Harrington <b.harrington@samsung.com>
+---
+ clients/editor.c | 4 ++--
+ clients/window.c | 2 +-
+ 2 files changed, 3 insertions(+), 3 deletions(-)
+
+diff --git a/clients/editor.c b/clients/editor.c
+index 421f8fe..db7be2a 100644
+--- a/clients/editor.c
++++ b/clients/editor.c
+@@ -682,7 +682,7 @@ text_entry_update_layout(struct text_entry *entry)
+ 	       (entry->preedit.text ? strlen(entry->preedit.text) : 0)));
+ 
+ 	if (entry->preedit.text) {
+-		text = malloc(strlen(entry->text) + strlen(entry->preedit.text) + 1);
++		text = xmalloc(strlen(entry->text) + strlen(entry->preedit.text) + 1);
+ 		strncpy(text, entry->text, entry->cursor);
+ 		strcpy(text + entry->cursor, entry->preedit.text);
+ 		strcpy(text + entry->cursor + strlen(entry->preedit.text),
+@@ -764,7 +764,7 @@ static void
+ text_entry_insert_at_cursor(struct text_entry *entry, const char *text,
+ 			    int32_t cursor, int32_t anchor)
+ {
+-	char *new_text = malloc(strlen(entry->text) + strlen(text) + 1);
++	char *new_text = xmalloc(strlen(entry->text) + strlen(text) + 1);
+ 
+ 	strncpy(new_text, entry->text, entry->cursor);
+ 	strcpy(new_text + entry->cursor, text);
+diff --git a/clients/window.c b/clients/window.c
+index 5099004..9171e8f 100644
+--- a/clients/window.c
++++ b/clients/window.c
+@@ -5391,7 +5391,7 @@ init_dummy_surface(struct display *display)
+ 	void *data;
+ 
+ 	len = cairo_format_stride_for_width(CAIRO_FORMAT_ARGB32, 1);
+-	data = malloc(len);
++	data = xmalloc(len);
+ 	display->dummy_surface =
+ 		cairo_image_surface_create_for_data(data, CAIRO_FORMAT_ARGB32,
+ 						    1, 1, len);
+-- 
+2.1.0
+

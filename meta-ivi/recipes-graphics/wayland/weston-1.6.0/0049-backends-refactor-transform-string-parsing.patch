@@ -1,0 +1,303 @@
+From 64a3df086e0f376a8ae483e58275037e185ef313 Mon Sep 17 00:00:00 2001
+From: Derek Foreman <derekf@osg.samsung.com>
+Date: Thu, 23 Oct 2014 12:24:18 -0500
+Subject: [PATCH 49/96] backends: refactor transform string parsing
+
+Most of the backends do their own parsing of transform strings, so let's
+put that all in the same place (compositor.c/h)
+
+Reviewed-by: Pekka Paalanen <pekka.paalanen@collabora.co.uk>
+---
+ src/compositor-drm.c     | 30 ++++--------------------------
+ src/compositor-rpi.c     | 43 ++++---------------------------------------
+ src/compositor-wayland.c | 25 ++++---------------------
+ src/compositor-x11.c     | 29 +++--------------------------
+ src/compositor.c         | 39 +++++++++++++++++++++++++++++++++++++++
+ src/compositor.h         |  6 ++++++
+ 6 files changed, 60 insertions(+), 112 deletions(-)
+
+diff --git a/src/compositor-drm.c b/src/compositor-drm.c
+index bee41ef..702bae8 100644
+--- a/src/compositor-drm.c
++++ b/src/compositor-drm.c
+@@ -1862,31 +1862,6 @@ parse_modeline(const char *s, drmModeModeInfo *mode)
+ 	return 0;
+ }
+ 
+-static uint32_t
+-parse_transform(const char *transform, const char *output_name)
+-{
+-	static const struct { const char *name; uint32_t token; } names[] = {
+-		{ "normal",	WL_OUTPUT_TRANSFORM_NORMAL },
+-		{ "90",		WL_OUTPUT_TRANSFORM_90 },
+-		{ "180",	WL_OUTPUT_TRANSFORM_180 },
+-		{ "270",	WL_OUTPUT_TRANSFORM_270 },
+-		{ "flipped",	WL_OUTPUT_TRANSFORM_FLIPPED },
+-		{ "flipped-90",	WL_OUTPUT_TRANSFORM_FLIPPED_90 },
+-		{ "flipped-180", WL_OUTPUT_TRANSFORM_FLIPPED_180 },
+-		{ "flipped-270", WL_OUTPUT_TRANSFORM_FLIPPED_270 },
+-	};
+-	unsigned int i;
+-
+-	for (i = 0; i < ARRAY_LENGTH(names); i++)
+-		if (strcmp(names[i].name, transform) == 0)
+-			return names[i].token;
+-
+-	weston_log("Invalid transform \"%s\" for output %s\n",
+-		   transform, output_name);
+-
+-	return WL_OUTPUT_TRANSFORM_NORMAL;
+-}
+-
+ static void
+ setup_output_seat_constraint(struct drm_compositor *ec,
+ 			     struct weston_output *output,
+@@ -1999,7 +1974,10 @@ create_output_for_connector(struct drm_compositor *ec,
+ 
+ 	weston_config_section_get_int(section, "scale", &scale, 1);
+ 	weston_config_section_get_string(section, "transform", &s, "normal");
+-	transform = parse_transform(s, output->base.name);
++	if (weston_parse_transform(s, &transform) < 0)
++		weston_log("Invalid transform \"%s\" for output %s\n",
++			   s, output->base.name);
++
+ 	free(s);
+ 
+ 	if (get_gbm_format_from_section(section,
+diff --git a/src/compositor-rpi.c b/src/compositor-rpi.c
+index 97f07d9..c906701 100644
+--- a/src/compositor-rpi.c
++++ b/src/compositor-rpi.c
+@@ -281,38 +281,6 @@ rpi_output_destroy(struct weston_output *base)
+ 	free(output);
+ }
+ 
+-static const char *transform_names[] = {
+-	[WL_OUTPUT_TRANSFORM_NORMAL] = "normal",
+-	[WL_OUTPUT_TRANSFORM_90] = "90",
+-	[WL_OUTPUT_TRANSFORM_180] = "180",
+-	[WL_OUTPUT_TRANSFORM_270] = "270",
+-	[WL_OUTPUT_TRANSFORM_FLIPPED] = "flipped",
+-	[WL_OUTPUT_TRANSFORM_FLIPPED_90] = "flipped-90",
+-	[WL_OUTPUT_TRANSFORM_FLIPPED_180] = "flipped-180",
+-	[WL_OUTPUT_TRANSFORM_FLIPPED_270] = "flipped-270",
+-};
+-
+-static int
+-str2transform(const char *name)
+-{
+-	unsigned i;
+-
+-	for (i = 0; i < ARRAY_LENGTH(transform_names); i++)
+-		if (strcmp(name, transform_names[i]) == 0)
+-			return i;
+-
+-	return -1;
+-}
+-
+-static const char *
+-transform2str(uint32_t output_transform)
+-{
+-	if (output_transform >= ARRAY_LENGTH(transform_names))
+-		return "<illegal value>";
+-
+-	return transform_names[output_transform];
+-}
+-
+ static int
+ rpi_output_create(struct rpi_compositor *compositor, uint32_t transform)
+ {
+@@ -390,9 +358,10 @@ rpi_output_create(struct rpi_compositor *compositor, uint32_t transform)
+ 	weston_log_continue(STAMP_SPACE "guessing %d Hz and 96 dpi\n",
+ 			    output->mode.refresh / 1000);
+ 	weston_log_continue(STAMP_SPACE "orientation: %s\n",
+-			    transform2str(output->base.transform));
++			    weston_transform_to_string(output->base.transform));
+ 
+-	if (!strncmp(transform2str(output->base.transform), "flipped", 7))
++	if (!strncmp(weston_transform_to_string(output->base.transform),
++						"flipped", 7))
+ 		weston_log("warning: flipped output transforms may not work\n");
+ 
+ 	return 0;
+@@ -580,7 +549,6 @@ backend_init(struct wl_display *display, int *argc, char *argv[],
+ 	     struct weston_config *config)
+ {
+ 	const char *transform = "normal";
+-	int ret;
+ 
+ 	struct rpi_parameters param = {
+ 		.tty = 0, /* default to current tty */
+@@ -600,11 +568,8 @@ backend_init(struct wl_display *display, int *argc, char *argv[],
+ 
+ 	parse_options(rpi_options, ARRAY_LENGTH(rpi_options), argc, argv);
+ 
+-	ret = str2transform(transform);
+-	if (ret < 0)
++	if (weston_parse_transform(transform, &param.output_transform) < 0)
+ 		weston_log("invalid transform \"%s\"\n", transform);
+-	else
+-		param.output_transform = ret;
+ 
+ 	return rpi_compositor_create(display, argc, argv, config, &param);
+ }
+diff --git a/src/compositor-wayland.c b/src/compositor-wayland.c
+index bf71a76..65bce39 100644
+--- a/src/compositor-wayland.c
++++ b/src/compositor-wayland.c
+@@ -1077,18 +1077,7 @@ wayland_output_create_for_config(struct wayland_compositor *c,
+ 	char *mode, *t, *name, *str;
+ 	int width, height, scale;
+ 	uint32_t transform;
+-	unsigned int i, slen;
+-
+-	static const struct { const char *name; uint32_t token; } transform_names[] = {
+-		{ "normal",	WL_OUTPUT_TRANSFORM_NORMAL },
+-		{ "90",		WL_OUTPUT_TRANSFORM_90 },
+-		{ "180",	WL_OUTPUT_TRANSFORM_180 },
+-		{ "270",	WL_OUTPUT_TRANSFORM_270 },
+-		{ "flipped",	WL_OUTPUT_TRANSFORM_FLIPPED },
+-		{ "flipped-90",	WL_OUTPUT_TRANSFORM_FLIPPED_90 },
+-		{ "flipped-180", WL_OUTPUT_TRANSFORM_FLIPPED_180 },
+-		{ "flipped-270", WL_OUTPUT_TRANSFORM_FLIPPED_270 },
+-	};
++	unsigned int slen;
+ 
+ 	weston_config_section_get_string(config_section, "name", &name, NULL);
+ 	if (name) {
+@@ -1125,15 +1114,9 @@ wayland_output_create_for_config(struct wayland_compositor *c,
+ 
+ 	weston_config_section_get_string(config_section,
+ 					 "transform", &t, "normal");
+-	transform = WL_OUTPUT_TRANSFORM_NORMAL;
+-	for (i = 0; i < ARRAY_LENGTH(transform_names); i++) {
+-		if (strcmp(transform_names[i].name, t) == 0) {
+-			transform = transform_names[i].token;
+-			break;
+-		}
+-	}
+-	if (i >= ARRAY_LENGTH(transform_names))
+-		weston_log("Invalid transform \"%s\" for output %s\n", t, name);
++	if (weston_parse_transform(t, &transform) < 0)
++		weston_log("Invalid transform \"%s\" for output %s\n",
++			   t, name);
+ 	free(t);
+ 
+ 	output = wayland_output_create(c, x, y, width, height, name, 0,
+diff --git a/src/compositor-x11.c b/src/compositor-x11.c
+index 1baee29..a760f33 100644
+--- a/src/compositor-x11.c
++++ b/src/compositor-x11.c
+@@ -1429,31 +1429,6 @@ x11_destroy(struct weston_compositor *ec)
+ 	free(ec);
+ }
+ 
+-static uint32_t
+-parse_transform(const char *transform, const char *output_name)
+-{
+-	static const struct { const char *name; uint32_t token; } names[] = {
+-		{ "normal",	WL_OUTPUT_TRANSFORM_NORMAL },
+-		{ "90",		WL_OUTPUT_TRANSFORM_90 },
+-		{ "180",	WL_OUTPUT_TRANSFORM_180 },
+-		{ "270",	WL_OUTPUT_TRANSFORM_270 },
+-		{ "flipped",	WL_OUTPUT_TRANSFORM_FLIPPED },
+-		{ "flipped-90",	WL_OUTPUT_TRANSFORM_FLIPPED_90 },
+-		{ "flipped-180", WL_OUTPUT_TRANSFORM_FLIPPED_180 },
+-		{ "flipped-270", WL_OUTPUT_TRANSFORM_FLIPPED_270 },
+-	};
+-	unsigned int i;
+-
+-	for (i = 0; i < ARRAY_LENGTH(names); i++)
+-		if (strcmp(names[i].name, transform) == 0)
+-			return names[i].token;
+-
+-	weston_log("Invalid transform \"%s\" for output %s\n",
+-		   transform, output_name);
+-
+-	return WL_OUTPUT_TRANSFORM_NORMAL;
+-}
+-
+ static int
+ init_gl_renderer(struct x11_compositor *c)
+ {
+@@ -1576,7 +1551,9 @@ x11_compositor_create(struct wl_display *display,
+ 
+ 		weston_config_section_get_string(section,
+ 						 "transform", &t, "normal");
+-		transform = parse_transform(t, name);
++		if (weston_parse_transform(t, &transform) < 0)
++			weston_log("Invalid transform \"%s\" for output %s\n",
++				   t, name);
+ 		free(t);
+ 
+ 		output = x11_compositor_create_output(c, x, 0,
+diff --git a/src/compositor.c b/src/compositor.c
+index 24f1ef0..72fe384 100644
+--- a/src/compositor.c
++++ b/src/compositor.c
+@@ -4656,6 +4656,45 @@ weston_create_listening_socket(struct wl_display *display, const char *socket_na
+ 	return 0;
+ }
+ 
++static const struct { const char *name; uint32_t token; } transforms[] = {
++	{ "normal",     WL_OUTPUT_TRANSFORM_NORMAL },
++	{ "90",         WL_OUTPUT_TRANSFORM_90 },
++	{ "180",        WL_OUTPUT_TRANSFORM_180 },
++	{ "270",        WL_OUTPUT_TRANSFORM_270 },
++	{ "flipped",    WL_OUTPUT_TRANSFORM_FLIPPED },
++	{ "flipped-90", WL_OUTPUT_TRANSFORM_FLIPPED_90 },
++	{ "flipped-180", WL_OUTPUT_TRANSFORM_FLIPPED_180 },
++	{ "flipped-270", WL_OUTPUT_TRANSFORM_FLIPPED_270 },
++};
++
++WL_EXPORT int
++weston_parse_transform(const char *transform, uint32_t *out)
++{
++	unsigned int i;
++
++	for (i = 0; i < ARRAY_LENGTH(transforms); i++)
++		if (strcmp(transforms[i].name, transform) == 0) {
++			*out = transforms[i].token;
++			return 0;
++		}
++
++	*out = WL_OUTPUT_TRANSFORM_NORMAL;
++	return -1;
++}
++
++WL_EXPORT const char *
++weston_transform_to_string(uint32_t output_transform)
++{
++	unsigned int i;
++
++	for (i = 0; i < ARRAY_LENGTH(transforms); i++)
++		if (transforms[i].token == output_transform)
++			return transforms[i].name;
++
++	return "<illegal value>";
++}
++
++
+ int main(int argc, char *argv[])
+ {
+ 	int ret = EXIT_SUCCESS;
+diff --git a/src/compositor.h b/src/compositor.h
+index 002816e..2bec183 100644
+--- a/src/compositor.h
++++ b/src/compositor.h
+@@ -1473,6 +1473,12 @@ weston_transformed_region(int width, int height,
+ void *
+ weston_load_module(const char *name, const char *entrypoint);
+ 
++int
++weston_parse_transform(const char *transform, uint32_t *out);
++
++const char *
++weston_transform_to_string(uint32_t output_transform);
++
+ #ifdef  __cplusplus
+ }
+ #endif
+-- 
+2.1.0
+

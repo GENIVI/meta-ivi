@@ -1,0 +1,144 @@
+From 382de46a2fc769d7cd6871399558d31d3836bbc1 Mon Sep 17 00:00:00 2001
+From: Xiong Zhang <xiong.y.zhang@intel.com>
+Date: Thu, 12 Jun 2014 11:06:26 +0800
+Subject: [PATCH 04/96] clients: Maximize window when double touch on title bar
+
+Signed-off-by: Xiong Zhang <xiong.y.zhang@intel.com>
+---
+ clients/window.c    | 26 ++++++++++++++++++++++++--
+ shared/cairo-util.h |  7 +++++++
+ shared/frame.c      | 49 +++++++++++++++++++++++++++++++++++++++++++++++++
+ 3 files changed, 80 insertions(+), 2 deletions(-)
+
+diff --git a/clients/window.c b/clients/window.c
+index e44d65c..139c7f9 100644
+--- a/clients/window.c
++++ b/clients/window.c
+@@ -370,6 +370,7 @@ struct window_frame {
+ 
+ 	uint32_t last_time;
+ 	uint32_t did_double, double_click;
++	int32_t last_id, double_id;
+ };
+ 
+ struct menu {
+@@ -2429,7 +2430,23 @@ frame_touch_down_handler(struct widget *widget, struct input *input,
+ {
+ 	struct window_frame *frame = data;
+ 
+-	frame_touch_down(frame->frame, input, id, x, y);
++	frame->double_click = 0;
++	if (time - frame->last_time <= DOUBLE_CLICK_PERIOD &&
++	    frame->last_id == id) {
++		frame->double_click = 1;
++		frame->did_double = 1;
++		frame->double_id = id;
++	} else
++		frame->did_double = 0;
++
++	frame->last_time = time;
++	frame->last_id = id;
++
++	if (frame->double_click)
++		frame_double_touch_down(frame->frame, input, id, x, y);
++	else
++		frame_touch_down(frame->frame, input, id, x, y);
++
+ 	frame_handle_status(frame, input, time, THEME_LOCATION_CLIENT_AREA);
+ }
+ 
+@@ -2440,7 +2457,12 @@ frame_touch_up_handler(struct widget *widget,
+ {
+ 	struct window_frame *frame = data;
+ 
+-	frame_touch_up(frame->frame, input, id);
++	if (frame->double_id == id && frame->did_double) {
++		frame->did_double = 0;
++		frame->double_id = 0;
++		frame_double_touch_up(frame->frame, input, id);
++	} else
++		frame_touch_up(frame->frame, input, id);
+ 	frame_handle_status(frame, input, time, THEME_LOCATION_CLIENT_AREA);
+ }
+ 
+diff --git a/shared/cairo-util.h b/shared/cairo-util.h
+index 99c7736..11d11d1 100644
+--- a/shared/cairo-util.h
++++ b/shared/cairo-util.h
+@@ -218,6 +218,13 @@ frame_double_click(struct frame *frame, void *pointer,
+ 		   uint32_t button, enum frame_button_state state);
+ 
+ void
++frame_double_touch_down(struct frame *frame, void *data, int32_t id,
++			int x, int y);
++
++void
++frame_double_touch_up(struct frame *frame, void *data, int32_t id);
++
++void
+ frame_repaint(struct frame *frame, cairo_t *cr);
+ 
+ #endif
+diff --git a/shared/frame.c b/shared/frame.c
+index a983d84..0bf4af3 100644
+--- a/shared/frame.c
++++ b/shared/frame.c
+@@ -869,6 +869,55 @@ frame_double_click(struct frame *frame, void *data,
+ }
+ 
+ void
++frame_double_touch_down(struct frame *frame, void *data, int32_t id,
++			int x, int y)
++{
++	struct frame_touch *touch = frame_touch_get(frame, data);
++	struct frame_button *button = frame_find_button(frame, x, y);
++	enum theme_location location;
++
++	if (touch && button) {
++		touch->button = button;
++		frame_button_press(touch->button);
++		return;
++	}
++
++	location = theme_get_location(frame->theme, x, y,
++				      frame->width, frame->height,
++				      frame->flags & FRAME_FLAG_MAXIMIZED ?
++				      THEME_FRAME_MAXIMIZED : 0);
++
++	switch (location) {
++	case THEME_LOCATION_TITLEBAR:
++		frame->status |= FRAME_STATUS_MAXIMIZE;
++		break;
++	case THEME_LOCATION_RESIZING_TOP:
++	case THEME_LOCATION_RESIZING_BOTTOM:
++	case THEME_LOCATION_RESIZING_LEFT:
++	case THEME_LOCATION_RESIZING_RIGHT:
++	case THEME_LOCATION_RESIZING_TOP_LEFT:
++	case THEME_LOCATION_RESIZING_TOP_RIGHT:
++	case THEME_LOCATION_RESIZING_BOTTOM_LEFT:
++	case THEME_LOCATION_RESIZING_BOTTOM_RIGHT:
++		frame->status |= FRAME_STATUS_RESIZE;
++		break;
++	default:
++		break;
++	}
++}
++
++void
++frame_double_touch_up(struct frame *frame, void *data, int32_t id)
++{
++	struct frame_touch *touch = frame_touch_get(frame, data);
++
++	if (touch && touch->button) {
++		frame_button_release(touch->button);
++		frame_touch_destroy(touch);
++	}
++}
++
++void
+ frame_repaint(struct frame *frame, cairo_t *cr)
+ {
+ 	struct frame_button *button;
+-- 
+2.1.0
+

@@ -1,0 +1,37 @@
+From 3e3b59e0a290e9ebce6c7d58f7de115164f46e32 Mon Sep 17 00:00:00 2001
+From: Bryce Harrington <bryce@osg.samsung.com>
+Date: Wed, 19 Nov 2014 15:06:19 -0800
+Subject: [PATCH 58/96] compositor: Document options for headless compositor
+
+Signed-off-by: Bryce Harrington <bryce@osg.samsung.com>
+
+[Pekka: s/Wayland surface/memory surface/, and say default renderer.]
+Signed-off-by: Pekka Paalanen <pekka.paalanen@collabora.co.uk>
+---
+ src/compositor.c | 10 ++++++++++
+ 1 file changed, 10 insertions(+)
+
+diff --git a/src/compositor.c b/src/compositor.c
+index 0db6d73..17e930c 100644
+--- a/src/compositor.c
++++ b/src/compositor.c
+@@ -4595,6 +4595,16 @@ usage(int error_code)
+ 		"\n");
+ #endif
+ 
++#if defined(BUILD_HEADLESS_COMPOSITOR)
++	fprintf(stderr,
++		"Options for headless-backend.so:\n\n"
++		"  --width=WIDTH\t\tWidth of memory surface\n"
++		"  --height=HEIGHT\tHeight of memory surface\n"
++		"  --transform=TR\tThe output transformation, TR is one of:\n"
++		"\tnormal 90 180 270 flipped flipped-90 flipped-180 flipped-270\n"
++		"  --use-pixman\t\tUse the pixman (CPU) renderer (default: no rendering)\n\n");
++#endif
++
+ 	exit(error_code);
+ }
+ 
+-- 
+2.1.0
+

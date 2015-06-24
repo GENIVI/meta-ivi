@@ -1,0 +1,48 @@
+From d621df2dee522d9768a8aff1dd200f3595e29c65 Mon Sep 17 00:00:00 2001
+From: Derek Foreman <derekf@osg.samsung.com>
+Date: Wed, 19 Nov 2014 11:04:12 -0600
+Subject: [PATCH 65/96] input: Use slightly less obscure logic in
+ evdev_notify_keyboard_focus()
+
+While the test is actually correct (for non-negative numbers), it's not
+at all clear and seems to be an accidental order of operations mistake.
+
+Also, add an assert() to make sure this number is never negative.
+
+Closes bug 86346 - https://bugs.freedesktop.org/show_bug.cgi?id=86346
+
+Signed-off-by: Derek Foreman <derekf@osg.samsung.com>
+Reviewed-by: Marek Chalupa <mchqwerty@gmail.com>
+---
+ src/input.c           | 1 +
+ src/libinput-device.c | 2 +-
+ 2 files changed, 2 insertions(+), 1 deletion(-)
+
+diff --git a/src/input.c b/src/input.c
+index 15ff6ed..c59c269 100644
+--- a/src/input.c
++++ b/src/input.c
+@@ -2168,6 +2168,7 @@ WL_EXPORT void
+ weston_seat_release_keyboard(struct weston_seat *seat)
+ {
+ 	seat->keyboard_device_count--;
++	assert(seat->keyboard_device_count >= 0);
+ 	if (seat->keyboard_device_count == 0) {
+ 		weston_keyboard_set_focus(seat->keyboard, NULL);
+ 		weston_keyboard_cancel_grab(seat->keyboard);
+diff --git a/src/libinput-device.c b/src/libinput-device.c
+index 0e3f46d..8a48905 100644
+--- a/src/libinput-device.c
++++ b/src/libinput-device.c
+@@ -470,7 +470,7 @@ evdev_notify_keyboard_focus(struct weston_seat *seat,
+ {
+ 	struct wl_array keys;
+ 
+-	if (!seat->keyboard_device_count > 0)
++	if (seat->keyboard_device_count == 0)
+ 		return;
+ 
+ 	wl_array_init(&keys);
+-- 
+2.1.0
+

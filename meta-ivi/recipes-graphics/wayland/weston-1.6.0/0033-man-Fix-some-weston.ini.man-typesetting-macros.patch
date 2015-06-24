@@ -1,0 +1,45 @@
+From 4b53f630e8d15d031bcf60f0dc94db3de8adb614 Mon Sep 17 00:00:00 2001
+From: Frederic Plourde <frederic.plourde@collabora.co.uk>
+Date: Thu, 23 Oct 2014 22:40:03 -0400
+Subject: [PATCH 33/96] man: Fix some weston.ini.man typesetting macros
+
+This patch fixes a couple of misuses around .TP 7 macros that wrongly
+limited right margins and relative identation.
+
+Reviewed-by: Derek Foreman <derekf@osg.samsung.com>
+Tested-by: Pekka Paalanen <pekka.paalanen@collabora.co.uk>
+---
+ man/weston.ini.man | 3 +--
+ 1 file changed, 1 insertion(+), 2 deletions(-)
+
+diff --git a/man/weston.ini.man b/man/weston.ini.man
+index c05a221..54a1925 100644
+--- a/man/weston.ini.man
++++ b/man/weston.ini.man
+@@ -107,7 +107,6 @@ directory are:
+ .fi
+ .RE
+ .TP 7
+-.TP 7
+ .BI "modules=" xwayland.so,cms-colord.so
+ specifies the modules to load (string). Available modules in the
+ .IR "__weston_modules_dir__"
+@@ -121,7 +120,6 @@ directory are:
+ .fi
+ .RE
+ .TP 7
+-.TP 7
+ .BI "backend=" headless-backend.so
+ overrides defaults backend. Available backend modules in the
+ .IR "__weston_modules_dir__"
+@@ -138,6 +136,7 @@ directory are:
+ .BR x11-backend.so
+ .fi
+ .RE
++.TP 7
+ .BI "gbm-format="format
+ sets the GBM format used for the framebuffer for the GBM backend. Can be
+ .B xrgb8888,
+-- 
+2.1.0
+

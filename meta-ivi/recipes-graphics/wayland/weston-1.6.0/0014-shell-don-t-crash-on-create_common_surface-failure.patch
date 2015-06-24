@@ -1,0 +1,41 @@
+From e972b27f34e78c55d6f1b23a3c54bc14f2945287 Mon Sep 17 00:00:00 2001
+From: Pekka Paalanen <pekka.paalanen@collabora.co.uk>
+Date: Wed, 1 Oct 2014 14:03:56 +0300
+Subject: [PATCH 14/96] shell: don't crash on create_common_surface() failure
+
+Noticed while reading code, that create_common_surface() may return
+NULL, and callers of its direct callers check for NULL, but the
+intermediate function in between would crash.
+
+Signed-off-by: Pekka Paalanen <pekka.paalanen@collabora.co.uk>
+---
+ desktop-shell/shell.c | 6 ++++++
+ 1 file changed, 6 insertions(+)
+
+diff --git a/desktop-shell/shell.c b/desktop-shell/shell.c
+index 6ef36b5..810961f 100644
+--- a/desktop-shell/shell.c
++++ b/desktop-shell/shell.c
+@@ -3879,6 +3879,9 @@ create_xdg_surface(struct shell_client *owner, void *shell,
+ 	struct shell_surface *shsurf;
+ 
+ 	shsurf = create_common_surface(owner, shell, surface, client);
++	if (!shsurf)
++		return NULL;
++
+ 	shsurf->type = SHELL_SURFACE_TOPLEVEL;
+ 
+ 	return shsurf;
+@@ -3963,6 +3966,9 @@ create_xdg_popup(struct shell_client *owner, void *shell,
+ 	struct shell_surface *shsurf;
+ 
+ 	shsurf = create_common_surface(owner, shell, surface, client);
++	if (!shsurf)
++		return NULL;
++
+ 	shsurf->type = SHELL_SURFACE_POPUP;
+ 	shsurf->popup.shseat = seat;
+ 	shsurf->popup.serial = serial;
+-- 
+2.1.0
+

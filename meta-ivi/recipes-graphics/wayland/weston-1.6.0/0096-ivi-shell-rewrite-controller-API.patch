@@ -1,0 +1,2775 @@
+From 299f340dc6fd34f025034d1b271f8265c1f5af97 Mon Sep 17 00:00:00 2001
+From: Nobuhiko Tanibata <NOBUHIKO_TANIBATA@xddp.denso.co.jp>
+Date: Thu, 11 Dec 2014 11:22:07 +0900
+Subject: [PATCH 96/96] ivi-shell: rewrite controller API
+
+This fixes the breakage caused by "ivi-shell: make ivi-layout.c as a
+part of ivi-shell.so"
+
+hmi-controller.c:
+A reference implementation of controller module does not use the layout
+functions directly. This get function pointers at controller_module_init
+which called by ivi-shell.
+
+ivi-layout-export.h:
+Definition of interfaces in a struction: ivi_controller_interface.
+function pointers are set at ivi-layout.c.
+
+ivi-layout-private.h:
+Definition of some interfaces are remove bucause it is implemented in
+ivi-layout.c and set it as function pointer. Several interfaces are kept
+here because they are implemented in ivi-layout.c/transition.c but used
+in other files.
+
+ivi-layout-transition.c:
+remove WL_EXPORT because export is not needed anymore.
+remove unnesesary unsed method.
+
+ivi-shell.c:
+call controller_module_init of hmi-controller to init it and set
+function pointers. If the interface_version is equal or
+greater than what hmi_controller was built with, things are pass.
+If the interface_version is smaller than what the controller expects,
+it has to fail because it cannot work. This is followed the manner,
+
+- never remove a function pointer
+- never modify an existing function signature
+- additions are allowed at the end of struct ivi_controller_interface
+- all function pointers must always be populated and working in
+  ivi-shell.so (ivi-layout.c etc.)
+
+Signed-off-by: Nobuhiko Tanibata <NOBUHIKO_TANIBATA@xddp.denso.co.jp>
+---
+ ivi-shell/hmi-controller.c        |  174 +++---
+ ivi-shell/ivi-layout-export.h     | 1102 ++++++++++++++++++++-----------------
+ ivi-shell/ivi-layout-private.h    |  180 ++----
+ ivi-shell/ivi-layout-transition.c |   16 +-
+ ivi-shell/ivi-layout.c            |  273 ++++++---
+ ivi-shell/ivi-shell.c             |   33 +-
+ 6 files changed, 953 insertions(+), 825 deletions(-)
+
+diff --git a/ivi-shell/hmi-controller.c b/ivi-shell/hmi-controller.c
+index 1ad63a2..36a1b56 100644
+--- a/ivi-shell/hmi-controller.c
++++ b/ivi-shell/hmi-controller.c
+@@ -128,6 +128,14 @@ struct launcher_info {
+ 	int32_t index;
+ };
+ 
++const struct ivi_controller_interface *ivi_controller_interface;
++
++int
++controller_module_init(struct weston_compositor *ec,
++		       int *argc, char *argv[],
++		       const struct ivi_controller_interface *interface,
++		       size_t interface_version);
++
+ /*****************************************************************************
+  *  local functions
+  ****************************************************************************/
+@@ -154,7 +162,7 @@ static int32_t
+ is_surf_in_ui_widget(struct hmi_controller *hmi_ctrl,
+ 		     struct ivi_layout_surface *ivisurf)
+ {
+-	uint32_t id = ivi_layout_get_id_of_surface(ivisurf);
++	uint32_t id = ivi_controller_interface->get_id_of_surface(ivisurf);
+ 
+ 	uint32_t *ui_widget_id = NULL;
+ 	wl_array_for_each(ui_widget_id, &hmi_ctrl->ui_widgets) {
+@@ -235,11 +243,11 @@ mode_divided_into_tiling(struct hmi_controller *hmi_ctrl,
+ 				surface_y = (int32_t)surface_height;
+ 			}
+ 
+-			ivi_layout_surface_set_transition(ivisurf,
++			ivi_controller_interface->surface_set_transition(ivisurf,
+ 					IVI_LAYOUT_TRANSITION_VIEW_DEFAULT,
+ 					duration);
+-			ivi_layout_surface_set_visibility(ivisurf, true);
+-			ivi_layout_surface_set_destination_rectangle(ivisurf,
++			ivi_controller_interface->surface_set_visibility(ivisurf, true);
++			ivi_controller_interface->surface_set_destination_rectangle(ivisurf,
+ 					surface_x, surface_y,
+ 					(int32_t)surface_width,
+ 					(int32_t)surface_height);
+@@ -247,11 +255,11 @@ mode_divided_into_tiling(struct hmi_controller *hmi_ctrl,
+ 			num++;
+ 			continue;
+ 		}
+-		ivi_layout_surface_set_visibility(ivisurf, false);
++		ivi_controller_interface->surface_set_visibility(ivisurf, false);
+ 	}
+ 
+ 	if (surf_num > 0) {
+-		ivi_layout_layer_set_transition(layer->ivilayer,
++		ivi_controller_interface->layer_set_transition(layer->ivilayer,
+ 				IVI_LAYOUT_TRANSITION_LAYER_VIEW_ORDER,
+ 				duration);
+ 	}
+@@ -282,11 +290,11 @@ mode_divided_into_sidebyside(struct hmi_controller *hmi_ctrl,
+ 			continue;
+ 
+ 		if (num == 1) {
+-			ivi_layout_surface_set_transition(ivisurf,
++			ivi_controller_interface->surface_set_transition(ivisurf,
+ 					IVI_LAYOUT_TRANSITION_VIEW_DEFAULT,
+ 					duration);
+-			ivi_layout_surface_set_visibility(ivisurf, true);
+-			ivi_layout_surface_set_destination_rectangle(ivisurf,
++			ivi_controller_interface->surface_set_visibility(ivisurf, true);
++			ivi_controller_interface->surface_set_destination_rectangle(ivisurf,
+ 							0, 0,
+ 							surface_width,
+ 							surface_height);
+@@ -294,11 +302,11 @@ mode_divided_into_sidebyside(struct hmi_controller *hmi_ctrl,
+ 			num++;
+ 			continue;
+ 		} else if (num == 2) {
+-			ivi_layout_surface_set_transition(ivisurf,
++			ivi_controller_interface->surface_set_transition(ivisurf,
+ 					IVI_LAYOUT_TRANSITION_VIEW_DEFAULT,
+ 					duration);
+-			ivi_layout_surface_set_visibility(ivisurf, true);
+-			ivi_layout_surface_set_destination_rectangle(ivisurf,
++			ivi_controller_interface->surface_set_visibility(ivisurf, true);
++			ivi_controller_interface->surface_set_destination_rectangle(ivisurf,
+ 							surface_width, 0,
+ 							surface_width,
+ 							surface_height);
+@@ -306,10 +314,10 @@ mode_divided_into_sidebyside(struct hmi_controller *hmi_ctrl,
+ 			num++;
+ 			continue;
+ 		}
+-		ivi_layout_surface_set_transition(ivisurf,
++		ivi_controller_interface->surface_set_transition(ivisurf,
+ 					IVI_LAYOUT_TRANSITION_VIEW_FADE_ONLY,
+ 					duration);
+-		ivi_layout_surface_set_visibility(ivisurf, false);
++		ivi_controller_interface->surface_set_visibility(ivisurf, false);
+ 	}
+ }
+ 
+@@ -332,11 +340,11 @@ mode_fullscreen_someone(struct hmi_controller *hmi_ctrl,
+ 		if (is_surf_in_ui_widget(hmi_ctrl, ivisurf))
+ 			continue;
+ 
+-		ivi_layout_surface_set_transition(ivisurf,
++		ivi_controller_interface->surface_set_transition(ivisurf,
+ 					IVI_LAYOUT_TRANSITION_VIEW_DEFAULT,
+ 					duration);
+-		ivi_layout_surface_set_visibility(ivisurf, true);
+-		ivi_layout_surface_set_destination_rectangle(ivisurf, 0, 0,
++		ivi_controller_interface->surface_set_visibility(ivisurf, true);
++		ivi_controller_interface->surface_set_destination_rectangle(ivisurf, 0, 0,
+ 							     surface_width,
+ 							     surface_height);
+ 	}
+@@ -363,14 +371,14 @@ mode_random_replace(struct hmi_controller *hmi_ctrl,
+ 		if (is_surf_in_ui_widget(hmi_ctrl, ivisurf))
+ 			continue;
+ 
+-		ivi_layout_surface_set_transition(ivisurf,
++		ivi_controller_interface->surface_set_transition(ivisurf,
+ 					IVI_LAYOUT_TRANSITION_VIEW_DEFAULT,
+ 					duration);
+-		ivi_layout_surface_set_visibility(ivisurf, true);
++		ivi_controller_interface->surface_set_visibility(ivisurf, true);
+ 		surface_x = rand() % (layer->width - surface_width);
+ 		surface_y = rand() % (layer->height - surface_height);
+ 
+-		ivi_layout_surface_set_destination_rectangle(ivisurf,
++		ivi_controller_interface->surface_set_destination_rectangle(ivisurf,
+ 							     surface_x,
+ 							     surface_y,
+ 							     surface_width,
+@@ -417,7 +425,7 @@ switch_mode(struct hmi_controller *hmi_ctrl,
+ 
+ 	hmi_ctrl->layout_mode = layout_mode;
+ 
+-	ret = ivi_layout_get_surfaces(&surface_length, &pp_surface);
++	ret = ivi_controller_interface->get_surfaces(&surface_length, &pp_surface);
+ 	assert(!ret);
+ 
+ 	if (!has_application_surface(hmi_ctrl, pp_surface, surface_length)) {
+@@ -445,7 +453,7 @@ switch_mode(struct hmi_controller *hmi_ctrl,
+ 		break;
+ 	}
+ 
+-	ivi_layout_commit_changes();
++	ivi_controller_interface->commit_changes();
+ 	free(pp_surface);
+ }
+ 
+@@ -463,11 +471,11 @@ hmi_controller_fade_run(struct hmi_controller *hmi_ctrl, uint32_t is_fade_in,
+ 	fade->is_fade_in = is_fade_in;
+ 
+ 	wl_list_for_each(linklayer, &fade->layer_list, link) {
+-		ivi_layout_layer_set_transition(linklayer->layout_layer,
++		ivi_controller_interface->layer_set_transition(linklayer->layout_layer,
+ 					IVI_LAYOUT_TRANSITION_LAYER_FADE,
+ 					duration);
+-		ivi_layout_layer_set_fade_info(linklayer->layout_layer,
+-					       is_fade_in, 1.0 - tint, tint);
++		ivi_controller_interface->layer_set_fade_info(linklayer->layout_layer,
++					is_fade_in, 1.0 - tint, tint);
+ 	}
+ }
+ 
+@@ -482,21 +490,21 @@ create_layer(struct ivi_layout_screen *iviscrn,
+ 	int32_t ret = 0;
+ 
+ 	layer->ivilayer =
+-		ivi_layout_layer_create_with_dimension(layer->id_layer,
++		ivi_controller_interface->layer_create_with_dimension(layer->id_layer,
+ 						       layer->width,
+ 						       layer->height);
+ 	assert(layer->ivilayer != NULL);
+ 
+-	ret = ivi_layout_screen_add_layer(iviscrn, layer->ivilayer);
++	ret = ivi_controller_interface->screen_add_layer(iviscrn, layer->ivilayer);
+ 	assert(!ret);
+ 
+-	ret = ivi_layout_layer_set_destination_rectangle(layer->ivilayer,
++	ret = ivi_controller_interface->layer_set_destination_rectangle(layer->ivilayer,
+ 							 layer->x, layer->y,
+ 							 layer->width,
+ 							 layer->height);
+ 	assert(!ret);
+ 
+-	ret = ivi_layout_layer_set_visibility(layer->ivilayer, true);
++	ret = ivi_controller_interface->layer_set_visibility(layer->ivilayer, true);
+ 	assert(!ret);
+ }
+ 
+@@ -516,7 +524,7 @@ set_notification_create_surface(struct ivi_layout_surface *ivisurf,
+ 	if (is_surf_in_ui_widget(hmi_ctrl, ivisurf))
+ 		return;
+ 
+-	ret = ivi_layout_layer_add_surface(application_layer, ivisurf);
++	ret = ivi_controller_interface->layer_add_surface(application_layer, ivisurf);
+ 	assert(!ret);
+ }
+ 
+@@ -630,11 +638,11 @@ hmi_controller_create(struct weston_compositor *ec)
+ 	hmi_ctrl->hmi_setting = hmi_server_setting_create(ec);
+ 	hmi_ctrl->compositor = ec;
+ 
+-	ivi_layout_get_screens(&screen_length, &pp_screen);
++	ivi_controller_interface->get_screens(&screen_length, &pp_screen);
+ 
+ 	iviscrn = pp_screen[0];
+ 
+-	ivi_layout_get_screen_resolution(iviscrn, &screen_width,
++	ivi_controller_interface->get_screen_resolution(iviscrn, &screen_width,
+ 					 &screen_height);
+ 
+ 	/* init base ivi_layer*/
+@@ -669,9 +677,9 @@ hmi_controller_create(struct weston_compositor *ec)
+ 		hmi_ctrl->hmi_setting->workspace_background_layer_id;
+ 
+ 	create_layer(iviscrn, &hmi_ctrl->workspace_background_layer);
+-	ivi_layout_layer_set_opacity(
++	ivi_controller_interface->layer_set_opacity(
+ 		hmi_ctrl->workspace_background_layer.ivilayer, 0);
+-	ivi_layout_layer_set_visibility(
++	ivi_controller_interface->layer_set_visibility(
+ 		hmi_ctrl->workspace_background_layer.ivilayer, false);
+ 
+ 	/* init workspace ivi_layer */
+@@ -685,8 +693,8 @@ hmi_controller_create(struct weston_compositor *ec)
+ 		hmi_ctrl->hmi_setting->workspace_layer_id;
+ 
+ 	create_layer(iviscrn, &hmi_ctrl->workspace_layer);
+-	ivi_layout_layer_set_opacity(hmi_ctrl->workspace_layer.ivilayer, 0);
+-	ivi_layout_layer_set_visibility(hmi_ctrl->workspace_layer.ivilayer,
++	ivi_controller_interface->layer_set_opacity(hmi_ctrl->workspace_layer.ivilayer, 0);
++	ivi_controller_interface->layer_set_visibility(hmi_ctrl->workspace_layer.ivilayer,
+ 					false);
+ 
+ 	wl_list_init(&hmi_ctrl->workspace_fade.layer_list);
+@@ -700,11 +708,11 @@ hmi_controller_create(struct weston_compositor *ec)
+ 	wl_list_insert(&hmi_ctrl->workspace_fade.layer_list,
+ 		       &tmp_link_layer->link);
+ 
+-	ivi_layout_add_notification_create_surface(
++	ivi_controller_interface->add_notification_create_surface(
+ 		set_notification_create_surface, hmi_ctrl);
+-	ivi_layout_add_notification_remove_surface(
++	ivi_controller_interface->add_notification_remove_surface(
+ 		set_notification_remove_surface, hmi_ctrl);
+-	ivi_layout_add_notification_configure_surface(
++	ivi_controller_interface->add_notification_configure_surface(
+ 		set_notification_configure_surface, hmi_ctrl);
+ 
+ 	hmi_ctrl->destroy_listener.notify = hmi_controller_destroy;
+@@ -744,17 +752,17 @@ ivi_hmi_controller_set_background(struct hmi_controller *hmi_ctrl,
+ 						sizeof(*add_surface_id));
+ 	*add_surface_id = id_surface;
+ 
+-	ivisurf = ivi_layout_get_surface_from_id(id_surface);
++	ivisurf = ivi_controller_interface->get_surface_from_id(id_surface);
+ 	assert(ivisurf != NULL);
+ 
+-	ret = ivi_layout_layer_add_surface(ivilayer, ivisurf);
++	ret = ivi_controller_interface->layer_add_surface(ivilayer, ivisurf);
+ 	assert(!ret);
+ 
+-	ret = ivi_layout_surface_set_destination_rectangle(ivisurf,
++	ret = ivi_controller_interface->surface_set_destination_rectangle(ivisurf,
+ 					dstx, dsty, width, height);
+ 	assert(!ret);
+ 
+-	ret = ivi_layout_surface_set_visibility(ivisurf, true);
++	ret = ivi_controller_interface->surface_set_visibility(ivisurf, true);
+ 	assert(!ret);
+ }
+ 
+@@ -781,21 +789,21 @@ ivi_hmi_controller_set_panel(struct hmi_controller *hmi_ctrl,
+ 						sizeof(*add_surface_id));
+ 	*add_surface_id = id_surface;
+ 
+-	ivisurf = ivi_layout_get_surface_from_id(id_surface);
++	ivisurf = ivi_controller_interface->get_surface_from_id(id_surface);
+ 	assert(ivisurf != NULL);
+ 
+-	ret = ivi_layout_layer_add_surface(ivilayer, ivisurf);
++	ret = ivi_controller_interface->layer_add_surface(ivilayer, ivisurf);
+ 	assert(!ret);
+ 
+ 	panel_height = hmi_ctrl->hmi_setting->panel_height;
+ 
+ 	dsty = hmi_ctrl->base_layer.height - panel_height;
+ 
+-	ret = ivi_layout_surface_set_destination_rectangle(
++	ret = ivi_controller_interface->surface_set_destination_rectangle(
+ 		ivisurf, dstx, dsty, width, panel_height);
+ 	assert(!ret);
+ 
+-	ret = ivi_layout_surface_set_visibility(ivisurf, true);
++	ret = ivi_controller_interface->surface_set_visibility(ivisurf, true);
+ 	assert(!ret);
+ }
+ 
+@@ -824,10 +832,10 @@ ivi_hmi_controller_set_button(struct hmi_controller *hmi_ctrl,
+ 						sizeof(*add_surface_id));
+ 	*add_surface_id = id_surface;
+ 
+-	ivisurf = ivi_layout_get_surface_from_id(id_surface);
++	ivisurf = ivi_controller_interface->get_surface_from_id(id_surface);
+ 	assert(ivisurf != NULL);
+ 
+-	ret = ivi_layout_layer_add_surface(ivilayer, ivisurf);
++	ret = ivi_controller_interface->layer_add_surface(ivilayer, ivisurf);
+ 	assert(!ret);
+ 
+ 	panel_height = hmi_ctrl->hmi_setting->panel_height;
+@@ -835,11 +843,11 @@ ivi_hmi_controller_set_button(struct hmi_controller *hmi_ctrl,
+ 	dstx = (60 * number) + 15;
+ 	dsty = (hmi_ctrl->base_layer.height - panel_height) + 5;
+ 
+-	ret = ivi_layout_surface_set_destination_rectangle(
++	ret = ivi_controller_interface->surface_set_destination_rectangle(
+ 		ivisurf,dstx, dsty, width, height);
+ 	assert(!ret);
+ 
+-	ret = ivi_layout_surface_set_visibility(ivisurf, true);
++	ret = ivi_controller_interface->surface_set_visibility(ivisurf, true);
+ 	assert(!ret);
+ }
+ 
+@@ -866,17 +874,17 @@ ivi_hmi_controller_set_home_button(struct hmi_controller *hmi_ctrl,
+ 						sizeof(*add_surface_id));
+ 	*add_surface_id = id_surface;
+ 
+-	ivisurf = ivi_layout_get_surface_from_id(id_surface);
++	ivisurf = ivi_controller_interface->get_surface_from_id(id_surface);
+ 	assert(ivisurf != NULL);
+ 
+-	ret = ivi_layout_layer_add_surface(ivilayer, ivisurf);
++	ret = ivi_controller_interface->layer_add_surface(ivilayer, ivisurf);
+ 	assert(!ret);
+ 
+-	ret = ivi_layout_surface_set_destination_rectangle(
++	ret = ivi_controller_interface->surface_set_destination_rectangle(
+ 			ivisurf, dstx, dsty, size, size);
+ 	assert(!ret);
+ 
+-	ret = ivi_layout_surface_set_visibility(ivisurf, true);
++	ret = ivi_controller_interface->surface_set_visibility(ivisurf, true);
+ 	assert(!ret);
+ }
+ 
+@@ -902,17 +910,17 @@ ivi_hmi_controller_set_workspacebackground(struct hmi_controller *hmi_ctrl,
+ 	*add_surface_id = id_surface;
+ 	ivilayer = hmi_ctrl->workspace_background_layer.ivilayer;
+ 
+-	ivisurf = ivi_layout_get_surface_from_id(id_surface);
++	ivisurf = ivi_controller_interface->get_surface_from_id(id_surface);
+ 	assert(ivisurf != NULL);
+ 
+-	ret = ivi_layout_layer_add_surface(ivilayer, ivisurf);
++	ret = ivi_controller_interface->layer_add_surface(ivilayer, ivisurf);
+ 	assert(!ret);
+ 
+-	ret = ivi_layout_surface_set_destination_rectangle(ivisurf,
++	ret = ivi_controller_interface->surface_set_destination_rectangle(ivisurf,
+ 							   0, 0, width, height);
+ 	assert(!ret);
+ 
+-	ret = ivi_layout_surface_set_visibility(ivisurf, true);
++	ret = ivi_controller_interface->surface_set_visibility(ivisurf, true);
+ 	assert(!ret);
+ }
+ 
+@@ -1037,17 +1045,17 @@ ivi_hmi_controller_add_launchers(struct hmi_controller *hmi_ctrl,
+ 		y = ny * fcell_size_y  + space_y;
+ 
+ 		layout_surface =
+-			ivi_layout_get_surface_from_id(data->surface_id);
++			ivi_controller_interface->get_surface_from_id(data->surface_id);
+ 		assert(layout_surface);
+ 
+-		ret = ivi_layout_layer_add_surface(layer, layout_surface);
++		ret = ivi_controller_interface->layer_add_surface(layer, layout_surface);
+ 		assert(!ret);
+ 
+-		ret = ivi_layout_surface_set_destination_rectangle(
++		ret = ivi_controller_interface->surface_set_destination_rectangle(
+ 				layout_surface, x, y, icon_size, icon_size);
+ 		assert(!ret);
+ 
+-		ret = ivi_layout_surface_set_visibility(layout_surface, true);
++		ret = ivi_controller_interface->surface_set_visibility(layout_surface, true);
+ 		assert(!ret);
+ 
+ 		nx++;
+@@ -1059,7 +1067,7 @@ ivi_hmi_controller_add_launchers(struct hmi_controller *hmi_ctrl,
+ 	}
+ 
+ 	wl_array_release(&launchers);
+-	ivi_layout_commit_changes();
++	ivi_controller_interface->commit_changes();
+ }
+ 
+ static void
+@@ -1076,7 +1084,7 @@ ivi_hmi_controller_UI_ready(struct wl_client *client,
+ 	ivi_hmi_controller_set_button(hmi_ctrl, hmi_ctrl->ui_setting.random_id, 3);
+ 	ivi_hmi_controller_set_home_button(hmi_ctrl, hmi_ctrl->ui_setting.home_id);
+ 	ivi_hmi_controller_set_workspacebackground(hmi_ctrl, hmi_ctrl->ui_setting.workspace_background_id);
+-	ivi_layout_commit_changes();
++	ivi_controller_interface->commit_changes();
+ 
+ 	ivi_hmi_controller_add_launchers(hmi_ctrl, 256);
+ 	hmi_ctrl->is_initialized = 1;
+@@ -1194,7 +1202,7 @@ move_workspace_grab_end(struct move_grab *move, struct wl_resource* resource,
+ 	if (200 < from_motion_time)
+ 		pointer_v = 0.0;
+ 
+-	ivi_layout_layer_get_position(layer, &pos_x, &pos_y);
++	ivi_controller_interface->layer_get_position(layer, &pos_x, &pos_y);
+ 
+ 
+ 	if (is_flick) {
+@@ -1214,14 +1222,14 @@ move_workspace_grab_end(struct move_grab *move, struct wl_resource* resource,
+ 
+ 	duration = hmi_ctrl->hmi_setting->transition_duration;
+ 	ivi_hmi_controller_send_workspace_end_control(resource, move->is_moved);
+-	ivi_layout_layer_set_transition(layer,
++	ivi_controller_interface->layer_set_transition(layer,
+ 					IVI_LAYOUT_TRANSITION_LAYER_MOVE,
+ 					duration);
+-	ivi_layout_layer_set_destination_rectangle(layer,
++	ivi_controller_interface->layer_set_destination_rectangle(layer,
+ 				end_pos, pos_y,
+ 				hmi_ctrl->workspace_background_layer.width,
+ 				hmi_ctrl->workspace_background_layer.height);
+-	ivi_layout_commit_changes();
++	ivi_controller_interface->commit_changes();
+ }
+ 
+ static void
+@@ -1299,8 +1307,8 @@ layer_set_pos(struct ivi_layout_layer *layer, wl_fixed_t pos_x,
+ 
+ 	layout_pos_x = wl_fixed_to_int(pos_x);
+ 	layout_pos_y = wl_fixed_to_int(pos_y);
+-	ivi_layout_layer_set_position(layer, layout_pos_x, layout_pos_y);
+-	ivi_layout_commit_changes();
++	ivi_controller_interface->layer_set_position(layer, layout_pos_x, layout_pos_y);
++	ivi_controller_interface->commit_changes();
+ }
+ 
+ static void
+@@ -1457,7 +1465,7 @@ move_grab_init_workspace(struct move_grab* move,
+ 	wl_fixed_t rgn[2][2] = {{0}};
+ 	wl_fixed_t grab_pos[2] = { grab_x, grab_y };
+ 
+-	ivi_layout_layer_get_position(layer, &layer_pos_x, &layer_pos_y);
++	ivi_controller_interface->layer_get_position(layer, &layer_pos_x, &layer_pos_y);
+ 
+ 	start_pos[0] = wl_fixed_from_int(layer_pos_x);
+ 	start_pos[1] = wl_fixed_from_int(layer_pos_y);
+@@ -1525,7 +1533,7 @@ ivi_hmi_controller_workspace_control(struct wl_client *client,
+ 
+ 	layer = hmi_ctrl->workspace_layer.ivilayer;
+ 
+-	ivi_layout_transition_move_layer_cancel(layer);
++	ivi_controller_interface->transition_move_layer_cancel(layer);
+ 
+ 	switch (device) {
+ 	case HMI_GRAB_DEVICE_POINTER:
+@@ -1585,7 +1593,7 @@ ivi_hmi_controller_home(struct wl_client *client,
+ 					&hmi_ctrl->workspace_fade);
+ 	}
+ 
+-	ivi_layout_commit_changes();
++	ivi_controller_interface->commit_changes();
+ }
+ 
+ /**
+@@ -1688,14 +1696,24 @@ launch_hmi_client_process(void *data)
+ /*****************************************************************************
+  *  exported functions
+  ****************************************************************************/
+-
+ WL_EXPORT int
+-module_init(struct weston_compositor *ec,
+-	    int *argc, char *argv[])
++controller_module_init(struct weston_compositor *ec,
++		       int *argc, char *argv[],
++		       const struct ivi_controller_interface *interface,
++		       size_t interface_version)
+ {
+-	struct hmi_controller *hmi_ctrl = hmi_controller_create(ec);
++	struct hmi_controller *hmi_ctrl = NULL;
+ 	struct wl_event_loop *loop = NULL;
+ 
++	if (interface_version < sizeof(struct ivi_controller_interface)) {
++		weston_log("ivi-shell: version mismatch of controller interface");
++		return -1;
++	}
++
++	ivi_controller_interface = interface;
++
++	hmi_ctrl = hmi_controller_create(ec);
++
+ 	if (!initialize(hmi_ctrl)) {
+ 		return -1;
+ 	}
+diff --git a/ivi-shell/ivi-layout-export.h b/ivi-shell/ivi-layout-export.h
+index 196b115..8848fb1 100644
+--- a/ivi-shell/ivi-layout-export.h
++++ b/ivi-shell/ivi-layout-export.h
+@@ -170,511 +170,605 @@ typedef void (*ivi_controller_surface_content_callback)(
+ 			int32_t content,
+ 			void *userdata);
+ 
+-/**
+- * \brief register for notification when layer is created
+- */
+-int32_t
+-ivi_layout_add_notification_create_layer(
+-			layer_create_notification_func callback,
+-			void *userdata);
+-
+-void
+-ivi_layout_remove_notification_create_layer(
+-			layer_create_notification_func callback,
+-			void *userdata);
+-
+-/**
+- * \brief register for notification when layer is removed
+- */
+-int32_t
+-ivi_layout_add_notification_remove_layer(
+-			layer_remove_notification_func callback,
+-			void *userdata);
+-
+-void
+-ivi_layout_remove_notification_remove_layer(
+-			layer_remove_notification_func callback,
+-			void *userdata);
+-
+-/**
+- * \brief register for notification when surface is created
+- */
+-int32_t
+-ivi_layout_add_notification_create_surface(
+-			surface_create_notification_func callback,
+-			void *userdata);
+-
+-void
+-ivi_layout_remove_notification_create_surface(
+-			surface_create_notification_func callback,
+-			void *userdata);
+-
+-/**
+- * \brief register for notification when surface is removed
+- */
+-int32_t
+-ivi_layout_add_notification_remove_surface(
+-			surface_remove_notification_func callback,
+-			void *userdata);
+-
+-void
+-ivi_layout_remove_notification_remove_surface(
+-			surface_remove_notification_func callback,
+-			void *userdata);
+-
+-/**
+- * \brief register for notification when surface is configured
+- */
+-int32_t
+-ivi_layout_add_notification_configure_surface(
+-			surface_configure_notification_func callback,
+-			void *userdata);
+-
+-void
+-ivi_layout_remove_notification_configure_surface(
+-			surface_configure_notification_func callback,
+-			void *userdata);
+-
+-/**
+- * \brief get id of surface from ivi_layout_surface
+- *
+- * \return id of surface
+- */
+-uint32_t
+-ivi_layout_get_id_of_surface(struct ivi_layout_surface *ivisurf);
+-
+-/**
+- * \brief get id of layer from ivi_layout_layer
+- *
+- *
+- * \return id of layer
+- */
+-uint32_t
+-ivi_layout_get_id_of_layer(struct ivi_layout_layer *ivilayer);
+-
+-/**
+- * \brief get ivi_layout_surface from id of surface
+- *
+- * \return (struct ivi_layout_surface *)
+- *              if the method call was successful
+- * \return NULL if the method call was failed
+- */
+-struct ivi_layout_surface *
+-ivi_layout_get_surface_from_id(uint32_t id_surface);
+-
+-/**
+- * \brief get ivi_layout_screen from id of screen
+- *
+- * \return (struct ivi_layout_screen *)
+- *              if the method call was successful
+- * \return NULL if the method call was failed
+- */
+-struct ivi_layout_screen *
+-ivi_layout_get_screen_from_id(uint32_t id_screen);
+-
+-/**
+- * \brief Get the screen resolution of a specific screen
+- *
+- * \return IVI_SUCCEEDED if the method call was successful
+- * \return IVI_FAILED if the method call was failed
+- */
+-int32_t
+-ivi_layout_get_screen_resolution(struct ivi_layout_screen *iviscrn,
+-				 int32_t *pWidth,
+-				 int32_t *pHeight);
+-
+-/**
+- * \brief Set an observer callback for surface content status change.
+- *
+- * \return IVI_SUCCEEDED if the method call was successful
+- * \return IVI_FAILED if the method call was failed
+- */
+-int32_t
+-ivi_layout_surface_set_content_observer(
+-			struct ivi_layout_surface *ivisurf,
+-			ivi_controller_surface_content_callback callback,
+-			void* userdata);
+-
+-/**
+- * \brief  Get the layer properties
+- *
+- * \return (const struct ivi_layout_layer_properties *)
+- *              if the method call was successful
+- * \return NULL if the method call was failed
+- */
+-const struct ivi_layout_layer_properties *
+-ivi_layout_get_properties_of_layer(struct ivi_layout_layer *ivilayer);
+-
+-/**
+- * \brief Get the screens
+- *
+- * \return IVI_SUCCEEDED if the method call was successful
+- * \return IVI_FAILED if the method call was failed
+- */
+-int32_t
+-ivi_layout_get_screens(int32_t *pLength, struct ivi_layout_screen ***ppArray);
+-
+-/**
+- * \brief Get the screens under the given layer
+- *
+- * \return IVI_SUCCEEDED if the method call was successful
+- * \return IVI_FAILED if the method call was failed
+- */
+-int32_t
+-ivi_layout_get_screens_under_layer(struct ivi_layout_layer *ivilayer,
+-				   int32_t *pLength,
+-				   struct ivi_layout_screen ***ppArray);
+-
+-/**
+- * \brief Get all Layers which are currently registered and managed
+- * by the services
+- *
+- * \return IVI_SUCCEEDED if the method call was successful
+- * \return IVI_FAILED if the method call was failed
+- */
+-int32_t
+-ivi_layout_get_layers(int32_t *pLength, struct ivi_layout_layer ***ppArray);
+-
+-/**
+- * \brief Get all Layers under the given surface
+- *
+- * \return IVI_SUCCEEDED if the method call was successful
+- * \return IVI_FAILED if the method call was failed
+- */
+-int32_t
+-ivi_layout_get_layers_under_surface(struct ivi_layout_surface *ivisurf,
+-				    int32_t *pLength,
+-				    struct ivi_layout_layer ***ppArray);
+-
+-/**
+- * \brief Get all Surfaces which are currently registered and managed
+- * by the services
+- *
+- * \return IVI_SUCCEEDED if the method call was successful
+- * \return IVI_FAILED if the method call was failed
+- */
+-int32_t
+-ivi_layout_get_surfaces(int32_t *pLength, struct ivi_layout_surface ***ppArray);
+-
+-/**
+- * \brief Create a layer which should be managed by the service
+- *
+- * \return (struct ivi_layout_layer *)
+- *              if the method call was successful
+- * \return NULL if the method call was failed
+- */
+-struct ivi_layout_layer *
+-ivi_layout_layer_create_with_dimension(uint32_t id_layer,
+-				       int32_t width, int32_t height);
+-
+-/**
+- * \brief Removes a layer which is currently managed by the service
+- */
+-void
+-ivi_layout_layer_remove(struct ivi_layout_layer *ivilayer);
+-
+-/**
+- * \brief Set the visibility of a layer. If a layer is not visible, the
+- * layer and its surfaces will not be rendered.
+- *
+- * \return IVI_SUCCEEDED if the method call was successful
+- * \return IVI_FAILED if the method call was failed
+- */
+-int32_t
+-ivi_layout_layer_set_visibility(struct ivi_layout_layer *ivilayer,
+-				bool newVisibility);
+-
+-/**
+- * \brief Set the opacity of a layer.
+- *
+- * \return IVI_SUCCEEDED if the method call was successful
+- * \return IVI_FAILED if the method call was failed
+- */
+-int32_t
+-ivi_layout_layer_set_opacity(struct ivi_layout_layer *ivilayer,
+-			     wl_fixed_t opacity);
+-
+-/**
+- * \brief Get the opacity of a layer.
+- *
+- * \return opacity if the method call was successful
+- * \return wl_fixed_from_double(0.0) if the method call was failed
+- */
+-wl_fixed_t
+-ivi_layout_layer_get_opacity(struct ivi_layout_layer *ivilayer);
+-
+-/**
+- * \brief Set the area of a layer which should be used for the rendering.
+- *
+- * Only this part will be visible.
+- *
+- * \return IVI_SUCCEEDED if the method call was successful
+- * \return IVI_FAILED if the method call was failed
+- */
+-int32_t
+-ivi_layout_layer_set_source_rectangle(struct ivi_layout_layer *ivilayer,
+-				      int32_t x, int32_t y,
+-				      int32_t width, int32_t height);
+-
+-/**
+- * \brief Set the destination area on the display for a layer.
+- *
+- * The layer will be scaled and positioned to this rectangle
+- * for rendering
+- *
+- * \return IVI_SUCCEEDED if the method call was successful
+- * \return IVI_FAILED if the method call was failed
+- */
+-int32_t
+-ivi_layout_layer_set_destination_rectangle(struct ivi_layout_layer *ivilayer,
+-					   int32_t x, int32_t y,
+-					   int32_t width, int32_t height);
+-
+-/**
+- * \brief Get the horizontal and vertical position of the layer.
+- *
+- * \return IVI_SUCCEEDED if the method call was successful
+- * \return IVI_FAILED if the method call was failed
+- */
+-int32_t
+-ivi_layout_layer_get_position(struct ivi_layout_layer *ivilayer,
+-			      int32_t *dest_x, int32_t *dest_y);
+-
+-/**
+- * \brief Sets the horizontal and vertical position of the layer.
+- *
+- * \return IVI_SUCCEEDED if the method call was successful
+- * \return IVI_FAILED if the method call was failed
+- */
+-int32_t
+-ivi_layout_layer_set_position(struct ivi_layout_layer *ivilayer,
+-			      int32_t dest_x, int32_t dest_y);
++struct ivi_controller_interface {
++
++	/**
++	 * \brief Commit all changes and execute all enqueued commands since
++	 * last commit.
++	 *
++	 * \return IVI_SUCCEEDED if the method call was successful
++	 * \return IVI_FAILED if the method call was failed
++	 */
++	int32_t (*commit_changes)(void);
++
++	/**
++	 * surface controller interface
++	 */
++
++	/**
++	 * \brief register/unregister for notification when ivi_surface is created
++	 */
++	int32_t (*add_notification_create_surface)(
++				surface_create_notification_func callback,
++				void *userdata);
++
++	void (*remove_notification_create_surface)(
++				surface_create_notification_func callback,
++				void *userdata);
++
++	/**
++	 * \brief register/unregister for notification when ivi_surface is removed
++	 */
++	int32_t (*add_notification_remove_surface)(
++				surface_remove_notification_func callback,
++				void *userdata);
++
++	void (*remove_notification_remove_surface)(
++				surface_remove_notification_func callback,
++				void *userdata);
++
++	/**
++	 * \brief register/unregister for notification when ivi_surface is configured
++	 */
++	int32_t (*add_notification_configure_surface)(
++				surface_configure_notification_func callback,
++				void *userdata);
++
++	void (*remove_notification_configure_surface)(
++				surface_configure_notification_func callback,
++				void *userdata);
++
++	/**
++	 * \brief Get all ivi_surfaces which are currently registered and managed
++	 * by the services
++	 *
++	 * \return IVI_SUCCEEDED if the method call was successful
++	 * \return IVI_FAILED if the method call was failed
++	 */
++	int32_t (*get_surfaces)(int32_t *pLength, struct ivi_layout_surface ***ppArray);
++
++	/**
++	 * \brief get id of ivi_surface from ivi_layout_surface
++	 *
++	 * \return id of ivi_surface
++	 */
++	uint32_t (*get_id_of_surface)(struct ivi_layout_surface *ivisurf);
++
++	/**
++	 * \brief get ivi_layout_surface from id of ivi_surface
++	 *
++	 * \return (struct ivi_layout_surface *)
++	 *              if the method call was successful
++	 * \return NULL if the method call was failed
++	 */
++	struct ivi_layout_surface *
++		(*get_surface_from_id)(uint32_t id_surface);
++
++	/**
++	 * \brief get ivi_layout_surface_properties from ivisurf
++	 *
++	 * \return (struct ivi_layout_surface_properties *)
++	 *              if the method call was successful
++	 * \return NULL if the method call was failed
++	 */
++	const struct ivi_layout_surface_properties *
++		(*get_properties_of_surface)(struct ivi_layout_surface *ivisurf);
++
++	/**
++	 * \brief Get all Surfaces which are currently registered to a given
++	 * layer and are managed by the services
++	 *
++	 * \return IVI_SUCCEEDED if the method call was successful
++	 * \return IVI_FAILED if the method call was failed
++	 */
++	int32_t (*get_surfaces_on_layer)(struct ivi_layout_layer *ivilayer,
++					 int32_t *pLength,
++					 struct ivi_layout_surface ***ppArray);
++
++	/**
++	 * \brief Set the visibility of a ivi_surface.
++	 *
++	 * If a surface is not visible it will not be rendered.
++	 *
++	 * \return IVI_SUCCEEDED if the method call was successful
++	 * \return IVI_FAILED if the method call was failed
++	 */
++	int32_t (*surface_set_visibility)(struct ivi_layout_surface *ivisurf,
++					  bool newVisibility);
++
++	/**
++	 * \brief Get the visibility of a surface.
++	 *
++	 * If a surface is not visible it will not be rendered.
++	 *
++	 * \return true if surface is visible
++	 * \return false if surface is invisible or the method call was failed
++	 */
++	bool (*surface_get_visibility)(struct ivi_layout_surface *ivisurf);
++
++	/**
++	 * \brief Set the opacity of a surface.
++	 *
++	 * \return IVI_SUCCEEDED if the method call was successful
++	 * \return IVI_FAILED if the method call was failed
++	 */
++	int32_t (*surface_set_opacity)(struct ivi_layout_surface *ivisurf,
++				       wl_fixed_t opacity);
++
++	/**
++	 * \brief Get the opacity of a ivi_surface.
++	 *
++	 * \return opacity if the method call was successful
++	 * \return wl_fixed_from_double(0.0) if the method call was failed
++	 */
++	wl_fixed_t (*surface_get_opacity)(struct ivi_layout_surface *ivisurf);
++
++	/**
++	 * \brief Set the area of a ivi_surface which should be used for the rendering.
++	 *
++	 * \return IVI_SUCCEEDED if the method call was successful
++	 * \return IVI_FAILED if the method call was failed
++	 */
++	int32_t (*surface_set_source_rectangle)(struct ivi_layout_surface *ivisurf,
++						int32_t x, int32_t y,
++						int32_t width, int32_t height);
++
++	/**
++	 * \brief Set the destination area of a ivi_surface within a ivi_layer
++	 * for rendering.
++	 *
++	 * The surface will be scaled to this rectangle for rendering.
++	 *
++	 * \return IVI_SUCCEEDED if the method call was successful
++	 * \return IVI_FAILED if the method call was failed
++	 */
++	int32_t (*surface_set_destination_rectangle)(struct ivi_layout_surface *ivisurf,
++						     int32_t x, int32_t y,
++						     int32_t width, int32_t height);
++
++	/**
++	 * \brief Sets the horizontal and vertical position of the surface.
++	 *
++	 * \return IVI_SUCCEEDED if the method call was successful
++	 * \return IVI_FAILED if the method call was failed
++	 */
++	int32_t (*surface_set_position)(struct ivi_layout_surface *ivisurf,
++					int32_t dest_x, int32_t dest_y);
++
++	/**
++	 * \brief Get the horizontal and vertical position of the surface.
++	 *
++	 * \return IVI_SUCCEEDED if the method call was successful
++	 * \return IVI_FAILED if the method call was failed
++	 */
++	int32_t (*surface_get_position)(struct ivi_layout_surface *ivisurf,
++					int32_t *dest_x, int32_t *dest_y);
++
++	/**
++	 * \brief Set the horizontal and vertical dimension of the surface.
++	 *
++	 * \return IVI_SUCCEEDED if the method call was successful
++	 * \return IVI_FAILED if the method call was failed
++	 */
++	int32_t (*surface_set_dimension)(struct ivi_layout_surface *ivisurf,
++					 int32_t dest_width, int32_t dest_height);
++
++	/**
++	 * \brief Get the horizontal and vertical dimension of the surface.
++	 *
++	 * \return IVI_SUCCEEDED if the method call was successful
++	 * \return IVI_FAILED if the method call was failed
++	 */
++	int32_t (*surface_get_dimension)(struct ivi_layout_surface *ivisurf,
++					 int32_t *dest_width, int32_t *dest_height);
++
++	/**
++	 * \brief Sets the orientation of a ivi_surface.
++	 *
++	 * \return IVI_SUCCEEDED if the method call was successful
++	 * \return IVI_FAILED if the method call was failed
++	 */
++	int32_t (*surface_set_orientation)(struct ivi_layout_surface *ivisurf,
++					   enum wl_output_transform orientation);
++
++	/**
++	 * \brief Gets the orientation of a surface.
++	 *
++	 * \return (enum wl_output_transform)
++	 *              if the method call was successful
++	 * \return WL_OUTPUT_TRANSFORM_NORMAL if the method call was failed
++	 */
++	enum wl_output_transform
++		(*surface_get_orientation)(struct ivi_layout_surface *ivisurf);
++
++	/**
++	 * \brief Set an observer callback for ivi_surface content status change.
++	 *
++	 * \return IVI_SUCCEEDED if the method call was successful
++	 * \return IVI_FAILED if the method call was failed
++	 */
++	int32_t (*surface_set_content_observer)(
++				struct ivi_layout_surface *ivisurf,
++				ivi_controller_surface_content_callback callback,
++				void* userdata);
++
++	/**
++	 * \brief register for notification on property changes of ivi_surface
++	 *
++	 * \return IVI_SUCCEEDED if the method call was successful
++	 * \return IVI_FAILED if the method call was failed
++	 */
++	int32_t (*surface_add_notification)(struct ivi_layout_surface *ivisurf,
++					    surface_property_notification_func callback,
++					    void *userdata);
++
++	/**
++	 * \brief remove notification on property changes of ivi_surface
++	 */
++	void (*surface_remove_notification)(struct ivi_layout_surface *ivisurf);
++
++	/**
++	 * \brief get weston_surface of ivi_surface
++	 */
++	struct weston_surface *
++		(*surface_get_weston_surface)(struct ivi_layout_surface *ivisurf);
++
++	/**
++	 * \brief set type of transition animation
++	 */
++	int32_t (*surface_set_transition)(struct ivi_layout_surface *ivisurf,
++					  enum ivi_layout_transition_type type,
++					  uint32_t duration);
++
++	/**
++	 * \brief set duration of transition animation
++	 */
++	int32_t (*surface_set_transition_duration)(
++					struct ivi_layout_surface *ivisurf,
++					uint32_t duration);
++
++	/**
++	 * layer controller interface
++	 */
++
++	/**
++	 * \brief register/unregister for notification when ivi_layer is created
++	 */
++	int32_t (*add_notification_create_layer)(
++				layer_create_notification_func callback,
++				void *userdata);
++
++	void (*remove_notification_create_layer)(
++				layer_create_notification_func callback,
++				void *userdata);
++
++	/**
++	 * \brief register/unregister for notification when ivi_layer is removed
++	 */
++	int32_t (*add_notification_remove_layer)(
++				layer_remove_notification_func callback,
++				void *userdata);
++
++	void (*remove_notification_remove_layer)(
++				layer_remove_notification_func callback,
++				void *userdata);
++
++	/**
++	 * \brief Create a ivi_layer which should be managed by the service
++	 *
++	 * \return (struct ivi_layout_layer *)
++	 *              if the method call was successful
++	 * \return NULL if the method call was failed
++	 */
++	struct ivi_layout_layer *
++		(*layer_create_with_dimension)(uint32_t id_layer,
++					       int32_t width, int32_t height);
++
++	/**
++	 * \brief Removes a ivi_layer which is currently managed by the service
++	 */
++	void (*layer_remove)(struct ivi_layout_layer *ivilayer);
++
++	/**
++	 * \brief Get all ivi_layers which are currently registered and managed
++	 * by the services
++	 *
++	 * \return IVI_SUCCEEDED if the method call was successful
++	 * \return IVI_FAILED if the method call was failed
++	 */
++	int32_t (*get_layers)(int32_t *pLength, struct ivi_layout_layer ***ppArray);
++
++	/**
++	 * \brief get id of ivi_layer from ivi_layout_layer
++	 *
++	 *
++	 * \return id of ivi_layer
++	 */
++	uint32_t (*get_id_of_layer)(struct ivi_layout_layer *ivilayer);
++
++	/**
++	 * \brief get ivi_layout_layer from id of layer
++	 *
++	 * \return (struct ivi_layout_layer *)
++	 *              if the method call was successful
++	 * \return NULL if the method call was failed
++	 */
++	struct ivi_layout_layer * (*get_layer_from_id)(uint32_t id_layer);
++
++	/**
++	 * \brief  Get the ivi_layer properties
++	 *
++	 * \return (const struct ivi_layout_layer_properties *)
++	 *              if the method call was successful
++	 * \return NULL if the method call was failed
++	 */
++	const struct ivi_layout_layer_properties *
++		(*get_properties_of_layer)(struct ivi_layout_layer *ivilayer);
++
++	/**
++	 * \brief Get all ivi_ayers under the given ivi_surface
++	 *
++	 * \return IVI_SUCCEEDED if the method call was successful
++	 * \return IVI_FAILED if the method call was failed
++	 */
++	int32_t (*get_layers_under_surface)(struct ivi_layout_surface *ivisurf,
++					    int32_t *pLength,
++					    struct ivi_layout_layer ***ppArray);
++
++	/**
++	 * \brief Get all Layers of the given screen
++	 *
++	 * \return IVI_SUCCEEDED if the method call was successful
++	 * \return IVI_FAILED if the method call was failed
++	 */
++	int32_t (*get_layers_on_screen)(struct ivi_layout_screen *iviscrn,
++					int32_t *pLength,
++					struct ivi_layout_layer ***ppArray);
++
++	/**
++	 * \brief Set the visibility of a ivi_layer. If a ivi_layer is not visible,
++	 * the ivi_layer and its ivi_surfaces will not be rendered.
++	 *
++	 * \return IVI_SUCCEEDED if the method call was successful
++	 * \return IVI_FAILED if the method call was failed
++	 */
++	int32_t (*layer_set_visibility)(struct ivi_layout_layer *ivilayer,
++					bool newVisibility);
++
++	/**
++	 * \brief Get the visibility of a layer. If a layer is not visible,
++	 * the layer and its surfaces will not be rendered.
++	 *
++	 * \return true if layer is visible
++	 * \return false if layer is invisible or the method call was failed
++	 */
++	bool (*layer_get_visibility)(struct ivi_layout_layer *ivilayer);
++
++	/**
++	 * \brief Set the opacity of a ivi_layer.
++	 *
++	 * \return IVI_SUCCEEDED if the method call was successful
++	 * \return IVI_FAILED if the method call was failed
++	 */
++	int32_t (*layer_set_opacity)(struct ivi_layout_layer *ivilayer,
++				     wl_fixed_t opacity);
++
++	/**
++	 * \brief Get the opacity of a ivi_layer.
++	 *
++	 * \return opacity if the method call was successful
++	 * \return wl_fixed_from_double(0.0) if the method call was failed
++	 */
++	wl_fixed_t (*layer_get_opacity)(struct ivi_layout_layer *ivilayer);
++
++	/**
++	 * \brief Set the area of a ivi_layer which should be used for the rendering.
++	 *
++	 * Only this part will be visible.
++	 *
++	 * \return IVI_SUCCEEDED if the method call was successful
++	 * \return IVI_FAILED if the method call was failed
++	 */
++	int32_t (*layer_set_source_rectangle)(struct ivi_layout_layer *ivilayer,
++					      int32_t x, int32_t y,
++					      int32_t width, int32_t height);
++
++	/**
++	 * \brief Set the destination area on the display for a ivi_layer.
++	 *
++	 * The ivi_layer will be scaled and positioned to this rectangle
++	 * for rendering
++	 *
++	 * \return IVI_SUCCEEDED if the method call was successful
++	 * \return IVI_FAILED if the method call was failed
++	 */
++	int32_t (*layer_set_destination_rectangle)(struct ivi_layout_layer *ivilayer,
++						   int32_t x, int32_t y,
++						   int32_t width, int32_t height);
++
++	/**
++	 * \brief Sets the horizontal and vertical position of the ivi_layer.
++	 *
++	 * \return IVI_SUCCEEDED if the method call was successful
++	 * \return IVI_FAILED if the method call was failed
++	 */
++	int32_t (*layer_set_position)(struct ivi_layout_layer *ivilayer,
++				      int32_t dest_x, int32_t dest_y);
++
++	/**
++	 * \brief Get the horizontal and vertical position of the ivi_layer.
++	 *
++	 * \return IVI_SUCCEEDED if the method call was successful
++	 * \return IVI_FAILED if the method call was failed
++	 */
++	int32_t (*layer_get_position)(struct ivi_layout_layer *ivilayer,
++				      int32_t *dest_x, int32_t *dest_y);
++
++	/**
++	 * \brief Set the horizontal and vertical dimension of the layer.
++	 *
++	 * \return IVI_SUCCEEDED if the method call was successful
++	 * \return IVI_FAILED if the method call was failed
++	 */
++	int32_t (*layer_set_dimension)(struct ivi_layout_layer *ivilayer,
++				       int32_t dest_width, int32_t dest_height);
++
++	/**
++	 * \brief Get the horizontal and vertical dimension of the layer.
++	 *
++	 * \return IVI_SUCCEEDED if the method call was successful
++	 * \return IVI_FAILED if the method call was failed
++	 */
++	int32_t (*layer_get_dimension)(struct ivi_layout_layer *ivilayer,
++				       int32_t *dest_width, int32_t *dest_height);
++
++	/**
++	 * \brief Sets the orientation of a ivi_layer.
++	 *
++	 * \return IVI_SUCCEEDED if the method call was successful
++	 * \return IVI_FAILED if the method call was failed
++	 */
++	int32_t (*layer_set_orientation)(struct ivi_layout_layer *ivilayer,
++					 enum wl_output_transform orientation);
++
++	/**
++	 * \brief Gets the orientation of a layer.
++	 *
++	 * \return (enum wl_output_transform)
++	 *              if the method call was successful
++	 * \return WL_OUTPUT_TRANSFORM_NORMAL if the method call was failed
++	 */
++	enum wl_output_transform
++		(*layer_get_orientation)(struct ivi_layout_layer *ivilayer);
++
++	/**
++	 * \brief Add a ivi_surface to a ivi_layer which is currently managed by the service
++	 *
++	 * \return IVI_SUCCEEDED if the method call was successful
++	 * \return IVI_FAILED if the method call was failed
++	 */
++	int32_t (*layer_add_surface)(struct ivi_layout_layer *ivilayer,
++				     struct ivi_layout_surface *addsurf);
++
++	/**
++	 * \brief Removes a surface from a layer which is currently managed by the service
++	 */
++	void (*layer_remove_surface)(struct ivi_layout_layer *ivilayer,
++				     struct ivi_layout_surface *remsurf);
++
++	/**
++	 * \brief Sets render order of ivi_surfaces within a ivi_layer
++	 *
++	 * \return IVI_SUCCEEDED if the method call was successful
++	 * \return IVI_FAILED if the method call was failed
++	 */
++	int32_t (*layer_set_render_order)(struct ivi_layout_layer *ivilayer,
++					  struct ivi_layout_surface **pSurface,
++					  int32_t number);
++
++	/**
++	 * \brief register for notification on property changes of ivi_layer
++	 *
++	 * \return IVI_SUCCEEDED if the method call was successful
++	 * \return IVI_FAILED if the method call was failed
++	 */
++	int32_t (*layer_add_notification)(struct ivi_layout_layer *ivilayer,
++					  layer_property_notification_func callback,
++					  void *userdata);
++
++	/**
++	 * \brief remove notification on property changes of ivi_layer
++	 */
++	void (*layer_remove_notification)(struct ivi_layout_layer *ivilayer);
++
++	/**
++	 * \brief set type of transition animation
++	 */
++	int32_t (*layer_set_transition)(struct ivi_layout_layer *ivilayer,
++					enum ivi_layout_transition_type type,
++					uint32_t duration);
++
++	/**
++	 * screen controller interface
++	 */
++
++	/**
++	 * \brief get ivi_layout_screen from id of ivi_screen
++	 *
++	 * \return (struct ivi_layout_screen *)
++	 *              if the method call was successful
++	 * \return NULL if the method call was failed
++	 */
++	struct ivi_layout_screen *
++		(*get_screen_from_id)(uint32_t id_screen);
++
++	/**
++	 * \brief Get the screen resolution of a specific ivi_screen
++	 *
++	 * \return IVI_SUCCEEDED if the method call was successful
++	 * \return IVI_FAILED if the method call was failed
++	 */
++	int32_t (*get_screen_resolution)(struct ivi_layout_screen *iviscrn,
++					 int32_t *pWidth,
++					 int32_t *pHeight);
++
++	/**
++	 * \brief Get the ivi_screens
++	 *
++	 * \return IVI_SUCCEEDED if the method call was successful
++	 * \return IVI_FAILED if the method call was failed
++	 */
++	int32_t (*get_screens)(int32_t *pLength, struct ivi_layout_screen ***ppArray);
++
++	/**
++	 * \brief Get the ivi_screens under the given ivi_layer
++	 *
++	 * \return IVI_SUCCEEDED if the method call was successful
++	 * \return IVI_FAILED if the method call was failed
++	 */
++	int32_t (*get_screens_under_layer)(struct ivi_layout_layer *ivilayer,
++					   int32_t *pLength,
++					   struct ivi_layout_screen ***ppArray);
++
++	/**
++	 * \brief Add a ivi_layer to a ivi_screen which is currently managed
++	 * by the service
++	 *
++	 * \return IVI_SUCCEEDED if the method call was successful
++	 * \return IVI_FAILED if the method call was failed
++	 */
++	int32_t (*screen_add_layer)(struct ivi_layout_screen *iviscrn,
++				    struct ivi_layout_layer *addlayer);
++
++	/**
++	 * \brief Sets render order of ivi_layers on a ivi_screen
++	 *
++	 * \return IVI_SUCCEEDED if the method call was successful
++	 * \return IVI_FAILED if the method call was failed
++	 */
++	int32_t (*screen_set_render_order)(struct ivi_layout_screen *iviscrn,
++					   struct ivi_layout_layer **pLayer,
++					   const int32_t number);
++
++	/**
++	 * \brief get weston_output from ivi_layout_screen.
++	 *
++	 * \return (struct weston_output *)
++	 *              if the method call was successful
++	 * \return NULL if the method call was failed
++	 */
++	struct weston_output *(*screen_get_output)(struct ivi_layout_screen *);
++
++
++	/**
++	 * transision animation for layer
++	 */
++	void (*transition_move_layer_cancel)(struct ivi_layout_layer *layer);
++	int32_t (*layer_set_fade_info)(struct ivi_layout_layer* ivilayer,
++				       uint32_t is_fade_in,
++				       double start_alpha, double end_alpha);
+ 
+-/**
+- * \brief Sets the orientation of a layer.
+- *
+- * \return IVI_SUCCEEDED if the method call was successful
+- * \return IVI_FAILED if the method call was failed
+- */
+-int32_t
+-ivi_layout_layer_set_orientation(struct ivi_layout_layer *ivilayer,
+-				 enum wl_output_transform orientation);
+-
+-/**
+- * \brief Sets render order of surfaces within one layer
+- *
+- * \return IVI_SUCCEEDED if the method call was successful
+- * \return IVI_FAILED if the method call was failed
+- */
+-int32_t
+-ivi_layout_layer_set_render_order(struct ivi_layout_layer *ivilayer,
+-				  struct ivi_layout_surface **pSurface,
+-				  int32_t number);
+-
+-/**
+- * \brief Set the visibility of a surface.
+- *
+- * If a surface is not visible it will not be rendered.
+- *
+- * \return IVI_SUCCEEDED if the method call was successful
+- * \return IVI_FAILED if the method call was failed
+- */
+-int32_t
+-ivi_layout_surface_set_visibility(struct ivi_layout_surface *ivisurf,
+-				  bool newVisibility);
+-
+-/**
+- * \brief Get the visibility of a surface.
+- *
+- * If a surface is not visible it will not be rendered.
+- *
+- * \return true if surface is visible
+- * \return false if surface is invisible or the method call was failed
+- */
+-bool
+-ivi_layout_surface_get_visibility(struct ivi_layout_surface *ivisurf);
+-
+-/**
+- * \brief Set the opacity of a surface.
+- *
+- * \return IVI_SUCCEEDED if the method call was successful
+- * \return IVI_FAILED if the method call was failed
+- */
+-int32_t
+-ivi_layout_surface_set_opacity(struct ivi_layout_surface *ivisurf,
+-			       wl_fixed_t opacity);
+-
+-/**
+- * \brief Get the opacity of a surface.
+- *
+- * \return opacity if the method call was successful
+- * \return wl_fixed_from_double(0.0) if the method call was failed
+- */
+-wl_fixed_t
+-ivi_layout_surface_get_opacity(struct ivi_layout_surface *ivisurf);
+-
+-/**
+- * \brief Set the destination area of a surface within a layer for rendering.
+- *
+- * The surface will be scaled to this rectangle for rendering.
+- *
+- * \return IVI_SUCCEEDED if the method call was successful
+- * \return IVI_FAILED if the method call was failed
+- */
+-int32_t
+-ivi_layout_surface_set_destination_rectangle(struct ivi_layout_surface *ivisurf,
+-					     int32_t x, int32_t y,
+-					     int32_t width, int32_t height);
+-
+-/**
+- * \brief Sets the orientation of a surface.
+- *
+- * \return IVI_SUCCEEDED if the method call was successful
+- * \return IVI_FAILED if the method call was failed
+- */
+-int32_t
+-ivi_layout_surface_set_orientation(struct ivi_layout_surface *ivisurf,
+-				   enum wl_output_transform orientation);
+-
+-/**
+- * \brief Add a layer to a screen which is currently managed by the service
+- *
+- * \return IVI_SUCCEEDED if the method call was successful
+- * \return IVI_FAILED if the method call was failed
+- */
+-int32_t
+-ivi_layout_screen_add_layer(struct ivi_layout_screen *iviscrn,
+-			    struct ivi_layout_layer *addlayer);
+-
+-/**
+- * \brief Sets render order of layers on a display
+- *
+- * \return IVI_SUCCEEDED if the method call was successful
+- * \return IVI_FAILED if the method call was failed
+- */
+-int32_t
+-ivi_layout_screen_set_render_order(struct ivi_layout_screen *iviscrn,
+-				   struct ivi_layout_layer **pLayer,
+-				   const int32_t number);
+-
+-/**
+- * \brief register for notification on property changes of layer
+- *
+- * \return IVI_SUCCEEDED if the method call was successful
+- * \return IVI_FAILED if the method call was failed
+- */
+-int32_t
+-ivi_layout_layer_add_notification(struct ivi_layout_layer *ivilayer,
+-				  layer_property_notification_func callback,
+-				  void *userdata);
+-
+-/**
+- * \brief remove notification on property changes of layer
+- */
+-void
+-ivi_layout_layer_remove_notification(struct ivi_layout_layer *ivilayer);
+-
+-/**
+- * \brief register for notification on property changes of surface
+- *
+- * \return IVI_SUCCEEDED if the method call was successful
+- * \return IVI_FAILED if the method call was failed
+- */
+-int32_t
+-ivi_layout_surface_add_notification(struct ivi_layout_surface *ivisurf,
+-				    surface_property_notification_func callback,
+-				    void *userdata);
+-
+-/**
+- * \brief remove notification on property changes of surface
+- */
+-void
+-ivi_layout_surface_remove_notification(struct ivi_layout_surface *ivisurf);
+-
+-/**
+- * \brief Get the surface properties
+- *
+- * \return (const struct ivi_surface_layer_properties *)
+- *              if the method call was successful
+- * \return NULL if the method call was failed
+- */
+-const struct ivi_layout_surface_properties *
+-ivi_layout_get_properties_of_surface(struct ivi_layout_surface *ivisurf);
+-
+-/**
+- * \brief Add a surface to a layer which is currently managed by the service
+- *
+- * \return IVI_SUCCEEDED if the method call was successful
+- * \return IVI_FAILED if the method call was failed
+- */
+-int32_t
+-ivi_layout_layer_add_surface(struct ivi_layout_layer *ivilayer,
+-			     struct ivi_layout_surface *addsurf);
+-
+-/**
+- * \brief Removes a surface from a layer which is currently managed by the service
+- */
+-void
+-ivi_layout_layer_remove_surface(struct ivi_layout_layer *ivilayer,
+-				struct ivi_layout_surface *remsurf);
+-
+-/**
+- * \brief Set the area of a surface which should be used for the rendering.
+- *
+- * \return IVI_SUCCEEDED if the method call was successful
+- * \return IVI_FAILED if the method call was failed
+- */
+-int32_t
+-ivi_layout_surface_set_source_rectangle(struct ivi_layout_surface *ivisurf,
+-					int32_t x, int32_t y,
+-					int32_t width, int32_t height);
+-
+-/**
+- * \brief get weston_output from ivi_layout_screen.
+- *
+- * \return (struct weston_output *)
+- *              if the method call was successful
+- * \return NULL if the method call was failed
+- */
+-struct weston_output *
+-ivi_layout_screen_get_output(struct ivi_layout_screen *);
+-
+-struct weston_surface *
+-ivi_layout_surface_get_weston_surface(struct ivi_layout_surface *ivisurf);
+-
+-int32_t
+-ivi_layout_layer_set_transition(struct ivi_layout_layer *ivilayer,
+-				enum ivi_layout_transition_type type,
+-				uint32_t duration);
+-
+-int32_t
+-ivi_layout_layer_set_fade_info(struct ivi_layout_layer* layer,
+-			       uint32_t is_fade_in,
+-			       double start_alpha, double end_alpha);
+-
+-int32_t
+-ivi_layout_surface_set_transition(struct ivi_layout_surface *ivisurf,
+-				  enum ivi_layout_transition_type type,
+-				  uint32_t duration);
+-
+-void
+-ivi_layout_transition_layer_render_order(struct ivi_layout_layer* layer,
+-					 struct ivi_layout_surface** new_order,
+-					 uint32_t surface_num,
+-					 uint32_t duration);
+-
+-void
+-ivi_layout_transition_move_layer_cancel(struct ivi_layout_layer* layer);
+-
+-/**
+- * \brief Commit all changes and execute all enqueued commands since
+- * last commit.
+- *
+- * \return IVI_SUCCEEDED if the method call was successful
+- * \return IVI_FAILED if the method call was failed
+- */
+-int32_t
+-ivi_layout_commit_changes(void);
++};
+ 
+ #ifdef __cplusplus
+ }
+diff --git a/ivi-shell/ivi-layout-private.h b/ivi-shell/ivi-layout-private.h
+index df3ac98..4531748 100644
+--- a/ivi-shell/ivi-layout-private.h
++++ b/ivi-shell/ivi-layout-private.h
+@@ -159,140 +159,6 @@ int32_t
+ is_surface_transition(struct ivi_layout_surface *surface);
+ 
+ /**
+- * \brief get ivi_layout_layer from id of layer
+- *
+- * \return (struct ivi_layout_layer *)
+- *              if the method call was successful
+- * \return NULL if the method call was failed
+- */
+-struct ivi_layout_layer *
+-ivi_layout_get_layer_from_id(uint32_t id_layer);
+-
+-/**
+- * \brief Remove a surface
+- */
+-void
+-ivi_layout_surface_remove(struct ivi_layout_surface *ivisurf);
+-
+-/**
+- * \brief Get all Layers of the given screen
+- *
+- * \return IVI_SUCCEEDED if the method call was successful
+- * \return IVI_FAILED if the method call was failed
+- */
+-int32_t
+-ivi_layout_get_layers_on_screen(struct ivi_layout_screen *iviscrn,
+-				int32_t *pLength,
+-				struct ivi_layout_layer ***ppArray);
+-
+-/**
+- * \brief Get all Surfaces which are currently registered to a given
+- * layer and are managed by the services
+- *
+- * \return IVI_SUCCEEDED if the method call was successful
+- * \return IVI_FAILED if the method call was failed
+- */
+-int32_t
+-ivi_layout_get_surfaces_on_layer(struct ivi_layout_layer *ivilayer,
+-				 int32_t *pLength,
+-				 struct ivi_layout_surface ***ppArray);
+-
+-/**
+- * \brief Get the visibility of a layer. If a layer is not visible,
+- * the layer and its surfaces will not be rendered.
+- *
+- * \return true if layer is visible
+- * \return false if layer is invisible or the method call was failed
+- */
+-bool
+-ivi_layout_layer_get_visibility(struct ivi_layout_layer *ivilayer);
+-
+-/**
+- * \brief Get the horizontal and vertical dimension of the layer.
+- *
+- * \return IVI_SUCCEEDED if the method call was successful
+- * \return IVI_FAILED if the method call was failed
+- */
+-int32_t
+-ivi_layout_layer_get_dimension(struct ivi_layout_layer *ivilayer,
+-			       int32_t *dest_width, int32_t *dest_height);
+-
+-/**
+- * \brief Set the horizontal and vertical dimension of the layer.
+- *
+- * \return IVI_SUCCEEDED if the method call was successful
+- * \return IVI_FAILED if the method call was failed
+- */
+-int32_t
+-ivi_layout_layer_set_dimension(struct ivi_layout_layer *ivilayer,
+-			       int32_t dest_width, int32_t dest_height);
+-
+-/**
+- * \brief Gets the orientation of a layer.
+- *
+- * \return (enum wl_output_transform)
+- *              if the method call was successful
+- * \return WL_OUTPUT_TRANSFORM_NORMAL if the method call was failed
+- */
+-enum wl_output_transform
+-ivi_layout_layer_get_orientation(struct ivi_layout_layer *ivilayer);
+-
+-/**
+- * \brief Set the horizontal and vertical dimension of the surface.
+- *
+- * \return IVI_SUCCEEDED if the method call was successful
+- * \return IVI_FAILED if the method call was failed
+- */
+-int32_t
+-ivi_layout_surface_set_dimension(struct ivi_layout_surface *ivisurf,
+-				 int32_t dest_width, int32_t dest_height);
+-
+-/**
+- * \brief Get the horizontal and vertical dimension of the surface.
+- *
+- * \return IVI_SUCCEEDED if the method call was successful
+- * \return IVI_FAILED if the method call was failed
+- */
+-int32_t
+-ivi_layout_surface_get_dimension(struct ivi_layout_surface *ivisurf,
+-				 int32_t *dest_width, int32_t *dest_height);
+-
+-/**
+- * \brief Sets the horizontal and vertical position of the surface.
+- *
+- * \return IVI_SUCCEEDED if the method call was successful
+- * \return IVI_FAILED if the method call was failed
+- */
+-int32_t
+-ivi_layout_surface_set_position(struct ivi_layout_surface *ivisurf,
+-				int32_t dest_x, int32_t dest_y);
+-
+-/**
+- * \brief Get the horizontal and vertical position of the surface.
+- *
+- * \return IVI_SUCCEEDED if the method call was successful
+- * \return IVI_FAILED if the method call was failed
+- */
+-int32_t
+-ivi_layout_surface_get_position(struct ivi_layout_surface *ivisurf,
+-				int32_t *dest_x, int32_t *dest_y);
+-
+-/**
+- * \brief Gets the orientation of a surface.
+- *
+- * \return (enum wl_output_transform)
+- *              if the method call was successful
+- * \return WL_OUTPUT_TRANSFORM_NORMAL if the method call was failed
+- */
+-enum wl_output_transform
+-ivi_layout_surface_get_orientation(struct ivi_layout_surface *ivisurf);
+-
+-int32_t
+-ivi_layout_surface_set_transition_duration(
+-			struct ivi_layout_surface *ivisurf,
+-			uint32_t duration);
+-
+-/**
+  * methods of interaction between ivi-shell with ivi-layout
+  */
+ struct weston_view *
+@@ -311,4 +177,50 @@ ivi_layout_surface_get_dimension(struct ivi_layout_surface *ivisurf,
+ void
+ ivi_layout_surface_add_configured_listener(struct ivi_layout_surface* ivisurf,
+ 					   struct wl_listener* listener);
++/**
++ * methods of interaction between transition animation with ivi-layout
++ */
++int32_t
++ivi_layout_commit_changes(void);
++uint32_t
++ivi_layout_get_id_of_surface(struct ivi_layout_surface *ivisurf);
++int32_t
++ivi_layout_surface_set_destination_rectangle(struct ivi_layout_surface *ivisurf,
++					     int32_t x, int32_t y,
++					     int32_t width, int32_t height);
++int32_t
++ivi_layout_surface_set_opacity(struct ivi_layout_surface *ivisurf,
++			       wl_fixed_t opacity);
++wl_fixed_t
++ivi_layout_surface_get_opacity(struct ivi_layout_surface *ivisurf);
++int32_t
++ivi_layout_surface_set_visibility(struct ivi_layout_surface *ivisurf,
++				  bool newVisibility);
++bool
++ivi_layout_surface_get_visibility(struct ivi_layout_surface *ivisurf);
++struct ivi_layout_surface *
++ivi_layout_get_surface_from_id(uint32_t id_surface);
++int32_t
++ivi_layout_layer_set_opacity(struct ivi_layout_layer *ivilayer,
++			     wl_fixed_t opacity);
++wl_fixed_t
++ivi_layout_layer_get_opacity(struct ivi_layout_layer *ivilayer);
++int32_t
++ivi_layout_layer_set_visibility(struct ivi_layout_layer *ivilayer,
++				bool newVisibility);
++int32_t
++ivi_layout_layer_set_position(struct ivi_layout_layer *ivilayer,
++			      int32_t dest_x, int32_t dest_y);
++int32_t
++ivi_layout_layer_get_position(struct ivi_layout_layer *ivilayer,
++			      int32_t *dest_x, int32_t *dest_y);
++int32_t
++ivi_layout_layer_set_render_order(struct ivi_layout_layer *ivilayer,
++				  struct ivi_layout_surface **pSurface,
++				  int32_t number);
++void
++ivi_layout_transition_move_layer_cancel(struct ivi_layout_layer *layer);
++int
++load_controller_modules(struct weston_compositor *compositor, const char *modules,
++			int *argc, char *argv[]);
+ #endif
+diff --git a/ivi-shell/ivi-layout-transition.c b/ivi-shell/ivi-layout-transition.c
+index 8b8261e..1e9ee23 100644
+--- a/ivi-shell/ivi-layout-transition.c
++++ b/ivi-shell/ivi-layout-transition.c
+@@ -76,7 +76,7 @@ get_transition_from_type_and_id(enum ivi_layout_transition_type type,
+ 	return NULL;
+ }
+ 
+-WL_EXPORT int32_t
++int32_t
+ is_surface_transition(struct ivi_layout_surface *surface)
+ {
+ 	struct ivi_layout *layout = get_instance();
+@@ -156,7 +156,7 @@ layout_transition_frame(void *data)
+ 	return 1;
+ }
+ 
+-WL_EXPORT struct ivi_layout_transition_set *
++struct ivi_layout_transition_set *
+ ivi_layout_transition_set_create(struct weston_compositor *ec)
+ {
+ 	struct ivi_layout_transition_set *transitions;
+@@ -359,7 +359,7 @@ create_move_resize_view_transition(
+ 	return transition;
+ }
+ 
+-WL_EXPORT void
++void
+ ivi_layout_transition_move_resize_view(struct ivi_layout_surface *surface,
+ 				       int32_t dest_x, int32_t dest_y,
+ 				       int32_t dest_width, int32_t dest_height,
+@@ -512,7 +512,7 @@ visibility_on_transition_destroy(struct ivi_layout_transition *transition)
+ 	transition->user_data = NULL;
+ }
+ 
+-WL_EXPORT void
++void
+ ivi_layout_transition_visibility_on(struct ivi_layout_surface *surface,
+ 				    uint32_t duration)
+ {
+@@ -577,7 +577,7 @@ visibility_off_transition_destroy(struct ivi_layout_transition *transition)
+ 	transition->user_data= NULL;
+ }
+ 
+-WL_EXPORT void
++void
+ ivi_layout_transition_visibility_off(struct ivi_layout_surface *surface,
+ 				     uint32_t duration)
+ {
+@@ -703,7 +703,7 @@ create_move_layer_transition(
+ 	return transition;
+ }
+ 
+-WL_EXPORT void
++void
+ ivi_layout_transition_move_layer(struct ivi_layout_layer *layer,
+ 				 int32_t dest_x, int32_t dest_y,
+ 				 uint32_t duration)
+@@ -726,7 +726,7 @@ ivi_layout_transition_move_layer(struct ivi_layout_layer *layer,
+ 	return;
+ }
+ 
+-WL_EXPORT void
++void
+ ivi_layout_transition_move_layer_cancel(struct ivi_layout_layer *layer)
+ {
+ 	struct ivi_layout_transition *transition =
+@@ -779,7 +779,7 @@ is_transition_fade_layer_func(struct fade_layer_data *data,
+ 	return data->layer == layer;
+ }
+ 
+-WL_EXPORT void
++void
+ ivi_layout_transition_fade_layer(
+ 			struct ivi_layout_layer *layer,
+ 			uint32_t is_fade_in,
+diff --git a/ivi-shell/ivi-layout.c b/ivi-shell/ivi-layout.c
+index 1772845..7e1961e 100644
+--- a/ivi-shell/ivi-layout.c
++++ b/ivi-shell/ivi-layout.c
+@@ -52,6 +52,7 @@
+  * 7/ Trigger composition by weston_compositor_schedule_repaint.
+  *
+  */
++#include "config.h"
+ 
+ #include <string.h>
+ 
+@@ -59,6 +60,8 @@
+ #include "ivi-layout-export.h"
+ #include "ivi-layout-private.h"
+ 
++#include "../shared/os-compatibility.h"
++
+ struct link_layer {
+ 	struct ivi_layout_layer *ivilayer;
+ 	struct wl_list link;
+@@ -279,7 +282,6 @@ remove_configured_listener(struct ivi_layout_surface *ivisurf)
+ 	}
+ }
+ 
+-
+ static void
+ remove_all_notification(struct wl_list *listener_list)
+ {
+@@ -302,7 +304,7 @@ remove_all_notification(struct wl_list *listener_list)
+ 	}
+ }
+ 
+-WL_EXPORT void
++static void
+ ivi_layout_surface_remove_notification(struct ivi_layout_surface *ivisurf)
+ {
+ 	if (ivisurf == NULL) {
+@@ -313,7 +315,11 @@ ivi_layout_surface_remove_notification(struct ivi_layout_surface *ivisurf)
+ 	remove_all_notification(&ivisurf->property_changed.listener_list);
+ }
+ 
+-void
++/**
++ * this shall not be called from controller because this is triggered by ivi_surface.destroy
++ * This means that this is called from westonsurface_destroy_from_ivisurface.
++ */
++static void
+ ivi_layout_surface_remove(struct ivi_layout_surface *ivisurf)
+ {
+ 	struct ivi_layout *layout = get_instance();
+@@ -1284,7 +1290,7 @@ remove_notification(struct wl_list *listener_list, void *callback, void *userdat
+  * Exported APIs of ivi-layout library are implemented from here.
+  * Brief of APIs is described in ivi-layout-export.h.
+  */
+-WL_EXPORT int32_t
++static int32_t
+ ivi_layout_add_notification_create_layer(layer_create_notification_func callback,
+ 					 void *userdata)
+ {
+@@ -1310,7 +1316,7 @@ ivi_layout_add_notification_create_layer(layer_create_notification_func callback
+ 				created_callback);
+ }
+ 
+-WL_EXPORT void
++static void
+ ivi_layout_remove_notification_create_layer(layer_create_notification_func callback,
+ 					    void *userdata)
+ {
+@@ -1318,7 +1324,7 @@ ivi_layout_remove_notification_create_layer(layer_create_notification_func callb
+ 	remove_notification(&layout->layer_notification.created.listener_list, callback, userdata);
+ }
+ 
+-WL_EXPORT int32_t
++static int32_t
+ ivi_layout_add_notification_remove_layer(layer_remove_notification_func callback,
+ 					 void *userdata)
+ {
+@@ -1343,7 +1349,7 @@ ivi_layout_add_notification_remove_layer(layer_remove_notification_func callback
+ 				removed_callback);
+ }
+ 
+-WL_EXPORT void
++static void
+ ivi_layout_remove_notification_remove_layer(layer_remove_notification_func callback,
+ 					    void *userdata)
+ {
+@@ -1351,7 +1357,7 @@ ivi_layout_remove_notification_remove_layer(layer_remove_notification_func callb
+ 	remove_notification(&layout->layer_notification.removed.listener_list, callback, userdata);
+ }
+ 
+-WL_EXPORT int32_t
++static int32_t
+ ivi_layout_add_notification_create_surface(surface_create_notification_func callback,
+ 					   void *userdata)
+ {
+@@ -1377,7 +1383,7 @@ ivi_layout_add_notification_create_surface(surface_create_notification_func call
+ 				created_callback);
+ }
+ 
+-WL_EXPORT void
++static void
+ ivi_layout_remove_notification_create_surface(surface_create_notification_func callback,
+ 					      void *userdata)
+ {
+@@ -1385,7 +1391,7 @@ ivi_layout_remove_notification_create_surface(surface_create_notification_func c
+ 	remove_notification(&layout->surface_notification.created.listener_list, callback, userdata);
+ }
+ 
+-WL_EXPORT int32_t
++static int32_t
+ ivi_layout_add_notification_remove_surface(surface_remove_notification_func callback,
+ 					   void *userdata)
+ {
+@@ -1411,7 +1417,7 @@ ivi_layout_add_notification_remove_surface(surface_remove_notification_func call
+ 				removed_callback);
+ }
+ 
+-WL_EXPORT void
++static void
+ ivi_layout_remove_notification_remove_surface(surface_remove_notification_func callback,
+ 					      void *userdata)
+ {
+@@ -1419,7 +1425,7 @@ ivi_layout_remove_notification_remove_surface(surface_remove_notification_func c
+ 	remove_notification(&layout->surface_notification.removed.listener_list, callback, userdata);
+ }
+ 
+-WL_EXPORT int32_t
++static int32_t
+ ivi_layout_add_notification_configure_surface(surface_configure_notification_func callback,
+ 					      void *userdata)
+ {
+@@ -1444,7 +1450,7 @@ ivi_layout_add_notification_configure_surface(surface_configure_notification_fun
+ 				configure_changed_callback);
+ }
+ 
+-WL_EXPORT void
++static void
+ ivi_layout_remove_notification_configure_surface(surface_configure_notification_func callback,
+ 						 void *userdata)
+ {
+@@ -1452,19 +1458,19 @@ ivi_layout_remove_notification_configure_surface(surface_configure_notification_
+ 	remove_notification(&layout->surface_notification.configure_changed.listener_list, callback, userdata);
+ }
+ 
+-WL_EXPORT uint32_t
++uint32_t
+ ivi_layout_get_id_of_surface(struct ivi_layout_surface *ivisurf)
+ {
+ 	return ivisurf->id_surface;
+ }
+ 
+-WL_EXPORT uint32_t
++static uint32_t
+ ivi_layout_get_id_of_layer(struct ivi_layout_layer *ivilayer)
+ {
+ 	return ivilayer->id_layer;
+ }
+ 
+-struct ivi_layout_layer *
++static struct ivi_layout_layer *
+ ivi_layout_get_layer_from_id(uint32_t id_layer)
+ {
+ 	struct ivi_layout *layout = get_instance();
+@@ -1479,7 +1485,7 @@ ivi_layout_get_layer_from_id(uint32_t id_layer)
+ 	return NULL;
+ }
+ 
+-WL_EXPORT struct ivi_layout_surface *
++struct ivi_layout_surface *
+ ivi_layout_get_surface_from_id(uint32_t id_surface)
+ {
+ 	struct ivi_layout *layout = get_instance();
+@@ -1494,7 +1500,7 @@ ivi_layout_get_surface_from_id(uint32_t id_surface)
+ 	return NULL;
+ }
+ 
+-WL_EXPORT struct ivi_layout_screen *
++static struct ivi_layout_screen *
+ ivi_layout_get_screen_from_id(uint32_t id_screen)
+ {
+ 	struct ivi_layout *layout = get_instance();
+@@ -1509,7 +1515,7 @@ ivi_layout_get_screen_from_id(uint32_t id_screen)
+ 	return NULL;
+ }
+ 
+-WL_EXPORT int32_t
++static int32_t
+ ivi_layout_get_screen_resolution(struct ivi_layout_screen *iviscrn,
+ 				 int32_t *pWidth, int32_t *pHeight)
+ {
+@@ -1527,7 +1533,7 @@ ivi_layout_get_screen_resolution(struct ivi_layout_screen *iviscrn,
+ 	return IVI_SUCCEEDED;
+ }
+ 
+-WL_EXPORT int32_t
++static int32_t
+ ivi_layout_surface_add_notification(struct ivi_layout_surface *ivisurf,
+ 				    surface_property_notification_func callback,
+ 				    void *userdata)
+@@ -1563,7 +1569,7 @@ ivi_layout_surface_add_notification(struct ivi_layout_surface *ivisurf,
+ 	return IVI_SUCCEEDED;
+ }
+ 
+-WL_EXPORT const struct ivi_layout_layer_properties *
++static const struct ivi_layout_layer_properties *
+ ivi_layout_get_properties_of_layer(struct ivi_layout_layer *ivilayer)
+ {
+ 	if (ivilayer == NULL) {
+@@ -1574,7 +1580,7 @@ ivi_layout_get_properties_of_layer(struct ivi_layout_layer *ivilayer)
+ 	return &ivilayer->prop;
+ }
+ 
+-WL_EXPORT int32_t
++static int32_t
+ ivi_layout_get_screens(int32_t *pLength, struct ivi_layout_screen ***ppArray)
+ {
+ 	struct ivi_layout *layout = get_instance();
+@@ -1607,7 +1613,7 @@ ivi_layout_get_screens(int32_t *pLength, struct ivi_layout_screen ***ppArray)
+ 	return IVI_SUCCEEDED;
+ }
+ 
+-WL_EXPORT int32_t
++static int32_t
+ ivi_layout_get_screens_under_layer(struct ivi_layout_layer *ivilayer,
+ 				   int32_t *pLength,
+ 				   struct ivi_layout_screen ***ppArray)
+@@ -1641,7 +1647,7 @@ ivi_layout_get_screens_under_layer(struct ivi_layout_layer *ivilayer,
+ 	return IVI_SUCCEEDED;
+ }
+ 
+-WL_EXPORT int32_t
++static int32_t
+ ivi_layout_get_layers(int32_t *pLength, struct ivi_layout_layer ***ppArray)
+ {
+ 	struct ivi_layout *layout = get_instance();
+@@ -1674,7 +1680,7 @@ ivi_layout_get_layers(int32_t *pLength, struct ivi_layout_layer ***ppArray)
+ 	return IVI_SUCCEEDED;
+ }
+ 
+-int32_t
++static int32_t
+ ivi_layout_get_layers_on_screen(struct ivi_layout_screen *iviscrn,
+ 				int32_t *pLength,
+ 				struct ivi_layout_layer ***ppArray)
+@@ -1708,7 +1714,7 @@ ivi_layout_get_layers_on_screen(struct ivi_layout_screen *iviscrn,
+ 	return IVI_SUCCEEDED;
+ }
+ 
+-WL_EXPORT int32_t
++static int32_t
+ ivi_layout_get_layers_under_surface(struct ivi_layout_surface *ivisurf,
+ 				    int32_t *pLength,
+ 				    struct ivi_layout_layer ***ppArray)
+@@ -1742,7 +1748,8 @@ ivi_layout_get_layers_under_surface(struct ivi_layout_surface *ivisurf,
+ 	return IVI_SUCCEEDED;
+ }
+ 
+-WL_EXPORT int32_t
++static
++int32_t
+ ivi_layout_get_surfaces(int32_t *pLength, struct ivi_layout_surface ***ppArray)
+ {
+ 	struct ivi_layout *layout = get_instance();
+@@ -1775,7 +1782,7 @@ ivi_layout_get_surfaces(int32_t *pLength, struct ivi_layout_surface ***ppArray)
+ 	return IVI_SUCCEEDED;
+ }
+ 
+-int32_t
++static int32_t
+ ivi_layout_get_surfaces_on_layer(struct ivi_layout_layer *ivilayer,
+ 				 int32_t *pLength,
+ 				 struct ivi_layout_surface ***ppArray)
+@@ -1809,7 +1816,7 @@ ivi_layout_get_surfaces_on_layer(struct ivi_layout_layer *ivilayer,
+ 	return IVI_SUCCEEDED;
+ }
+ 
+-WL_EXPORT struct ivi_layout_layer *
++static struct ivi_layout_layer *
+ ivi_layout_layer_create_with_dimension(uint32_t id_layer,
+ 				       int32_t width, int32_t height)
+ {
+@@ -1852,7 +1859,7 @@ ivi_layout_layer_create_with_dimension(uint32_t id_layer,
+ 	return ivilayer;
+ }
+ 
+-WL_EXPORT void
++static void
+ ivi_layout_layer_remove_notification(struct ivi_layout_layer *ivilayer)
+ {
+ 	if (ivilayer == NULL) {
+@@ -1863,7 +1870,7 @@ ivi_layout_layer_remove_notification(struct ivi_layout_layer *ivilayer)
+ 	remove_all_notification(&ivilayer->property_changed.listener_list);
+ }
+ 
+-WL_EXPORT void
++static void
+ ivi_layout_layer_remove(struct ivi_layout_layer *ivilayer)
+ {
+ 	struct ivi_layout *layout = get_instance();
+@@ -1894,7 +1901,7 @@ ivi_layout_layer_remove(struct ivi_layout_layer *ivilayer)
+ 	free(ivilayer);
+ }
+ 
+-WL_EXPORT int32_t
++int32_t
+ ivi_layout_layer_set_visibility(struct ivi_layout_layer *ivilayer,
+ 				bool newVisibility)
+ {
+@@ -1913,7 +1920,7 @@ ivi_layout_layer_set_visibility(struct ivi_layout_layer *ivilayer,
+ 	return IVI_SUCCEEDED;
+ }
+ 
+-bool
++static bool
+ ivi_layout_layer_get_visibility(struct ivi_layout_layer *ivilayer)
+ {
+ 	if (ivilayer == NULL) {
+@@ -1924,7 +1931,7 @@ ivi_layout_layer_get_visibility(struct ivi_layout_layer *ivilayer)
+ 	return ivilayer->prop.visibility;
+ }
+ 
+-WL_EXPORT int32_t
++int32_t
+ ivi_layout_layer_set_opacity(struct ivi_layout_layer *ivilayer,
+ 			     wl_fixed_t opacity)
+ {
+@@ -1943,7 +1950,7 @@ ivi_layout_layer_set_opacity(struct ivi_layout_layer *ivilayer,
+ 	return IVI_SUCCEEDED;
+ }
+ 
+-WL_EXPORT wl_fixed_t
++wl_fixed_t
+ ivi_layout_layer_get_opacity(struct ivi_layout_layer *ivilayer)
+ {
+ 	if (ivilayer == NULL) {
+@@ -1954,7 +1961,7 @@ ivi_layout_layer_get_opacity(struct ivi_layout_layer *ivilayer)
+ 	return ivilayer->prop.opacity;
+ }
+ 
+-WL_EXPORT int32_t
++static int32_t
+ ivi_layout_layer_set_source_rectangle(struct ivi_layout_layer *ivilayer,
+ 				      int32_t x, int32_t y,
+ 				      int32_t width, int32_t height)
+@@ -1977,7 +1984,7 @@ ivi_layout_layer_set_source_rectangle(struct ivi_layout_layer *ivilayer,
+ 	return IVI_SUCCEEDED;
+ }
+ 
+-WL_EXPORT int32_t
++static int32_t
+ ivi_layout_layer_set_destination_rectangle(struct ivi_layout_layer *ivilayer,
+ 					   int32_t x, int32_t y,
+ 					   int32_t width, int32_t height)
+@@ -2000,7 +2007,7 @@ ivi_layout_layer_set_destination_rectangle(struct ivi_layout_layer *ivilayer,
+ 	return IVI_SUCCEEDED;
+ }
+ 
+-int32_t
++static int32_t
+ ivi_layout_layer_get_dimension(struct ivi_layout_layer *ivilayer,
+ 			       int32_t *dest_width, int32_t *dest_height)
+ {
+@@ -2015,7 +2022,7 @@ ivi_layout_layer_get_dimension(struct ivi_layout_layer *ivilayer,
+ 	return IVI_SUCCEEDED;
+ }
+ 
+-int32_t
++static int32_t
+ ivi_layout_layer_set_dimension(struct ivi_layout_layer *ivilayer,
+ 			       int32_t dest_width, int32_t dest_height)
+ {
+@@ -2036,7 +2043,7 @@ ivi_layout_layer_set_dimension(struct ivi_layout_layer *ivilayer,
+ 	return IVI_SUCCEEDED;
+ }
+ 
+-WL_EXPORT int32_t
++int32_t
+ ivi_layout_layer_get_position(struct ivi_layout_layer *ivilayer,
+ 			      int32_t *dest_x, int32_t *dest_y)
+ {
+@@ -2051,7 +2058,7 @@ ivi_layout_layer_get_position(struct ivi_layout_layer *ivilayer,
+ 	return IVI_SUCCEEDED;
+ }
+ 
+-WL_EXPORT int32_t
++int32_t
+ ivi_layout_layer_set_position(struct ivi_layout_layer *ivilayer,
+ 			      int32_t dest_x, int32_t dest_y)
+ {
+@@ -2071,7 +2078,7 @@ ivi_layout_layer_set_position(struct ivi_layout_layer *ivilayer,
+ 	return IVI_SUCCEEDED;
+ }
+ 
+-WL_EXPORT int32_t
++static int32_t
+ ivi_layout_layer_set_orientation(struct ivi_layout_layer *ivilayer,
+ 				 enum wl_output_transform orientation)
+ {
+@@ -2090,7 +2097,7 @@ ivi_layout_layer_set_orientation(struct ivi_layout_layer *ivilayer,
+ 	return IVI_SUCCEEDED;
+ }
+ 
+-enum wl_output_transform
++static enum wl_output_transform
+ ivi_layout_layer_get_orientation(struct ivi_layout_layer *ivilayer)
+ {
+ 	if (ivilayer == NULL) {
+@@ -2101,7 +2108,7 @@ ivi_layout_layer_get_orientation(struct ivi_layout_layer *ivilayer)
+ 	return ivilayer->prop.orientation;
+ }
+ 
+-WL_EXPORT int32_t
++int32_t
+ ivi_layout_layer_set_render_order(struct ivi_layout_layer *ivilayer,
+ 				  struct ivi_layout_surface **pSurface,
+ 				  int32_t number)
+@@ -2152,7 +2159,7 @@ ivi_layout_layer_set_render_order(struct ivi_layout_layer *ivilayer,
+ 	return IVI_SUCCEEDED;
+ }
+ 
+-WL_EXPORT int32_t
++int32_t
+ ivi_layout_surface_set_visibility(struct ivi_layout_surface *ivisurf,
+ 				  bool newVisibility)
+ {
+@@ -2171,7 +2178,7 @@ ivi_layout_surface_set_visibility(struct ivi_layout_surface *ivisurf,
+ 	return IVI_SUCCEEDED;
+ }
+ 
+-WL_EXPORT bool
++bool
+ ivi_layout_surface_get_visibility(struct ivi_layout_surface *ivisurf)
+ {
+ 	if (ivisurf == NULL) {
+@@ -2182,7 +2189,7 @@ ivi_layout_surface_get_visibility(struct ivi_layout_surface *ivisurf)
+ 	return ivisurf->prop.visibility;
+ }
+ 
+-WL_EXPORT int32_t
++int32_t
+ ivi_layout_surface_set_opacity(struct ivi_layout_surface *ivisurf,
+ 			       wl_fixed_t opacity)
+ {
+@@ -2201,7 +2208,7 @@ ivi_layout_surface_set_opacity(struct ivi_layout_surface *ivisurf,
+ 	return IVI_SUCCEEDED;
+ }
+ 
+-WL_EXPORT wl_fixed_t
++wl_fixed_t
+ ivi_layout_surface_get_opacity(struct ivi_layout_surface *ivisurf)
+ {
+ 	if (ivisurf == NULL) {
+@@ -2212,7 +2219,7 @@ ivi_layout_surface_get_opacity(struct ivi_layout_surface *ivisurf)
+ 	return ivisurf->prop.opacity;
+ }
+ 
+-WL_EXPORT int32_t
++int32_t
+ ivi_layout_surface_set_destination_rectangle(struct ivi_layout_surface *ivisurf,
+ 					     int32_t x, int32_t y,
+ 					     int32_t width, int32_t height)
+@@ -2239,7 +2246,7 @@ ivi_layout_surface_set_destination_rectangle(struct ivi_layout_surface *ivisurf,
+ 	return IVI_SUCCEEDED;
+ }
+ 
+-int32_t
++static int32_t
+ ivi_layout_surface_set_dimension(struct ivi_layout_surface *ivisurf,
+ 				 int32_t dest_width, int32_t dest_height)
+ {
+@@ -2274,7 +2281,7 @@ ivi_layout_surface_get_dimension(struct ivi_layout_surface *ivisurf,
+ 	return IVI_SUCCEEDED;
+ }
+ 
+-int32_t
++static int32_t
+ ivi_layout_surface_set_position(struct ivi_layout_surface *ivisurf,
+ 				int32_t dest_x, int32_t dest_y)
+ {
+@@ -2294,7 +2301,7 @@ ivi_layout_surface_set_position(struct ivi_layout_surface *ivisurf,
+ 	return IVI_SUCCEEDED;
+ }
+ 
+-int32_t
++static int32_t
+ ivi_layout_surface_get_position(struct ivi_layout_surface *ivisurf,
+ 				int32_t *dest_x, int32_t *dest_y)
+ {
+@@ -2309,7 +2316,7 @@ ivi_layout_surface_get_position(struct ivi_layout_surface *ivisurf,
+ 	return IVI_SUCCEEDED;
+ }
+ 
+-WL_EXPORT int32_t
++static int32_t
+ ivi_layout_surface_set_orientation(struct ivi_layout_surface *ivisurf,
+ 				   enum wl_output_transform orientation)
+ {
+@@ -2328,7 +2335,7 @@ ivi_layout_surface_set_orientation(struct ivi_layout_surface *ivisurf,
+ 	return IVI_SUCCEEDED;
+ }
+ 
+-enum wl_output_transform
++static enum wl_output_transform
+ ivi_layout_surface_get_orientation(struct ivi_layout_surface *ivisurf)
+ {
+ 	if (ivisurf == NULL) {
+@@ -2339,7 +2346,7 @@ ivi_layout_surface_get_orientation(struct ivi_layout_surface *ivisurf)
+ 	return ivisurf->prop.orientation;
+ }
+ 
+-WL_EXPORT int32_t
++static int32_t
+ ivi_layout_screen_add_layer(struct ivi_layout_screen *iviscrn,
+ 			    struct ivi_layout_layer *addlayer)
+ {
+@@ -2376,7 +2383,7 @@ ivi_layout_screen_add_layer(struct ivi_layout_screen *iviscrn,
+ 	return IVI_SUCCEEDED;
+ }
+ 
+-WL_EXPORT int32_t
++static int32_t
+ ivi_layout_screen_set_render_order(struct ivi_layout_screen *iviscrn,
+ 				   struct ivi_layout_layer **pLayer,
+ 				   const int32_t number)
+@@ -2434,7 +2441,7 @@ ivi_layout_screen_set_render_order(struct ivi_layout_screen *iviscrn,
+ 	return IVI_SUCCEEDED;
+ }
+ 
+-WL_EXPORT struct weston_output *
++static struct weston_output *
+ ivi_layout_screen_get_output(struct ivi_layout_screen *iviscrn)
+ {
+ 	return iviscrn->output;
+@@ -2445,13 +2452,13 @@ ivi_layout_screen_get_output(struct ivi_layout_screen *iviscrn)
+  * The ivi-module, e.g. ivi-controller.so, is in wayland-ivi-extension of Genivi's Layer Management.
+  * This function is used to get the result of drawing by clients.
+  */
+-WL_EXPORT struct weston_surface *
++static struct weston_surface *
+ ivi_layout_surface_get_weston_surface(struct ivi_layout_surface *ivisurf)
+ {
+ 	return ivisurf != NULL ? ivisurf->surface : NULL;
+ }
+ 
+-WL_EXPORT int32_t
++static int32_t
+ ivi_layout_layer_add_notification(struct ivi_layout_layer *ivilayer,
+ 				  layer_property_notification_func callback,
+ 				  void *userdata)
+@@ -2477,7 +2484,7 @@ ivi_layout_layer_add_notification(struct ivi_layout_layer *ivilayer,
+ 				prop_callback);
+ }
+ 
+-WL_EXPORT const struct ivi_layout_surface_properties *
++static const struct ivi_layout_surface_properties *
+ ivi_layout_get_properties_of_surface(struct ivi_layout_surface *ivisurf)
+ {
+ 	if (ivisurf == NULL) {
+@@ -2488,7 +2495,7 @@ ivi_layout_get_properties_of_surface(struct ivi_layout_surface *ivisurf)
+ 	return &ivisurf->prop;
+ }
+ 
+-WL_EXPORT int32_t
++static int32_t
+ ivi_layout_layer_add_surface(struct ivi_layout_layer *ivilayer,
+ 			     struct ivi_layout_surface *addsurf)
+ {
+@@ -2525,7 +2532,7 @@ ivi_layout_layer_add_surface(struct ivi_layout_layer *ivilayer,
+ 	return IVI_SUCCEEDED;
+ }
+ 
+-WL_EXPORT void
++static void
+ ivi_layout_layer_remove_surface(struct ivi_layout_layer *ivilayer,
+ 				struct ivi_layout_surface *remsurf)
+ {
+@@ -2551,7 +2558,7 @@ ivi_layout_layer_remove_surface(struct ivi_layout_layer *ivilayer,
+ 	remsurf->event_mask |= IVI_NOTIFICATION_REMOVE;
+ }
+ 
+-WL_EXPORT int32_t
++static int32_t
+ ivi_layout_surface_set_source_rectangle(struct ivi_layout_surface *ivisurf,
+ 					int32_t x, int32_t y,
+ 					int32_t width, int32_t height)
+@@ -2574,7 +2581,7 @@ ivi_layout_surface_set_source_rectangle(struct ivi_layout_surface *ivisurf,
+ 	return IVI_SUCCEEDED;
+ }
+ 
+-WL_EXPORT int32_t
++int32_t
+ ivi_layout_commit_changes(void)
+ {
+ 	struct ivi_layout *layout = get_instance();
+@@ -2592,7 +2599,7 @@ ivi_layout_commit_changes(void)
+ 	return IVI_SUCCEEDED;
+ }
+ 
+-WL_EXPORT int32_t
++static int32_t
+ ivi_layout_layer_set_transition(struct ivi_layout_layer *ivilayer,
+ 				enum ivi_layout_transition_type type,
+ 				uint32_t duration)
+@@ -2608,7 +2615,7 @@ ivi_layout_layer_set_transition(struct ivi_layout_layer *ivilayer,
+ 	return 0;
+ }
+ 
+-WL_EXPORT int32_t
++static int32_t
+ ivi_layout_layer_set_fade_info(struct ivi_layout_layer* ivilayer,
+ 			       uint32_t is_fade_in,
+ 			       double start_alpha, double end_alpha)
+@@ -2625,7 +2632,7 @@ ivi_layout_layer_set_fade_info(struct ivi_layout_layer* ivilayer,
+ 	return 0;
+ }
+ 
+-WL_EXPORT int32_t
++static int32_t
+ ivi_layout_surface_set_transition_duration(struct ivi_layout_surface *ivisurf,
+ 					   uint32_t duration)
+ {
+@@ -2641,7 +2648,7 @@ ivi_layout_surface_set_transition_duration(struct ivi_layout_surface *ivisurf,
+ 	return 0;
+ }
+ 
+-WL_EXPORT int32_t
++static int32_t
+ ivi_layout_surface_set_transition(struct ivi_layout_surface *ivisurf,
+ 				  enum ivi_layout_transition_type type,
+ 				  uint32_t duration)
+@@ -2709,7 +2716,7 @@ ivi_layout_surface_configure(struct ivi_layout_surface *ivisurf,
+ 	}
+ }
+ 
+-int32_t
++static int32_t
+ ivi_layout_surface_set_content_observer(struct ivi_layout_surface *ivisurf,
+ 					ivi_controller_surface_content_callback callback,
+ 					void* userdata)
+@@ -2835,3 +2842,131 @@ ivi_layout_surface_add_configured_listener(struct ivi_layout_surface* ivisurf,
+ 	wl_signal_add(&ivisurf->configured, listener);
+ }
+ 
++static struct ivi_controller_interface ivi_controller_interface = {
++	/**
++	 * commit all changes
++	 */
++	.commit_changes = ivi_layout_commit_changes,
++
++	/**
++	 * surface controller interfaces
++	 */	
++	.add_notification_create_surface	= ivi_layout_add_notification_create_surface,
++	.remove_notification_create_surface	= ivi_layout_remove_notification_create_surface,
++	.add_notification_remove_surface	= ivi_layout_add_notification_remove_surface,
++	.remove_notification_remove_surface	= ivi_layout_remove_notification_remove_surface,
++	.add_notification_configure_surface	= ivi_layout_add_notification_configure_surface,
++	.remove_notification_configure_surface	= ivi_layout_remove_notification_configure_surface,
++	.get_surfaces				= ivi_layout_get_surfaces,
++	.get_id_of_surface			= ivi_layout_get_id_of_surface,
++	.get_surface_from_id			= ivi_layout_get_surface_from_id,
++	.get_properties_of_surface		= ivi_layout_get_properties_of_surface,
++	.get_surfaces_on_layer			= ivi_layout_get_surfaces_on_layer,
++	.surface_set_visibility			= ivi_layout_surface_set_visibility,
++	.surface_get_visibility			= ivi_layout_surface_get_visibility,
++	.surface_set_opacity			= ivi_layout_surface_set_opacity,
++	.surface_get_opacity			= ivi_layout_surface_get_opacity,
++	.surface_set_source_rectangle		= ivi_layout_surface_set_source_rectangle,
++	.surface_set_destination_rectangle	= ivi_layout_surface_set_destination_rectangle,
++	.surface_set_position			= ivi_layout_surface_set_position,
++	.surface_get_position			= ivi_layout_surface_get_position,
++	.surface_set_dimension			= ivi_layout_surface_set_dimension,
++	.surface_get_dimension			= ivi_layout_surface_get_dimension,
++	.surface_set_orientation		= ivi_layout_surface_set_orientation,
++	.surface_get_orientation		= ivi_layout_surface_get_orientation,
++	.surface_set_content_observer		= ivi_layout_surface_set_content_observer,
++	.surface_add_notification		= ivi_layout_surface_add_notification,
++	.surface_remove_notification		= ivi_layout_surface_remove_notification,
++	.surface_get_weston_surface		= ivi_layout_surface_get_weston_surface,
++	.surface_set_transition			= ivi_layout_surface_set_transition,
++	.surface_set_transition_duration	= ivi_layout_surface_set_transition_duration,
++
++	/**
++	 * layer controller interfaces
++	 */
++	.add_notification_create_layer		= ivi_layout_add_notification_create_layer,
++	.remove_notification_create_layer	= ivi_layout_remove_notification_create_layer,
++	.add_notification_remove_layer		= ivi_layout_add_notification_remove_layer,
++	.remove_notification_remove_layer	= ivi_layout_remove_notification_remove_layer,
++	.layer_create_with_dimension		= ivi_layout_layer_create_with_dimension,
++	.layer_remove				= ivi_layout_layer_remove,
++	.get_layers				= ivi_layout_get_layers,
++	.get_id_of_layer			= ivi_layout_get_id_of_layer,
++	.get_layer_from_id			= ivi_layout_get_layer_from_id,
++	.get_properties_of_layer		= ivi_layout_get_properties_of_layer,
++	.get_layers_under_surface		= ivi_layout_get_layers_under_surface,
++	.get_layers_on_screen			= ivi_layout_get_layers_on_screen,
++	.layer_set_visibility			= ivi_layout_layer_set_visibility,
++	.layer_get_visibility			= ivi_layout_layer_get_visibility,
++	.layer_set_opacity			= ivi_layout_layer_set_opacity,
++	.layer_get_opacity			= ivi_layout_layer_get_opacity,
++	.layer_set_source_rectangle		= ivi_layout_layer_set_source_rectangle,
++	.layer_set_destination_rectangle	= ivi_layout_layer_set_destination_rectangle,
++	.layer_set_position			= ivi_layout_layer_set_position,
++	.layer_get_position			= ivi_layout_layer_get_position,
++	.layer_set_dimension			= ivi_layout_layer_set_dimension,
++	.layer_get_dimension			= ivi_layout_layer_get_dimension,
++	.layer_set_orientation			= ivi_layout_layer_set_orientation,
++	.layer_get_orientation			= ivi_layout_layer_get_orientation,
++	.layer_add_surface			= ivi_layout_layer_add_surface,
++	.layer_remove_surface			= ivi_layout_layer_remove_surface,
++	.layer_set_render_order			= ivi_layout_layer_set_render_order,
++	.layer_add_notification			= ivi_layout_layer_add_notification,
++	.layer_remove_notification		= ivi_layout_layer_remove_notification,
++	.layer_set_transition			= ivi_layout_layer_set_transition,
++
++	/**
++	 * screen controller interfaces
++	 */
++	.get_screen_from_id		= ivi_layout_get_screen_from_id,
++	.get_screen_resolution		= ivi_layout_get_screen_resolution,
++	.get_screens			= ivi_layout_get_screens,
++	.get_screens_under_layer	= ivi_layout_get_screens_under_layer,
++	.screen_add_layer		= ivi_layout_screen_add_layer,
++	.screen_set_render_order	= ivi_layout_screen_set_render_order,
++	.screen_get_output		= ivi_layout_screen_get_output,
++
++	/**
++	 * animation
++	 */
++	.transition_move_layer_cancel	= ivi_layout_transition_move_layer_cancel,
++	.layer_set_fade_info		= ivi_layout_layer_set_fade_info
++};
++
++int
++load_controller_modules(struct weston_compositor *compositor, const char *modules,
++			int *argc, char *argv[])
++{
++	const char *p, *end;
++	char buffer[256];
++	int (*controller_module_init)(struct weston_compositor *compositor,
++				      int *argc, char *argv[],
++				      const struct ivi_controller_interface *interface,
++				      size_t interface_version);
++
++	if (modules == NULL)
++		return 0;
++
++	p = modules;
++	while (*p) {
++		end = strchrnul(p, ',');
++		snprintf(buffer, sizeof buffer, "%.*s", (int)(end - p), p);
++
++		controller_module_init = weston_load_module(buffer, "controller_module_init");
++		if (controller_module_init)
++			if(!controller_module_init(compositor, argc, argv,
++					       &ivi_controller_interface,
++					       sizeof(struct ivi_controller_interface))) {
++				weston_log("ivi-shell: Initialization of controller module fails");
++				return -1;
++		}
++
++		p = end;
++		while (*p == ',')
++			p++;
++	}
++
++	return 0;
++}
++
++
+diff --git a/ivi-shell/ivi-shell.c b/ivi-shell/ivi-shell.c
+index a3e1214..2f2e4fa 100644
+--- a/ivi-shell/ivi-shell.c
++++ b/ivi-shell/ivi-shell.c
+@@ -42,8 +42,6 @@
+ #include "ivi-layout-export.h"
+ #include "ivi-layout-private.h"
+ 
+-#include "../shared/os-compatibility.h"
+-
+ /* Representation of ivi_surface protocol object. */
+ struct ivi_shell_surface
+ {
+@@ -390,35 +388,6 @@ ivi_shell_setting_create(struct ivi_shell_setting *dest,
+ /*
+  * Initialization of ivi-shell.
+  */
+-static int
+-ivi_load_modules(struct weston_compositor *compositor, const char *modules,
+-		 int *argc, char *argv[])
+-{
+-	const char *p, *end;
+-	char buffer[256];
+-	int (*module_init)(struct weston_compositor *compositor,
+-			   int *argc, char *argv[]);
+-
+-	if (modules == NULL)
+-		return 0;
+-
+-	p = modules;
+-	while (*p) {
+-		end = strchrnul(p, ',');
+-		snprintf(buffer, sizeof buffer, "%.*s", (int)(end - p), p);
+-
+-		module_init = weston_load_module(buffer, "module_init");
+-		if (module_init)
+-			module_init(compositor, argc, argv);
+-
+-		p = end;
+-		while (*p == ',')
+-			p++;
+-	}
+-
+-	return 0;
+-}
+-
+ WL_EXPORT int
+ module_init(struct weston_compositor *compositor,
+ 	    int *argc, char *argv[])
+@@ -450,7 +419,7 @@ module_init(struct weston_compositor *compositor,
+ 	
+ 
+ 	/* Call module_init of ivi-modules which are defined in weston.ini */
+-	if (ivi_load_modules(compositor, setting.ivi_module, argc, argv) < 0) {
++	if (load_controller_modules(compositor, setting.ivi_module, argc, argv) < 0) {
+ 		free(setting.ivi_module);
+ 		return -1;
+ 	}
+-- 
+2.1.0
+

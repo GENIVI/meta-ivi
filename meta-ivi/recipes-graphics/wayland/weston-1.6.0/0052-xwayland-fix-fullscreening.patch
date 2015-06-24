@@ -1,0 +1,52 @@
+From e9fe46745302e4add242078d00408ef6ecae3fb6 Mon Sep 17 00:00:00 2001
+From: Marek Chalupa <mchqwerty@gmail.com>
+Date: Wed, 29 Oct 2014 13:44:44 +0100
+Subject: [PATCH 52/96] xwayland: fix fullscreening
+
+set_fullscreen has been sending configure before changing the state
+and xwayland windows added border to the fullscreen size.
+
+This fixes the bug:
+https://bugs.freedesktop.org/show_bug.cgi?id=83502
+
+Signed-off-by: Marek Chalupa <mchqwerty@gmail.com>
+Reviewed-by: Ryo Munakata <ryomnktml@gmail.com>
+Tested-by: Pekka Paalanen <pekka.paalanen@collabora.co.uk>
+---
+ desktop-shell/shell.c     | 4 ++--
+ xwayland/window-manager.c | 2 +-
+ 2 files changed, 3 insertions(+), 3 deletions(-)
+
+diff --git a/desktop-shell/shell.c b/desktop-shell/shell.c
+index 844a322..9e8d45a 100644
+--- a/desktop-shell/shell.c
++++ b/desktop-shell/shell.c
+@@ -2925,10 +2925,10 @@ shell_interface_set_fullscreen(struct shell_surface *shsurf,
+ 			       struct weston_output *output)
+ {
+ 	surface_clear_next_states(shsurf);
+-	set_fullscreen(shsurf, method, framerate, output);
+-
+ 	shsurf->next_state.fullscreen = true;
+ 	shsurf->state_changed = true;
++
++	set_fullscreen(shsurf, method, framerate, output);
+ }
+ 
+ static int
+diff --git a/xwayland/window-manager.c b/xwayland/window-manager.c
+index 4acb534..bdfac23 100644
+--- a/xwayland/window-manager.c
++++ b/xwayland/window-manager.c
+@@ -2192,7 +2192,7 @@ send_configure(struct weston_surface *surface, int32_t width, int32_t height)
+ 	struct theme *t = window->wm->theme;
+ 	int vborder, hborder;
+ 
+-	if (window->decorate) {
++	if (window->decorate && !window->fullscreen) {
+ 		hborder = 2 * t->width;
+ 		vborder = t->titlebar_height + t->width;
+ 	} else {
+-- 
+2.1.0
+

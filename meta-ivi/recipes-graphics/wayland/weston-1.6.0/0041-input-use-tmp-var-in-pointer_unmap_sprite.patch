@@ -1,0 +1,38 @@
+From c557ff7ea3ccd8628febe6e6ab8bd5b3ed3c1bbe Mon Sep 17 00:00:00 2001
+From: Pekka Paalanen <pekka.paalanen@collabora.co.uk>
+Date: Wed, 12 Nov 2014 16:42:52 +0200
+Subject: [PATCH 41/96] input: use tmp var in pointer_unmap_sprite
+
+Remove lots of repeated indirection.
+
+Signed-off-by: Pekka Paalanen <pekka.paalanen@collabora.co.uk>
+---
+ src/input.c | 10 ++++++----
+ 1 file changed, 6 insertions(+), 4 deletions(-)
+
+diff --git a/src/input.c b/src/input.c
+index aa49e88..5f19875 100644
+--- a/src/input.c
++++ b/src/input.c
+@@ -423,12 +423,14 @@ static const struct weston_keyboard_grab_interface
+ static void
+ pointer_unmap_sprite(struct weston_pointer *pointer)
+ {
+-	if (weston_surface_is_mapped(pointer->sprite->surface))
+-		weston_surface_unmap(pointer->sprite->surface);
++	struct weston_surface *surface = pointer->sprite->surface;
++
++	if (weston_surface_is_mapped(surface))
++		weston_surface_unmap(surface);
+ 
+ 	wl_list_remove(&pointer->sprite_destroy_listener.link);
+-	pointer->sprite->surface->configure = NULL;
+-	pointer->sprite->surface->configure_private = NULL;
++	surface->configure = NULL;
++	surface->configure_private = NULL;
+ 	weston_view_destroy(pointer->sprite);
+ 	pointer->sprite = NULL;
+ }
+-- 
+2.1.0
+

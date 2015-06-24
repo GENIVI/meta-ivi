@@ -1,0 +1,189 @@
+From 3c5f1c76b216900c2f3317769a83604249b9af13 Mon Sep 17 00:00:00 2001
+From: Pekka Paalanen <pekka.paalanen@collabora.co.uk>
+Date: Wed, 1 Oct 2014 16:34:48 +0300
+Subject: [PATCH 17/96] tests: add role conflict sub-surface vs.
+ wl_shell_surface
+
+Add tests for triggering the role conflict when a wl_surface is already
+a wl_shell_surface and then attempted to be made into a sub-surface, and
+vice versa.
+
+Signed-off-by: Pekka Paalanen <pekka.paalanen@collabora.co.uk>
+Reviewed-by: Jasper St. Pierre <jstpierre@mecheye.net>
+---
+ Makefile.am        |   5 ++
+ tests/roles-test.c | 139 +++++++++++++++++++++++++++++++++++++++++++++++++++++
+ 2 files changed, 144 insertions(+)
+ create mode 100644 tests/roles-test.c
+
+diff --git a/Makefile.am b/Makefile.am
+index 10be920..1e7cc81 100644
+--- a/Makefile.am
++++ b/Makefile.am
+@@ -851,6 +851,7 @@ weston_tests =					\
+ 	button.weston				\
+ 	text.weston				\
+ 	presentation.weston			\
++	roles.weston				\
+ 	subsurface.weston
+ 
+ 
+@@ -960,6 +961,10 @@ nodist_presentation_weston_SOURCES =		\
+ presentation_weston_CFLAGS = $(AM_CFLAGS) $(TEST_CLIENT_CFLAGS)
+ presentation_weston_LDADD = libtest-client.la
+ 
++roles_weston_SOURCES = tests/roles-test.c
++roles_weston_CFLAGS = $(AM_CFLAGS) $(TEST_CLIENT_CFLAGS)
++roles_weston_LDADD = libtest-client.la
++
+ if ENABLE_EGL
+ weston_tests += buffer-count.weston
+ buffer_count_weston_SOURCES = tests/buffer-count-test.c
+diff --git a/tests/roles-test.c b/tests/roles-test.c
+new file mode 100644
+index 0000000..c7d175b
+--- /dev/null
++++ b/tests/roles-test.c
+@@ -0,0 +1,139 @@
++/*
++ * Copyright © 2014 Collabora, Ltd.
++ *
++ * Permission to use, copy, modify, distribute, and sell this software and
++ * its documentation for any purpose is hereby granted without fee, provided
++ * that the above copyright notice appear in all copies and that both that
++ * copyright notice and this permission notice appear in supporting
++ * documentation, and that the name of the copyright holders not be used in
++ * advertising or publicity pertaining to distribution of the software
++ * without specific, written prior permission.  The copyright holders make
++ * no representations about the suitability of this software for any
++ * purpose.  It is provided "as is" without express or implied warranty.
++ *
++ * THE COPYRIGHT HOLDERS DISCLAIM ALL WARRANTIES WITH REGARD TO THIS
++ * SOFTWARE, INCLUDING ALL IMPLIED WARRANTIES OF MERCHANTABILITY AND
++ * FITNESS, IN NO EVENT SHALL THE COPYRIGHT HOLDERS BE LIABLE FOR ANY
++ * SPECIAL, INDIRECT OR CONSEQUENTIAL DAMAGES OR ANY DAMAGES WHATSOEVER
++ * RESULTING FROM LOSS OF USE, DATA OR PROFITS, WHETHER IN AN ACTION OF
++ * CONTRACT, NEGLIGENCE OR OTHER TORTIOUS ACTION, ARISING OUT OF OR IN
++ * CONNECTION WITH THE USE OR PERFORMANCE OF THIS SOFTWARE.
++ */
++
++#include "config.h"
++
++#include <stdio.h>
++#include <string.h>
++#include <assert.h>
++
++#include "weston-test-client-helper.h"
++
++static struct wl_subcompositor *
++get_subcompositor(struct client *client)
++{
++	struct global *g;
++	struct global *global_sub = NULL;
++	struct wl_subcompositor *sub;
++
++	wl_list_for_each(g, &client->global_list, link) {
++		if (strcmp(g->interface, "wl_subcompositor"))
++			continue;
++
++		if (global_sub)
++			assert(0 && "multiple wl_subcompositor objects");
++
++		global_sub = g;
++	}
++
++	assert(global_sub && "no wl_subcompositor found");
++
++	assert(global_sub->version == 1);
++
++	sub = wl_registry_bind(client->wl_registry, global_sub->name,
++			       &wl_subcompositor_interface, 1);
++	assert(sub);
++
++	return sub;
++}
++
++static struct wl_shell *
++get_wl_shell(struct client *client)
++{
++	struct global *g;
++	struct global *global = NULL;
++	struct wl_shell *shell;
++
++	wl_list_for_each(g, &client->global_list, link) {
++		if (strcmp(g->interface, "wl_shell"))
++			continue;
++
++		if (global)
++			assert(0 && "multiple wl_shell objects");
++
++		global = g;
++	}
++
++	assert(global && "no wl_shell found");
++
++	shell = wl_registry_bind(client->wl_registry, global->name,
++				 &wl_shell_interface, 1);
++	assert(shell);
++
++	return shell;
++}
++
++TEST(test_role_conflict_sub_wlshell)
++{
++	struct client *client;
++	struct wl_subcompositor *subco;
++	struct wl_surface *child;
++	struct wl_subsurface *sub;
++	struct wl_shell *shell;
++	struct wl_shell_surface *shsurf;
++
++	client = client_create(100, 50, 123, 77);
++	assert(client);
++
++	subco = get_subcompositor(client);
++	shell = get_wl_shell(client);
++
++	child = wl_compositor_create_surface(client->wl_compositor);
++	assert(child);
++	sub = wl_subcompositor_get_subsurface(subco, child,
++					      client->surface->wl_surface);
++	assert(sub);
++
++	shsurf = wl_shell_get_shell_surface(shell, child);
++	assert(shsurf);
++
++	expect_protocol_error(client, &wl_shell_interface,
++			      WL_SHELL_ERROR_ROLE);
++}
++
++TEST(test_role_conflict_wlshell_sub)
++{
++	struct client *client;
++	struct wl_subcompositor *subco;
++	struct wl_surface *child;
++	struct wl_subsurface *sub;
++	struct wl_shell *shell;
++	struct wl_shell_surface *shsurf;
++
++	client = client_create(100, 50, 123, 77);
++	assert(client);
++
++	subco = get_subcompositor(client);
++	shell = get_wl_shell(client);
++
++	child = wl_compositor_create_surface(client->wl_compositor);
++	assert(child);
++	shsurf = wl_shell_get_shell_surface(shell, child);
++	assert(shsurf);
++
++	sub = wl_subcompositor_get_subsurface(subco, child,
++					      client->surface->wl_surface);
++	assert(sub);
++
++	expect_protocol_error(client, &wl_subcompositor_interface,
++			      WL_SUBCOMPOSITOR_ERROR_BAD_SURFACE);
++}
+-- 
+2.1.0
+

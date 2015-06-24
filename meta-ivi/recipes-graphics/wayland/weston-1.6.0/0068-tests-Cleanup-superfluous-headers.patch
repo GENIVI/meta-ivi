@@ -1,0 +1,201 @@
+From a76802685aae2b3563aae0ee8ffd84ab0b55c327 Mon Sep 17 00:00:00 2001
+From: Bryce Harrington <bryce@osg.samsung.com>
+Date: Wed, 19 Nov 2014 17:18:34 -0800
+Subject: [PATCH 68/96] tests: Cleanup superfluous headers
+
+Mostly remove headers that aren't actually needed for anything.
+Add stdint.h to permit dropping xf86drm.h, which is otherwise unneeded.
+
+Signed-off-by: Bryce Harrington <bryce@osg.samsung.com>
+Acked-by: Marek Chalupa <mchqwerty@gmail.com>
+Tested-by: Pekka Paalanen <pekka.paalanen@collabora.co.uk>
+---
+ tests/bad-buffer-test.c    | 3 ---
+ tests/buffer-count-test.c  | 7 ++-----
+ tests/button-test.c        | 1 +
+ tests/presentation-test.c  | 1 +
+ tests/setbacklight.c       | 2 +-
+ tests/subsurface-test.c    | 2 +-
+ tests/surface-test.c       | 1 -
+ tests/text-test.c          | 2 +-
+ tests/vertex-clip-test.c   | 3 ---
+ tests/weston-test-runner.c | 1 -
+ tests/weston-test.c        | 2 +-
+ tests/xwayland-test.c      | 1 -
+ 12 files changed, 8 insertions(+), 18 deletions(-)
+
+diff --git a/tests/bad-buffer-test.c b/tests/bad-buffer-test.c
+index 3b54ac6..dc93b48 100644
+--- a/tests/bad-buffer-test.c
++++ b/tests/bad-buffer-test.c
+@@ -24,9 +24,6 @@
+ #include "config.h"
+ 
+ #include <unistd.h>
+-#include <sys/types.h>
+-#include <stdio.h>
+-#include <signal.h>
+ 
+ #include "../shared/os-compatibility.h"
+ #include "weston-test-client-helper.h"
+diff --git a/tests/buffer-count-test.c b/tests/buffer-count-test.c
+index 8b1dd5d..5985a9e 100644
+--- a/tests/buffer-count-test.c
++++ b/tests/buffer-count-test.c
+@@ -23,16 +23,13 @@
+ #include "config.h"
+ 
+ #include <string.h>
+-
+-#include "weston-test-client-helper.h"
+ #include <stdio.h>
+-#include <poll.h>
+-#include <time.h>
+-
+ #include <EGL/egl.h>
+ #include <wayland-egl.h>
+ #include <GLES2/gl2.h>
+ 
++#include "weston-test-client-helper.h"
++
+ #define fail(msg) { fprintf(stderr, "%s failed\n", msg); return -1; }
+ 
+ struct test_data {
+diff --git a/tests/button-test.c b/tests/button-test.c
+index d5ad813..a784258 100644
+--- a/tests/button-test.c
++++ b/tests/button-test.c
+@@ -23,6 +23,7 @@
+ #include "config.h"
+ 
+ #include <linux/input.h>
++
+ #include "weston-test-client-helper.h"
+ 
+ TEST(simple_button_test)
+diff --git a/tests/presentation-test.c b/tests/presentation-test.c
+index 4408082..b99e93d 100644
+--- a/tests/presentation-test.c
++++ b/tests/presentation-test.c
+@@ -23,6 +23,7 @@
+ #include "config.h"
+ 
+ #include <stdio.h>
++#include <stdlib.h>
+ #include <string.h>
+ #include <assert.h>
+ #include <time.h>
+diff --git a/tests/setbacklight.c b/tests/setbacklight.c
+index c8eba43..5c79b90 100644
+--- a/tests/setbacklight.c
++++ b/tests/setbacklight.c
+@@ -32,9 +32,9 @@
+ 
+ #include <stdio.h>
+ #include <stdlib.h>
++#include <stdint.h>
+ #include <unistd.h>
+ #include <fcntl.h>
+-#include <xf86drm.h>
+ #include <xf86drmMode.h>
+ 
+ #include "libbacklight.h"
+diff --git a/tests/subsurface-test.c b/tests/subsurface-test.c
+index bee249b..cf70017 100644
+--- a/tests/subsurface-test.c
++++ b/tests/subsurface-test.c
+@@ -22,10 +22,10 @@
+ 
+ #include "config.h"
+ 
++#include <stdio.h>
+ #include <string.h>
+ 
+ #include "weston-test-client-helper.h"
+-#include <stdio.h>
+ 
+ #define NUM_SUBSURFACES 3
+ 
+diff --git a/tests/surface-test.c b/tests/surface-test.c
+index 1dddd4e..d466a44 100644
+--- a/tests/surface-test.c
++++ b/tests/surface-test.c
+@@ -22,7 +22,6 @@
+ 
+ #include "config.h"
+ 
+-#include <stdlib.h>
+ #include <stdio.h>
+ #include <assert.h>
+ 
+diff --git a/tests/text-test.c b/tests/text-test.c
+index c838a5d..0d20add 100644
+--- a/tests/text-test.c
++++ b/tests/text-test.c
+@@ -24,7 +24,7 @@
+ 
+ #include <string.h>
+ #include <stdio.h>
+-#include <linux/input.h>
++
+ #include "weston-test-client-helper.h"
+ #include "text-client-protocol.h"
+ 
+diff --git a/tests/vertex-clip-test.c b/tests/vertex-clip-test.c
+index 1a09437..f706a04 100644
+--- a/tests/vertex-clip-test.c
++++ b/tests/vertex-clip-test.c
+@@ -23,10 +23,7 @@
+ #include "config.h"
+ 
+ #include <assert.h>
+-#include <stdio.h>
+-#include <stdlib.h>
+ #include <string.h>
+-#include <math.h>
+ 
+ #include "weston-test-runner.h"
+ 
+diff --git a/tests/weston-test-runner.c b/tests/weston-test-runner.c
+index 3e1ace6..c8c2a6c 100644
+--- a/tests/weston-test-runner.c
++++ b/tests/weston-test-runner.c
+@@ -25,7 +25,6 @@
+ #include <unistd.h>
+ #include <stdio.h>
+ #include <stdlib.h>
+-#include <sys/types.h>
+ #include <sys/wait.h>
+ #include <string.h>
+ #include <assert.h>
+diff --git a/tests/weston-test.c b/tests/weston-test.c
+index f1e45c1..77eaa23 100644
+--- a/tests/weston-test.c
++++ b/tests/weston-test.c
+@@ -23,10 +23,10 @@
+ #include "config.h"
+ 
+ #include <stdlib.h>
+-#include <string.h>
+ #include <assert.h>
+ #include <signal.h>
+ #include <unistd.h>
++
+ #include "../src/compositor.h"
+ #include "wayland-test-server-protocol.h"
+ 
+diff --git a/tests/xwayland-test.c b/tests/xwayland-test.c
+index e94e8f5..ec15a14 100644
+--- a/tests/xwayland-test.c
++++ b/tests/xwayland-test.c
+@@ -28,7 +28,6 @@
+ #include "config.h"
+ 
+ #include <assert.h>
+-#include <unistd.h>
+ #include <stdlib.h>
+ #include <stdio.h>
+ #include <fcntl.h>
+-- 
+2.1.0
+

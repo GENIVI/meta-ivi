@@ -1,0 +1,372 @@
+From de16d8930644ac0d24c2cd63ad70671e28d892e0 Mon Sep 17 00:00:00 2001
+From: Bryce Harrington <bryce@osg.samsung.com>
+Date: Thu, 20 Nov 2014 22:21:57 -0800
+Subject: [PATCH 74/96] Use zalloc instead of calloc(1, ...)
+
+Signed-off-by: Bryce Harrington <bryce@osg.samsung.com>
+Reviewed-by: Marek Chalupa <mchqwerty@gmail.com>
+---
+ src/cms-helper.c       |  2 +-
+ src/compositor-drm.c   |  4 ++--
+ src/compositor-fbdev.c |  6 +++---
+ src/compositor-rpi.c   |  6 +++---
+ src/compositor.c       | 16 ++++++++--------
+ src/gl-renderer.c      | 12 +++++-------
+ src/logind-util.c      |  4 ++--
+ src/pixman-renderer.c  | 11 ++++++-----
+ src/rpi-renderer.c     | 16 ++++++++--------
+ src/text-backend.c     | 18 +++++++++++++-----
+ src/vaapi-recorder.c   |  4 ++--
+ 11 files changed, 53 insertions(+), 46 deletions(-)
+
+diff --git a/src/cms-helper.c b/src/cms-helper.c
+index c063c77..b586847 100644
+--- a/src/cms-helper.c
++++ b/src/cms-helper.c
+@@ -112,7 +112,7 @@ weston_cms_create_profile(const char *filename,
+ 			  void *lcms_profile)
+ {
+ 	struct weston_color_profile *p;
+-	p = calloc(1, sizeof(struct weston_color_profile));
++	p = zalloc(sizeof(struct weston_color_profile));
+ 	p->filename = strdup(filename);
+ 	p->lcms_handle = lcms_profile;
+ 	return p;
+diff --git a/src/compositor-drm.c b/src/compositor-drm.c
+index a5b6eb7..9b4d4dc 100644
+--- a/src/compositor-drm.c
++++ b/src/compositor-drm.c
+@@ -348,8 +348,8 @@ drm_fb_get_from_bo(struct gbm_bo *bo,
+ 	if (fb)
+ 		return fb;
+ 
+-	fb = calloc(1, sizeof *fb);
+-	if (!fb)
++	fb = zalloc(sizeof *fb);
++	if (fb == NULL)
+ 		return NULL;
+ 
+ 	fb->bo = bo;
+diff --git a/src/compositor-fbdev.c b/src/compositor-fbdev.c
+index 55b7d3c..f175d0d 100644
+--- a/src/compositor-fbdev.c
++++ b/src/compositor-fbdev.c
+@@ -508,8 +508,8 @@ fbdev_output_create(struct fbdev_compositor *compositor,
+ 
+ 	weston_log("Creating fbdev output.\n");
+ 
+-	output = calloc(1, sizeof *output);
+-	if (!output)
++	output = zalloc(sizeof *output);
++	if (output == NULL)
+ 		return -1;
+ 
+ 	output->compositor = compositor;
+@@ -869,7 +869,7 @@ fbdev_compositor_create(struct wl_display *display, int *argc, char *argv[],
+ 
+ 	weston_log("initializing fbdev backend\n");
+ 
+-	compositor = calloc(1, sizeof *compositor);
++	compositor = zalloc(sizeof *compositor);
+ 	if (compositor == NULL)
+ 		return NULL;
+ 
+diff --git a/src/compositor-rpi.c b/src/compositor-rpi.c
+index 5a8ee02..150e9e1 100644
+--- a/src/compositor-rpi.c
++++ b/src/compositor-rpi.c
+@@ -289,8 +289,8 @@ rpi_output_create(struct rpi_compositor *compositor, uint32_t transform)
+ 	int ret;
+ 	float mm_width, mm_height;
+ 
+-	output = calloc(1, sizeof *output);
+-	if (!output)
++	output = zalloc(sizeof *output);
++	if (output == NULL)
+ 		return -1;
+ 
+ 	output->compositor = compositor;
+@@ -459,7 +459,7 @@ rpi_compositor_create(struct wl_display *display, int *argc, char *argv[],
+ 
+ 	weston_log("initializing Raspberry Pi backend\n");
+ 
+-	compositor = calloc(1, sizeof *compositor);
++	compositor = zalloc(sizeof *compositor);
+ 	if (compositor == NULL)
+ 		return NULL;
+ 
+diff --git a/src/compositor.c b/src/compositor.c
+index 10a2169..53f6220 100644
+--- a/src/compositor.c
++++ b/src/compositor.c
+@@ -427,7 +427,7 @@ weston_view_create(struct weston_surface *surface)
+ {
+ 	struct weston_view *view;
+ 
+-	view = calloc(1, sizeof *view);
++	view = zalloc(sizeof *view);
+ 	if (view == NULL)
+ 		return NULL;
+ 
+@@ -605,7 +605,7 @@ weston_surface_create(struct weston_compositor *compositor)
+ {
+ 	struct weston_surface *surface;
+ 
+-	surface = calloc(1, sizeof *surface);
++	surface = zalloc(sizeof *surface);
+ 	if (surface == NULL)
+ 		return NULL;
+ 
+@@ -3066,8 +3066,8 @@ weston_subsurface_create(uint32_t id, struct weston_surface *surface,
+ 	struct weston_subsurface *sub;
+ 	struct wl_client *client = wl_resource_get_client(surface->resource);
+ 
+-	sub = calloc(1, sizeof *sub);
+-	if (!sub)
++	sub = zalloc(sizeof *sub);
++	if (sub == NULL)
+ 		return NULL;
+ 
+ 	wl_list_init(&sub->unused_views);
+@@ -3099,8 +3099,8 @@ weston_subsurface_create_for_parent(struct weston_surface *parent)
+ {
+ 	struct weston_subsurface *sub;
+ 
+-	sub = calloc(1, sizeof *sub);
+-	if (!sub)
++	sub = zalloc(sizeof *sub);
++	if (sub == NULL)
+ 		return NULL;
+ 
+ 	weston_subsurface_link_surface(sub, parent);
+@@ -3908,8 +3908,8 @@ presentation_feedback(struct wl_client *client,
+ 
+ 	surface = wl_resource_get_user_data(surface_resource);
+ 
+-	feedback = calloc(1, sizeof *feedback);
+-	if (!feedback)
++	feedback = zalloc(sizeof *feedback);
++	if (feedback == NULL)
+ 		goto err_calloc;
+ 
+ 	feedback->resource = wl_resource_create(client,
+diff --git a/src/gl-renderer.c b/src/gl-renderer.c
+index 938d4fa..bb46acd 100644
+--- a/src/gl-renderer.c
++++ b/src/gl-renderer.c
+@@ -1413,8 +1413,8 @@ gl_renderer_create_surface(struct weston_surface *surface)
+ 	struct gl_surface_state *gs;
+ 	struct gl_renderer *gr = get_renderer(surface->compositor);
+ 
+-	gs = calloc(1, sizeof *gs);
+-	if (!gs)
++	gs = zalloc(sizeof *gs);
++	if (gs == NULL)
+ 		return -1;
+ 
+ 	/* A buffer is never attached to solid color surfaces, yet
+@@ -1816,9 +1816,8 @@ gl_renderer_output_create(struct weston_output *output,
+ 		return -1;
+ 	}
+ 
+-	go = calloc(1, sizeof *go);
+-
+-	if (!go)
++	go = zalloc(sizeof *go);
++	if (go == NULL)
+ 		return -1;
+ 
+ 	go->egl_surface =
+@@ -1979,8 +1978,7 @@ gl_renderer_create(struct weston_compositor *ec, EGLNativeDisplayType display,
+ 	struct gl_renderer *gr;
+ 	EGLint major, minor;
+ 
+-	gr = calloc(1, sizeof *gr);
+-
++	gr = zalloc(sizeof *gr);
+ 	if (gr == NULL)
+ 		return -1;
+ 
+diff --git a/src/logind-util.c b/src/logind-util.c
+index 6a1b498..554e64d 100644
+--- a/src/logind-util.c
++++ b/src/logind-util.c
+@@ -834,8 +834,8 @@ weston_logind_connect(struct weston_logind **out,
+ 	char *t;
+ 	int r;
+ 
+-	wl = calloc(1, sizeof(*wl));
+-	if (!wl) {
++	wl = zalloc(sizeof(*wl));
++	if (wl == NULL) {
+ 		r = -ENOMEM;
+ 		goto err_out;
+ 	}
+diff --git a/src/pixman-renderer.c b/src/pixman-renderer.c
+index 2c26c3a..530e2ed 100644
+--- a/src/pixman-renderer.c
++++ b/src/pixman-renderer.c
+@@ -622,8 +622,8 @@ pixman_renderer_create_surface(struct weston_surface *surface)
+ 	struct pixman_surface_state *ps;
+ 	struct pixman_renderer *pr = get_renderer(surface->compositor);
+ 
+-	ps = calloc(1, sizeof *ps);
+-	if (!ps)
++	ps = zalloc(sizeof *ps);
++	if (ps == NULL)
+ 		return -1;
+ 
+ 	surface->renderer_state = ps;
+@@ -701,7 +701,7 @@ pixman_renderer_init(struct weston_compositor *ec)
+ {
+ 	struct pixman_renderer *renderer;
+ 
+-	renderer = calloc(1, sizeof *renderer);
++	renderer = zalloc(sizeof *renderer);
+ 	if (renderer == NULL)
+ 		return -1;
+ 
+@@ -746,10 +746,11 @@ pixman_renderer_output_set_buffer(struct weston_output *output, pixman_image_t *
+ WL_EXPORT int
+ pixman_renderer_output_create(struct weston_output *output)
+ {
+-	struct pixman_output_state *po = calloc(1, sizeof *po);
++	struct pixman_output_state *po;
+ 	int w, h;
+ 
+-	if (!po)
++	po = zalloc(sizeof *po);
++	if (po == NULL)
+ 		return -1;
+ 
+ 	/* set shadow image transformation */
+diff --git a/src/rpi-renderer.c b/src/rpi-renderer.c
+index 4d0f522..2feab63 100644
+--- a/src/rpi-renderer.c
++++ b/src/rpi-renderer.c
+@@ -492,8 +492,8 @@ rpir_surface_create(struct rpi_renderer *renderer)
+ {
+ 	struct rpir_surface *surface;
+ 
+-	surface = calloc(1, sizeof *surface);
+-	if (!surface)
++	surface = zalloc(sizeof *surface);
++	if (surface == NULL)
+ 		return NULL;
+ 
+ 	wl_list_init(&surface->views);
+@@ -576,8 +576,8 @@ rpir_view_create(struct rpir_surface *surface)
+ {
+ 	struct rpir_view *view;
+ 
+-	view = calloc(1, sizeof *view);
+-	if (!view)
++	view = zalloc(sizeof *view);
++	if (view == NULL)
+ 		return NULL;
+ 
+ 	view->surface = surface;
+@@ -1549,7 +1549,7 @@ rpi_renderer_attach(struct weston_surface *base, struct weston_buffer *buffer)
+ 		surface->buffer_type = BUFFER_TYPE_EGL;
+ 
+ 		if(surface->egl_back == NULL)
+-			surface->egl_back = calloc(1, sizeof *surface->egl_back);
++			surface->egl_back = zalloc(sizeof *surface->egl_back);
+ 
+ 		weston_buffer_reference(&surface->egl_back->buffer_ref, buffer);
+ 		surface->egl_back->resource_handle =
+@@ -1725,7 +1725,7 @@ rpi_renderer_create(struct weston_compositor *compositor,
+ 
+ 	weston_log("Initializing the DispmanX compositing renderer\n");
+ 
+-	renderer = calloc(1, sizeof *renderer);
++	renderer = zalloc(sizeof *renderer);
+ 	if (renderer == NULL)
+ 		return -1;
+ 
+@@ -1797,8 +1797,8 @@ rpi_renderer_output_create(struct weston_output *base,
+ 
+ 	assert(base->renderer_state == NULL);
+ 
+-	output = calloc(1, sizeof *output);
+-	if (!output)
++	output = zalloc(sizeof *output);
++	if (output == NULL)
+ 		return -1;
+ 
+ 	output->display = display;
+diff --git a/src/text-backend.c b/src/text-backend.c
+index e9578a4..6246b30 100644
+--- a/src/text-backend.c
++++ b/src/text-backend.c
+@@ -357,7 +357,9 @@ static void text_input_manager_create_text_input(struct wl_client *client,
+ 	struct text_input_manager *text_input_manager = wl_resource_get_user_data(resource);
+ 	struct text_input *text_input;
+ 
+-	text_input = calloc(1, sizeof *text_input);
++	text_input = zalloc(sizeof *text_input);
++	if (text_input == NULL)
++		return;
+ 
+ 	text_input->resource =
+ 		wl_resource_create(client, &wl_text_input_interface, 1, id);
+@@ -409,7 +411,9 @@ text_input_manager_create(struct weston_compositor *ec)
+ {
+ 	struct text_input_manager *text_input_manager;
+ 
+-	text_input_manager = calloc(1, sizeof *text_input_manager);
++	text_input_manager = zalloc(sizeof *text_input_manager);
++	if (text_input_manager == NULL)
++		return;
+ 
+ 	text_input_manager->ec = ec;
+ 
+@@ -726,7 +730,7 @@ input_method_context_create(struct text_input *model,
+ 	if (!input_method->input_method_binding)
+ 		return;
+ 
+-	context = calloc(1, sizeof *context);
++	context = zalloc(sizeof *context);
+ 	if (context == NULL)
+ 		return;
+ 
+@@ -913,7 +917,9 @@ handle_seat_created(struct wl_listener *listener,
+ 	struct input_method *input_method;
+ 	struct weston_compositor *ec = seat->compositor;
+ 
+-	input_method = calloc(1, sizeof *input_method);
++	input_method = zalloc(sizeof *input_method);
++	if (input_method == NULL)
++		return;
+ 
+ 	input_method->seat = seat;
+ 	input_method->model = NULL;
+@@ -972,7 +978,9 @@ text_backend_init(struct weston_compositor *ec)
+ {
+ 	struct text_backend *text_backend;
+ 
+-	text_backend = calloc(1, sizeof(*text_backend));
++	text_backend = zalloc(sizeof(*text_backend));
++	if (text_backend == NULL)
++		return -1;
+ 
+ 	text_backend->compositor = ec;
+ 
+diff --git a/src/vaapi-recorder.c b/src/vaapi-recorder.c
+index 921494d..a469391 100644
+--- a/src/vaapi-recorder.c
++++ b/src/vaapi-recorder.c
+@@ -951,8 +951,8 @@ vaapi_recorder_create(int drm_fd, int width, int height, const char *filename)
+ 	int major, minor;
+ 	int flags;
+ 
+-	r = calloc(1, sizeof *r);
+-	if (!r)
++	r = zalloc(sizeof *r);
++	if (r == NULL)
+ 		return NULL;
+ 
+ 	r->width = width;
+-- 
+2.1.0
+

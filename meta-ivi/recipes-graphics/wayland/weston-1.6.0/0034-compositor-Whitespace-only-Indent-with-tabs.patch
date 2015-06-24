@@ -1,0 +1,49 @@
+From 59fe423e3a2b5673247295260c48c18c252b7a9e Mon Sep 17 00:00:00 2001
+From: Bryce Harrington <bryce@osg.samsung.com>
+Date: Thu, 23 Oct 2014 14:44:34 -0700
+Subject: [PATCH 34/96] compositor: (Whitespace-only) Indent with tabs
+
+Signed-off-by: Bryce Harrington <bryce@osg.samsung.com>
+Reviewed-by: Derek Foreman <derekf@osg.samsung.com>
+---
+ src/compositor.c | 24 ++++++++++++------------
+ 1 file changed, 12 insertions(+), 12 deletions(-)
+
+diff --git a/src/compositor.c b/src/compositor.c
+index 6a81cc7..96f54ec 100644
+--- a/src/compositor.c
++++ b/src/compositor.c
+@@ -4547,18 +4547,18 @@ usage(int error_code)
+ #endif
+ 
+ #if defined(BUILD_RDP_COMPOSITOR)
+-    fprintf(stderr,
+-       "Options for rdp-backend.so:\n\n"
+-       "  --width=WIDTH\t\tWidth of desktop\n"
+-       "  --height=HEIGHT\tHeight of desktop\n"
+-       "  --env-socket=SOCKET\tUse that socket as peer connection\n"
+-       "  --address=ADDR\tThe address to bind\n"
+-       "  --port=PORT\tThe port to listen on\n"
+-       "  --no-clients-resize\tThe RDP peers will be forced to the size of the desktop\n"
+-       "  --rdp4-key=FILE\tThe file containing the key for RDP4 encryption\n"
+-       "  --rdp-tls-cert=FILE\tThe file containing the certificate for TLS encryption\n"
+-       "  --rdp-tls-key=FILE\tThe file containing the private key for TLS encryption\n"
+-       "\n");
++	fprintf(stderr,
++		"Options for rdp-backend.so:\n\n"
++		"  --width=WIDTH\t\tWidth of desktop\n"
++		"  --height=HEIGHT\tHeight of desktop\n"
++		"  --env-socket=SOCKET\tUse that socket as peer connection\n"
++		"  --address=ADDR\tThe address to bind\n"
++		"  --port=PORT\tThe port to listen on\n"
++		"  --no-clients-resize\tThe RDP peers will be forced to the size of the desktop\n"
++		"  --rdp4-key=FILE\tThe file containing the key for RDP4 encryption\n"
++		"  --rdp-tls-cert=FILE\tThe file containing the certificate for TLS encryption\n"
++		"  --rdp-tls-key=FILE\tThe file containing the private key for TLS encryption\n"
++		"\n");
+ #endif
+ 
+ 	exit(error_code);
+-- 
+2.1.0
+

@@ -1,0 +1,169 @@
+From 5953bc1cc79ac42dacdd7fb2ab145bcf43b6b8ff Mon Sep 17 00:00:00 2001
+From: Nobuhiko Tanibata <NOBUHIKO_TANIBATA@xddp.denso.co.jp>
+Date: Thu, 11 Dec 2014 11:46:00 +0900
+Subject: [PATCH 93/96] ivi-shell: several ivi-layout interfaces moved accross
+ source.
+
+Interfaces for properties setting shall be implemented in ivi-layout.
+
+Signed-off-by: Nobuhiko Tanibata <NOBUHIKO_TANIBATA@xddp.denso.co.jp>
+---
+ ivi-shell/ivi-layout-transition.c | 66 --------------------------------------
+ ivi-shell/ivi-layout.c            | 67 +++++++++++++++++++++++++++++++++++++++
+ 2 files changed, 67 insertions(+), 66 deletions(-)
+
+diff --git a/ivi-shell/ivi-layout-transition.c b/ivi-shell/ivi-layout-transition.c
+index 6d4a655..8b8261e 100644
+--- a/ivi-shell/ivi-layout-transition.c
++++ b/ivi-shell/ivi-layout-transition.c
+@@ -849,69 +849,3 @@ ivi_layout_transition_fade_layer(
+ 	return;
+ }
+ 
+-WL_EXPORT int32_t
+-ivi_layout_surface_set_transition(struct ivi_layout_surface *ivisurf,
+-				  enum ivi_layout_transition_type type,
+-				  uint32_t duration)
+-{
+-	struct ivi_layout_surface_properties *prop;
+-
+-	if (ivisurf == NULL) {
+-		weston_log("%s: invalid argument\n", __func__);
+-		return -1;
+-	}
+-
+-	prop = &ivisurf->pending.prop;
+-	prop->transition_type = type;
+-	prop->transition_duration = duration;
+-	return 0;
+-}
+-
+-int32_t
+-ivi_layout_surface_set_transition_duration(struct ivi_layout_surface *ivisurf,
+-					   uint32_t duration)
+-{
+-	struct ivi_layout_surface_properties *prop;
+-
+-	if (ivisurf == NULL) {
+-		weston_log("%s: invalid argument\n", __func__);
+-		return -1;
+-	}
+-
+-	prop = &ivisurf->pending.prop;
+-	prop->transition_duration = duration*10;
+-	return 0;
+-}
+-
+-WL_EXPORT int32_t
+-ivi_layout_layer_set_transition(struct ivi_layout_layer *ivilayer,
+-				enum ivi_layout_transition_type type,
+-				uint32_t duration)
+-{
+-	if (ivilayer == NULL) {
+-		weston_log("%s: invalid argument\n", __func__);
+-		return -1;
+-	}
+-
+-	ivilayer->pending.prop.transition_type = type;
+-	ivilayer->pending.prop.transition_duration = duration;
+-
+-	return 0;
+-}
+-
+-WL_EXPORT int32_t
+-ivi_layout_layer_set_fade_info(struct ivi_layout_layer* ivilayer,
+-			       uint32_t is_fade_in,
+-			       double start_alpha, double end_alpha)
+-{
+-	if (ivilayer == NULL) {
+-		weston_log("%s: invalid argument\n", __func__);
+-		return -1;
+-	}
+-
+-	ivilayer->pending.prop.is_fade_in = is_fade_in;
+-	ivilayer->pending.prop.start_alpha = start_alpha;
+-	ivilayer->pending.prop.end_alpha = end_alpha;
+-
+-	return 0;
+-}
+diff --git a/ivi-shell/ivi-layout.c b/ivi-shell/ivi-layout.c
+index ff5d014..5d89eb0 100644
+--- a/ivi-shell/ivi-layout.c
++++ b/ivi-shell/ivi-layout.c
+@@ -2597,6 +2597,73 @@ ivi_layout_commit_changes(void)
+ 	return IVI_SUCCEEDED;
+ }
+ 
++WL_EXPORT int32_t
++ivi_layout_layer_set_transition(struct ivi_layout_layer *ivilayer,
++				enum ivi_layout_transition_type type,
++				uint32_t duration)
++{
++	if (ivilayer == NULL) {
++		weston_log("%s: invalid argument\n", __func__);
++		return -1;
++	}
++
++	ivilayer->pending.prop.transition_type = type;
++	ivilayer->pending.prop.transition_duration = duration;
++
++	return 0;
++}
++
++WL_EXPORT int32_t
++ivi_layout_layer_set_fade_info(struct ivi_layout_layer* ivilayer,
++			       uint32_t is_fade_in,
++			       double start_alpha, double end_alpha)
++{
++	if (ivilayer == NULL) {
++		weston_log("%s: invalid argument\n", __func__);
++		return -1;
++	}
++
++	ivilayer->pending.prop.is_fade_in = is_fade_in;
++	ivilayer->pending.prop.start_alpha = start_alpha;
++	ivilayer->pending.prop.end_alpha = end_alpha;
++
++	return 0;
++}
++
++WL_EXPORT int32_t
++ivi_layout_surface_set_transition_duration(struct ivi_layout_surface *ivisurf,
++					   uint32_t duration)
++{
++	struct ivi_layout_surface_properties *prop;
++
++	if (ivisurf == NULL) {
++		weston_log("%s: invalid argument\n", __func__);
++		return -1;
++	}
++
++	prop = &ivisurf->pending.prop;
++	prop->transition_duration = duration*10;
++	return 0;
++}
++
++WL_EXPORT int32_t
++ivi_layout_surface_set_transition(struct ivi_layout_surface *ivisurf,
++				  enum ivi_layout_transition_type type,
++				  uint32_t duration)
++{
++	struct ivi_layout_surface_properties *prop;
++
++	if (ivisurf == NULL) {
++		weston_log("%s: invalid argument\n", __func__);
++		return -1;
++	}
++
++	prop = &ivisurf->pending.prop;
++	prop->transition_type = type;
++	prop->transition_duration = duration;
++	return 0;
++}
++
+ /***called from ivi-shell**/
+ static struct weston_view *
+ ivi_layout_get_weston_view(struct ivi_layout_surface *surface)
+-- 
+2.1.0
+

@@ -1,0 +1,333 @@
+From 06784e6eca4530f71a9a5770bb937974e72fda3b Mon Sep 17 00:00:00 2001
+From: Nobuhiko Tanibata <NOBUHIKO_TANIBATA@xddp.denso.co.jp>
+Date: Mon, 8 Dec 2014 22:53:05 +0900
+Subject: [PATCH 95/96] ivi-shell: make ivi-layout.c as a part of ivi-shell.so
+
+ivi-layout.so is separately built and loaded by using dlopen with
+RTLD_GLOBAL. This was because these apis defined in ivi-layout.so shall
+be used by ivi-modules; e.g. hmi-controller. This shall be improved that
+a struct ivi_layout_api contains the whole exported API as function
+pointers to be exposed as module_init.
+
+This patch alone builds, but loading controller modules at runtime
+failes. This failure will be fixed by following patches.
+
+Signed-off-by: Nobuhiko Tanibata <NOBUHIKO_TANIBATA@xddp.denso.co.jp>
+---
+ Makefile.am                    | 16 +++--------
+ ivi-shell/ivi-layout-private.h | 43 +++++++++++++----------------
+ ivi-shell/ivi-layout.c         | 24 +++++++----------
+ ivi-shell/ivi-shell.c          | 61 ++++++++++--------------------------------
+ ivi-shell/ivi-shell.h          |  2 --
+ 5 files changed, 46 insertions(+), 100 deletions(-)
+
+diff --git a/Makefile.am b/Makefile.am
+index 4f4bb28..e91378b 100644
+--- a/Makefile.am
++++ b/Makefile.am
+@@ -767,28 +767,20 @@ endif
+ if ENABLE_IVI_SHELL
+ 
+ module_LTLIBRARIES +=				\
+-	$(ivi_layout)				\
+ 	$(ivi_shell)				\
+ 	$(hmi_controller)
+ 
+-ivi_layout = ivi-layout.la
+-ivi_layout_la_LDFLAGS = -module -avoid-version
+-ivi_layout_la_LIBADD = $(COMPOSITOR_LIBS) libshared.la
+-ivi_layout_la_CFLAGS = $(GCC_CFLAGS) $(COMPOSITOR_CFLAGS)
+-ivi_layout_la_SOURCES =				\
+-	ivi-shell/ivi-layout-export.h		\
+-	ivi-shell/ivi-layout-private.h		\
+-	ivi-shell/ivi-layout.c			\
+-	ivi-shell/ivi-layout-transition.c
+-
+ ivi_shell = ivi-shell.la
+ ivi_shell_la_LDFLAGS = -module -avoid-version
+ ivi_shell_la_LIBADD = $(COMPOSITOR_LIBS) libshared.la
+ ivi_shell_la_CFLAGS = $(GCC_CFLAGS) $(COMPOSITOR_CFLAGS)
+ ivi_shell_la_SOURCES =				\
++	ivi-shell/ivi-layout-export.h		\
++	ivi-shell/ivi-layout-private.h		\
++	ivi-shell/ivi-layout.c			\
++	ivi-shell/ivi-layout-transition.c	\
+ 	ivi-shell/ivi-shell.h			\
+ 	ivi-shell/ivi-shell.c			\
+-	ivi-shell/ivi-layout-private.h		\
+ 	ivi-shell/input-panel-ivi.c
+ nodist_ivi_shell_la_SOURCES =			\
+ 	protocol/ivi-application-protocol.c		\
+diff --git a/ivi-shell/ivi-layout-private.h b/ivi-shell/ivi-layout-private.h
+index 8287e93..df3ac98 100644
+--- a/ivi-shell/ivi-layout-private.h
++++ b/ivi-shell/ivi-layout-private.h
+@@ -292,28 +292,23 @@ ivi_layout_surface_set_transition_duration(
+ 			struct ivi_layout_surface *ivisurf,
+ 			uint32_t duration);
+ 
+-struct ivi_layout_interface {
+-	struct weston_view *(*get_weston_view)(
+-				struct ivi_layout_surface *surface);
+-
+-	void (*surface_configure)(struct ivi_layout_surface *ivisurf,
+-				  int32_t width,
+-				  int32_t height);
+-
+-	struct ivi_layout_surface *(*surface_create)(
+-				struct weston_surface *wl_surface,
+-				uint32_t id_surface);
+-
+-	void (*init_with_compositor)(struct weston_compositor *ec);
+-
+-	int32_t (*get_surface_dimension)(
+-				struct ivi_layout_surface *ivisurf,
+-				int32_t *dest_width,
+-				int32_t *dest_height);
+-
+-	void (*add_surface_configured_listener)(
+-				struct ivi_layout_surface *ivisurf,
+-				struct wl_listener* listener);
+-};
+-
++/**
++ * methods of interaction between ivi-shell with ivi-layout
++ */
++struct weston_view *
++ivi_layout_get_weston_view(struct ivi_layout_surface *surface);
++void
++ivi_layout_surface_configure(struct ivi_layout_surface *ivisurf,
++			     int32_t width, int32_t height);
++struct ivi_layout_surface*
++ivi_layout_surface_create(struct weston_surface *wl_surface,
++			  uint32_t id_surface);
++void
++ivi_layout_init_with_compositor(struct weston_compositor *ec);
++int32_t
++ivi_layout_surface_get_dimension(struct ivi_layout_surface *ivisurf,
++				 int32_t *dest_width, int32_t *dest_height);
++void
++ivi_layout_surface_add_configured_listener(struct ivi_layout_surface* ivisurf,
++					   struct wl_listener* listener);
+ #endif
+diff --git a/ivi-shell/ivi-layout.c b/ivi-shell/ivi-layout.c
+index 67ccf6e..1772845 100644
+--- a/ivi-shell/ivi-layout.c
++++ b/ivi-shell/ivi-layout.c
+@@ -2659,8 +2659,10 @@ ivi_layout_surface_set_transition(struct ivi_layout_surface *ivisurf,
+ 	return 0;
+ }
+ 
+-/***called from ivi-shell**/
+-static struct weston_view *
++/**
++ * methods of interaction between ivi-shell with ivi-layout
++ */
++struct weston_view *
+ ivi_layout_get_weston_view(struct ivi_layout_surface *surface)
+ {
+ 	struct weston_view *tmpview = NULL;
+@@ -2677,7 +2679,7 @@ ivi_layout_get_weston_view(struct ivi_layout_surface *surface)
+ 	return tmpview;
+ }
+ 
+-static void
++void
+ ivi_layout_surface_configure(struct ivi_layout_surface *ivisurf,
+ 			     int32_t width, int32_t height)
+ {
+@@ -2707,7 +2709,7 @@ ivi_layout_surface_configure(struct ivi_layout_surface *ivisurf,
+ 	}
+ }
+ 
+-WL_EXPORT int32_t
++int32_t
+ ivi_layout_surface_set_content_observer(struct ivi_layout_surface *ivisurf,
+ 					ivi_controller_surface_content_callback callback,
+ 					void* userdata)
+@@ -2722,7 +2724,7 @@ ivi_layout_surface_set_content_observer(struct ivi_layout_surface *ivisurf,
+ 	return ret;
+ }
+ 
+-static struct ivi_layout_surface*
++struct ivi_layout_surface*
+ ivi_layout_surface_create(struct weston_surface *wl_surface,
+ 			  uint32_t id_surface)
+ {
+@@ -2798,7 +2800,7 @@ ivi_layout_surface_create(struct weston_surface *wl_surface,
+ 	return ivisurf;
+ }
+ 
+-static void
++void
+ ivi_layout_init_with_compositor(struct weston_compositor *ec)
+ {
+ 	struct ivi_layout *layout = get_instance();
+@@ -2826,18 +2828,10 @@ ivi_layout_init_with_compositor(struct weston_compositor *ec)
+ }
+ 
+ 
+-static void
++void
+ ivi_layout_surface_add_configured_listener(struct ivi_layout_surface* ivisurf,
+ 					   struct wl_listener* listener)
+ {
+ 	wl_signal_add(&ivisurf->configured, listener);
+ }
+ 
+-WL_EXPORT struct ivi_layout_interface ivi_layout_interface = {
+-	.get_weston_view = ivi_layout_get_weston_view,
+-	.surface_configure = ivi_layout_surface_configure,
+-	.surface_create = ivi_layout_surface_create,
+-	.init_with_compositor = ivi_layout_init_with_compositor,
+-	.get_surface_dimension = ivi_layout_surface_get_dimension,
+-	.add_surface_configured_listener = ivi_layout_surface_add_configured_listener
+-};
+diff --git a/ivi-shell/ivi-shell.c b/ivi-shell/ivi-shell.c
+index 1e068e2..a3e1214 100644
+--- a/ivi-shell/ivi-shell.c
++++ b/ivi-shell/ivi-shell.c
+@@ -39,6 +39,7 @@
+ 
+ #include "ivi-shell.h"
+ #include "ivi-application-server-protocol.h"
++#include "ivi-layout-export.h"
+ #include "ivi-layout-private.h"
+ 
+ #include "../shared/os-compatibility.h"
+@@ -85,8 +86,9 @@ surface_configure_notify(struct wl_listener *listener, void *data)
+ 
+ 	int32_t dest_width = 0;
+ 	int32_t dest_height = 0;
+-	shell_surf->shell->ivi_layout->get_surface_dimension(layout_surf,
+-					  &dest_width, &dest_height);
++
++	ivi_layout_surface_get_dimension(layout_surf,
++					 &dest_width, &dest_height);
+ 
+ 	if (shell_surf->resource)
+ 		ivi_surface_send_configure(shell_surf->resource,
+@@ -119,7 +121,8 @@ ivi_shell_surface_configure(struct weston_surface *surface,
+ 	if (surface->width == 0 || surface->height == 0 || ivisurf == NULL)
+ 		return;
+ 
+-	view = ivisurf->shell->ivi_layout->get_weston_view(ivisurf->layout_surface);
++	view = ivi_layout_get_weston_view(ivisurf->layout_surface);
++
+ 	if (view == NULL)
+ 		return;
+ 
+@@ -136,8 +139,8 @@ ivi_shell_surface_configure(struct weston_surface *surface,
+ 					 view->geometry.y + to_y - from_y);
+ 		weston_view_update_transform(view);
+ 
+-		ivisurf->shell->ivi_layout->surface_configure(ivisurf->layout_surface,
+-					      surface->width, surface->height);
++		ivi_layout_surface_configure(ivisurf->layout_surface,
++					     surface->width, surface->height);	
+ 	}
+ }
+ 
+@@ -231,8 +234,7 @@ application_surface_create(struct wl_client *client,
+ 				    resource, IVI_APPLICATION_ERROR_ROLE) < 0)
+ 		return;
+ 
+-	layout_surface = shell->ivi_layout->surface_create(weston_surface,
+-						    id_surface);
++	layout_surface = ivi_layout_surface_create(weston_surface, id_surface);
+ 
+ 	/* check if id_ivi is already used for wl_surface*/
+ 	if (layout_surface == NULL){
+@@ -259,9 +261,8 @@ application_surface_create(struct wl_client *client,
+ 	ivisurf->height = 0;
+ 	ivisurf->layout_surface = layout_surface;
+ 	ivisurf->configured_listener.notify = surface_configure_notify;
+-	ivisurf->shell->ivi_layout->add_surface_configured_listener(layout_surface,
+-						&ivisurf->configured_listener);
+-
++	ivi_layout_surface_add_configured_listener(layout_surface,
++				     &ivisurf->configured_listener);
+ 	/*
+ 	 * The following code relies on wl_surface destruction triggering
+ 	 * immediateweston_surface destruction
+@@ -320,7 +321,7 @@ get_default_view(struct weston_surface *surface)
+ 
+ 	shsurf = get_ivi_shell_surface(surface);
+ 	if (shsurf && shsurf->layout_surface) {
+-		view = shsurf->shell->ivi_layout->get_weston_view(shsurf->layout_surface);
++		view = ivi_layout_get_weston_view(shsurf->layout_surface);
+ 		if (view)
+ 			return view;
+ 	}
+@@ -423,8 +424,6 @@ module_init(struct weston_compositor *compositor,
+ 	    int *argc, char *argv[])
+ {
+ 	struct ivi_shell *shell;
+-	char ivi_layout_path[PATH_MAX];
+-	void *module;
+ 	struct ivi_shell_setting setting = { };
+ 
+ 	shell = zalloc(sizeof *shell);
+@@ -447,44 +446,12 @@ module_init(struct weston_compositor *compositor,
+ 	if (ivi_shell_setting_create(&setting, compositor) != 0)
+ 		return -1;
+ 
+-	/*
+-	 * load module:ivi-layout
+-	 * ivi_layout_interface is referred by ivi-shell to use ivi-layout.
+-	 * The reason why the following code is written newly without
+-	 * using weston_load_module is it doesn't open library with
+-	 * RTLD_GLOBAL option.
+-	 */
+-	snprintf(ivi_layout_path, sizeof ivi_layout_path,
+-		 "%s/%s", MODULEDIR, "ivi-layout.so");
+-	module = dlopen(ivi_layout_path, RTLD_NOW | RTLD_NOLOAD);
+-	if (module) {
+-		weston_log("ivi-shell: Module '%s' already loaded\n",
+-			   ivi_layout_path);
+-		dlclose(module);
+-		return -1;
+-	}
+-
+-	weston_log("ivi-shell: Loading module '%s'\n", ivi_layout_path);
+-	module = dlopen(ivi_layout_path, RTLD_NOW | RTLD_GLOBAL);
+-	if (!module) {
+-		weston_log("ivi-shell: Failed to load module: %s\n", dlerror());
+-		return -1;
+-	}
+-
+-	shell->ivi_layout = dlsym(module,"ivi_layout_interface");
+-	if (!shell->ivi_layout){
+-		weston_log("ivi-shell: couldn't find ivi_layout_interface in '%s'\n", ivi_layout_path);
+-		free(setting.ivi_module);
+-		dlclose(module);
+-		return -1;
+-	}
+-
+-	shell->ivi_layout->init_with_compositor(compositor);
++	ivi_layout_init_with_compositor(compositor);
++	
+ 
+ 	/* Call module_init of ivi-modules which are defined in weston.ini */
+ 	if (ivi_load_modules(compositor, setting.ivi_module, argc, argv) < 0) {
+ 		free(setting.ivi_module);
+-		dlclose(module);
+ 		return -1;
+ 	}
+ 
+diff --git a/ivi-shell/ivi-shell.h b/ivi-shell/ivi-shell.h
+index dd353c3..2f42173 100644
+--- a/ivi-shell/ivi-shell.h
++++ b/ivi-shell/ivi-shell.h
+@@ -32,8 +32,6 @@ struct ivi_shell
+ 
+ 	struct wl_list ivi_surface_list; /* struct ivi_shell_surface::link */
+ 
+-	struct ivi_layout_interface *ivi_layout;
+-
+ 	struct wl_listener show_input_panel_listener;
+ 	struct wl_listener hide_input_panel_listener;
+ 	struct wl_listener update_input_panel_listener;
+-- 
+2.1.0
+

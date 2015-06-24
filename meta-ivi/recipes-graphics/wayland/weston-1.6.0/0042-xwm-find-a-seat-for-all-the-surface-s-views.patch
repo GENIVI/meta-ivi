@@ -1,0 +1,39 @@
+From ad7305ad74226c154243f33b59fd441ed2743a2a Mon Sep 17 00:00:00 2001
+From: Giulio Camuffo <giuliocamuffo@gmail.com>
+Date: Sat, 4 Oct 2014 13:58:33 +0300
+Subject: [PATCH 42/96] xwm: find a seat for all the surface's views
+
+This allows to move or resize a xwayland client by acting on all
+its views.
+---
+ xwayland/window-manager.c | 7 ++++---
+ 1 file changed, 4 insertions(+), 3 deletions(-)
+
+diff --git a/xwayland/window-manager.c b/xwayland/window-manager.c
+index 2902373..4977c24 100644
+--- a/xwayland/window-manager.c
++++ b/xwayland/window-manager.c
+@@ -1214,8 +1214,8 @@ weston_wm_pick_seat_for_window(struct weston_wm_window *window)
+ 
+ 	seat = NULL;
+ 	wl_list_for_each(s, &wm->server->compositor->seat_list, link) {
+-		if (s->pointer != NULL &&
+-		    s->pointer->focus == window->view &&
++		if (s->pointer != NULL && s->pointer->focus &&
++		    s->pointer->focus->surface == window->surface &&
+ 		    s->pointer->button_count > 0 &&
+ 		    (seat == NULL ||
+ 		     s->pointer->grab_serial -
+@@ -1248,7 +1248,8 @@ weston_wm_window_handle_moveresize(struct weston_wm_window *window,
+ 		&wm->server->compositor->shell_interface;
+ 
+ 	if (seat == NULL || seat->pointer->button_count != 1
+-	    || !window->view || seat->pointer->focus != window->view)
++	    || !seat->pointer->focus
++	    || seat->pointer->focus->surface != window->surface)
+ 		return;
+ 
+ 	detail = client_message->data.data32[2];
+-- 
+2.1.0
+

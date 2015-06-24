@@ -1,0 +1,2772 @@
+From 823ad33ef34fa32b14b300d987fb9d2e2a42e9c4 Mon Sep 17 00:00:00 2001
+From: Peter Hutterer <peter.hutterer@who-t.net>
+Date: Wed, 26 Nov 2014 07:06:31 +1000
+Subject: [PATCH 62/96] compositor: Drop legacy backends in favor of libinput
+
+Reviewed-by: Pekka Paalanen <pekka.paalanen@collabora.co.uk>
+---
+ Makefile.am            |  15 +-
+ configure.ac           |  10 +-
+ src/compositor-drm.c   |   2 +-
+ src/compositor-fbdev.c |   2 +-
+ src/compositor-rpi.c   |   2 +-
+ src/evdev-touchpad.c   | 800 -------------------------------------------------
+ src/evdev.c            | 755 ----------------------------------------------
+ src/evdev.h            | 137 ---------
+ src/filter.c           | 337 ---------------------
+ src/filter.h           |  63 ----
+ src/udev-input.h       |  34 ---
+ src/udev-seat.c        | 417 --------------------------
+ src/udev-seat.h        |  57 ----
+ 13 files changed, 5 insertions(+), 2626 deletions(-)
+ delete mode 100644 src/evdev-touchpad.c
+ delete mode 100644 src/evdev.c
+ delete mode 100644 src/evdev.h
+ delete mode 100644 src/filter.c
+ delete mode 100644 src/filter.h
+ delete mode 100644 src/udev-input.h
+ delete mode 100644 src/udev-seat.c
+ delete mode 100644 src/udev-seat.h
+
+diff --git a/Makefile.am b/Makefile.am
+index 2fc171e..e942850 100644
+--- a/Makefile.am
++++ b/Makefile.am
+@@ -184,25 +184,12 @@ x11_backend_la_CFLAGS =				\
+ x11_backend_la_SOURCES = src/compositor-x11.c
+ endif
+ 
+-INPUT_BACKEND_SOURCES = src/udev-input.h
+-
+-if ENABLE_LIBINPUT_BACKEND
+ INPUT_BACKEND_LIBS = $(LIBINPUT_BACKEND_LIBS)
+-INPUT_BACKEND_SOURCES +=			\
++INPUT_BACKEND_SOURCES =				\
+ 	src/libinput-seat.c			\
+ 	src/libinput-seat.h			\
+ 	src/libinput-device.c			\
+ 	src/libinput-device.h
+-else
+-INPUT_BACKEND_SOURCES +=			\
+-	src/filter.c				\
+-	src/filter.h				\
+-	src/udev-seat.c				\
+-	src/udev-seat.h				\
+-	src/evdev.c				\
+-	src/evdev.h				\
+-	src/evdev-touchpad.c
+-endif
+ 
+ if ENABLE_DRM_COMPOSITOR
+ module_LTLIBRARIES += drm-backend.la
+diff --git a/configure.ac b/configure.ac
+index 56ee544..f30f189 100644
+--- a/configure.ac
++++ b/configure.ac
+@@ -155,15 +155,7 @@ if test x$enable_drm_compositor = xyes; then
+ fi
+ 
+ 
+-AC_ARG_ENABLE(libinput-backend, [  --disable-libinput-backend],,
+-	      enable_libinput_backend=yes)
+-AM_CONDITIONAL([ENABLE_LIBINPUT_BACKEND], [test x$enable_libinput_backend = xyes])
+-if test x$enable_libinput_backend = xyes; then
+-  AC_DEFINE([BUILD_LIBINPUT_BACKEND], [1], [Build the libinput input device backend])
+-  PKG_CHECK_MODULES(LIBINPUT_BACKEND, [libinput >= 0.6.0])
+-fi
+-
+-
++PKG_CHECK_MODULES(LIBINPUT_BACKEND, [libinput >= 0.6.0])
+ PKG_CHECK_MODULES(COMPOSITOR, [$COMPOSITOR_MODULES])
+ 
+ AC_ARG_ENABLE(wayland-compositor, [  --enable-wayland-compositor],,
+diff --git a/src/compositor-drm.c b/src/compositor-drm.c
+index 702bae8..a5b6eb7 100644
+--- a/src/compositor-drm.c
++++ b/src/compositor-drm.c
+@@ -47,7 +47,7 @@
+ #include "compositor.h"
+ #include "gl-renderer.h"
+ #include "pixman-renderer.h"
+-#include "udev-input.h"
++#include "libinput-seat.h"
+ #include "launcher-util.h"
+ #include "vaapi-recorder.h"
+ 
+diff --git a/src/compositor-fbdev.c b/src/compositor-fbdev.c
+index 138aaab..bbc7176 100644
+--- a/src/compositor-fbdev.c
++++ b/src/compositor-fbdev.c
+@@ -42,7 +42,7 @@
+ #include "compositor.h"
+ #include "launcher-util.h"
+ #include "pixman-renderer.h"
+-#include "udev-input.h"
++#include "libinput-seat.h"
+ #include "gl-renderer.h"
+ 
+ struct fbdev_compositor {
+diff --git a/src/compositor-rpi.c b/src/compositor-rpi.c
+index c906701..5a8ee02 100644
+--- a/src/compositor-rpi.c
++++ b/src/compositor-rpi.c
+@@ -46,7 +46,7 @@
+ #include "compositor.h"
+ #include "rpi-renderer.h"
+ #include "launcher-util.h"
+-#include "udev-input.h"
++#include "libinput-seat.h"
+ 
+ #if 0
+ #define DBG(...) \
+diff --git a/src/evdev-touchpad.c b/src/evdev-touchpad.c
+deleted file mode 100644
+index 69f913a..0000000
+--- a/src/evdev-touchpad.c
++++ /dev/null
+@@ -1,800 +0,0 @@
+-/*
+- * Copyright © 2012 Jonas Ådahl
+- *
+- * Permission to use, copy, modify, distribute, and sell this software and
+- * its documentation for any purpose is hereby granted without fee, provided
+- * that the above copyright notice appear in all copies and that both that
+- * copyright notice and this permission notice appear in supporting
+- * documentation, and that the name of the copyright holders not be used in
+- * advertising or publicity pertaining to distribution of the software
+- * without specific, written prior permission.  The copyright holders make
+- * no representations about the suitability of this software for any
+- * purpose.  It is provided "as is" without express or implied warranty.
+- *
+- * THE COPYRIGHT HOLDERS DISCLAIM ALL WARRANTIES WITH REGARD TO THIS
+- * SOFTWARE, INCLUDING ALL IMPLIED WARRANTIES OF MERCHANTABILITY AND
+- * FITNESS, IN NO EVENT SHALL THE COPYRIGHT HOLDERS BE LIABLE FOR ANY
+- * SPECIAL, INDIRECT OR CONSEQUENTIAL DAMAGES OR ANY DAMAGES WHATSOEVER
+- * RESULTING FROM LOSS OF USE, DATA OR PROFITS, WHETHER IN AN ACTION OF
+- * CONTRACT, NEGLIGENCE OR OTHER TORTIOUS ACTION, ARISING OUT OF OR IN
+- * CONNECTION WITH THE USE OR PERFORMANCE OF THIS SOFTWARE.
+- */
+-
+-#include "config.h"
+-
+-#include <stdlib.h>
+-#include <math.h>
+-#include <string.h>
+-#include <stdbool.h>
+-#include <unistd.h>
+-#include <linux/input.h>
+-
+-#include "filter.h"
+-#include "evdev.h"
+-#include "../shared/config-parser.h"
+-
+-/* Default values */
+-#define DEFAULT_CONSTANT_ACCEL_NUMERATOR 50
+-#define DEFAULT_MIN_ACCEL_FACTOR 0.16
+-#define DEFAULT_MAX_ACCEL_FACTOR 1.0
+-#define DEFAULT_HYSTERESIS_MARGIN_DENOMINATOR 700.0
+-
+-#define DEFAULT_TOUCHPAD_SINGLE_TAP_BUTTON BTN_LEFT
+-#define DEFAULT_TOUCHPAD_SINGLE_TAP_TIMEOUT 100
+-
+-enum touchpad_model {
+-	TOUCHPAD_MODEL_UNKNOWN = 0,
+-	TOUCHPAD_MODEL_SYNAPTICS,
+-	TOUCHPAD_MODEL_ALPS,
+-	TOUCHPAD_MODEL_APPLETOUCH,
+-	TOUCHPAD_MODEL_ELANTECH
+-};
+-
+-enum touchpad_event {
+-	TOUCHPAD_EVENT_NONE	    = 0,
+-	TOUCHPAD_EVENT_ABSOLUTE_ANY = (1 << 0),
+-	TOUCHPAD_EVENT_ABSOLUTE_X   = (1 << 1),
+-	TOUCHPAD_EVENT_ABSOLUTE_Y   = (1 << 2),
+-	TOUCHPAD_EVENT_REPORT	    = (1 << 3)
+-};
+-
+-struct touchpad_model_spec {
+-	short vendor;
+-	short product;
+-	enum touchpad_model model;
+-};
+-
+-static struct touchpad_model_spec touchpad_spec_table[] = {
+-	{0x0002, 0x0007, TOUCHPAD_MODEL_SYNAPTICS},
+-	{0x0002, 0x0008, TOUCHPAD_MODEL_ALPS},
+-	{0x05ac, 0x0000, TOUCHPAD_MODEL_APPLETOUCH},
+-	{0x0002, 0x000e, TOUCHPAD_MODEL_ELANTECH},
+-	{0x0000, 0x0000, TOUCHPAD_MODEL_UNKNOWN}
+-};
+-
+-enum touchpad_state {
+-	TOUCHPAD_STATE_NONE  = 0,
+-	TOUCHPAD_STATE_TOUCH = (1 << 0),
+-	TOUCHPAD_STATE_MOVE  = (1 << 1)
+-};
+-
+-#define TOUCHPAD_HISTORY_LENGTH 4
+-
+-struct touchpad_motion {
+-	int32_t x;
+-	int32_t y;
+-};
+-
+-enum touchpad_fingers_state {
+-	TOUCHPAD_FINGERS_ONE   = (1 << 0),
+-	TOUCHPAD_FINGERS_TWO   = (1 << 1),
+-	TOUCHPAD_FINGERS_THREE = (1 << 2)
+-};
+-
+-enum fsm_event {
+-	FSM_EVENT_TOUCH,
+-	FSM_EVENT_RELEASE,
+-	FSM_EVENT_MOTION,
+-	FSM_EVENT_TIMEOUT
+-};
+-
+-enum fsm_state {
+-	FSM_IDLE,
+-	FSM_TOUCH,
+-	FSM_TAP,
+-	FSM_TAP_2,
+-	FSM_DRAG
+-};
+-
+-struct touchpad_dispatch {
+-	struct evdev_dispatch base;
+-	struct evdev_device *device;
+-
+-	enum touchpad_model model;
+-	unsigned int state;
+-	int finger_state;
+-	int last_finger_state;
+-
+-	double constant_accel_factor;
+-	double min_accel_factor;
+-	double max_accel_factor;
+-
+-	unsigned int event_mask;
+-	unsigned int event_mask_filter;
+-
+-	int reset;
+-
+-	struct {
+-		bool enable;
+-
+-		struct wl_array events;
+-		enum fsm_state state;
+-		struct wl_event_source *timer_source;
+-	} fsm;
+-
+-	struct {
+-		int32_t x;
+-		int32_t y;
+-	} hw_abs;
+-
+-	int has_pressure;
+-	struct {
+-		int32_t touch_low;
+-		int32_t touch_high;
+-	} pressure;
+-
+-	struct {
+-		int32_t margin_x;
+-		int32_t margin_y;
+-		int32_t center_x;
+-		int32_t center_y;
+-	} hysteresis;
+-
+-	struct touchpad_motion motion_history[TOUCHPAD_HISTORY_LENGTH];
+-	int motion_index;
+-	unsigned int motion_count;
+-
+-	struct weston_motion_filter *filter;
+-};
+-
+-static enum touchpad_model
+-get_touchpad_model(struct evdev_device *device)
+-{
+-	struct input_id id;
+-	unsigned int i;
+-
+-	if (ioctl(device->fd, EVIOCGID, &id) < 0)
+-		return TOUCHPAD_MODEL_UNKNOWN;
+-
+-	for (i = 0; i < ARRAY_LENGTH(touchpad_spec_table); i++)
+-		if (touchpad_spec_table[i].vendor == id.vendor &&
+-		    (!touchpad_spec_table[i].product ||
+-		     touchpad_spec_table[i].product == id.product))
+-			return touchpad_spec_table[i].model;
+-
+-	return TOUCHPAD_MODEL_UNKNOWN;
+-}
+-
+-static void
+-configure_touchpad_pressure(struct touchpad_dispatch *touchpad,
+-			    int32_t pressure_min, int32_t pressure_max)
+-{
+-	int32_t range = pressure_max - pressure_min + 1;
+-
+-	touchpad->has_pressure = 1;
+-
+-	/* Magic numbers from xf86-input-synaptics */
+-	switch (touchpad->model) {
+-	case TOUCHPAD_MODEL_ELANTECH:
+-		touchpad->pressure.touch_low = pressure_min + 1;
+-		touchpad->pressure.touch_high = pressure_min + 1;
+-		break;
+-	default:
+-		touchpad->pressure.touch_low =
+-			pressure_min + range * (25.0/256.0);
+-		touchpad->pressure.touch_high =
+-			pressure_min + range * (30.0/256.0);
+-	}
+-}
+-
+-static double
+-touchpad_profile(struct weston_motion_filter *filter,
+-		 void *data,
+-		 double velocity,
+-		 uint32_t time)
+-{
+-	struct touchpad_dispatch *touchpad =
+-		(struct touchpad_dispatch *) data;
+-
+-	double accel_factor;
+-
+-	accel_factor = velocity * touchpad->constant_accel_factor;
+-
+-	if (accel_factor > touchpad->max_accel_factor)
+-		accel_factor = touchpad->max_accel_factor;
+-	else if (accel_factor < touchpad->min_accel_factor)
+-		accel_factor = touchpad->min_accel_factor;
+-
+-	return accel_factor;
+-}
+-
+-static inline struct touchpad_motion *
+-motion_history_offset(struct touchpad_dispatch *touchpad, int offset)
+-{
+-	int offset_index =
+-		(touchpad->motion_index - offset + TOUCHPAD_HISTORY_LENGTH) %
+-		TOUCHPAD_HISTORY_LENGTH;
+-
+-	return &touchpad->motion_history[offset_index];
+-}
+-
+-static double
+-estimate_delta(int x0, int x1, int x2, int x3)
+-{
+-	return (x0 + x1 - x2 - x3) / 4;
+-}
+-
+-static int
+-hysteresis(int in, int center, int margin)
+-{
+-	int diff = in - center;
+-	if (abs(diff) <= margin)
+-		return center;
+-
+-	if (diff > margin)
+-		return center + diff - margin;
+-	else if (diff < -margin)
+-		return center + diff + margin;
+-	return center + diff;
+-}
+-
+-static void
+-touchpad_get_delta(struct touchpad_dispatch *touchpad, double *dx, double *dy)
+-{
+-	*dx = estimate_delta(motion_history_offset(touchpad, 0)->x,
+-			     motion_history_offset(touchpad, 1)->x,
+-			     motion_history_offset(touchpad, 2)->x,
+-			     motion_history_offset(touchpad, 3)->x);
+-	*dy = estimate_delta(motion_history_offset(touchpad, 0)->y,
+-			     motion_history_offset(touchpad, 1)->y,
+-			     motion_history_offset(touchpad, 2)->y,
+-			     motion_history_offset(touchpad, 3)->y);
+-}
+-
+-static void
+-filter_motion(struct touchpad_dispatch *touchpad,
+-	      double *dx, double *dy, uint32_t time)
+-{
+-	struct weston_motion_params motion;
+-
+-	motion.dx = *dx;
+-	motion.dy = *dy;
+-
+-	weston_filter_dispatch(touchpad->filter, &motion, touchpad, time);
+-
+-	*dx = motion.dx;
+-	*dy = motion.dy;
+-}
+-
+-static void
+-notify_button_pressed(struct touchpad_dispatch *touchpad, uint32_t time)
+-{
+-	notify_button(touchpad->device->seat, time,
+-		      DEFAULT_TOUCHPAD_SINGLE_TAP_BUTTON,
+-		      WL_POINTER_BUTTON_STATE_PRESSED);
+-}
+-
+-static void
+-notify_button_released(struct touchpad_dispatch *touchpad, uint32_t time)
+-{
+-	notify_button(touchpad->device->seat, time,
+-		      DEFAULT_TOUCHPAD_SINGLE_TAP_BUTTON,
+-		      WL_POINTER_BUTTON_STATE_RELEASED);
+-}
+-
+-static void
+-notify_tap(struct touchpad_dispatch *touchpad, uint32_t time)
+-{
+-	notify_button_pressed(touchpad, time);
+-	notify_button_released(touchpad, time);
+-}
+-
+-static void
+-process_fsm_events(struct touchpad_dispatch *touchpad, uint32_t time)
+-{
+-	uint32_t timeout = UINT32_MAX;
+-	enum fsm_event *pevent;
+-	enum fsm_event event;
+-
+-	if (!touchpad->fsm.enable)
+-		return;
+-
+-	if (touchpad->fsm.events.size == 0)
+-		return;
+-
+-	wl_array_for_each(pevent, &touchpad->fsm.events) {
+-		event = *pevent;
+-		timeout = 0;
+-
+-		switch (touchpad->fsm.state) {
+-		case FSM_IDLE:
+-			switch (event) {
+-			case FSM_EVENT_TOUCH:
+-				touchpad->fsm.state = FSM_TOUCH;
+-				break;
+-			default:
+-				break;
+-			}
+-			break;
+-		case FSM_TOUCH:
+-			switch (event) {
+-			case FSM_EVENT_RELEASE:
+-				timeout = DEFAULT_TOUCHPAD_SINGLE_TAP_TIMEOUT;
+-				touchpad->fsm.state = FSM_TAP;
+-				break;
+-			default:
+-				touchpad->fsm.state = FSM_IDLE;
+-				break;
+-			}
+-			break;
+-		case FSM_TAP:
+-			switch (event) {
+-			case FSM_EVENT_TIMEOUT:
+-				notify_tap(touchpad, time);
+-				touchpad->fsm.state = FSM_IDLE;
+-				break;
+-			case FSM_EVENT_TOUCH:
+-				notify_button_pressed(touchpad, time);
+-				touchpad->fsm.state = FSM_TAP_2;
+-				break;
+-			default:
+-				touchpad->fsm.state = FSM_IDLE;
+-				break;
+-			}
+-			break;
+-		case FSM_TAP_2:
+-			switch (event) {
+-			case FSM_EVENT_MOTION:
+-				touchpad->fsm.state = FSM_DRAG;
+-				break;
+-			case FSM_EVENT_RELEASE:
+-				notify_button_released(touchpad, time);
+-				notify_tap(touchpad, time);
+-				touchpad->fsm.state = FSM_IDLE;
+-				break;
+-			default:
+-				touchpad->fsm.state = FSM_IDLE;
+-				break;
+-			}
+-			break;
+-		case FSM_DRAG:
+-			switch (event) {
+-			case FSM_EVENT_RELEASE:
+-				notify_button_released(touchpad, time);
+-				touchpad->fsm.state = FSM_IDLE;
+-				break;
+-			default:
+-				touchpad->fsm.state = FSM_IDLE;
+-				break;
+-			}
+-			break;
+-		default:
+-			weston_log("evdev-touchpad: Unknown state %d",
+-				   touchpad->fsm.state);
+-			touchpad->fsm.state = FSM_IDLE;
+-			break;
+-		}
+-	}
+-
+-	if (timeout != UINT32_MAX)
+-		wl_event_source_timer_update(touchpad->fsm.timer_source,
+-					     timeout);
+-
+-	wl_array_release(&touchpad->fsm.events);
+-	wl_array_init(&touchpad->fsm.events);
+-}
+-
+-static void
+-push_fsm_event(struct touchpad_dispatch *touchpad,
+-	       enum fsm_event event)
+-{
+-	enum fsm_event *pevent;
+-
+-	if (!touchpad->fsm.enable)
+-		return;
+-
+-	pevent = wl_array_add(&touchpad->fsm.events, sizeof event);
+-	if (pevent)
+-		*pevent = event;
+-	else
+-		touchpad->fsm.state = FSM_IDLE;
+-}
+-
+-static int
+-fsm_timout_handler(void *data)
+-{
+-	struct touchpad_dispatch *touchpad = data;
+-
+-	if (touchpad->fsm.events.size == 0) {
+-		push_fsm_event(touchpad, FSM_EVENT_TIMEOUT);
+-		process_fsm_events(touchpad, weston_compositor_get_time());
+-	}
+-
+-	return 1;
+-}
+-
+-static void
+-touchpad_update_state(struct touchpad_dispatch *touchpad, uint32_t time)
+-{
+-	int motion_index;
+-	int center_x, center_y;
+-	double dx = 0.0, dy = 0.0;
+-
+-	if (touchpad->reset ||
+-	    touchpad->last_finger_state != touchpad->finger_state) {
+-		touchpad->reset = 0;
+-		touchpad->motion_count = 0;
+-		touchpad->event_mask = TOUCHPAD_EVENT_NONE;
+-		touchpad->event_mask_filter =
+-			TOUCHPAD_EVENT_ABSOLUTE_X | TOUCHPAD_EVENT_ABSOLUTE_Y;
+-
+-		touchpad->last_finger_state = touchpad->finger_state;
+-
+-		process_fsm_events(touchpad, time);
+-
+-		return;
+-	}
+-	touchpad->last_finger_state = touchpad->finger_state;
+-
+-	if (!(touchpad->event_mask & TOUCHPAD_EVENT_REPORT))
+-		return;
+-	else
+-		touchpad->event_mask &= ~TOUCHPAD_EVENT_REPORT;
+-
+-	if ((touchpad->event_mask & touchpad->event_mask_filter) !=
+-	    touchpad->event_mask_filter)
+-		return;
+-
+-	touchpad->event_mask_filter = TOUCHPAD_EVENT_ABSOLUTE_ANY;
+-	touchpad->event_mask = 0;
+-
+-	/* Avoid noice by moving center only when delta reaches a threshold
+-	 * distance from the old center. */
+-	if (touchpad->motion_count > 0) {
+-		center_x = hysteresis(touchpad->hw_abs.x,
+-				      touchpad->hysteresis.center_x,
+-				      touchpad->hysteresis.margin_x);
+-		center_y = hysteresis(touchpad->hw_abs.y,
+-				      touchpad->hysteresis.center_y,
+-				      touchpad->hysteresis.margin_y);
+-	} else {
+-		center_x = touchpad->hw_abs.x;
+-		center_y = touchpad->hw_abs.y;
+-	}
+-	touchpad->hysteresis.center_x = center_x;
+-	touchpad->hysteresis.center_y = center_y;
+-	touchpad->hw_abs.x = center_x;
+-	touchpad->hw_abs.y = center_y;
+-
+-	/* Update motion history tracker */
+-	motion_index = (touchpad->motion_index + 1) % TOUCHPAD_HISTORY_LENGTH;
+-	touchpad->motion_index = motion_index;
+-	touchpad->motion_history[motion_index].x = touchpad->hw_abs.x;
+-	touchpad->motion_history[motion_index].y = touchpad->hw_abs.y;
+-	if (touchpad->motion_count < 4)
+-		touchpad->motion_count++;
+-
+-	if (touchpad->motion_count >= 4) {
+-		touchpad_get_delta(touchpad, &dx, &dy);
+-
+-		filter_motion(touchpad, &dx, &dy, time);
+-
+-		if (touchpad->finger_state == TOUCHPAD_FINGERS_ONE) {
+-			notify_motion(touchpad->device->seat, time,
+-				      wl_fixed_from_double(dx),
+-				      wl_fixed_from_double(dy));
+-		} else if (touchpad->finger_state == TOUCHPAD_FINGERS_TWO) {
+-			if (dx != 0.0)
+-				notify_axis(touchpad->device->seat,
+-					    time,
+-					    WL_POINTER_AXIS_HORIZONTAL_SCROLL,
+-					    wl_fixed_from_double(dx));
+-			if (dy != 0.0)
+-				notify_axis(touchpad->device->seat,
+-					    time,
+-					    WL_POINTER_AXIS_VERTICAL_SCROLL,
+-					    wl_fixed_from_double(dy));
+-		}
+-	}
+-
+-	if (!(touchpad->state & TOUCHPAD_STATE_MOVE) &&
+-	    ((int)dx || (int)dy)) {
+-		touchpad->state |= TOUCHPAD_STATE_MOVE;
+-		push_fsm_event(touchpad, FSM_EVENT_MOTION);
+-	}
+-
+-	process_fsm_events(touchpad, time);
+-}
+-
+-static void
+-on_touch(struct touchpad_dispatch *touchpad)
+-{
+-	touchpad->state |= TOUCHPAD_STATE_TOUCH;
+-
+-	push_fsm_event(touchpad, FSM_EVENT_TOUCH);
+-}
+-
+-static void
+-on_release(struct touchpad_dispatch *touchpad)
+-{
+-
+-	touchpad->reset = 1;
+-	touchpad->state &= ~(TOUCHPAD_STATE_MOVE | TOUCHPAD_STATE_TOUCH);
+-
+-	push_fsm_event(touchpad, FSM_EVENT_RELEASE);
+-}
+-
+-static inline void
+-process_absolute(struct touchpad_dispatch *touchpad,
+-		 struct evdev_device *device,
+-		 struct input_event *e)
+-{
+-	switch (e->code) {
+-	case ABS_PRESSURE:
+-		if (e->value > touchpad->pressure.touch_high &&
+-		    !(touchpad->state & TOUCHPAD_STATE_TOUCH))
+-			on_touch(touchpad);
+-		else if (e->value < touchpad->pressure.touch_low &&
+-			 touchpad->state & TOUCHPAD_STATE_TOUCH)
+-			on_release(touchpad);
+-
+-		break;
+-	case ABS_X:
+-		if (touchpad->state & TOUCHPAD_STATE_TOUCH) {
+-			touchpad->hw_abs.x = e->value;
+-			touchpad->event_mask |= TOUCHPAD_EVENT_ABSOLUTE_ANY;
+-			touchpad->event_mask |= TOUCHPAD_EVENT_ABSOLUTE_X;
+-		}
+-		break;
+-	case ABS_Y:
+-		if (touchpad->state & TOUCHPAD_STATE_TOUCH) {
+-			touchpad->hw_abs.y = e->value;
+-			touchpad->event_mask |= TOUCHPAD_EVENT_ABSOLUTE_ANY;
+-			touchpad->event_mask |= TOUCHPAD_EVENT_ABSOLUTE_Y;
+-		}
+-		break;
+-	}
+-}
+-
+-static inline void
+-process_key(struct touchpad_dispatch *touchpad,
+-	    struct evdev_device *device,
+-	    struct input_event *e,
+-	    uint32_t time)
+-{
+-	uint32_t code;
+-
+-	switch (e->code) {
+-	case BTN_TOUCH:
+-		if (!touchpad->has_pressure) {
+-			if (e->value && !(touchpad->state & TOUCHPAD_STATE_TOUCH))
+-				on_touch(touchpad);
+-			else if (!e->value)
+-				on_release(touchpad);
+-		}
+-		break;
+-	case BTN_LEFT:
+-	case BTN_RIGHT:
+-	case BTN_MIDDLE:
+-	case BTN_SIDE:
+-	case BTN_EXTRA:
+-	case BTN_FORWARD:
+-	case BTN_BACK:
+-	case BTN_TASK:
+-		if (!touchpad->fsm.enable && e->code == BTN_LEFT &&
+-		    touchpad->finger_state == TOUCHPAD_FINGERS_TWO)
+-			code = BTN_RIGHT;
+-		else
+-			code = e->code;
+-		notify_button(device->seat, time, code,
+-			      e->value ? WL_POINTER_BUTTON_STATE_PRESSED :
+-			                 WL_POINTER_BUTTON_STATE_RELEASED);
+-		break;
+-	case BTN_TOOL_PEN:
+-	case BTN_TOOL_RUBBER:
+-	case BTN_TOOL_BRUSH:
+-	case BTN_TOOL_PENCIL:
+-	case BTN_TOOL_AIRBRUSH:
+-	case BTN_TOOL_MOUSE:
+-	case BTN_TOOL_LENS:
+-		touchpad->reset = 1;
+-		break;
+-	case BTN_TOOL_FINGER:
+-		if (e->value)
+-			touchpad->finger_state |= TOUCHPAD_FINGERS_ONE;
+-		else
+-			touchpad->finger_state &= ~TOUCHPAD_FINGERS_ONE;
+-		break;
+-	case BTN_TOOL_DOUBLETAP:
+-		if (e->value)
+-			touchpad->finger_state |= TOUCHPAD_FINGERS_TWO;
+-		else
+-			touchpad->finger_state &= ~TOUCHPAD_FINGERS_TWO;
+-		break;
+-	case BTN_TOOL_TRIPLETAP:
+-		if (e->value)
+-			touchpad->finger_state |= TOUCHPAD_FINGERS_THREE;
+-		else
+-			touchpad->finger_state &= ~TOUCHPAD_FINGERS_THREE;
+-		break;
+-	}
+-}
+-
+-static void
+-touchpad_process(struct evdev_dispatch *dispatch,
+-		 struct evdev_device *device,
+-		 struct input_event *e,
+-		 uint32_t time)
+-{
+-	struct touchpad_dispatch *touchpad =
+-		(struct touchpad_dispatch *) dispatch;
+-
+-	switch (e->type) {
+-	case EV_SYN:
+-		if (e->code == SYN_REPORT)
+-			touchpad->event_mask |= TOUCHPAD_EVENT_REPORT;
+-		break;
+-	case EV_ABS:
+-		process_absolute(touchpad, device, e);
+-		break;
+-	case EV_KEY:
+-		process_key(touchpad, device, e, time);
+-		break;
+-	}
+-
+-	touchpad_update_state(touchpad, time);
+-}
+-
+-static void
+-touchpad_destroy(struct evdev_dispatch *dispatch)
+-{
+-	struct touchpad_dispatch *touchpad =
+-		(struct touchpad_dispatch *) dispatch;
+-
+-	touchpad->filter->interface->destroy(touchpad->filter);
+-	wl_event_source_remove(touchpad->fsm.timer_source);
+-	free(dispatch);
+-}
+-
+-struct evdev_dispatch_interface touchpad_interface = {
+-	touchpad_process,
+-	touchpad_destroy
+-};
+-
+-static void
+-touchpad_parse_config(struct touchpad_dispatch *touchpad, double diagonal)
+-{
+-	struct weston_compositor *compositor =
+-		touchpad->device->seat->compositor;
+-	struct weston_config_section *s;
+-	double constant_accel_factor;
+-	double min_accel_factor;
+-	double max_accel_factor;
+-
+-	s = weston_config_get_section(compositor->config,
+-				      "touchpad", NULL, NULL);
+-	weston_config_section_get_double(s, "constant_accel_factor",
+-					 &constant_accel_factor,
+-					 DEFAULT_CONSTANT_ACCEL_NUMERATOR);
+-	weston_config_section_get_double(s, "min_accel_factor",
+-					 &min_accel_factor,
+-					 DEFAULT_MIN_ACCEL_FACTOR);
+-	weston_config_section_get_double(s, "max_accel_factor",
+-					 &max_accel_factor,
+-					 DEFAULT_MAX_ACCEL_FACTOR);
+-
+-	touchpad->constant_accel_factor =
+-		constant_accel_factor / diagonal;
+-	touchpad->min_accel_factor = min_accel_factor;
+-	touchpad->max_accel_factor = max_accel_factor;
+-}
+-
+-static int
+-touchpad_init(struct touchpad_dispatch *touchpad,
+-	      struct evdev_device *device)
+-{
+-	struct weston_motion_filter *accel;
+-	struct wl_event_loop *loop;
+-
+-	unsigned long prop_bits[INPUT_PROP_MAX];
+-	struct input_absinfo absinfo;
+-	unsigned long abs_bits[NBITS(ABS_MAX)];
+-
+-	bool has_buttonpad;
+-
+-	double width;
+-	double height;
+-	double diagonal;
+-
+-	touchpad->base.interface = &touchpad_interface;
+-	touchpad->device = device;
+-
+-	/* Detect model */
+-	touchpad->model = get_touchpad_model(device);
+-
+-	ioctl(device->fd, EVIOCGPROP(sizeof(prop_bits)), prop_bits);
+-	has_buttonpad = TEST_BIT(prop_bits, INPUT_PROP_BUTTONPAD);
+-
+-	/* Configure pressure */
+-	ioctl(device->fd, EVIOCGBIT(EV_ABS, sizeof(abs_bits)), abs_bits);
+-	if (TEST_BIT(abs_bits, ABS_PRESSURE)) {
+-		ioctl(device->fd, EVIOCGABS(ABS_PRESSURE), &absinfo);
+-		configure_touchpad_pressure(touchpad,
+-					    absinfo.minimum,
+-					    absinfo.maximum);
+-	}
+-
+-	/* Configure acceleration factor */
+-	width = abs(device->abs.max_x - device->abs.min_x);
+-	height = abs(device->abs.max_y - device->abs.min_y);
+-	diagonal = sqrt(width*width + height*height);
+-
+-	touchpad_parse_config(touchpad, diagonal);
+-
+-	touchpad->hysteresis.margin_x =
+-		diagonal / DEFAULT_HYSTERESIS_MARGIN_DENOMINATOR;
+-	touchpad->hysteresis.margin_y =
+-		diagonal / DEFAULT_HYSTERESIS_MARGIN_DENOMINATOR;
+-	touchpad->hysteresis.center_x = 0;
+-	touchpad->hysteresis.center_y = 0;
+-
+-	/* Configure acceleration profile */
+-	accel = create_pointer_accelator_filter(touchpad_profile);
+-	if (accel == NULL)
+-		return -1;
+-	touchpad->filter = accel;
+-
+-	/* Setup initial state */
+-	touchpad->reset = 1;
+-
+-	memset(touchpad->motion_history, 0, sizeof touchpad->motion_history);
+-	touchpad->motion_index = 0;
+-	touchpad->motion_count = 0;
+-
+-	touchpad->state = TOUCHPAD_STATE_NONE;
+-	touchpad->last_finger_state = 0;
+-	touchpad->finger_state = 0;
+-
+-	wl_array_init(&touchpad->fsm.events);
+-	touchpad->fsm.state = FSM_IDLE;
+-
+-	loop = wl_display_get_event_loop(device->seat->compositor->wl_display);
+-	touchpad->fsm.timer_source =
+-		wl_event_loop_add_timer(loop, fsm_timout_handler, touchpad);
+-	if (touchpad->fsm.timer_source == NULL) {
+-		accel->interface->destroy(accel);
+-		return -1;
+-	}
+-
+-	/* Configure */
+-	touchpad->fsm.enable = !has_buttonpad;
+-
+-	return 0;
+-}
+-
+-struct evdev_dispatch *
+-evdev_touchpad_create(struct evdev_device *device)
+-{
+-	struct touchpad_dispatch *touchpad;
+-
+-	touchpad = malloc(sizeof *touchpad);
+-	if (touchpad == NULL)
+-		return NULL;
+-
+-	if (touchpad_init(touchpad, device) != 0) {
+-		free(touchpad);
+-		return NULL;
+-	}
+-
+-	return &touchpad->base;
+-}
+diff --git a/src/evdev.c b/src/evdev.c
+deleted file mode 100644
+index 888dfbd..0000000
+--- a/src/evdev.c
++++ /dev/null
+@@ -1,755 +0,0 @@
+-/*
+- * Copyright © 2010 Intel Corporation
+- *
+- * Permission to use, copy, modify, distribute, and sell this software and
+- * its documentation for any purpose is hereby granted without fee, provided
+- * that the above copyright notice appear in all copies and that both that
+- * copyright notice and this permission notice appear in supporting
+- * documentation, and that the name of the copyright holders not be used in
+- * advertising or publicity pertaining to distribution of the software
+- * without specific, written prior permission.  The copyright holders make
+- * no representations about the suitability of this software for any
+- * purpose.  It is provided "as is" without express or implied warranty.
+- *
+- * THE COPYRIGHT HOLDERS DISCLAIM ALL WARRANTIES WITH REGARD TO THIS
+- * SOFTWARE, INCLUDING ALL IMPLIED WARRANTIES OF MERCHANTABILITY AND
+- * FITNESS, IN NO EVENT SHALL THE COPYRIGHT HOLDERS BE LIABLE FOR ANY
+- * SPECIAL, INDIRECT OR CONSEQUENTIAL DAMAGES OR ANY DAMAGES WHATSOEVER
+- * RESULTING FROM LOSS OF USE, DATA OR PROFITS, WHETHER IN AN ACTION OF
+- * CONTRACT, NEGLIGENCE OR OTHER TORTIOUS ACTION, ARISING OUT OF OR IN
+- * CONNECTION WITH THE USE OR PERFORMANCE OF THIS SOFTWARE.
+- */
+-
+-#include "config.h"
+-
+-#include <errno.h>
+-#include <stdlib.h>
+-#include <string.h>
+-#include <linux/input.h>
+-#include <unistd.h>
+-#include <fcntl.h>
+-#include <mtdev.h>
+-#include <assert.h>
+-
+-#include "compositor.h"
+-#include "evdev.h"
+-
+-#define DEFAULT_AXIS_STEP_DISTANCE wl_fixed_from_int(10)
+-
+-void
+-evdev_led_update(struct evdev_device *device, enum weston_led leds)
+-{
+-	static const struct {
+-		enum weston_led weston;
+-		int evdev;
+-	} map[] = {
+-		{ LED_NUM_LOCK, LED_NUML },
+-		{ LED_CAPS_LOCK, LED_CAPSL },
+-		{ LED_SCROLL_LOCK, LED_SCROLLL },
+-	};
+-	struct input_event ev[ARRAY_LENGTH(map) + 1];
+-	unsigned int i;
+-
+-	if (!(device->seat_caps & EVDEV_SEAT_KEYBOARD))
+-		return;
+-
+-	memset(ev, 0, sizeof(ev));
+-	for (i = 0; i < ARRAY_LENGTH(map); i++) {
+-		ev[i].type = EV_LED;
+-		ev[i].code = map[i].evdev;
+-		ev[i].value = !!(leds & map[i].weston);
+-	}
+-	ev[i].type = EV_SYN;
+-	ev[i].code = SYN_REPORT;
+-
+-	i = write(device->fd, ev, sizeof ev);
+-	(void)i; /* no, we really don't care about the return value */
+-}
+-
+-static void
+-transform_absolute(struct evdev_device *device, int32_t *x, int32_t *y)
+-{
+-       if (!device->abs.apply_calibration) {
+-               *x = device->abs.x;
+-               *y = device->abs.y;
+-               return;
+-       } else {
+-               *x = device->abs.x * device->abs.calibration[0] +
+-                       device->abs.y * device->abs.calibration[1] +
+-                       device->abs.calibration[2];
+-
+-               *y = device->abs.x * device->abs.calibration[3] +
+-                       device->abs.y * device->abs.calibration[4] +
+-                       device->abs.calibration[5];
+-       }
+-}
+-
+-static void
+-evdev_flush_pending_event(struct evdev_device *device, uint32_t time)
+-{
+-	struct weston_seat *master = device->seat;
+-	wl_fixed_t x, y;
+-	int32_t cx, cy;
+-	int slot, seat_slot;
+-
+-	slot = device->mt.slot;
+-	switch (device->pending_event) {
+-	case EVDEV_NONE:
+-		return;
+-	case EVDEV_RELATIVE_MOTION:
+-		notify_motion(master, time, device->rel.dx, device->rel.dy);
+-		device->rel.dx = 0;
+-		device->rel.dy = 0;
+-		break;
+-	case EVDEV_ABSOLUTE_MT_DOWN:
+-		if (device->output == NULL)
+-			break;
+-		weston_output_transform_coordinate(device->output,
+-						   wl_fixed_from_int(device->mt.slots[slot].x),
+-						   wl_fixed_from_int(device->mt.slots[slot].y),
+-						   &x, &y);
+-		seat_slot = ffs(~master->slot_map) - 1;
+-		device->mt.slots[slot].seat_slot = seat_slot;
+-		master->slot_map |= 1 << seat_slot;
+-
+-		notify_touch(master, time, seat_slot, x, y, WL_TOUCH_DOWN);
+-		break;
+-	case EVDEV_ABSOLUTE_MT_MOTION:
+-		if (device->output == NULL)
+-			break;
+-		weston_output_transform_coordinate(device->output,
+-						   wl_fixed_from_int(device->mt.slots[slot].x),
+-						   wl_fixed_from_int(device->mt.slots[slot].y),
+-						   &x, &y);
+-		seat_slot = device->mt.slots[slot].seat_slot;
+-		notify_touch(master, time, seat_slot, x, y, WL_TOUCH_MOTION);
+-		break;
+-	case EVDEV_ABSOLUTE_MT_UP:
+-		seat_slot = device->mt.slots[slot].seat_slot;
+-		master->slot_map &= ~(1 << seat_slot);
+-		notify_touch(master, time, seat_slot, 0, 0, WL_TOUCH_UP);
+-		break;
+-	case EVDEV_ABSOLUTE_TOUCH_DOWN:
+-		if (device->output == NULL)
+-			break;
+-		transform_absolute(device, &cx, &cy);
+-		weston_output_transform_coordinate(device->output,
+-						   wl_fixed_from_int(cx),
+-						   wl_fixed_from_int(cy),
+-						   &x, &y);
+-		seat_slot = ffs(~master->slot_map) - 1;
+-		device->abs.seat_slot = seat_slot;
+-		master->slot_map |= 1 << seat_slot;
+-		notify_touch(master, time, seat_slot, x, y, WL_TOUCH_DOWN);
+-		break;
+-	case EVDEV_ABSOLUTE_MOTION:
+-		if (device->output == NULL)
+-			break;
+-		transform_absolute(device, &cx, &cy);
+-		weston_output_transform_coordinate(device->output,
+-						   wl_fixed_from_int(cx),
+-						   wl_fixed_from_int(cy),
+-						   &x, &y);
+-
+-		if (device->seat_caps & EVDEV_SEAT_TOUCH)
+-			notify_touch(master, time, device->abs.seat_slot,
+-				     x, y, WL_TOUCH_MOTION);
+-		else if (device->seat_caps & EVDEV_SEAT_POINTER)
+-			notify_motion_absolute(master, time, x, y);
+-		break;
+-	case EVDEV_ABSOLUTE_TOUCH_UP:
+-		seat_slot = device->abs.seat_slot;
+-		master->slot_map &= ~(1 << seat_slot);
+-		notify_touch(master, time, seat_slot, 0, 0, WL_TOUCH_UP);
+-		break;
+-	default:
+-		assert(0 && "Unknown pending event type");
+-	}
+-
+-	device->pending_event = EVDEV_NONE;
+-}
+-
+-static void
+-evdev_process_touch_button(struct evdev_device *device, int time, int value)
+-{
+-	if (device->pending_event != EVDEV_NONE &&
+-	    device->pending_event != EVDEV_ABSOLUTE_MOTION)
+-		evdev_flush_pending_event(device, time);
+-
+-	device->pending_event = (value ?
+-				 EVDEV_ABSOLUTE_TOUCH_DOWN :
+-				 EVDEV_ABSOLUTE_TOUCH_UP);
+-}
+-
+-static inline void
+-evdev_process_key(struct evdev_device *device, struct input_event *e, int time)
+-{
+-	/* ignore kernel key repeat */
+-	if (e->value == 2)
+-		return;
+-
+-	if (e->code == BTN_TOUCH) {
+-		if (!device->is_mt)
+-			evdev_process_touch_button(device, time, e->value);
+-		return;
+-	}
+-
+-	evdev_flush_pending_event(device, time);
+-
+-	switch (e->code) {
+-	case BTN_LEFT:
+-	case BTN_RIGHT:
+-	case BTN_MIDDLE:
+-	case BTN_SIDE:
+-	case BTN_EXTRA:
+-	case BTN_FORWARD:
+-	case BTN_BACK:
+-	case BTN_TASK:
+-		notify_button(device->seat,
+-			      time, e->code,
+-			      e->value ? WL_POINTER_BUTTON_STATE_PRESSED :
+-					 WL_POINTER_BUTTON_STATE_RELEASED);
+-		break;
+-
+-	default:
+-		notify_key(device->seat,
+-			   time, e->code,
+-			   e->value ? WL_KEYBOARD_KEY_STATE_PRESSED :
+-				      WL_KEYBOARD_KEY_STATE_RELEASED,
+-			   STATE_UPDATE_AUTOMATIC);
+-		break;
+-	}
+-}
+-
+-static void
+-evdev_process_touch(struct evdev_device *device,
+-		    struct input_event *e,
+-		    uint32_t time)
+-{
+-	int screen_width, screen_height;
+-
+-	if (device->output == NULL)
+-		return;
+-
+-	screen_width = device->output->current_mode->width;
+-	screen_height = device->output->current_mode->height;
+-
+-	switch (e->code) {
+-	case ABS_MT_SLOT:
+-		evdev_flush_pending_event(device, time);
+-		device->mt.slot = e->value;
+-		break;
+-	case ABS_MT_TRACKING_ID:
+-		if (device->pending_event != EVDEV_NONE &&
+-		    device->pending_event != EVDEV_ABSOLUTE_MT_MOTION)
+-			evdev_flush_pending_event(device, time);
+-		if (e->value >= 0)
+-			device->pending_event = EVDEV_ABSOLUTE_MT_DOWN;
+-		else
+-			device->pending_event = EVDEV_ABSOLUTE_MT_UP;
+-		break;
+-	case ABS_MT_POSITION_X:
+-		device->mt.slots[device->mt.slot].x =
+-			(e->value - device->abs.min_x) * screen_width /
+-			(device->abs.max_x - device->abs.min_x);
+-		if (device->pending_event == EVDEV_NONE)
+-			device->pending_event = EVDEV_ABSOLUTE_MT_MOTION;
+-		break;
+-	case ABS_MT_POSITION_Y:
+-		device->mt.slots[device->mt.slot].y =
+-			(e->value - device->abs.min_y) * screen_height /
+-			(device->abs.max_y - device->abs.min_y);
+-		if (device->pending_event == EVDEV_NONE)
+-			device->pending_event = EVDEV_ABSOLUTE_MT_MOTION;
+-		break;
+-	}
+-}
+-
+-static inline void
+-evdev_process_absolute_motion(struct evdev_device *device,
+-			      struct input_event *e)
+-{
+-	int screen_width, screen_height;
+-
+-	if (device->output == NULL)
+-		return;
+-
+-	screen_width = device->output->current_mode->width;
+-	screen_height = device->output->current_mode->height;
+-
+-	switch (e->code) {
+-	case ABS_X:
+-		device->abs.x =
+-			(e->value - device->abs.min_x) * screen_width /
+-			(device->abs.max_x - device->abs.min_x);
+-		if (device->pending_event == EVDEV_NONE)
+-			device->pending_event = EVDEV_ABSOLUTE_MOTION;
+-		break;
+-	case ABS_Y:
+-		device->abs.y =
+-			(e->value - device->abs.min_y) * screen_height /
+-			(device->abs.max_y - device->abs.min_y);
+-		if (device->pending_event == EVDEV_NONE)
+-			device->pending_event = EVDEV_ABSOLUTE_MOTION;
+-		break;
+-	}
+-}
+-
+-static inline void
+-evdev_process_relative(struct evdev_device *device,
+-		       struct input_event *e, uint32_t time)
+-{
+-	switch (e->code) {
+-	case REL_X:
+-		if (device->pending_event != EVDEV_RELATIVE_MOTION)
+-			evdev_flush_pending_event(device, time);
+-		device->rel.dx += wl_fixed_from_int(e->value);
+-		device->pending_event = EVDEV_RELATIVE_MOTION;
+-		break;
+-	case REL_Y:
+-		if (device->pending_event != EVDEV_RELATIVE_MOTION)
+-			evdev_flush_pending_event(device, time);
+-		device->rel.dy += wl_fixed_from_int(e->value);
+-		device->pending_event = EVDEV_RELATIVE_MOTION;
+-		break;
+-	case REL_WHEEL:
+-		evdev_flush_pending_event(device, time);
+-		switch (e->value) {
+-		case -1:
+-			/* Scroll down */
+-		case 1:
+-			/* Scroll up */
+-			notify_axis(device->seat,
+-				    time,
+-				    WL_POINTER_AXIS_VERTICAL_SCROLL,
+-				    -1 * e->value * DEFAULT_AXIS_STEP_DISTANCE);
+-			break;
+-		default:
+-			break;
+-		}
+-		break;
+-	case REL_HWHEEL:
+-		evdev_flush_pending_event(device, time);
+-		switch (e->value) {
+-		case -1:
+-			/* Scroll left */
+-		case 1:
+-			/* Scroll right */
+-			notify_axis(device->seat,
+-				    time,
+-				    WL_POINTER_AXIS_HORIZONTAL_SCROLL,
+-				    e->value * DEFAULT_AXIS_STEP_DISTANCE);
+-			break;
+-		default:
+-			break;
+-
+-		}
+-	}
+-}
+-
+-static inline void
+-evdev_process_absolute(struct evdev_device *device,
+-		       struct input_event *e,
+-		       uint32_t time)
+-{
+-	if (device->is_mt) {
+-		evdev_process_touch(device, e, time);
+-	} else {
+-		evdev_process_absolute_motion(device, e);
+-	}
+-}
+-
+-static void
+-fallback_process(struct evdev_dispatch *dispatch,
+-		 struct evdev_device *device,
+-		 struct input_event *event,
+-		 uint32_t time)
+-{
+-	switch (event->type) {
+-	case EV_REL:
+-		evdev_process_relative(device, event, time);
+-		break;
+-	case EV_ABS:
+-		evdev_process_absolute(device, event, time);
+-		break;
+-	case EV_KEY:
+-		evdev_process_key(device, event, time);
+-		break;
+-	case EV_SYN:
+-		evdev_flush_pending_event(device, time);
+-		break;
+-	}
+-}
+-
+-static void
+-fallback_destroy(struct evdev_dispatch *dispatch)
+-{
+-	free(dispatch);
+-}
+-
+-struct evdev_dispatch_interface fallback_interface = {
+-	fallback_process,
+-	fallback_destroy
+-};
+-
+-static struct evdev_dispatch *
+-fallback_dispatch_create(void)
+-{
+-	struct evdev_dispatch *dispatch = malloc(sizeof *dispatch);
+-	if (dispatch == NULL)
+-		return NULL;
+-
+-	dispatch->interface = &fallback_interface;
+-
+-	return dispatch;
+-}
+-
+-static void
+-evdev_process_events(struct evdev_device *device,
+-		     struct input_event *ev, int count)
+-{
+-	struct evdev_dispatch *dispatch = device->dispatch;
+-	struct input_event *e, *end;
+-	uint32_t time = 0;
+-
+-	e = ev;
+-	end = e + count;
+-	for (e = ev; e < end; e++) {
+-		time = e->time.tv_sec * 1000 + e->time.tv_usec / 1000;
+-
+-		dispatch->interface->process(dispatch, device, e, time);
+-	}
+-}
+-
+-static int
+-evdev_device_data(int fd, uint32_t mask, void *data)
+-{
+-	struct weston_compositor *ec;
+-	struct evdev_device *device = data;
+-	struct input_event ev[32];
+-	int len;
+-
+-	ec = device->seat->compositor;
+-	if (!ec->session_active)
+-		return 1;
+-
+-	/* If the compositor is repainting, this function is called only once
+-	 * per frame and we have to process all the events available on the
+-	 * fd, otherwise there will be input lag. */
+-	do {
+-		if (device->mtdev)
+-			len = mtdev_get(device->mtdev, fd, ev,
+-					ARRAY_LENGTH(ev)) *
+-				sizeof (struct input_event);
+-		else
+-			len = read(fd, &ev, sizeof ev);
+-
+-		if (len < 0 || len % sizeof ev[0] != 0) {
+-			if (len < 0 && errno != EAGAIN && errno != EINTR) {
+-				weston_log("device %s died\n",
+-					   device->devnode);
+-				wl_event_source_remove(device->source);
+-				device->source = NULL;
+-			}
+-
+-			return 1;
+-		}
+-
+-		evdev_process_events(device, ev, len / sizeof ev[0]);
+-
+-	} while (len > 0);
+-
+-	return 1;
+-}
+-
+-static int
+-evdev_configure_device(struct evdev_device *device)
+-{
+-	struct input_absinfo absinfo;
+-	unsigned long ev_bits[NBITS(EV_MAX)];
+-	unsigned long abs_bits[NBITS(ABS_MAX)];
+-	unsigned long rel_bits[NBITS(REL_MAX)];
+-	unsigned long key_bits[NBITS(KEY_MAX)];
+-	int has_abs, has_rel, has_mt;
+-	int has_button, has_keyboard, has_touch;
+-	unsigned int i;
+-
+-	has_rel = 0;
+-	has_abs = 0;
+-	has_mt = 0;
+-	has_button = 0;
+-	has_keyboard = 0;
+-	has_touch = 0;
+-
+-	ioctl(device->fd, EVIOCGBIT(0, sizeof(ev_bits)), ev_bits);
+-	if (TEST_BIT(ev_bits, EV_ABS)) {
+-		ioctl(device->fd, EVIOCGBIT(EV_ABS, sizeof(abs_bits)),
+-		      abs_bits);
+-
+-		if (TEST_BIT(abs_bits, ABS_X)) {
+-			ioctl(device->fd, EVIOCGABS(ABS_X), &absinfo);
+-			device->abs.min_x = absinfo.minimum;
+-			device->abs.max_x = absinfo.maximum;
+-			has_abs = 1;
+-		}
+-		if (TEST_BIT(abs_bits, ABS_Y)) {
+-			ioctl(device->fd, EVIOCGABS(ABS_Y), &absinfo);
+-			device->abs.min_y = absinfo.minimum;
+-			device->abs.max_y = absinfo.maximum;
+-			has_abs = 1;
+-		}
+-                /* We only handle the slotted Protocol B in weston.
+-                   Devices with ABS_MT_POSITION_* but not ABS_MT_SLOT
+-                   require mtdev for conversion. */
+-		if (TEST_BIT(abs_bits, ABS_MT_POSITION_X) &&
+-		    TEST_BIT(abs_bits, ABS_MT_POSITION_Y)) {
+-			ioctl(device->fd, EVIOCGABS(ABS_MT_POSITION_X),
+-			      &absinfo);
+-			device->abs.min_x = absinfo.minimum;
+-			device->abs.max_x = absinfo.maximum;
+-			ioctl(device->fd, EVIOCGABS(ABS_MT_POSITION_Y),
+-			      &absinfo);
+-			device->abs.min_y = absinfo.minimum;
+-			device->abs.max_y = absinfo.maximum;
+-			device->is_mt = 1;
+-			has_touch = 1;
+-			has_mt = 1;
+-
+-			if (!TEST_BIT(abs_bits, ABS_MT_SLOT)) {
+-				device->mtdev = mtdev_new_open(device->fd);
+-				if (!device->mtdev) {
+-					weston_log("mtdev required but failed to open for %s\n",
+-						   device->devnode);
+-					return 0;
+-				}
+-				device->mt.slot = device->mtdev->caps.slot.value;
+-			} else {
+-				ioctl(device->fd, EVIOCGABS(ABS_MT_SLOT),
+-				      &absinfo);
+-				device->mt.slot = absinfo.value;
+-			}
+-		}
+-	}
+-	if (TEST_BIT(ev_bits, EV_REL)) {
+-		ioctl(device->fd, EVIOCGBIT(EV_REL, sizeof(rel_bits)),
+-		      rel_bits);
+-		if (TEST_BIT(rel_bits, REL_X) || TEST_BIT(rel_bits, REL_Y))
+-			has_rel = 1;
+-	}
+-	if (TEST_BIT(ev_bits, EV_KEY)) {
+-		ioctl(device->fd, EVIOCGBIT(EV_KEY, sizeof(key_bits)),
+-		      key_bits);
+-		if (TEST_BIT(key_bits, BTN_TOOL_FINGER) &&
+-		    !TEST_BIT(key_bits, BTN_TOOL_PEN) &&
+-		    (has_abs || has_mt)) {
+-			device->dispatch = evdev_touchpad_create(device);
+-			weston_log("input device %s, %s is a touchpad\n",
+-				   device->devname, device->devnode);
+-		}
+-		for (i = KEY_ESC; i < KEY_MAX; i++) {
+-			if (i >= BTN_MISC && i < KEY_OK)
+-				continue;
+-			if (TEST_BIT(key_bits, i)) {
+-				has_keyboard = 1;
+-				break;
+-			}
+-		}
+-		if (TEST_BIT(key_bits, BTN_TOUCH))
+-			has_touch = 1;
+-		for (i = BTN_MISC; i < BTN_JOYSTICK; i++) {
+-			if (TEST_BIT(key_bits, i)) {
+-				has_button = 1;
+-				break;
+-			}
+-		}
+-	}
+-	if (TEST_BIT(ev_bits, EV_LED))
+-		has_keyboard = 1;
+-
+-	if ((has_abs || has_rel) && has_button) {
+-		weston_seat_init_pointer(device->seat);
+-		device->seat_caps |= EVDEV_SEAT_POINTER;
+-		weston_log("input device %s, %s is a pointer caps =%s%s%s\n",
+-			   device->devname, device->devnode,
+-			   has_abs ? " absolute-motion" : "",
+-			   has_rel ? " relative-motion": "",
+-			   has_button ? " button" : "");
+-	}
+-	if (has_keyboard) {
+-		if (weston_seat_init_keyboard(device->seat, NULL) < 0)
+-			return -1;
+-		device->seat_caps |= EVDEV_SEAT_KEYBOARD;
+-		weston_log("input device %s, %s is a keyboard\n",
+-			   device->devname, device->devnode);
+-	}
+-	if (has_touch && !has_button) {
+-		weston_seat_init_touch(device->seat);
+-		device->seat_caps |= EVDEV_SEAT_TOUCH;
+-		weston_log("input device %s, %s is a touch device\n",
+-			   device->devname, device->devnode);
+-	}
+-
+-	return 0;
+-}
+-
+-static void
+-notify_output_destroy(struct wl_listener *listener, void *data)
+-{
+-	struct evdev_device *device =
+-		container_of(listener,
+-			     struct evdev_device, output_destroy_listener);
+-	struct weston_compositor *c = device->seat->compositor;
+-	struct weston_output *output;
+-
+-	if (!device->output_name && !wl_list_empty(&c->output_list)) {
+-		output = container_of(c->output_list.next,
+-				      struct weston_output, link);
+-		evdev_device_set_output(device, output);
+-	} else {
+-		device->output = NULL;
+-	}
+-}
+-
+-void
+-evdev_device_set_output(struct evdev_device *device,
+-			struct weston_output *output)
+-{
+-	if (device->output_destroy_listener.notify) {
+-		wl_list_remove(&device->output_destroy_listener.link);
+-		device->output_destroy_listener.notify = NULL;
+-	}
+-
+-	device->output = output;
+-	device->output_destroy_listener.notify = notify_output_destroy;
+-	wl_signal_add(&output->destroy_signal,
+-		      &device->output_destroy_listener);
+-}
+-
+-struct evdev_device *
+-evdev_device_create(struct weston_seat *seat, const char *path, int device_fd)
+-{
+-	struct evdev_device *device;
+-	struct weston_compositor *ec;
+-	char devname[256] = "unknown";
+-
+-	device = zalloc(sizeof *device);
+-	if (device == NULL)
+-		return NULL;
+-
+-	ec = seat->compositor;
+-	device->seat = seat;
+-	device->seat_caps = 0;
+-	device->is_mt = 0;
+-	device->mtdev = NULL;
+-	device->devnode = strdup(path);
+-	device->mt.slot = -1;
+-	device->rel.dx = 0;
+-	device->rel.dy = 0;
+-	device->dispatch = NULL;
+-	device->fd = device_fd;
+-	device->pending_event = EVDEV_NONE;
+-	wl_list_init(&device->link);
+-
+-	ioctl(device->fd, EVIOCGNAME(sizeof(devname)), devname);
+-	devname[sizeof(devname) - 1] = '\0';
+-	device->devname = strdup(devname);
+-
+-	if (evdev_configure_device(device) == -1)
+-		goto err;
+-
+-	if (device->seat_caps == 0) {
+-		evdev_device_destroy(device);
+-		return EVDEV_UNHANDLED_DEVICE;
+-	}
+-
+-	/* If the dispatch was not set up use the fallback. */
+-	if (device->dispatch == NULL)
+-		device->dispatch = fallback_dispatch_create();
+-	if (device->dispatch == NULL)
+-		goto err;
+-
+-	device->source = wl_event_loop_add_fd(ec->input_loop, device->fd,
+-					      WL_EVENT_READABLE,
+-					      evdev_device_data, device);
+-	if (device->source == NULL)
+-		goto err;
+-
+-	return device;
+-
+-err:
+-	evdev_device_destroy(device);
+-	return NULL;
+-}
+-
+-void
+-evdev_device_destroy(struct evdev_device *device)
+-{
+-	struct evdev_dispatch *dispatch;
+-
+-	if (device->seat_caps & EVDEV_SEAT_POINTER)
+-		weston_seat_release_pointer(device->seat);
+-	if (device->seat_caps & EVDEV_SEAT_KEYBOARD)
+-		weston_seat_release_keyboard(device->seat);
+-	if (device->seat_caps & EVDEV_SEAT_TOUCH)
+-		weston_seat_release_touch(device->seat);
+-
+-	dispatch = device->dispatch;
+-	if (dispatch)
+-		dispatch->interface->destroy(dispatch);
+-
+-	if (device->source)
+-		wl_event_source_remove(device->source);
+-	if (device->output)
+-		wl_list_remove(&device->output_destroy_listener.link);
+-	wl_list_remove(&device->link);
+-	if (device->mtdev)
+-		mtdev_close_delete(device->mtdev);
+-	close(device->fd);
+-	free(device->devname);
+-	free(device->devnode);
+-	free(device->output_name);
+-	free(device);
+-}
+-
+-void
+-evdev_notify_keyboard_focus(struct weston_seat *seat,
+-			    struct wl_list *evdev_devices)
+-{
+-	struct evdev_device *device;
+-	struct wl_array keys;
+-	unsigned int i, set;
+-	char evdev_keys[(KEY_CNT + 7) / 8];
+-	char all_keys[(KEY_CNT + 7) / 8];
+-	uint32_t *k;
+-	int ret;
+-
+-	if (!seat->keyboard_device_count > 0)
+-		return;
+-
+-	memset(all_keys, 0, sizeof all_keys);
+-	wl_list_for_each(device, evdev_devices, link) {
+-		memset(evdev_keys, 0, sizeof evdev_keys);
+-		ret = ioctl(device->fd,
+-			    EVIOCGKEY(sizeof evdev_keys), evdev_keys);
+-		if (ret < 0) {
+-			weston_log("failed to get keys for device %s\n",
+-				device->devnode);
+-			continue;
+-		}
+-		for (i = 0; i < ARRAY_LENGTH(evdev_keys); i++)
+-			all_keys[i] |= evdev_keys[i];
+-	}
+-
+-	wl_array_init(&keys);
+-	for (i = 0; i < KEY_CNT; i++) {
+-		set = all_keys[i >> 3] & (1 << (i & 7));
+-		if (set) {
+-			k = wl_array_add(&keys, sizeof *k);
+-			*k = i;
+-		}
+-	}
+-
+-	notify_keyboard_focus_in(seat, &keys, STATE_UPDATE_AUTOMATIC);
+-
+-	wl_array_release(&keys);
+-}
+diff --git a/src/evdev.h b/src/evdev.h
+deleted file mode 100644
+index 10f9724..0000000
+--- a/src/evdev.h
++++ /dev/null
+@@ -1,137 +0,0 @@
+-/*
+- * Copyright © 2011, 2012 Intel Corporation
+- *
+- * Permission to use, copy, modify, distribute, and sell this software and
+- * its documentation for any purpose is hereby granted without fee, provided
+- * that the above copyright notice appear in all copies and that both that
+- * copyright notice and this permission notice appear in supporting
+- * documentation, and that the name of the copyright holders not be used in
+- * advertising or publicity pertaining to distribution of the software
+- * without specific, written prior permission.  The copyright holders make
+- * no representations about the suitability of this software for any
+- * purpose.  It is provided "as is" without express or implied warranty.
+- *
+- * THE COPYRIGHT HOLDERS DISCLAIM ALL WARRANTIES WITH REGARD TO THIS
+- * SOFTWARE, INCLUDING ALL IMPLIED WARRANTIES OF MERCHANTABILITY AND
+- * FITNESS, IN NO EVENT SHALL THE COPYRIGHT HOLDERS BE LIABLE FOR ANY
+- * SPECIAL, INDIRECT OR CONSEQUENTIAL DAMAGES OR ANY DAMAGES WHATSOEVER
+- * RESULTING FROM LOSS OF USE, DATA OR PROFITS, WHETHER IN AN ACTION OF
+- * CONTRACT, NEGLIGENCE OR OTHER TORTIOUS ACTION, ARISING OUT OF OR IN
+- * CONNECTION WITH THE USE OR PERFORMANCE OF THIS SOFTWARE.
+- */
+-
+-#ifndef EVDEV_H
+-#define EVDEV_H
+-
+-#include "config.h"
+-
+-#include <linux/input.h>
+-#include <wayland-util.h>
+-
+-#define MAX_SLOTS 16
+-
+-enum evdev_event_type {
+-	EVDEV_NONE,
+-	EVDEV_ABSOLUTE_TOUCH_DOWN,
+-	EVDEV_ABSOLUTE_MOTION,
+-	EVDEV_ABSOLUTE_TOUCH_UP,
+-	EVDEV_ABSOLUTE_MT_DOWN,
+-	EVDEV_ABSOLUTE_MT_MOTION,
+-	EVDEV_ABSOLUTE_MT_UP,
+-	EVDEV_RELATIVE_MOTION,
+-};
+-
+-enum evdev_device_seat_capability {
+-	EVDEV_SEAT_POINTER = (1 << 0),
+-	EVDEV_SEAT_KEYBOARD = (1 << 1),
+-	EVDEV_SEAT_TOUCH = (1 << 2)
+-};
+-
+-struct evdev_device {
+-	struct weston_seat *seat;
+-	struct wl_list link;
+-	struct wl_event_source *source;
+-	struct weston_output *output;
+-	struct evdev_dispatch *dispatch;
+-	struct wl_listener output_destroy_listener;
+-	char *devnode;
+-	char *devname;
+-	char *output_name;
+-	int fd;
+-	struct {
+-		int min_x, max_x, min_y, max_y;
+-		uint32_t seat_slot;
+-		int32_t x, y;
+-
+-		int apply_calibration;
+-		float calibration[6];
+-	} abs;
+-
+-	struct {
+-		int slot;
+-		struct {
+-			int32_t x, y;
+-			uint32_t seat_slot;
+-		} slots[MAX_SLOTS];
+-	} mt;
+-	struct mtdev *mtdev;
+-
+-	struct {
+-		wl_fixed_t dx, dy;
+-	} rel;
+-
+-	enum evdev_event_type pending_event;
+-	enum evdev_device_seat_capability seat_caps;
+-
+-	int is_mt;
+-};
+-
+-/* copied from udev/extras/input_id/input_id.c */
+-/* we must use this kernel-compatible implementation */
+-#define BITS_PER_LONG (sizeof(unsigned long) * 8)
+-#define NBITS(x) ((((x)-1)/BITS_PER_LONG)+1)
+-#define OFF(x)  ((x)%BITS_PER_LONG)
+-#define BIT(x)  (1UL<<OFF(x))
+-#define LONG(x) ((x)/BITS_PER_LONG)
+-#define TEST_BIT(array, bit)    ((array[LONG(bit)] >> OFF(bit)) & 1)
+-/* end copied */
+-
+-#define EVDEV_UNHANDLED_DEVICE ((struct evdev_device *) 1)
+-
+-struct evdev_dispatch;
+-
+-struct evdev_dispatch_interface {
+-	/* Process an evdev input event. */
+-	void (*process)(struct evdev_dispatch *dispatch,
+-			struct evdev_device *device,
+-			struct input_event *event,
+-			uint32_t time);
+-
+-	/* Destroy an event dispatch handler and free all its resources. */
+-	void (*destroy)(struct evdev_dispatch *dispatch);
+-};
+-
+-struct evdev_dispatch {
+-	struct evdev_dispatch_interface *interface;
+-};
+-
+-struct evdev_dispatch *
+-evdev_touchpad_create(struct evdev_device *device);
+-
+-void
+-evdev_led_update(struct evdev_device *device, enum weston_led leds);
+-
+-struct evdev_device *
+-evdev_device_create(struct weston_seat *seat, const char *path, int device_fd);
+-
+-void
+-evdev_device_set_output(struct evdev_device *device,
+-			struct weston_output *output);
+-void
+-evdev_device_destroy(struct evdev_device *device);
+-
+-void
+-evdev_notify_keyboard_focus(struct weston_seat *seat,
+-			    struct wl_list *evdev_devices);
+-
+-#endif /* EVDEV_H */
+diff --git a/src/filter.c b/src/filter.c
+deleted file mode 100644
+index 20488a1..0000000
+--- a/src/filter.c
++++ /dev/null
+@@ -1,337 +0,0 @@
+-/*
+- * Copyright © 2012 Jonas Ådahl
+- *
+- * Permission to use, copy, modify, distribute, and sell this software and
+- * its documentation for any purpose is hereby granted without fee, provided
+- * that the above copyright notice appear in all copies and that both that
+- * copyright notice and this permission notice appear in supporting
+- * documentation, and that the name of the copyright holders not be used in
+- * advertising or publicity pertaining to distribution of the software
+- * without specific, written prior permission.  The copyright holders make
+- * no representations about the suitability of this software for any
+- * purpose.  It is provided "as is" without express or implied warranty.
+- *
+- * THE COPYRIGHT HOLDERS DISCLAIM ALL WARRANTIES WITH REGARD TO THIS
+- * SOFTWARE, INCLUDING ALL IMPLIED WARRANTIES OF MERCHANTABILITY AND
+- * FITNESS, IN NO EVENT SHALL THE COPYRIGHT HOLDERS BE LIABLE FOR ANY
+- * SPECIAL, INDIRECT OR CONSEQUENTIAL DAMAGES OR ANY DAMAGES WHATSOEVER
+- * RESULTING FROM LOSS OF USE, DATA OR PROFITS, WHETHER IN AN ACTION OF
+- * CONTRACT, NEGLIGENCE OR OTHER TORTIOUS ACTION, ARISING OUT OF OR IN
+- * CONNECTION WITH THE USE OR PERFORMANCE OF THIS SOFTWARE.
+- */
+-
+-#include "config.h"
+-
+-#include <stdlib.h>
+-#include <stdint.h>
+-#include <limits.h>
+-#include <math.h>
+-
+-#include <wayland-util.h>
+-
+-#include "compositor.h"
+-#include "filter.h"
+-
+-WL_EXPORT void
+-weston_filter_dispatch(struct weston_motion_filter *filter,
+-		       struct weston_motion_params *motion,
+-		       void *data, uint32_t time)
+-{
+-	filter->interface->filter(filter, motion, data, time);
+-}
+-
+-/*
+- * Pointer acceleration filter
+- */
+-
+-#define MAX_VELOCITY_DIFF	1.0
+-#define MOTION_TIMEOUT		300 /* (ms) */
+-#define NUM_POINTER_TRACKERS	16
+-
+-struct pointer_tracker {
+-	double dx;
+-	double dy;
+-	uint32_t time;
+-	int dir;
+-};
+-
+-struct pointer_accelerator;
+-struct pointer_accelerator {
+-	struct weston_motion_filter base;
+-
+-	accel_profile_func_t profile;
+-
+-	double velocity;
+-	double last_velocity;
+-	int last_dx;
+-	int last_dy;
+-
+-	struct pointer_tracker *trackers;
+-	int cur_tracker;
+-};
+-
+-enum directions {
+-	N  = 1 << 0,
+-	NE = 1 << 1,
+-	E  = 1 << 2,
+-	SE = 1 << 3,
+-	S  = 1 << 4,
+-	SW = 1 << 5,
+-	W  = 1 << 6,
+-	NW = 1 << 7,
+-	UNDEFINED_DIRECTION = 0xff
+-};
+-
+-static int
+-get_direction(int dx, int dy)
+-{
+-	int dir = UNDEFINED_DIRECTION;
+-	int d1, d2;
+-	double r;
+-
+-	if (abs(dx) < 2 && abs(dy) < 2) {
+-		if (dx > 0 && dy > 0)
+-			dir = S | SE | E;
+-		else if (dx > 0 && dy < 0)
+-			dir = N | NE | E;
+-		else if (dx < 0 && dy > 0)
+-			dir = S | SW | W;
+-		else if (dx < 0 && dy < 0)
+-			dir = N | NW | W;
+-		else if (dx > 0)
+-			dir = NW | W | SW;
+-		else if (dx < 0)
+-			dir = NE | E | SE;
+-		else if (dy > 0)
+-			dir = SE | S | SW;
+-		else if (dy < 0)
+-			dir = NE | N | NW;
+-	}
+-	else {
+-		/* Calculate r within the interval  [0 to 8)
+-		 *
+-		 * r = [0 .. 2π] where 0 is North
+-		 * d_f = r / 2π  ([0 .. 1))
+-		 * d_8 = 8 * d_f
+-		 */
+-		r = atan2(dy, dx);
+-		r = fmod(r + 2.5*M_PI, 2*M_PI);
+-		r *= 4*M_1_PI;
+-
+-		/* Mark one or two close enough octants */
+-		d1 = (int)(r + 0.9) % 8;
+-		d2 = (int)(r + 0.1) % 8;
+-
+-		dir = (1 << d1) | (1 << d2);
+-	}
+-
+-	return dir;
+-}
+-
+-static void
+-feed_trackers(struct pointer_accelerator *accel,
+-	      double dx, double dy,
+-	      uint32_t time)
+-{
+-	int i, current;
+-	struct pointer_tracker *trackers = accel->trackers;
+-
+-	for (i = 0; i < NUM_POINTER_TRACKERS; i++) {
+-		trackers[i].dx += dx;
+-		trackers[i].dy += dy;
+-	}
+-
+-	current = (accel->cur_tracker + 1) % NUM_POINTER_TRACKERS;
+-	accel->cur_tracker = current;
+-
+-	trackers[current].dx = 0.0;
+-	trackers[current].dy = 0.0;
+-	trackers[current].time = time;
+-	trackers[current].dir = get_direction(dx, dy);
+-}
+-
+-static struct pointer_tracker *
+-tracker_by_offset(struct pointer_accelerator *accel, unsigned int offset)
+-{
+-	unsigned int index =
+-		(accel->cur_tracker + NUM_POINTER_TRACKERS - offset)
+-		% NUM_POINTER_TRACKERS;
+-	return &accel->trackers[index];
+-}
+-
+-static double
+-calculate_tracker_velocity(struct pointer_tracker *tracker, uint32_t time)
+-{
+-	int dx;
+-	int dy;
+-	double distance;
+-
+-	dx = tracker->dx;
+-	dy = tracker->dy;
+-	distance = sqrt(dx*dx + dy*dy);
+-	return distance / (double)(time - tracker->time);
+-}
+-
+-static double
+-calculate_velocity(struct pointer_accelerator *accel, uint32_t time)
+-{
+-	struct pointer_tracker *tracker;
+-	double velocity;
+-	double result = 0.0;
+-	double initial_velocity;
+-	double velocity_diff;
+-	unsigned int offset;
+-
+-	unsigned int dir = tracker_by_offset(accel, 0)->dir;
+-
+-	/* Find first velocity */
+-	for (offset = 1; offset < NUM_POINTER_TRACKERS; offset++) {
+-		tracker = tracker_by_offset(accel, offset);
+-
+-		if (time <= tracker->time)
+-			continue;
+-
+-		result = initial_velocity =
+-			calculate_tracker_velocity(tracker, time);
+-		if (initial_velocity > 0.0)
+-			break;
+-	}
+-
+-	/* Find least recent vector within a timelimit, maximum velocity diff
+-	 * and direction threshold. */
+-	for (; offset < NUM_POINTER_TRACKERS; offset++) {
+-		tracker = tracker_by_offset(accel, offset);
+-
+-		/* Stop if too far away in time */
+-		if (time - tracker->time > MOTION_TIMEOUT ||
+-		    tracker->time > time)
+-			break;
+-
+-		/* Stop if direction changed */
+-		dir &= tracker->dir;
+-		if (dir == 0)
+-			break;
+-
+-		velocity = calculate_tracker_velocity(tracker, time);
+-
+-		/* Stop if velocity differs too much from initial */
+-		velocity_diff = fabs(initial_velocity - velocity);
+-		if (velocity_diff > MAX_VELOCITY_DIFF)
+-			break;
+-
+-		result = velocity;
+-	}
+-
+-	return result;
+-}
+-
+-static double
+-acceleration_profile(struct pointer_accelerator *accel,
+-		     void *data, double velocity, uint32_t time)
+-{
+-	return accel->profile(&accel->base, data, velocity, time);
+-}
+-
+-static double
+-calculate_acceleration(struct pointer_accelerator *accel,
+-		       void *data, double velocity, uint32_t time)
+-{
+-	double factor;
+-
+-	/* Use Simpson's rule to calculate the avarage acceleration between
+-	 * the previous motion and the most recent. */
+-	factor = acceleration_profile(accel, data, velocity, time);
+-	factor += acceleration_profile(accel, data, accel->last_velocity, time);
+-	factor += 4.0 *
+-		acceleration_profile(accel, data,
+-				     (accel->last_velocity + velocity) / 2,
+-				     time);
+-
+-	factor = factor / 6.0;
+-
+-	return factor;
+-}
+-
+-static double
+-soften_delta(double last_delta, double delta)
+-{
+-	if (delta < -1.0 || delta > 1.0) {
+-		if (delta > last_delta)
+-			return delta - 0.5;
+-		else if (delta < last_delta)
+-			return delta + 0.5;
+-	}
+-
+-	return delta;
+-}
+-
+-static void
+-apply_softening(struct pointer_accelerator *accel,
+-		struct weston_motion_params *motion)
+-{
+-	motion->dx = soften_delta(accel->last_dx, motion->dx);
+-	motion->dy = soften_delta(accel->last_dy, motion->dy);
+-}
+-
+-static void
+-accelerator_filter(struct weston_motion_filter *filter,
+-		   struct weston_motion_params *motion,
+-		   void *data, uint32_t time)
+-{
+-	struct pointer_accelerator *accel =
+-		(struct pointer_accelerator *) filter;
+-	double velocity;
+-	double accel_value;
+-
+-	feed_trackers(accel, motion->dx, motion->dy, time);
+-	velocity = calculate_velocity(accel, time);
+-	accel_value = calculate_acceleration(accel, data, velocity, time);
+-
+-	motion->dx = accel_value * motion->dx;
+-	motion->dy = accel_value * motion->dy;
+-
+-	apply_softening(accel, motion);
+-
+-	accel->last_dx = motion->dx;
+-	accel->last_dy = motion->dy;
+-
+-	accel->last_velocity = velocity;
+-}
+-
+-static void
+-accelerator_destroy(struct weston_motion_filter *filter)
+-{
+-	struct pointer_accelerator *accel =
+-		(struct pointer_accelerator *) filter;
+-
+-	free(accel->trackers);
+-	free(accel);
+-}
+-
+-struct weston_motion_filter_interface accelerator_interface = {
+-	accelerator_filter,
+-	accelerator_destroy
+-};
+-
+-WL_EXPORT struct weston_motion_filter *
+-create_pointer_accelator_filter(accel_profile_func_t profile)
+-{
+-	struct pointer_accelerator *filter;
+-
+-	filter = malloc(sizeof *filter);
+-	if (filter == NULL)
+-		return NULL;
+-
+-	filter->base.interface = &accelerator_interface;
+-
+-	filter->profile = profile;
+-	filter->last_velocity = 0.0;
+-	filter->last_dx = 0;
+-	filter->last_dy = 0;
+-
+-	filter->trackers =
+-		calloc(NUM_POINTER_TRACKERS, sizeof *filter->trackers);
+-	filter->cur_tracker = 0;
+-
+-	return &filter->base;
+-}
+diff --git a/src/filter.h b/src/filter.h
+deleted file mode 100644
+index 3e094fa..0000000
+--- a/src/filter.h
++++ /dev/null
+@@ -1,63 +0,0 @@
+-/*
+- * Copyright © 2012 Jonas Ådahl
+- *
+- * Permission to use, copy, modify, distribute, and sell this software and
+- * its documentation for any purpose is hereby granted without fee, provided
+- * that the above copyright notice appear in all copies and that both that
+- * copyright notice and this permission notice appear in supporting
+- * documentation, and that the name of the copyright holders not be used in
+- * advertising or publicity pertaining to distribution of the software
+- * without specific, written prior permission.  The copyright holders make
+- * no representations about the suitability of this software for any
+- * purpose.  It is provided "as is" without express or implied warranty.
+- *
+- * THE COPYRIGHT HOLDERS DISCLAIM ALL WARRANTIES WITH REGARD TO THIS
+- * SOFTWARE, INCLUDING ALL IMPLIED WARRANTIES OF MERCHANTABILITY AND
+- * FITNESS, IN NO EVENT SHALL THE COPYRIGHT HOLDERS BE LIABLE FOR ANY
+- * SPECIAL, INDIRECT OR CONSEQUENTIAL DAMAGES OR ANY DAMAGES WHATSOEVER
+- * RESULTING FROM LOSS OF USE, DATA OR PROFITS, WHETHER IN AN ACTION OF
+- * CONTRACT, NEGLIGENCE OR OTHER TORTIOUS ACTION, ARISING OUT OF OR IN
+- * CONNECTION WITH THE USE OR PERFORMANCE OF THIS SOFTWARE.
+- */
+-
+-#ifndef _FILTER_H_
+-#define _FILTER_H_
+-
+-#include "config.h"
+-
+-#include <wayland-util.h>
+-
+-#include "compositor.h"
+-
+-struct weston_motion_params {
+-	double dx, dy;
+-};
+-
+-struct weston_motion_filter;
+-
+-void
+-weston_filter_dispatch(struct weston_motion_filter *filter,
+-		       struct weston_motion_params *motion,
+-		       void *data, uint32_t time);
+-
+-
+-struct weston_motion_filter_interface {
+-	void (*filter)(struct weston_motion_filter *filter,
+-		       struct weston_motion_params *motion,
+-		       void *data, uint32_t time);
+-	void (*destroy)(struct weston_motion_filter *filter);
+-};
+-
+-struct weston_motion_filter {
+-	struct weston_motion_filter_interface *interface;
+-};
+-
+-typedef double (*accel_profile_func_t)(struct weston_motion_filter *filter,
+-				       void *data,
+-				       double velocity,
+-				       uint32_t time);
+-
+-struct weston_motion_filter *
+-create_pointer_accelator_filter(accel_profile_func_t filter);
+-
+-#endif // _FILTER_H_
+diff --git a/src/udev-input.h b/src/udev-input.h
+deleted file mode 100644
+index e5f3d9d..0000000
+--- a/src/udev-input.h
++++ /dev/null
+@@ -1,34 +0,0 @@
+-/*
+- * Copyright © 2014 Jonas Ådahl
+- *
+- * Permission to use, copy, modify, distribute, and sell this software and
+- * its documentation for any purpose is hereby granted without fee, provided
+- * that the above copyright notice appear in all copies and that both that
+- * copyright notice and this permission notice appear in supporting
+- * documentation, and that the name of the copyright holders not be used in
+- * advertising or publicity pertaining to distribution of the software
+- * without specific, written prior permission.  The copyright holders make
+- * no representations about the suitability of this software for any
+- * purpose.  It is provided "as is" without express or implied warranty.
+- *
+- * THE COPYRIGHT HOLDERS DISCLAIM ALL WARRANTIES WITH REGARD TO THIS
+- * SOFTWARE, INCLUDING ALL IMPLIED WARRANTIES OF MERCHANTABILITY AND
+- * FITNESS, IN NO EVENT SHALL THE COPYRIGHT HOLDERS BE LIABLE FOR ANY
+- * SPECIAL, INDIRECT OR CONSEQUENTIAL DAMAGES OR ANY DAMAGES WHATSOEVER
+- * RESULTING FROM LOSS OF USE, DATA OR PROFITS, WHETHER IN AN ACTION OF
+- * CONTRACT, NEGLIGENCE OR OTHER TORTIOUS ACTION, ARISING OUT OF OR IN
+- * CONNECTION WITH THE USE OR PERFORMANCE OF THIS SOFTWARE.
+- */
+-
+-#ifndef _UDEV_INPUT_H_
+-#define _UDEV_INPUT_H_
+-
+-#include "config.h"
+-
+-#ifdef BUILD_LIBINPUT_BACKEND
+-#include "libinput-seat.h"
+-#else
+-#include "udev-seat.h"
+-#endif
+-
+-#endif
+diff --git a/src/udev-seat.c b/src/udev-seat.c
+deleted file mode 100644
+index 8e7405d..0000000
+--- a/src/udev-seat.c
++++ /dev/null
+@@ -1,417 +0,0 @@
+-/*
+- * Copyright © 2013 Intel Corporation
+- *
+- * Permission to use, copy, modify, distribute, and sell this software and
+- * its documentation for any purpose is hereby granted without fee, provided
+- * that the above copyright notice appear in all copies and that both that
+- * copyright notice and this permission notice appear in supporting
+- * documentation, and that the name of the copyright holders not be used in
+- * advertising or publicity pertaining to distribution of the software
+- * without specific, written prior permission.  The copyright holders make
+- * no representations about the suitability of this software for any
+- * purpose.  It is provided "as is" without express or implied warranty.
+- *
+- * THE COPYRIGHT HOLDERS DISCLAIM ALL WARRANTIES WITH REGARD TO THIS
+- * SOFTWARE, INCLUDING ALL IMPLIED WARRANTIES OF MERCHANTABILITY AND
+- * FITNESS, IN NO EVENT SHALL THE COPYRIGHT HOLDERS BE LIABLE FOR ANY
+- * SPECIAL, INDIRECT OR CONSEQUENTIAL DAMAGES OR ANY DAMAGES WHATSOEVER
+- * RESULTING FROM LOSS OF USE, DATA OR PROFITS, WHETHER IN AN ACTION OF
+- * CONTRACT, NEGLIGENCE OR OTHER TORTIOUS ACTION, ARISING OUT OF OR IN
+- * CONNECTION WITH THE USE OR PERFORMANCE OF THIS SOFTWARE.
+- */
+-
+-#include "config.h"
+-
+-#include <stdlib.h>
+-#include <string.h>
+-#include <unistd.h>
+-#include <fcntl.h>
+-
+-#include "compositor.h"
+-#include "launcher-util.h"
+-#include "evdev.h"
+-#include "udev-seat.h"
+-
+-static const char default_seat[] = "seat0";
+-static const char default_seat_name[] = "default";
+-
+-static void
+-udev_seat_destroy(struct udev_seat *seat);
+-
+-static int
+-device_added(struct udev_device *udev_device, struct udev_input *input)
+-{
+-	struct weston_compositor *c;
+-	struct evdev_device *device;
+-	struct weston_output *output;
+-	const char *devnode;
+-	const char *device_seat, *seat_name, *output_name;
+-	const char *calibration_values;
+-	int fd;
+-	struct udev_seat *seat;
+-
+-	device_seat = udev_device_get_property_value(udev_device, "ID_SEAT");
+-	if (!device_seat)
+-		device_seat = default_seat;
+-
+-	if (strcmp(device_seat, input->seat_id))
+-		return 0;
+-
+-	c = input->compositor;
+-	devnode = udev_device_get_devnode(udev_device);
+-
+-	/* Search for matching logical seat */
+-	seat_name = udev_device_get_property_value(udev_device, "WL_SEAT");
+-	if (!seat_name)
+-		seat_name = default_seat_name;
+-
+-	seat = udev_seat_get_named(input, seat_name);
+-
+-	if (seat == NULL)
+-		return -1;
+-
+-	/* Use non-blocking mode so that we can loop on read on
+-	 * evdev_device_data() until all events on the fd are
+-	 * read.  mtdev_get() also expects this. */
+-	fd = weston_launcher_open(c->launcher, devnode, O_RDWR | O_NONBLOCK);
+-	if (fd < 0) {
+-		weston_log("opening input device '%s' failed.\n", devnode);
+-		return 0;
+-	}
+-
+-	device = evdev_device_create(&seat->base, devnode, fd);
+-	if (device == EVDEV_UNHANDLED_DEVICE) {
+-		weston_launcher_close(c->launcher, fd);
+-		weston_log("not using input device '%s'.\n", devnode);
+-		return 0;
+-	} else if (device == NULL) {
+-		weston_launcher_close(c->launcher, fd);
+-		weston_log("failed to create input device '%s'.\n", devnode);
+-		return 0;
+-	}
+-
+-	calibration_values =
+-		udev_device_get_property_value(udev_device,
+-					       "WL_CALIBRATION");
+-
+-	if (calibration_values && sscanf(calibration_values,
+-					 "%f %f %f %f %f %f",
+-					 &device->abs.calibration[0],
+-					 &device->abs.calibration[1],
+-					 &device->abs.calibration[2],
+-					 &device->abs.calibration[3],
+-					 &device->abs.calibration[4],
+-					 &device->abs.calibration[5]) == 6) {
+-		device->abs.apply_calibration = 1;
+-		weston_log ("Applying calibration: %f %f %f %f %f %f\n",
+-			    device->abs.calibration[0],
+-			    device->abs.calibration[1],
+-			    device->abs.calibration[2],
+-			    device->abs.calibration[3],
+-			    device->abs.calibration[4],
+-			    device->abs.calibration[5]);
+-	}
+-
+-	wl_list_insert(seat->devices_list.prev, &device->link);
+-
+-	if (seat->base.output && seat->base.pointer)
+-		weston_pointer_clamp(seat->base.pointer,
+-				     &seat->base.pointer->x,
+-				     &seat->base.pointer->y);
+-
+-	output_name = udev_device_get_property_value(udev_device, "WL_OUTPUT");
+-	if (output_name) {
+-		device->output_name = strdup(output_name);
+-		wl_list_for_each(output, &c->output_list, link)
+-			if (strcmp(output->name, device->output_name) == 0)
+-				evdev_device_set_output(device, output);
+-	} else if (device->output == NULL && !wl_list_empty(&c->output_list)) {
+-		output = container_of(c->output_list.next,
+-				      struct weston_output, link);
+-		evdev_device_set_output(device, output);
+-	}
+-
+-	if (input->enabled == 1)
+-		weston_seat_repick(&seat->base);
+-
+-	return 0;
+-}
+-
+-static int
+-udev_input_add_devices(struct udev_input *input, struct udev *udev)
+-{
+-	struct udev_enumerate *e;
+-	struct udev_list_entry *entry;
+-	struct udev_device *device;
+-	const char *path, *sysname;
+-	struct udev_seat *seat;
+-	int devices_found = 0;
+-
+-	e = udev_enumerate_new(udev);
+-	udev_enumerate_add_match_subsystem(e, "input");
+-	udev_enumerate_scan_devices(e);
+-	udev_list_entry_foreach(entry, udev_enumerate_get_list_entry(e)) {
+-		path = udev_list_entry_get_name(entry);
+-		device = udev_device_new_from_syspath(udev, path);
+-
+-		sysname = udev_device_get_sysname(device);
+-		if (strncmp("event", sysname, 5) != 0) {
+-			udev_device_unref(device);
+-			continue;
+-		}
+-
+-		if (device_added(device, input) < 0) {
+-			udev_device_unref(device);
+-			udev_enumerate_unref(e);
+-			return -1;
+-		}
+-
+-		udev_device_unref(device);
+-	}
+-	udev_enumerate_unref(e);
+-
+-	wl_list_for_each(seat, &input->compositor->seat_list, base.link) {
+-		evdev_notify_keyboard_focus(&seat->base, &seat->devices_list);
+-
+-		if (!wl_list_empty(&seat->devices_list))
+-			devices_found = 1;
+-	}
+-
+-	if (devices_found == 0) {
+-		weston_log(
+-			"warning: no input devices on entering Weston. "
+-			"Possible causes:\n"
+-			"\t- no permissions to read /dev/input/event*\n"
+-			"\t- seats misconfigured "
+-			"(Weston backend option 'seat', "
+-			"udev device property ID_SEAT)\n");
+-		return -1;
+-	}
+-
+-	return 0;
+-}
+-
+-static int
+-evdev_udev_handler(int fd, uint32_t mask, void *data)
+-{
+-	struct udev_input *input = data;
+-	struct udev_device *udev_device;
+-	struct evdev_device *device, *next;
+-	const char *action;
+-	const char *devnode;
+-	struct udev_seat *seat;
+-
+-	udev_device = udev_monitor_receive_device(input->udev_monitor);
+-	if (!udev_device)
+-		return 1;
+-
+-	action = udev_device_get_action(udev_device);
+-	if (!action)
+-		goto out;
+-
+-	if (strncmp("event", udev_device_get_sysname(udev_device), 5) != 0)
+-		goto out;
+-
+-	if (!strcmp(action, "add")) {
+-		device_added(udev_device, input);
+-	}
+-	else if (!strcmp(action, "remove")) {
+-		devnode = udev_device_get_devnode(udev_device);
+-		wl_list_for_each(seat, &input->compositor->seat_list, base.link) {
+-			wl_list_for_each_safe(device, next, &seat->devices_list, link)
+-				if (!strcmp(device->devnode, devnode)) {
+-					weston_log("input device %s, %s removed\n",
+-							device->devname, device->devnode);
+-					weston_launcher_close(input->compositor->launcher,
+-							      device->fd);
+-					evdev_device_destroy(device);
+-					break;
+-				}
+-		}
+-	}
+-
+-out:
+-	udev_device_unref(udev_device);
+-
+-	return 0;
+-}
+-
+-int
+-udev_input_enable(struct udev_input *input)
+-{
+-	struct wl_event_loop *loop;
+-	struct weston_compositor *c = input->compositor;
+-	int fd;
+-
+-	input->udev_monitor = udev_monitor_new_from_netlink(input->udev, "udev");
+-	if (!input->udev_monitor) {
+-		weston_log("udev: failed to create the udev monitor\n");
+-		return -1;
+-	}
+-
+-	udev_monitor_filter_add_match_subsystem_devtype(input->udev_monitor,
+-			"input", NULL);
+-
+-	if (udev_monitor_enable_receiving(input->udev_monitor)) {
+-		weston_log("udev: failed to bind the udev monitor\n");
+-		udev_monitor_unref(input->udev_monitor);
+-		return -1;
+-	}
+-
+-	loop = wl_display_get_event_loop(c->wl_display);
+-	fd = udev_monitor_get_fd(input->udev_monitor);
+-	input->udev_monitor_source =
+-		wl_event_loop_add_fd(loop, fd, WL_EVENT_READABLE,
+-				     evdev_udev_handler, input);
+-	if (!input->udev_monitor_source) {
+-		udev_monitor_unref(input->udev_monitor);
+-		return -1;
+-	}
+-
+-	if (udev_input_add_devices(input, input->udev) < 0)
+-		return -1;
+-
+-	input->enabled = 1;
+-
+-	return 0;
+-}
+-
+-static void
+-udev_input_remove_devices(struct udev_input *input)
+-{
+-	struct evdev_device *device, *next;
+-	struct udev_seat *seat;
+-
+-	wl_list_for_each(seat, &input->compositor->seat_list, base.link) {
+-		wl_list_for_each_safe(device, next, &seat->devices_list, link) {
+-			weston_launcher_close(input->compositor->launcher,
+-					      device->fd);
+-			evdev_device_destroy(device);
+-		}
+-
+-		if (seat->base.keyboard)
+-			notify_keyboard_focus_out(&seat->base);
+-	}
+-}
+-
+-void
+-udev_input_disable(struct udev_input *input)
+-{
+-	if (!input->udev_monitor)
+-		return;
+-
+-	udev_monitor_unref(input->udev_monitor);
+-	input->udev_monitor = NULL;
+-	wl_event_source_remove(input->udev_monitor_source);
+-	input->udev_monitor_source = NULL;
+-
+-	udev_input_remove_devices(input);
+-}
+-
+-
+-int
+-udev_input_init(struct udev_input *input, struct weston_compositor *c, struct udev *udev,
+-		const char *seat_id)
+-{
+-	memset(input, 0, sizeof *input);
+-	input->seat_id = strdup(seat_id);
+-	input->compositor = c;
+-	input->udev = udev;
+-	input->udev = udev_ref(udev);
+-	if (udev_input_enable(input) < 0)
+-		goto err;
+-
+-	return 0;
+-
+- err:
+-	free(input->seat_id);
+-	return -1;
+-}
+-
+-void
+-udev_input_destroy(struct udev_input *input)
+-{
+-	struct udev_seat *seat, *next;
+-	udev_input_disable(input);
+-	wl_list_for_each_safe(seat, next, &input->compositor->seat_list, base.link)
+-		udev_seat_destroy(seat);
+-	udev_unref(input->udev);
+-	free(input->seat_id);
+-}
+-
+-static void
+-drm_led_update(struct weston_seat *seat_base, enum weston_led leds)
+-{
+-	struct udev_seat *seat = (struct udev_seat *) seat_base;
+-	struct evdev_device *device;
+-
+-	wl_list_for_each(device, &seat->devices_list, link)
+-		evdev_led_update(device, leds);
+-}
+-
+-static void
+-notify_output_create(struct wl_listener *listener, void *data)
+-{
+-	struct udev_seat *seat = container_of(listener, struct udev_seat,
+-					      output_create_listener);
+-	struct evdev_device *device;
+-	struct weston_output *output = data;
+-
+-	wl_list_for_each(device, &seat->devices_list, link) {
+-		if (device->output_name &&
+-		    strcmp(output->name, device->output_name) == 0) {
+-			evdev_device_set_output(device, output);
+-		}
+-
+-		if (device->output_name == NULL && device->output == NULL)
+-			evdev_device_set_output(device, output);
+-	}
+-}
+-
+-static struct udev_seat *
+-udev_seat_create(struct udev_input *input, const char *seat_name)
+-{
+-	struct weston_compositor *c = input->compositor;
+-	struct udev_seat *seat;
+-
+-	seat = zalloc(sizeof *seat);
+-	if (!seat)
+-		return NULL;
+-
+-	weston_seat_init(&seat->base, c, seat_name);
+-	seat->base.led_update = drm_led_update;
+-
+-	seat->output_create_listener.notify = notify_output_create;
+-	wl_signal_add(&c->output_created_signal,
+-		      &seat->output_create_listener);
+-
+-	wl_list_init(&seat->devices_list);
+-	return seat;
+-}
+-
+-static void
+-udev_seat_destroy(struct udev_seat *seat)
+-{
+-	weston_seat_release(&seat->base);
+-	wl_list_remove(&seat->output_create_listener.link);
+-	free(seat);
+-}
+-
+-struct udev_seat *
+-udev_seat_get_named(struct udev_input *input, const char *seat_name)
+-{
+-	struct weston_compositor *c = input->compositor;
+-	struct udev_seat *seat;
+-
+-	wl_list_for_each(seat, &c->seat_list, base.link) {
+-		if (strcmp(seat->base.seat_name, seat_name) == 0)
+-			return seat;
+-	}
+-
+-	seat = udev_seat_create(input, seat_name);
+-
+-	if (!seat)
+-		return NULL;
+-
+-	return seat;
+-}
+diff --git a/src/udev-seat.h b/src/udev-seat.h
+deleted file mode 100644
+index e388f13..0000000
+--- a/src/udev-seat.h
++++ /dev/null
+@@ -1,57 +0,0 @@
+-/*
+- * Copyright © 2013 Intel Corporation
+- *
+- * Permission to use, copy, modify, distribute, and sell this software and
+- * its documentation for any purpose is hereby granted without fee, provided
+- * that the above copyright notice appear in all copies and that both that
+- * copyright notice and this permission notice appear in supporting
+- * documentation, and that the name of the copyright holders not be used in
+- * advertising or publicity pertaining to distribution of the software
+- * without specific, written prior permission.  The copyright holders make
+- * no representations about the suitability of this software for any
+- * purpose.  It is provided "as is" without express or implied warranty.
+- *
+- * THE COPYRIGHT HOLDERS DISCLAIM ALL WARRANTIES WITH REGARD TO THIS
+- * SOFTWARE, INCLUDING ALL IMPLIED WARRANTIES OF MERCHANTABILITY AND
+- * FITNESS, IN NO EVENT SHALL THE COPYRIGHT HOLDERS BE LIABLE FOR ANY
+- * SPECIAL, INDIRECT OR CONSEQUENTIAL DAMAGES OR ANY DAMAGES WHATSOEVER
+- * RESULTING FROM LOSS OF USE, DATA OR PROFITS, WHETHER IN AN ACTION OF
+- * CONTRACT, NEGLIGENCE OR OTHER TORTIOUS ACTION, ARISING OUT OF OR IN
+- * CONNECTION WITH THE USE OR PERFORMANCE OF THIS SOFTWARE.
+- */
+-
+-#ifndef _UDEV_SEAT_H_
+-#define _UDEV_SEAT_H_
+-
+-#include "config.h"
+-
+-#include <libudev.h>
+-
+-#include "compositor.h"
+-
+-struct udev_seat {
+-	struct weston_seat base;
+-	struct wl_list devices_list;
+-	struct wl_listener output_create_listener;
+-};
+-
+-struct udev_input {
+-	struct udev *udev;
+-	struct udev_monitor *udev_monitor;
+-	struct wl_event_source *udev_monitor_source;
+-	char *seat_id;
+-	struct weston_compositor *compositor;
+-	int enabled;
+-};
+-
+-int udev_input_enable(struct udev_input *input);
+-void udev_input_disable(struct udev_input *input);
+-int udev_input_init(struct udev_input *input,
+-		    struct weston_compositor *c,
+-		    struct udev *udev,
+-		    const char *seat_id);
+-void udev_input_destroy(struct udev_input *input);
+-
+-struct udev_seat *udev_seat_get_named(struct udev_input *input,
+-				      const char *seat_name);
+-#endif
+-- 
+2.1.0
+

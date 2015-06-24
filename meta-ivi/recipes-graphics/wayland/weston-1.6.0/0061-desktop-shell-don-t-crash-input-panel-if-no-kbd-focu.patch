@@ -1,0 +1,38 @@
+From a4bac9e0e0d47b8698613a04ad0611dffb50f5dd Mon Sep 17 00:00:00 2001
+From: Pekka Paalanen <pekka.paalanen@collabora.co.uk>
+Date: Thu, 20 Nov 2014 10:15:07 +0200
+Subject: [PATCH 61/96] desktop-shell: don't crash input-panel if no kbd focus
+
+If a keyboard exists but it has no current focus, yet something asks the
+input-panel to come up, we would crash here. Check that there is a focus
+before attempting to use it.
+
+Maybe there should not even exist a case where input-panel tries to come
+up without a keyboard focus, but I am not sure there is no race where it
+could happen.
+
+In any case, this fix was brought up by the ivi-shell work, where I
+suppose you can somehow hit it.
+
+Signed-off-by: Pekka Paalanen <pekka.paalanen@collabora.co.uk>
+Cc: Tanibata, Nobuhiko <ntanibata@jp.adit-jv.com>
+---
+ desktop-shell/input-panel.c | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
+
+diff --git a/desktop-shell/input-panel.c b/desktop-shell/input-panel.c
+index 435cd5d..0b42c2f 100644
+--- a/desktop-shell/input-panel.c
++++ b/desktop-shell/input-panel.c
+@@ -66,7 +66,7 @@ show_input_panel_surface(struct input_panel_surface *ipsurf)
+ 	float x, y;
+ 
+ 	wl_list_for_each(seat, &shell->compositor->seat_list, link) {
+-		if (!seat->keyboard)
++		if (!seat->keyboard || !seat->keyboard->focus)
+ 			continue;
+ 		focus = weston_surface_get_main_surface(seat->keyboard->focus);
+ 		ipsurf->output = focus->output;
+-- 
+2.1.0
+

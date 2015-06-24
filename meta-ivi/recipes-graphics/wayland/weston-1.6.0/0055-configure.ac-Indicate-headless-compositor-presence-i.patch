@@ -1,0 +1,29 @@
+From 19c8db9cce797aa1d9b084859b364781614a4c1c Mon Sep 17 00:00:00 2001
+From: Bryce Harrington <bryce@osg.samsung.com>
+Date: Wed, 19 Nov 2014 15:06:16 -0800
+Subject: [PATCH 55/96] configure.ac: Indicate headless compositor presence in
+ config.h
+
+Signed-off-by: Bryce Harrington <bryce@osg.samsung.com>
+Reviewed-by: Pekka Paalanen <pekka.paalanen@collabora.co.uk>
+---
+ configure.ac | 3 +++
+ 1 file changed, 3 insertions(+)
+
+diff --git a/configure.ac b/configure.ac
+index 9377774..56ee544 100644
+--- a/configure.ac
++++ b/configure.ac
+@@ -181,6 +181,9 @@ AC_ARG_ENABLE(headless-compositor, [  --enable-headless-compositor],,
+ 	      enable_headless_compositor=yes)
+ AM_CONDITIONAL(ENABLE_HEADLESS_COMPOSITOR,
+ 	       test x$enable_headless_compositor = xyes)
++if test x$enable_headless_compositor = xyes; then
++  AC_DEFINE([BUILD_HEADLESS_COMPOSITOR], [1], [Build the headless compositor])
++fi
+ 
+ 
+ AC_ARG_ENABLE(rpi-compositor,
+-- 
+2.1.0
+

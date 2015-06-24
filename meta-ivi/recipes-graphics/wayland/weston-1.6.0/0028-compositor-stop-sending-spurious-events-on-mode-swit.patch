@@ -1,0 +1,31 @@
+From dd4cd33f189be8a1f8e3f691b29ff57215fcab96 Mon Sep 17 00:00:00 2001
+From: Derek Foreman <derekf@osg.samsung.com>
+Date: Mon, 10 Nov 2014 10:29:59 -0600
+Subject: [PATCH 28/96] compositor: stop sending spurious events on mode switch
+
+commit 6ae7bc982fa accidentally made weston_output_mode_switch_temporary
+send done events when it shouldn't.
+
+Signed-off-by: Derek Foreman <derekf@osg.samsung.com>
+Reviewed-by: Pekka Paalanen <pekka.paalanen@collabora.co.uk>
+---
+ src/compositor.c | 3 +++
+ 1 file changed, 3 insertions(+)
+
+diff --git a/src/compositor.c b/src/compositor.c
+index 9dcabe3..6a81cc7 100644
+--- a/src/compositor.c
++++ b/src/compositor.c
+@@ -148,6 +148,9 @@ static void weston_mode_switch_finish(struct weston_output *output,
+ 
+ 	pixman_region32_fini(&old_output_region);
+ 
++	if (!mode_changed && !scale_changed)
++		return;
++
+ 	/* notify clients of the changes */
+ 	wl_resource_for_each(resource, &output->resource_list) {
+ 		if (mode_changed) {
+-- 
+2.1.0
+

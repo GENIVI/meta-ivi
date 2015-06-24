@@ -1,0 +1,31 @@
+From de77e32b10d4e803fdc7033e8dfc3c3216459971 Mon Sep 17 00:00:00 2001
+From: Giulio Camuffo <giuliocamuffo@gmail.com>
+Date: Fri, 10 Oct 2014 23:46:50 +0300
+Subject: [PATCH 30/96] input: fix access to invalid resource
+
+the keyboard focus surface may not have a valid resource (server side
+surface or a surface surviving its client), so check if it is valid
+before using it.
+
+Acked-by: Marek Chalupa <mchqwerty@gmail.com>
+Reviewed-by: Pekka Paalanen <pekka.paalanen@collabora.co.uk>
+---
+ src/input.c | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
+
+diff --git a/src/input.c b/src/input.c
+index b504d06..27de5c3 100644
+--- a/src/input.c
++++ b/src/input.c
+@@ -1800,7 +1800,7 @@ seat_get_keyboard(struct wl_client *client, struct wl_resource *resource,
+ 					   seat->keyboard->focus_serial);
+ 	}
+ 
+-	if (seat->keyboard->focus &&
++	if (seat->keyboard->focus && seat->keyboard->focus->resource &&
+ 	    wl_resource_get_client(seat->keyboard->focus->resource) == client) {
+ 		struct weston_surface *surface =
+ 			(struct weston_surface *) seat->keyboard->focus;
+-- 
+2.1.0
+

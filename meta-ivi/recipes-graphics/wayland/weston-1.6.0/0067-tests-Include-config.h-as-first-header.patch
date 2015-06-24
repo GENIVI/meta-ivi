@@ -1,0 +1,112 @@
+From 12cc4055ff6a811f06cb13e781c65baf8795206b Mon Sep 17 00:00:00 2001
+From: Bryce Harrington <bryce@osg.samsung.com>
+Date: Wed, 19 Nov 2014 17:18:33 -0800
+Subject: [PATCH 67/96] tests: Include "config.h" as first header
+
+Signed-off-by: Bryce Harrington <bryce@osg.samsung.com>
+---
+ tests/event-test.c                | 2 ++
+ tests/keyboard-test.c             | 2 ++
+ tests/surface-test.c              | 2 ++
+ tests/weston-test-client-helper.c | 2 +-
+ tests/weston-test-runner.c        | 2 ++
+ tests/xwayland-test.c             | 4 +++-
+ 6 files changed, 12 insertions(+), 2 deletions(-)
+
+diff --git a/tests/event-test.c b/tests/event-test.c
+index 980dfaa..b60ad85 100644
+--- a/tests/event-test.c
++++ b/tests/event-test.c
+@@ -21,6 +21,8 @@
+  * CONNECTION WITH THE USE OR PERFORMANCE OF THIS SOFTWARE.
+  */
+ 
++#include "config.h"
++
+ #include "weston-test-client-helper.h"
+ 
+ static void
+diff --git a/tests/keyboard-test.c b/tests/keyboard-test.c
+index 542bf4e..a6d4ffa 100644
+--- a/tests/keyboard-test.c
++++ b/tests/keyboard-test.c
+@@ -20,6 +20,8 @@
+  * CONNECTION WITH THE USE OR PERFORMANCE OF THIS SOFTWARE.
+  */
+ 
++#include "config.h"
++
+ #include "weston-test-client-helper.h"
+ 
+ TEST(simple_keyboard_test)
+diff --git a/tests/surface-test.c b/tests/surface-test.c
+index 80dce81..1dddd4e 100644
+--- a/tests/surface-test.c
++++ b/tests/surface-test.c
+@@ -20,6 +20,8 @@
+  * CONNECTION WITH THE USE OR PERFORMANCE OF THIS SOFTWARE.
+  */
+ 
++#include "config.h"
++
+ #include <stdlib.h>
+ #include <stdio.h>
+ #include <assert.h>
+diff --git a/tests/weston-test-client-helper.c b/tests/weston-test-client-helper.c
+index 79097fa..eadc29b 100644
+--- a/tests/weston-test-client-helper.c
++++ b/tests/weston-test-client-helper.c
+@@ -20,7 +20,7 @@
+  * OF THIS SOFTWARE.
+  */
+ 
+-#include <config.h>
++#include "config.h"
+ 
+ #include <stdlib.h>
+ #include <stdio.h>
+diff --git a/tests/weston-test-runner.c b/tests/weston-test-runner.c
+index ce0a670..3e1ace6 100644
+--- a/tests/weston-test-runner.c
++++ b/tests/weston-test-runner.c
+@@ -21,6 +21,7 @@
+  */
+ 
+ #include "config.h"
++
+ #include <unistd.h>
+ #include <stdio.h>
+ #include <stdlib.h>
+@@ -30,6 +31,7 @@
+ #include <assert.h>
+ #include <errno.h>
+ #include <signal.h>
++
+ #include "weston-test-runner.h"
+ 
+ #define SKIP 77
+diff --git a/tests/xwayland-test.c b/tests/xwayland-test.c
+index 658453f..e94e8f5 100644
+--- a/tests/xwayland-test.c
++++ b/tests/xwayland-test.c
+@@ -25,7 +25,7 @@
+  * general works with Weston.
+  */
+ 
+-#include "weston-test-runner.h"
++#include "config.h"
+ 
+ #include <assert.h>
+ #include <unistd.h>
+@@ -37,6 +37,8 @@
+ #include <xcb/dri2.h>
+ #include <xf86drm.h>
+ 
++#include "weston-test-runner.h"
++
+ 
+ static int
+ dri2_open(xcb_connection_t *c, xcb_screen_t *screen)
+-- 
+2.1.0
+

@@ -1,0 +1,47 @@
+From 32297c96d33f66d0214ce7ab282266b9626500a2 Mon Sep 17 00:00:00 2001
+From: Bryce Harrington <bryce@osg.samsung.com>
+Date: Thu, 23 Oct 2014 15:25:04 -0700
+Subject: [PATCH 38/96] compositor: List only available backends in help text
+
+Signed-off-by: Bryce Harrington <bryce@osg.samsung.com>
+Reviewed-by: Derek Foreman <derekf@osg.samsung.com>
+---
+ src/compositor.c | 22 +++++++++++++++++++---
+ 1 file changed, 19 insertions(+), 3 deletions(-)
+
+diff --git a/src/compositor.c b/src/compositor.c
+index 22445b3..5f9bbd1 100644
+--- a/src/compositor.c
++++ b/src/compositor.c
+@@ -4490,9 +4490,25 @@ usage(int error_code)
+ 
+ 		"Core options:\n\n"
+ 		"  --version\t\tPrint weston version\n"
+-		"  -B, --backend=MODULE\tBackend module, one of drm-backend.so,\n"
+-		"\t\t\t\tfbdev-backend.so, x11-backend.so or\n"
+-		"\t\t\t\twayland-backend.so\n"
++		"  -B, --backend=MODULE\tBackend module, one of\n"
++#if defined(BUILD_DRM_COMPOSITOR)
++			"\t\t\t\tdrm-backend.so\n"
++#endif
++#if defined(BUILD_FBDEV_COMPOSITOR)
++			"\t\t\t\tfbdev-backend.so"
++#endif
++#if defined(BUILD_X11_COMPOSITOR)
++			"\t\t\t\tx11-backend.so\n"
++#endif
++#if defined(BUILD_WAYLAND_COMPOSITOR)
++			"\t\t\t\twayland-backend.so\n"
++#endif
++#if defined(BUILD_RDP_COMPOSITOR)
++			"\t\t\t\trdp-backend.so\n"
++#endif
++#if defined(BUILD_RPI_COMPOSITOR) && defined(HAVE_BCM_HOST)
++			"\t\t\t\trpi-backend.so\n"
++#endif
+ 		"  --shell=MODULE\tShell module, defaults to desktop-shell.so\n"
+ 		"  -S, --socket=NAME\tName of socket to listen on\n"
+ 		"  -i, --idle-time=SECS\tIdle time in seconds\n"
+-- 
+2.1.0
+

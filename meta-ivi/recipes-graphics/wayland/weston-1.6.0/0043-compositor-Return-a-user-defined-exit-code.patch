@@ -1,0 +1,88 @@
+From c336f06e70e08686e8300bd16ebbb00c68e2b0a8 Mon Sep 17 00:00:00 2001
+From: Frederic Plourde <frederic.plourde@collabora.co.uk>
+Date: Wed, 29 Oct 2014 14:44:33 -0400
+Subject: [PATCH 43/96] compositor: Return a user-defined exit code
+
+Currently, once we've reached our main's wl_display_run(), we always
+return ret=EXIT_SUCCESS when weston terminates through wl_display_terminate.
+
+This patch makes it possible to specify another return value by setting
+prior to terminating Weston. This is useful for automated tests that want
+to report test failures to the overlying testing infrastructure.
+
+Signed-off-by: Frederic Plourde <frederic.plourde@collabora.co.uk>
+[Pekka: fixed some tabs.]
+Signed-off-by: Pekka Paalanen <pekka.paalanen@collabora.co.uk>
+---
+ src/compositor.c | 17 +++++++++++++++++
+ src/compositor.h |  5 +++++
+ 2 files changed, 22 insertions(+)
+
+diff --git a/src/compositor.c b/src/compositor.c
+index 3af7f93..18e6570 100644
+--- a/src/compositor.c
++++ b/src/compositor.c
+@@ -4152,6 +4152,14 @@ weston_compositor_shutdown(struct weston_compositor *ec)
+ }
+ 
+ WL_EXPORT void
++weston_compositor_exit_with_code(struct weston_compositor *compositor,
++				 int exit_code)
++{
++	compositor->exit_code = exit_code;
++	wl_display_terminate(compositor->wl_display);
++}
++
++WL_EXPORT void
+ weston_compositor_set_default_pointer_grab(struct weston_compositor *ec,
+ 			const struct weston_pointer_grab_interface *interface)
+ {
+@@ -4764,6 +4772,7 @@ int main(int argc, char *argv[])
+ 
+ 	ec->idle_time = idle_time;
+ 	ec->default_pointer_grab = NULL;
++	ec->exit_code = EXIT_SUCCESS;
+ 
+ 	for (i = 1; i < argc; i++)
+ 		weston_log("fatal: unhandled option: %s\n", argv[i]);
+@@ -4829,6 +4838,14 @@ int main(int argc, char *argv[])
+ 
+ 	wl_display_run(display);
+ 
++	/* Allow for setting return exit code after
++	 * wl_display_run returns normally. This is
++	 * useful for devs/testers and automated tests
++	 * that want to indicate failure status to
++	 * testing infrastructure above
++	 */
++	ret = ec->exit_code;
++
+ out:
+ 	/* prevent further rendering while shutting down */
+ 	ec->state = WESTON_COMPOSITOR_OFFSCREEN;
+diff --git a/src/compositor.h b/src/compositor.h
+index a0aef02..e936eda 100644
+--- a/src/compositor.h
++++ b/src/compositor.h
+@@ -664,6 +664,8 @@ struct weston_compositor {
+ 	int32_t kb_repeat_delay;
+ 
+ 	clockid_t presentation_clock;
++
++	int exit_code;
+ };
+ 
+ struct weston_buffer {
+@@ -1264,6 +1266,9 @@ weston_compositor_set_presentation_clock_software(
+ void
+ weston_compositor_shutdown(struct weston_compositor *ec);
+ void
++weston_compositor_exit_with_code(struct weston_compositor *compositor,
++				 int exit_code);
++void
+ weston_output_init_zoom(struct weston_output *output);
+ void
+ weston_output_update_zoom(struct weston_output *output);
+-- 
+2.1.0
+

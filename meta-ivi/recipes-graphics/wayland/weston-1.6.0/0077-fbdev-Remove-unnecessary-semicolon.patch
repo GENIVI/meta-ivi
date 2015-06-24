@@ -1,0 +1,26 @@
+From 3894670cbded37daa6d733ed8ece6bf65827dfc4 Mon Sep 17 00:00:00 2001
+From: nerdopolis <bluescreen_avenger@verizon.net>
+Date: Wed, 3 Dec 2014 15:53:03 +0000
+Subject: [PATCH 77/96] fbdev: Remove unnecessary semicolon
+
+[daniels: removed extraneous changes]
+---
+ src/compositor-fbdev.c | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
+
+diff --git a/src/compositor-fbdev.c b/src/compositor-fbdev.c
+index f175d0d..65bb035 100644
+--- a/src/compositor-fbdev.c
++++ b/src/compositor-fbdev.c
+@@ -841,7 +841,7 @@ session_notify(struct wl_listener *listener, void *data)
+ 				 &compositor->base.output_list, link) {
+ 			output->repaint_needed = 0;
+ 		}
+-	};
++	}
+ }
+ 
+ static void
+-- 
+2.1.0
+

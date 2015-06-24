@@ -1,0 +1,56 @@
+From 77f7daca681f0b90457fa7a67ad5de72a3d83a75 Mon Sep 17 00:00:00 2001
+From: Frank Binns <frank.binns@imgtec.com>
+Date: Tue, 28 Oct 2014 10:50:18 +0000
+Subject: [PATCH 32/96] smoke: fix valgrind invalid read errors
+
+There are a number of invalid read errors reported by valgrind of the
+form:
+	==13428== Invalid read of size 4
+        ==13428==    at 0x405656: advect (smoke.c:116)
+        ==13428==    by 0x405E80: redraw_handler (smoke.c:228)
+        ==13428==    by 0x40DE74: widget_redraw (window.c:3995)
+        ==13428==    by 0x40E02D: surface_redraw (window.c:4053)
+        ==13428==    by 0x40E0C9: idle_redraw (window.c:4082)
+        ==13428==    by 0x410FC9: display_run (window.c:5561)
+        ==13428==    by 0x406518: main (smoke.c:373)
+        ==13428==  Address 0xb2c9b14 is 4 bytes after a block of size
+                   160,000 alloc'd
+        ==13428==    at 0x4C29DB4: calloc
+        ==13428==    by 0x40646B: main (smoke.c:360)
+
+This results in invalid rendering when running a debug version of the
+application.
+
+Fix the issue by limiting the maximum values of px and py to 1.5 less
+than width and height. This prevents reading past the end of the source
+buffer.
+
+Bug: https://bugs.freedesktop.org/show_bug.cgi?id=82287
+Signed-off-by: Frank Binns <frank.binns@imgtec.com>
+Acked-by: Pekka Paalanen <pekka.paalanen@collabora.co.uk>
+---
+ clients/smoke.c | 8 ++++----
+ 1 file changed, 4 insertions(+), 4 deletions(-)
+
+diff --git a/clients/smoke.c b/clients/smoke.c
+index 7f0d5e5..baf75d2 100644
+--- a/clients/smoke.c
++++ b/clients/smoke.c
+@@ -87,10 +87,10 @@ static void advect(struct smoke *smoke, uint32_t time,
+ 				px = 0.5;
+ 			if (py < 0.5)
+ 				py = 0.5;
+-			if (px > smoke->width - 0.5)
+-				px = smoke->width - 0.5;
+-			if (py > smoke->height - 0.5)
+-				py = smoke->height - 0.5;
++			if (px > smoke->width - 1.5)
++				px = smoke->width - 1.5;
++			if (py > smoke->height - 1.5)
++				py = smoke->height - 1.5;
+ 			i = (int) px;
+ 			j = (int) py;
+ 			fx = px - i;
+-- 
+2.1.0
+

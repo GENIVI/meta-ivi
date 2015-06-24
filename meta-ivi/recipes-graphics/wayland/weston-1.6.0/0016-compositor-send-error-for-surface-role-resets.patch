@@ -1,0 +1,286 @@
+From 50b67479033709d8ab32744c7b8346b130ace9e0 Mon Sep 17 00:00:00 2001
+From: Pekka Paalanen <pekka.paalanen@collabora.co.uk>
+Date: Wed, 1 Oct 2014 15:02:41 +0300
+Subject: [PATCH 16/96] compositor: send error for surface role resets
+
+With the more accurate definition of wl_surface roles in Wayland,
+enforce the restriction: a role is always set permanently, and
+attempting to change it is a protocol error.
+
+This patch is based on Jasper's patch:
+http://lists.freedesktop.org/archives/wayland-devel/2014-August/016811.html
+
+The difference in this patch compared to his are:
+
+- send role errors on the interface whose request triggers it, not on
+  wl_surface
+
+- an interface could have several requests assigning different roles,
+  cannot use wl_interface as the unique key; use an arbitary string
+  instead
+
+- ensure in window-manager.c that create_shell_surface() ->
+  create_common_surface() is never called with surface->configure set,
+  to avoid compositor abort
+
+- use wl_resource_post_no_memory() where appropriate instead of
+  hand-rolling it with wl_resource_post_error()
+
+Ideally we would not add weston_surface::role_name field, but use
+weston_surface::configure. At the moment this is not possible though,
+because at least shell.c uses several different roles with the same
+configure function. Drag'n'drop uses two configure functions for the
+same role. The configure hook is also reset in several places,
+which is not good for role tracking.
+
+This patch overlooks the wl_surface roles assigned in privileged
+extensions: screensaver, panel, background, lock, input panel.
+
+Signed-off-by: Pekka Paalanen <pekka.paalanen@collabora.co.uk>
+Reviewed-by: Jasper St. Pierre <jstpierre@mecheye.net>
+---
+ desktop-shell/shell.c     | 38 ++++++++++----------------------------
+ src/compositor.c          | 33 +++++++++++++++++++++++++++------
+ src/compositor.h          | 15 +++++++++++++++
+ src/data-device.c         | 11 ++++++-----
+ src/input.c               | 11 ++++-------
+ xwayland/window-manager.c |  7 +++++++
+ 6 files changed, 69 insertions(+), 46 deletions(-)
+
+diff --git a/desktop-shell/shell.c b/desktop-shell/shell.c
+index 810961f..9fafb39 100644
+--- a/desktop-shell/shell.c
++++ b/desktop-shell/shell.c
+@@ -3463,10 +3463,7 @@ create_common_surface(struct shell_client *owner, void *shell,
+ {
+ 	struct shell_surface *shsurf;
+ 
+-	if (surface->configure) {
+-		weston_log("surface->configure already set\n");
+-		return NULL;
+-	}
++	assert(surface->configure == NULL);
+ 
+ 	shsurf = calloc(1, sizeof *shsurf);
+ 	if (!shsurf) {
+@@ -3579,18 +3576,13 @@ shell_get_shell_surface(struct wl_client *client,
+ 	struct desktop_shell *shell = sc->shell;
+ 	struct shell_surface *shsurf;
+ 
+-	if (get_shell_surface(surface)) {
+-		wl_resource_post_error(surface_resource,
+-				       WL_DISPLAY_ERROR_INVALID_OBJECT,
+-				       "desktop_shell::get_shell_surface already requested");
++	if (weston_surface_set_role(surface, "wl_shell_surface",
++				    resource, WL_SHELL_ERROR_ROLE) < 0)
+ 		return;
+-	}
+ 
+ 	shsurf = create_common_surface(sc, shell, surface, &shell_client);
+ 	if (!shsurf) {
+-		wl_resource_post_error(surface_resource,
+-				       WL_DISPLAY_ERROR_INVALID_OBJECT,
+-				       "surface->configure already set");
++		wl_resource_post_no_memory(surface_resource);
+ 		return;
+ 	}
+ 
+@@ -3899,18 +3891,13 @@ xdg_get_xdg_surface(struct wl_client *client,
+ 	struct desktop_shell *shell = sc->shell;
+ 	struct shell_surface *shsurf;
+ 
+-	if (get_shell_surface(surface)) {
+-		wl_resource_post_error(surface_resource,
+-				       WL_DISPLAY_ERROR_INVALID_OBJECT,
+-				       "xdg_shell::get_xdg_surface already requested");
++	if (weston_surface_set_role(surface, "xdg_surface",
++				    resource, XDG_SHELL_ERROR_ROLE) < 0)
+ 		return;
+-	}
+ 
+ 	shsurf = create_xdg_surface(sc, shell, surface, &xdg_client);
+ 	if (!shsurf) {
+-		wl_resource_post_error(surface_resource,
+-				       WL_DISPLAY_ERROR_INVALID_OBJECT,
+-				       "surface->configure already set");
++		wl_resource_post_no_memory(surface_resource);
+ 		return;
+ 	}
+ 
+@@ -3997,12 +3984,9 @@ xdg_get_xdg_popup(struct wl_client *client,
+ 	struct weston_surface *parent;
+ 	struct shell_seat *seat;
+ 
+-	if (get_shell_surface(surface)) {
+-		wl_resource_post_error(surface_resource,
+-				       WL_DISPLAY_ERROR_INVALID_OBJECT,
+-				       "xdg_shell::get_xdg_popup already requested");
++	if (weston_surface_set_role(surface, "xdg_popup",
++				    resource, XDG_SHELL_ERROR_ROLE) < 0)
+ 		return;
+-	}
+ 
+ 	if (!parent_resource) {
+ 		wl_resource_post_error(surface_resource,
+@@ -4017,9 +4001,7 @@ xdg_get_xdg_popup(struct wl_client *client,
+ 	shsurf = create_xdg_popup(sc, shell, surface, &xdg_popup_client,
+ 				  parent, seat, serial, x, y);
+ 	if (!shsurf) {
+-		wl_resource_post_error(surface_resource,
+-				       WL_DISPLAY_ERROR_INVALID_OBJECT,
+-				       "surface->configure already set");
++		wl_resource_post_no_memory(surface_resource);
+ 		return;
+ 	}
+ 
+diff --git a/src/compositor.c b/src/compositor.c
+index 29731c7..4540911 100644
+--- a/src/compositor.c
++++ b/src/compositor.c
+@@ -2764,6 +2764,31 @@ weston_surface_get_main_surface(struct weston_surface *surface)
+ 	return surface;
+ }
+ 
++WL_EXPORT int
++weston_surface_set_role(struct weston_surface *surface,
++			const char *role_name,
++			struct wl_resource *error_resource,
++			uint32_t error_code)
++{
++	assert(role_name);
++
++	if (surface->role_name == NULL ||
++	    surface->role_name == role_name ||
++	    strcmp(surface->role_name, role_name) == 0) {
++		surface->role_name = role_name;
++
++		return 0;
++	}
++
++	wl_resource_post_error(error_resource, error_code,
++			       "Cannot assign role %s to wl_surface@%d,"
++			       " already has role %s\n",
++			       role_name,
++			       wl_resource_get_id(surface->resource),
++			       surface->role_name);
++	return -1;
++}
++
+ static void
+ subsurface_set_position(struct wl_client *client,
+ 			struct wl_resource *resource, int32_t x, int32_t y)
+@@ -3099,13 +3124,9 @@ subcompositor_get_subsurface(struct wl_client *client,
+ 		return;
+ 	}
+ 
+-	if (surface->configure) {
+-		wl_resource_post_error(resource,
+-			WL_SUBCOMPOSITOR_ERROR_BAD_SURFACE,
+-			"%s%d: wl_surface@%d already has a role",
+-			where, id, wl_resource_get_id(surface_resource));
++	if (weston_surface_set_role(surface, "wl_subsurface", resource,
++				    WL_SUBCOMPOSITOR_ERROR_BAD_SURFACE) < 0)
+ 		return;
+-	}
+ 
+ 	if (weston_surface_get_main_surface(parent) == surface) {
+ 		wl_resource_post_error(resource,
+diff --git a/src/compositor.h b/src/compositor.h
+index 44379fe..0fbca33 100644
+--- a/src/compositor.h
++++ b/src/compositor.h
+@@ -908,6 +908,15 @@ struct weston_surface {
+ 	 */
+ 	struct wl_list subsurface_list; /* weston_subsurface::parent_link */
+ 	struct wl_list subsurface_list_pending; /* ...::parent_link_pending */
++
++	/*
++	 * For tracking protocol role assignments. Different roles may
++	 * have the same configure hook, e.g. in shell.c. Configure hook
++	 * may get reset, this will not.
++	 * XXX: map configure functions 1:1 to roles, and never reset it,
++	 * and replace role_name with configure.
++	 */
++	const char *role_name;
+ };
+ 
+ struct weston_subsurface {
+@@ -1231,6 +1240,12 @@ weston_surface_unmap(struct weston_surface *surface);
+ struct weston_surface *
+ weston_surface_get_main_surface(struct weston_surface *surface);
+ 
++int
++weston_surface_set_role(struct weston_surface *surface,
++			const char *role_name,
++			struct wl_resource *error_resource,
++			uint32_t error_code);
++
+ struct weston_buffer *
+ weston_buffer_from_resource(struct wl_resource *resource);
+ 
+diff --git a/src/data-device.c b/src/data-device.c
+index 75fc60c..a8ab4e8 100644
+--- a/src/data-device.c
++++ b/src/data-device.c
+@@ -666,11 +666,12 @@ data_device_start_drag(struct wl_client *client, struct wl_resource *resource,
+ 		source = wl_resource_get_user_data(source_resource);
+ 	if (icon_resource)
+ 		icon = wl_resource_get_user_data(icon_resource);
+-	if (icon && icon->configure) {
+-		wl_resource_post_error(icon_resource,
+-				       WL_DISPLAY_ERROR_INVALID_OBJECT,
+-				       "surface->configure already set");
+-		return;
++
++	if (icon) {
++		if (weston_surface_set_role(icon, "wl_data_device-icon",
++					    resource,
++					    WL_DATA_DEVICE_ERROR_ROLE) < 0)
++			return;
+ 	}
+ 
+ 	if (is_pointer_grab)
+diff --git a/src/input.c b/src/input.c
+index 530904d..1c71b2c 100644
+--- a/src/input.c
++++ b/src/input.c
+@@ -1640,14 +1640,11 @@ pointer_set_cursor(struct wl_client *client, struct wl_resource *resource,
+ 	if (pointer->focus_serial - serial > UINT32_MAX / 2)
+ 		return;
+ 
+-	if (surface && pointer->sprite && surface != pointer->sprite->surface) {
+-		if (surface->configure) {
+-			wl_resource_post_error(surface->resource,
+-					       WL_DISPLAY_ERROR_INVALID_OBJECT,
+-					       "surface->configure already "
+-					       "set");
++	if (surface) {
++		if (weston_surface_set_role(surface, "wl_pointer-cursor",
++					    resource,
++					    WL_POINTER_ERROR_ROLE) < 0)
+ 			return;
+-		}
+ 	}
+ 
+ 	if (pointer->sprite)
+diff --git a/xwayland/window-manager.c b/xwayland/window-manager.c
+index 4e91f9d..2902373 100644
+--- a/xwayland/window-manager.c
++++ b/xwayland/window-manager.c
+@@ -2303,6 +2303,13 @@ xserver_map_shell_surface(struct weston_wm_window *window,
+ 	if (!shell_interface->get_primary_view)
+ 		return;
+ 
++	if (window->surface->configure) {
++		weston_log("warning, unexpected in %s: "
++			   "surface's configure hook is already set.\n",
++			   __func__);
++		return;
++	}
++
+ 	window->shsurf = 
+ 		shell_interface->create_shell_surface(shell_interface->shell,
+ 						      window->surface,
+-- 
+2.1.0
+

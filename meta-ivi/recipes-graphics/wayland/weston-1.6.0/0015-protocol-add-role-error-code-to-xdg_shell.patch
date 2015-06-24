@@ -1,0 +1,52 @@
+From d7cd1480d4c75cfdeb28b34202707bfe3595b0ea Mon Sep 17 00:00:00 2001
+From: Pekka Paalanen <pekka.paalanen@collabora.co.uk>
+Date: Wed, 1 Oct 2014 14:01:59 +0300
+Subject: [PATCH 15/96] protocol: add role error code to xdg_shell
+
+Needed for properly reporting role violations from
+xdg_shell.get_xdg_surface and .get_xdg_popup.
+
+Signed-off-by: Pekka Paalanen <pekka.paalanen@collabora.co.uk>
+Reviewed-by: Jasper St. Pierre <jstpierre@mecheye.net>
+Acked-by: Jason Ekstrand <jason.ekstrand@intel.com>
+---
+ protocol/xdg-shell.xml | 9 +++++++++
+ 1 file changed, 9 insertions(+)
+
+diff --git a/protocol/xdg-shell.xml b/protocol/xdg-shell.xml
+index 275837f..776438b 100644
+--- a/protocol/xdg-shell.xml
++++ b/protocol/xdg-shell.xml
+@@ -48,6 +48,9 @@
+       <entry name="current" value="4" summary="Always the latest version"/>
+     </enum>
+ 
++    <enum name="error">
++      <entry name="role" value="0" summary="given wl_surface has another role"/>
++    </enum>
+ 
+     <request name="use_unstable_version">
+       <description summary="enable use of this unstable version">
+@@ -64,6 +67,9 @@
+       <description summary="create a shell surface from a surface">
+ 	Create a shell surface for an existing surface.
+ 
++	This request gives the surface the role of xdg_surface. If the
++	surface already has another role, it raises a protocol error.
++
+ 	Only one shell or popup surface can be associated with a given
+ 	surface.
+       </description>
+@@ -75,6 +81,9 @@
+       <description summary="create a shell surface from a surface">
+ 	Create a popup surface for an existing surface.
+ 
++	This request gives the surface the role of xdg_popup. If the
++	surface already has another role, it raises a protocol error.
++
+ 	Only one shell or popup surface can be associated with a given
+ 	surface.
+       </description>
+-- 
+2.1.0
+
