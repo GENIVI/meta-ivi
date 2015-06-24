@@ -39,8 +39,8 @@ URI: git://git.openembedded.org/meta-openembedded
 > branch:   fido
 > revision: 5b0305d9efa4b5692cd942586fb7aa92dba42d59
 
-Using the above git sha's and the master meta-ivi branch, bitbaking intrepid-image
-is known to work (the jupiter-image build should be aligned with GENIVI 8.0).
+Using the above git sha's and the master meta-ivi branch, bitbaking kronos-image
+is known to work (the kronos-image build should be aligned with GENIVI 9.0).
 
 For creating a specific GENIVI compliant image version, please make sure you
 git checkout the related meta-ivi branch and follow the build instructions
@@ -76,18 +76,18 @@ export TEMPLATECONF=/full/path/to/meta-ivi/meta-ivi/conf
 2. Run the following command:
    > $ source poky/oe-init-build-env
 
-3. Build intrepid-image including GENIVI 8.0 (Jupiter) components
-   > $ bitbake intrepid-image
+3. Build kronos-image including GENIVI 9.0 (Kronos) components
+   > $ bitbake kronos-image
 
 4. Run the emulator:
    > for qemu vexpressa9:  
-   > $ PATH_TO_META_IVI/meta-ivi/scripts/runqemu intrepid-image vexpressa9
+   > $ PATH_TO_META_IVI/meta-ivi/scripts/runqemu kronos-image vexpressa9
    >
    > for qemu x86:  
-   > $ PATH_TO_POKY/poky/scripts/runqemu intrepid-image qemux86
+   > $ PATH_TO_POKY/poky/scripts/runqemu kronos-image qemux86
    >
    > for qemu x86-64:  
-   > $ PATH_TO_POKY/poky/scripts/runqemu intrepid-image qemux86-64
+   > $ PATH_TO_POKY/poky/scripts/runqemu kronos-image qemux86-64
 
 5. To login use these credentials:
    > User - root
