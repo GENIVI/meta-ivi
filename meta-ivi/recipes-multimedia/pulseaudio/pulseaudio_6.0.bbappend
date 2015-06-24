@@ -9,9 +9,6 @@ inherit systemd
 SYSTEMD_PACKAGES = "${PN}-server"
 SYSTEMD_SERVICE_${PN}-server = "pulseaudio.service"
 
-PACKAGECONFIG_remove = "bluez4"
-PACKAGECONFIG_append = " bluez5"
-
 RDEPENDS_pulseaudio-module-systemd-login =+ "systemd"
 RDEPENDS_pulseaudio-server += "\
         ${@bb.utils.contains('DISTRO_FEATURES', 'x11', 'pulseaudio-module-systemd-login', '', d)}"
