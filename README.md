@@ -31,13 +31,13 @@ Layer Dependencies
 ------------------
 
 URI: git://git.yoctoproject.org/poky
-> branch:   dizzy
-> revision: 6dd21a9f152a93e2df1178d7a5bd903d7edcf4be
+> branch:   fido
+> revision: eb4a134a60e3ac26a48379675ad6346a44010339
 
 URI: git://git.openembedded.org/meta-openembedded
 > layer:    meta-oe
-> branch:   dizzy
-> revision: 853dcfa0d618dc26bd27b3a1b49494b98d6eee97
+> branch:   fido
+> revision: 5b0305d9efa4b5692cd942586fb7aa92dba42d59
 
 Using the above git sha's and the master meta-ivi branch, bitbaking intrepid-image
 is known to work (the jupiter-image build should be aligned with GENIVI 8.0).
