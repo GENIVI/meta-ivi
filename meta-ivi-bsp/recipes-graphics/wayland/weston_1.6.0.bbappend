@@ -1,4 +1,4 @@
-RDEPENDS_${PN}_append = " libegl-gallium llvm3.3 "
+RDEPENDS_${PN}_append = " llvm3.3 "
 
 EXTRA_OECONF_append_vexpressa9 = "\
     --enable-simple-egl-clients  \
