@@ -20,7 +20,7 @@ When creating patches, please use something like:
     git format-patch -s --subject-prefix='meta-ivi][PATCH' origin
 
 When sending patches, please use something like:
-    git send-email --to=andrei.gherzan@windriver.com --to=holger@windriver.com \
+    git send-email --to=yong-il.joh@windriver.com --to=holger@windriver.com \
                    --cc=genivi-meta-ivi@lists.genivi.org <generated patch>
 
 Please refer to:
@@ -47,7 +47,6 @@ F:	./meta-ivi/
 F:	./meta-ivi-bsp/
 F:	./*
 
-M:	Andrei Gherzan <andrei.gherzan@windriver.com>
+M:	Yong-iL Joh <yong-il.joh@windriver.com>
 F:	./meta-ivi/
 F:	./meta-ivi-bsp/
-
