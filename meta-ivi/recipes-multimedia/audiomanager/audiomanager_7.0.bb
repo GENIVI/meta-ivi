@@ -3,7 +3,8 @@ HOMEPAGE = "https://www.genivi.org/"
 SECTION = "multimedia"
 
 LICENSE = "MPLv2"
-LIC_FILES_CHKSUM = "file://LICENCE;md5=815ca599c9df247a0c7f619bab123dad"
+LIC_FILES_CHKSUM = "file://LICENCE;md5=f164349b56ed530a6642e9b9f244eec5"
+PR = "r1"
 
 DEPENDS = "common-api-c++-dbus dlt-daemon sqlite3 dbus node-state-manager"
 
@@ -13,7 +14,6 @@ SRC_URI = " \
     git://git.projects.genivi.org/AudioManager.git;branch=${BRANCH};tag=${PV} \
     file://AudioManager.service \
     file://setup_amgr.sh \
-    file://0001-Add-CommonAPI-sources-generated-with-CommonAPI-2.1.6.patch \
     "
 
 S = "${WORKDIR}/git"
