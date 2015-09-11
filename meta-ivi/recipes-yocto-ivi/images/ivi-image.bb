@@ -10,3 +10,7 @@ IMAGE_INSTALL_append = " \
     packagegroup-abstract-component-p2 \
     packagegroup-specific-component-p1 \
 "
+
+IMAGE_INSTALL_append += " \
+    openssh \
+"
