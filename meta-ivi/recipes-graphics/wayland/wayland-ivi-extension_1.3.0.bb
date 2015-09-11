@@ -10,11 +10,15 @@ DEPENDS = "weston"
 # FIX ME
 # This should be TAG = "${PV}" but yocto doesn't support lightweight tags for now
 # https://bugzilla.yoctoproject.org/show_bug.cgi?id=6881
-TAG = "a4bde3e5a4c21ff7cf28cc027d45d7c63cac2f66"
+#TAG = "a4bde3e5a4c21ff7cf28cc027d45d7c63cac2f66"
+TAG = "1.3.91"
 SRC_URI = "git://git.projects.genivi.org/${PN}.git;tag=${TAG} \
            file://use_sysroot_dir.patch \
-           file://fix_compositor_include.patch \
+           file://apply_weston-1.6.x.patch \
           "
+#"
+#           file://fix_compositor_include.patch \
+#"
 S = "${WORKDIR}/git"
 
 inherit cmake autotools
