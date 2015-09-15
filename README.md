@@ -92,3 +92,12 @@ export TEMPLATECONF=/full/path/to/meta-ivi/meta-ivi/conf
 5. To login use these credentials:
    > User - root
    > Password - root
+
+Known Issues
+------------
+
+There are known issues at the release of K-0.2
+
+* On QEMU(IA-32) and QEMU(x86-64),
+   weston cannot handling left mouse click event.
+  This bug does not impact to QEMU (ARMv7)
