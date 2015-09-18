@@ -84,20 +84,11 @@ export TEMPLATECONF=/full/path/to/meta-ivi/meta-ivi/conf
    > $ PATH_TO_META_IVI/meta-ivi/scripts/runqemu kronos-image vexpressa9
    >
    > for qemu x86:  
-   > $ PATH_TO_POKY/poky/scripts/runqemu kronos-image qemux86
+   > $ PATH_TO_META_IVI/meta-ivi/scripts/runqemu kronos-image qemux86
    >
    > for qemu x86-64:  
-   > $ PATH_TO_POKY/poky/scripts/runqemu kronos-image qemux86-64
+   > $ PATH_TO_META_IVI/meta-ivi/scripts/runqemu kronos-image qemux86-64
 
 5. To login use these credentials:
    > User - root
    > Password - root
-
-Known Issues
-------------
-
-There are known issues at the release of K-0.2
-
-* On QEMU(IA-32) and QEMU(x86-64),
-   weston cannot handling left mouse click event.
-  This bug does not impact to QEMU (ARMv7)
