@@ -8,6 +8,10 @@ LIC_FILES_CHKSUM = "file://COPYING;md5=275efac2559a224527bd4fd593d38466"
 # Weston ivi shell needs libinput backend
 PACKAGECONFIG_append += "libinput"
 
+# support EGL on qemu[x86,x86-64]
+RDEPENDS_${PN}_append_qemux86 += " libegl-gallium "
+RDEPENDS_${PN}_append_qemux86-64 += " libegl-gallium "
+
 # Use git repository because we want to use 'git' for applying patches
 SRC_URI_remove = "http://wayland.freedesktop.org/releases/${BPN}-${PV}.tar.xz"
 SRC_URI_append = "git://anongit.freedesktop.org/wayland/${PN}"
