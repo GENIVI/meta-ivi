@@ -92,3 +92,8 @@ export TEMPLATECONF=/full/path/to/meta-ivi/meta-ivi/conf
 5. To login use these credentials:
    > User - root
    > Password - root
+
+6. To use wayland-ivi-extension 1.5.0,
+   put below line to conf/local.conf at your build directory
+
+   PREFERRED_VERSION_wayland-ivi-extension = "1.5.0"
