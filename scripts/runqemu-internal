@@ -365,12 +365,15 @@ if [ "$MACHINE" = "qemuarm" -o "$MACHINE" = "qemuarmv6" -o "$MACHINE" = "qemuarm
     QEMU_UI_OPTIONS="$QEMU_UI_OPTIONS"
     # QEMU_UI_OPTIONS="$QEMU_UI_OPTIONS -force-pointer"
     if [ "${FSTYPE:0:3}" = "ext" -o "$FSTYPE" = "btrfs" ]; then
-        KERNCMDLINE="root=/dev/sda rw console=ttyAMA0,115200 console=tty $KERNEL_NETWORK_CMD mem=$QEMU_MEMORY highres=off"
-        QEMUOPTIONS="$QEMU_NETWORK_CMD -M ${MACHINE_SUBTYPE} -hda $ROOTFS -no-reboot $QEMU_UI_OPTIONS"
-    elif [ "$FSTYPE" = "tar.bz2" ]; then
-        KERNCMDLINE="root=/dev/mmcblk0 rw console=ttyAMA0,38400n8 console=tty0 $KERNEL_NETWORK_CMD mem=$QEMU_MEMORY raid=noautodetect vmalloc=256MB rootwait devtmpfs.mount=0"
-        QEMUOPTIONS="$QEMU_NETWORK_CMD -M ${MACHINE_SUBTYPE} -sd $IMGNAME $QEMU_UI_OPTIONS -cpu cortex-a9"
-#/storage/src/CCCP/genivi-baseline_pre9.0/build/tmp/sysroots/x86_64-linux/usr/bin/qemu-system-arm -kernel /storage/src/CCCP/genivi-baseline_pre9.0/build/tmp/deploy/images/vexpressa9/zImage-vexpressa9.bin -net nic,vlan=0 -net tap,vlan=0,ifname=tap0,script=no,downscript=no -M vexpress-a9 -cpu cortex-a9 -sd /storage/src/CCCP/genivi-baseline_pre9.0/build/tmp/deploy/images/vexpressa9/kronos-image-vexpressa9-20150916072634.rootfs.tar.bz2 -no-reboot -m 1024 --append "root=/dev/mmcblk0 rw mem=1024M raid=noautodetect console=tty0 console=ttyAMA0,38400n8 rootwait vmalloc=256MB devtmpfs.mount=0 "
+        if [ "$MACHINE" = "vexpressa9" ]; then
+            KERN_root="root=/dev/mmcblk0 vmalloc=384MB"
+	    QEMU_root="-sd $ROOTFS"
+	else
+            KERN_root="root=/dev/sda"
+	    QEMU_root="-hda $ROOTFS"
+        fi
+        KERNCMDLINE="${KERN_root} rw console=ttyAMA0,115200 console=tty $KERNEL_NETWORK_CMD mem=$QEMU_MEMORY highres=off"
+        QEMUOPTIONS="$QEMU_NETWORK_CMD -M ${MACHINE_SUBTYPE} ${QEMU_root} -no-reboot $QEMU_UI_OPTIONS"
     elif [ "$FSTYPE" = "nfs" ]; then
         if [ "$NFS_SERVER" = "192.168.7.1" -a ! -d "$NFS_DIR" ]; then
             echo "Error: NFS mount point $ROOTFS doesn't exist"
