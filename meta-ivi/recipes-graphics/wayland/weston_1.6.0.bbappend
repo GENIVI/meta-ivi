@@ -1,4 +1,4 @@
-PR = "r1"
+PR = "r2"
 
 FILESEXTRAPATHS_append := ":${THISDIR}/${PN}:${THISDIR}/${PN}-${PV}"
 
@@ -59,7 +59,10 @@ EXTRA_OECONF += "--disable-default-vkb"
 
 # [PATCH] fix up for GENIVI baseline 9.0
 # Signed-off-by: Yong-iL Joh <yong-il.joh@windriver.com>
-SRC_URI_append = " file://build.fix.up.patch"
+SRC_URI_append = " \
+    file://build.fix.up.patch \
+    file://0100-Backport-ivi-controller.so-of-wayland-ivi-ext-1.5.0.patch \
+"
 
 FILES_${PN} += "${libdir}/weston/* ${sysconfdir}/xdg"
 FILES_${PN}-dbg += "${libdir}/weston/.debug/*"
