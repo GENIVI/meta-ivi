@@ -10,6 +10,7 @@ BBLAYERS ?= " \
   ##OEROOT##/meta-yocto \
   ##OEROOT##/meta-yocto-bsp \
   ##OEROOT##/../meta-openembedded/meta-oe \
+  ##OEROOT##/../meta-openembedded/meta-filesystems \
   ##OEROOT##/../meta-ivi/meta-ivi \
   ##OEROOT##/../meta-ivi/meta-ivi-bsp \
   "
