@@ -13,6 +13,7 @@ BBLAYERS ?= " \
   ##OEROOT##/../meta-ivi/meta-ivi-bsp \
   ##OEROOT##/../meta-ivi/meta-ivi-demo \
   ##OEROOT##/../meta-openembedded/meta-oe \
+  ##OEROOT##/../meta-openembedded/meta-filesystems \
   ##OEROOT##/../meta-qt5 \
   ##OEROOT##/../meta-openembedded/meta-ruby \
   "
