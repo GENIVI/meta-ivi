@@ -1,5 +1,5 @@
 FILESEXTRAPATHS_append := ":${THISDIR}/${PN}"
-SRC_URI += "file://defconfig"
+SRC_URI += "file://remove-syslog.cfg"
 
 # Defconfig doesn't have syslog activated
 # Adapt if needed in the future
