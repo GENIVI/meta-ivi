@@ -8,13 +8,12 @@ PACKAGES =+ " \
     "
 
 FILESEXTRAPATHS_append := "${THISDIR}/${PN}"
-SRC_URI_append = " \
-    file://revert-c46c551c56f78c6bf9e63524c89478695fc4f525.patch \
-    "
 SRC_URI_append_qemux86 = " \
+    file://revert-c46c551c56f78c6bf9e63524c89478695fc4f525.patch \
     file://revert-363b53f00069af718f64cf047f19ad5681a8bf6d.patch \
     "
 SRC_URI_append_qemux86-64 = " \
+    file://revert-c46c551c56f78c6bf9e63524c89478695fc4f525.patch \
     file://revert-363b53f00069af718f64cf047f19ad5681a8bf6d.patch \
     "
 
