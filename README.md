@@ -16,8 +16,6 @@ review and edit our documentation and much more.
 
 Subscribe to the mailing list
     [here](https://lists.genivi.org/mailman/listinfo/genivi-meta-ivi).  
-View or Report bugs
-    [here](https://bugs.genivi.org/buglist.cgi?product=meta-ivi).  
 Read or Edit the wiki
     [here](http://wiki.projects.genivi.org/index.php/meta-ivi).  
 Vote or Comment on our plan
@@ -31,16 +29,16 @@ Layer Dependencies
 ------------------
 
 URI: git://git.yoctoproject.org/poky
-> branch:   fido
-> revision: eb4a134a60e3ac26a48379675ad6346a44010339
+> branch:   jethro
+> revision: fc45deac89ef63ca1c44e763c38ced7dfd72cbe1
 
 URI: git://git.openembedded.org/meta-openembedded
 > layer:    meta-oe
-> branch:   fido
-> revision: 5b0305d9efa4b5692cd942586fb7aa92dba42d59
+> branch:   jethro
+> revision: c63423e305c0c68e2a9aa1ae2e7509352a85c871
 
-Using the above git sha's and the master meta-ivi branch, bitbaking kronos-image
-is known to work (the kronos-image build should be aligned with GENIVI 9.0).
+Using the above git sha's and the master meta-ivi branch, bitbaking leviathan-image
+is known to work (the leviathan-image build should be aligned with GENIVI 10.0).
 
 For creating a specific GENIVI compliant image version, please make sure you
 git checkout the related meta-ivi branch and follow the build instructions
@@ -76,18 +74,18 @@ export TEMPLATECONF=/full/path/to/meta-ivi/meta-ivi/conf
 2. Run the following command:
    > $ source poky/oe-init-build-env
 
-3. Build kronos-image including GENIVI 9.0 (Kronos) components
-   > $ bitbake kronos-image
+3. Build leviathan-image including GENIVI 10.0 (Leviathan) components
+   > $ bitbake leviathan-image
 
 4. Run the emulator:
    > for qemu vexpressa9:  
-   > $ PATH_TO_META_IVI/meta-ivi/scripts/runqemu kronos-image vexpressa9
+   > $ PATH_TO_META_IVI/meta-ivi/scripts/runqemu leviathan-image vexpressa9
    >
    > for qemu x86:  
-   > $ PATH_TO_META_IVI/meta-ivi/scripts/runqemu kronos-image qemux86
+   > $ PATH_TO_META_IVI/meta-ivi/scripts/runqemu leviathan-image qemux86
    >
    > for qemu x86-64:  
-   > $ PATH_TO_META_IVI/meta-ivi/scripts/runqemu kronos-image qemux86-64
+   > $ PATH_TO_META_IVI/meta-ivi/scripts/runqemu leviathan-image qemux86-64
 
 5. To login use these credentials:
    > User - root
