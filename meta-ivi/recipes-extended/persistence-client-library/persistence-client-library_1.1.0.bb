@@ -11,7 +11,6 @@ DEPENDS = "dlt-daemon dbus libcheck persistence-common-object"
 
 SRC_URI = " \
     git://git.projects.genivi.org/persistence/persistence-client-library.git;tag=v${PV} \
-    file://0001-Fix-cast-on-64bit-machines.patch \
     "
 S = "${WORKDIR}/git"
 
