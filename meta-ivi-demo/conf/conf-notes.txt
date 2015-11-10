@@ -1,4 +1,0 @@
-Common targets are:
-    ivi-image
-    ivi-image-demo
-
