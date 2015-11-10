@@ -19,6 +19,7 @@ SRC_URI_append = " \
 	file://0009-plugins-service-Add-Version-property.patch                 \
 	file://0010-plugins-service-Add-AutoConnect-property.patch             \
 	file://0011-plugins-service-Add-Blocked-property.patch                 \
+	file://build-fix-up-with-jethro.patch \
 	"
 
 EXTRA_OECONF += "--enable-service"
