@@ -35,7 +35,7 @@ URI: git://git.yoctoproject.org/poky
 URI: git://git.openembedded.org/meta-openembedded
 > layer:    meta-oe
 > branch:   jethro
-> revision: c63423e305c0c68e2a9aa1ae2e7509352a85c871
+> revision: ad6133a2e95f4b83b6b3ea413598e2cd5fb3fd90
 
 Using the above git sha's and the master meta-ivi branch, bitbaking leviathan-image
 is known to work (the leviathan-image build should be aligned with GENIVI 10.0).
