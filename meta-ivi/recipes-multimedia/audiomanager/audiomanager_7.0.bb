@@ -23,22 +23,23 @@ SYSTEMD_PACKAGES = "${PN}"
 SYSTEMD_SERVICE_${PN} = "AudioManager.service"
 SYSTEMD_AUTO_ENABLE = "disable"
 
-EXTRA_OECMAKE += "-DWITH_TESTS=OFF -DUSE_BUILD_LIBS=OFF"
+#EXTRA_OECMAKE += "-DWITH_TESTS=OFF -DUSE_BUILD_LIBS=OFF"
+PACKAGES += "${PN}-test "
 OECMAKE_CXX_FLAGS +="-ldl"
 
-FILES_${PN} += " \
-    ${libdir}/audioManager/command/*.so* \
-    ${libdir}/audioManager/control/*.so* \
-    ${libdir}/audioManager/routing/*.so* \
+FILES_${PN} = " \
+    ${bindir}/* \
     ${systemd_unitdir}/AudioManager.service \
     ${systemd_unitdir}/scripts/setup_amgr.sh \
     "
-
-FILES_${PN}-dbg += " \
-    ${libdir}/audioManager/command/.debug/* \
-    ${libdir}/audioManager/control/.debug/* \
-    ${libdir}/audioManager/routing/.debug/* \
+FILES_${PN}-dev += " \
+    ${libdir}/audiomanager/cmake* \
     "
+FILES_${PN}-dbg += " \
+    ${libdir}/audiomanager/tests/.debug/* \
+    "
+FILES_${PN}-test = " \
+    ${libdir}/audiomanager/tests/* "
 
 do_install_append() {
     if ${@bb.utils.contains('DISTRO_FEATURES','systemd','true','false',d)}; then
@@ -47,4 +48,12 @@ do_install_append() {
         install -d ${D}${systemd_unitdir}/system/
         install -m 0644 ${WORKDIR}/AudioManager.service ${D}${systemd_unitdir}/system
     fi
+
+    perl -pi -e \
+      's/set_and_check\(CMAKE_MODULE_PATH/#set_and_check\(CMAKE_MODULE_PATH/' \
+      ${D}${libdir}/audioManager/cmake/audiomanagerConfig.cmake
+
+    mv ${D}/home/*/tests ${D}${libdir}/audiomanager/
+    rmdir ${D}/home/*
+    rmdir ${D}/home
 }
