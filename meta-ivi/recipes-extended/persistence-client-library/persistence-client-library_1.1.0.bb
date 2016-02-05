@@ -11,6 +11,7 @@ DEPENDS = "dlt-daemon dbus libcheck persistence-common-object"
 
 SRC_URI = " \
     git://git.projects.genivi.org/persistence/persistence-client-library.git;tag=v${PV} \
+    file://0001-libpers_common.so-extension-fix-for-EGL.patch \
     "
 S = "${WORKDIR}/git"
 
