@@ -51,9 +51,9 @@ do_install_append() {
 
     perl -pi -e \
       's/set_and_check\(CMAKE_MODULE_PATH/#set_and_check\(CMAKE_MODULE_PATH/' \
-      ${D}${libdir}/audioManager/cmake/audiomanagerConfig.cmake
+      ${D}${libdir}/audiomanager/cmake/audiomanagerConfig.cmake
 
-    mv ${D}/home/*/tests ${D}${libdir}/audiomanager/
-    rmdir ${D}/home/*
-    rmdir ${D}/home
+    tst=`find ${D} -name tests`
+    mv $tst ${D}${libdir}/audiomanager/
+    rmdir -p `dirname $tst` || true
 }
