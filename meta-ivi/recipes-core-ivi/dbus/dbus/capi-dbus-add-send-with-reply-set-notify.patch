@@ -106,17 +106,17 @@ index e1068e3..233f179 100644
 +                                             timeout_milliseconds,
 +                                             reply_handler_timeout);
 +
++  CONNECTION_UNLOCK (connection);
 +  if (pending == NULL)
 +    {
-+      CONNECTION_UNLOCK (connection);
 +      return FALSE;
 +    }
 +
 +  if (!dbus_pending_call_set_notify(pending, function0, user_data0, free_user_data0))
 +    {
-+      CONNECTION_UNLOCK (connection);
 +      return FALSE;
 +    }
++  CONNECTION_LOCK (connection);
 +
 +  /* Assign a serial to the message */
 +  serial = dbus_message_get_serial (message);
