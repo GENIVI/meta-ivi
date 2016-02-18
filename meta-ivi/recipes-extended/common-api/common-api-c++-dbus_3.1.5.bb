@@ -2,7 +2,7 @@ SUMMARY = "CommonAPI-DBus"
 SECTION = "libs"
 LICENSE = "MPLv2"
 LIC_FILES_CHKSUM = "file://LICENSE;md5=815ca599c9df247a0c7f619bab123dad"
-PR = "r1"
+PR = "r0"
 DEPENDS = "commonapi3 dbus"
 REQUIRES = "commonapi3 dbus"
 
