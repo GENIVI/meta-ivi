@@ -1,0 +1,26 @@
+From f658846d8bf13f00e2d39b951f7811d2a6fa1f51 Mon Sep 17 00:00:00 2001
+From: Yong-iL Joh <yong-il.joh@windriver.com>
+Date: Tue, 23 Feb 2016 20:38:13 +0900
+Subject: [PATCH] fix exec path
+
+Signed-off-by: Yong-iL Joh <yong-il.joh@windriver.com>
+---
+ test/persistence_client_library_test.c | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
+
+diff --git a/test/persistence_client_library_test.c b/test/persistence_client_library_test.c
+index 7382ab4..fd92be1 100644
+--- a/test/persistence_client_library_test.c
++++ b/test/persistence_client_library_test.c
+@@ -1578,7 +1578,7 @@ END_TEST
+ START_TEST(test_PAS_DbusInterface)
+ {
+    // let the administration servis generate a message to the PCL
+-   if(system("/usr/local/bin/persadmin_tool export /tmp/myBackup 0") == -1)
++   if(system("/usr/bin/persadmin_tool export /tmp/myBackup 0") == -1)
+    {
+       printf("Failed to execute command -> admin service!!\n");
+    }
+-- 
+1.9.1
+
