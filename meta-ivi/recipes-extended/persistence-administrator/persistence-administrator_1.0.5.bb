@@ -24,3 +24,8 @@ FILES_${PN}-dev += "${datadir}/dbus-1/"
 SYSTEMD_PACKAGES = "${PN}"
 SYSTEMD_SERVICE_${PN} = "pas-daemon.service"
 SYSTEMD_AUTO_ENABLE = "disable"
+
+do_install_append() {
+   perl -pi -e 's/dbus-public-bus.service/dbus.service/' \
+	${D}/lib/systemd/system/pas-daemon.service
+}
