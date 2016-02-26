@@ -20,3 +20,8 @@ SRC_URI_append = "\
     ${SRC_URI_AFBUS} \
     ${SRC_URI_COMMONAPI} \
 "
+
+EXTRA_OECONF = "--enable-developer \
+    --enable-verbose-mode \
+    --enable-asserts \
+    "
