@@ -18,29 +18,9 @@ S = "${WORKDIR}/git"
 
 inherit autotools-brokensep pkgconfig
 
-EXTRA_OECONF = "--with-dbuspolicydir=${sysconfdir} --with-database=key-value-store"
-
-FILES_${PN} += "${datadir}"
-
-#
-# for test
-#
-EXTRA_OECONF += "--enable-tests"
-
-do_install_append() {
-   install -d ${D}${bindir}
-   install -m 0755 ${S}/test/.libs/test_pco_key_value_store ${D}${bindir}
-}
-
-PACKAGES += "${PN}-testenv"
-RDEPENDS_${PN} += "${PN}-testenv"
-
-FILES_${PN} = " \
-    ${libdir}/*.so.* \
-    ${sysconfdir} \
-    ${datadir}/dbus-1/interfaces/* \
+EXTRA_OECONF = " \
+    --with-dbuspolicydir=${sysconfdir} \
+    --with-database=key-value-store \
     "
 
-FILES_${PN}-testenv = " \
-   ${bindir}/test_pco_key_value_store \
-   "
+FILES_${PN} += "${datadir}"
