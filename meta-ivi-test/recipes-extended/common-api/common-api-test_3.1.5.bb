@@ -17,24 +17,24 @@ S = "${WORKDIR}/${PN}"
 EXTRA_OECMAKE += "-DUSE_INSTALLED_COMMONAPI=ON -DUSE_INSTALLED_DBUS=ON -DCMAKE_INSTALL_PREFIX=/usr"
 
 FILES_${PN} = " \
-    ${bindir}/test/E0* \
-    ${bindir}/test/*/README \
-    ${bindir}/test/*/commonapi4dbus.ini \
-    ${bindir}/test/*/*Client \
-    ${bindir}/test/*/*Service \
+    /opt/tests/${PN}/E0* \
+    /opt/tests/${PN}/*/README \
+    /opt/tests/${PN}/*/commonapi4dbus.ini \
+    /opt/tests/${PN}/*/*Client \
+    /opt/tests/${PN}/*/*Service \
     ${libdir}/*.so \
     "
 
 FILES_${PN}-dev = ""
 
 FILES_${PN}-dbg += " \
-    ${bindir}/test/.debug/* \
-    ${bindir}/test/*/.debug/* \
+    /opt/tests/${PN}/.debug/* \
+    /opt/tests/${PN}/*/.debug/* \
     ${libdir}/.debug/* \
     "
 
 do_install() {
-    _DEST=${D}${bindir}/test
+    _DEST=${D}/opt/tests/${PN}
     _BIN=${WORKDIR}/build
 
     install -d ${_DEST}
