@@ -32,36 +32,3 @@ do_install_append() {
 }
 
 RDEPENDS_${PN} = "node-state-manager"
-
-#
-# for test
-#
-EXTRA_OECONF += "--enable-tests"
-
-do_install_append() {
-   install -d ${D}${bindir}
-   install -m 0755 ${S}/test/.libs/persistence_client_library_test ${D}${bindir}
-   #install -m 0755 ${S}/test/.libs/persistence_pfs_test           ${D}${bindir}
-   #install -m 0755 ${S}/test/pers_pfs_test_starter.sh             ${D}${bindir}
-   install -d ${D}/Data
-   install -m 0644 ${S}/test/data/PAS_data.tar.gz          ${D}/Data/Data.tar.gz
-   #install -d ${D}/lib/systemd/system/
-   #install -m 0755 ${S}/test/persistence-pfs-test-start.service ${D}/lib/systemd/system/
-}
-
-PACKAGES += "${PN}-testenv"
-RDEPENDS_${PN} += "${PN}-testenv"
-
-#inherit systemd
-#
-#SYSTEMD_PACKAGES = "${PN}-testenv"
-#SYSTEMD_SERVICE_${PN}-testenv = "persistence-pfs-test-start.service"
-#SYSTEMD_AUTO_ENABLE = "disable"
-
-FILES_${PN}-testenv = " \
-   ${bindir}/persistence_client_library_test \
-   /Data/Data.tar.gz \
-"
-#   ${bindir}/persistence_pfs_test \
-#   ${bindir}/pers_pfs_test_starter.sh \
-#
