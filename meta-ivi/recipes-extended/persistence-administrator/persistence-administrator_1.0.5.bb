@@ -28,26 +28,5 @@ SYSTEMD_AUTO_ENABLE = "disable"
 do_install_append() {
    perl -pi -e 's/dbus-public-bus.service/dbus.service/' \
 	${D}/lib/systemd/system/pas-daemon.service
-   install -d ${D}/Data
-   install -m 0644 ${S}/test/pers_svc_test/webtool_export/resource2.tar.gz \
-        ${D}/Data
+   rm -f ${D}${bindir}/pers_admin_test_framework
 }
-
-#
-# test
-#
-PACKAGES += "${PN}-testenv"
-RDEPENDS_${PN} += "${PN}-testenv"
-
-FILES_${PN} = " \
-    ${sysconfdir}/dbus-1/* \
-    /lib/systemd/* \
-    ${bindir}/pers_admin_svc \
-    ${libdir}/*.so.* \
-    "
-
-FILES_${PN}-testenv = " \
-    ${bindir}/persadmin_tool \
-    ${bindir}/pers_admin_test_framework \
-    /Data/resource2.tar.gz \
-    "
