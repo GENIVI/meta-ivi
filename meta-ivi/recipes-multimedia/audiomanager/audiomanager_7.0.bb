@@ -23,8 +23,6 @@ SYSTEMD_PACKAGES = "${PN}"
 SYSTEMD_SERVICE_${PN} = "AudioManager.service"
 SYSTEMD_AUTO_ENABLE = "disable"
 
-#EXTRA_OECMAKE += "-DWITH_TESTS=OFF -DUSE_BUILD_LIBS=OFF"
-PACKAGES += "${PN}-test "
 OECMAKE_CXX_FLAGS +="-ldl"
 
 FILES_${PN} = " \
@@ -33,14 +31,8 @@ FILES_${PN} = " \
     ${systemd_unitdir}/scripts/setup_amgr.sh \
     "
 FILES_${PN}-dev += " \
-    ${libdir}/audiomanager/cmake* \
+    ${libdir}/* \
     "
-FILES_${PN}-dbg += " \
-    ${libdir}/audiomanager/tests/.debug/* \
-    "
-FILES_${PN}-test = " \
-    ${libdir}/audiomanager/tests/* "
-
 do_install_append() {
     if ${@bb.utils.contains('DISTRO_FEATURES','systemd','true','false',d)}; then
         mkdir -p ${D}${systemd_unitdir}/scripts/
@@ -52,8 +44,4 @@ do_install_append() {
     perl -pi -e \
       's/set_and_check\(CMAKE_MODULE_PATH/#set_and_check\(CMAKE_MODULE_PATH/' \
       ${D}${libdir}/audiomanager/cmake/audiomanagerConfig.cmake
-
-    tst=`find ${D} -name tests`
-    mv $tst ${D}${libdir}/audiomanager/
-    rmdir -p `dirname $tst` || true
 }
