@@ -42,3 +42,7 @@ SYSTEMD_AUTO_ENABLE_${PN}-systemd = "disable"
 EXTRA_OECMAKE = "-DWITH_SYSTEMD=ON"
 
 FILES_${PN}-doc += "/usr/share/dlt-filetransfer"
+
+do_install_append() {
+   rm -f ${D}${bindir}/dlt-test-*
+}
