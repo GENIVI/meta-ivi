@@ -20,10 +20,17 @@ inherit pkgconfig autotools-brokensep
 
 PARALLEL_MAKE = ""
 
-FILES_${PN} = " \
-    ${libdir}/*.so \
+# .so files are the actual libraries
+FILES_SOLIBSDEV = ""
+#SOLIBS = "${SOLIBSDEV}"
+
+FILES_${PN} += " \
+    ${libdir}/lib*custom.so \
     ${libdir}/*.so.* \
     ${sysconfdir} \
+    "
+FILES_${PN}-dev += " \
+    ${libdir}/libpersistence_client_library.so \
     "
 
 do_install_append() {
