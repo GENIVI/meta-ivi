@@ -43,7 +43,13 @@ FILES_SOLIBSDEV = ""
 SOLIBS = "${SOLIBSDEV}"
 
 FILES_${PN} += "\
-    ${datadir}/dbus-1/system-services/org.genivi.NodeStateManager.LifeCycleControl.service \
+    ${datadir}/dbus-1/system-services \
+    ${datadir}/dbus-1/interfaces/org.genivi.NodeStateManager.*.xml \
     ${systemd_unitdir}/system/nodestatemanager-daemon.service \
     "
-FILES_${PN}-dev += "${datadir}/dbus-1/interfaces/"
+
+do_install_append() {
+   rm -f ${D}${bindir}/NodeStateTest
+   rm -f ${D}${libdir}/libNodeStateMachineTest.*
+   rm -f ${D}${datadir}/dbus-1/interfaces/org.genivi.NodeStateMachineTest.xml
+}
