@@ -5,7 +5,7 @@ FILESEXTRAPATHS_append := ":${THISDIR}/${PN}"
 # Revision: 5.15 (Horizon)
 # Homepage: https://collab.genivi.org/wiki/display/genivi/Bluetooth+Stack+Reference+Implementation
 # Actual patches copied from:
-# https://review.tizen.org/git/?p=platform/upstream/bluez.git;a=commit;h=abb9a439baaaa9cd6f91ba5af8c6e426cdc8ff8e
+# http://git.baserock.org/cgit/delta/bluez.git/log/?h=baserock/5.37-19-g28fef24
 #
 SRC_URI_append = " \
 	file://0001-plugins-Add-initial-code-for-service-plugin.patch          \
@@ -20,9 +20,16 @@ SRC_URI_append = " \
 	file://0010-plugins-service-Add-AutoConnect-property.patch             \
 	file://0011-plugins-service-Add-Blocked-property.patch                 \
 	file://build-fix-up-with-jethro.patch \
+	file://0021-core-service-Add-btd_service_get_version.patch \
+	file://0022-core-service-Add-btd_service_set_auto_connect.patch \
+	file://0023-core-service-Add-btd_service_get_auto_connect.patch \
+	file://0024-core-device-Use-service-auto_connect-flag.patch \
+	file://0025-core-Make-device_get_path-public.patch \
+	file://0026-core-service-Add-btd_service_set_blocked.patch \
+	file://0027-core-service-Add-btd_service_is_blocked.patch \
 	"
 
-EXTRA_OECONF += "--enable-service"
+EXTRA_OECONF += "--enable-service --enable-sixaxis "
 
 PACKAGES =+ " libbluetooth-plugins-service "
 FILES_libbluetooth-plugins-service = "${libdir}/bluetooth/plugins/*.so"

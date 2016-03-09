@@ -1,0 +1,41 @@
+From 64a040208f03225bd1612dfaaa8d0a1634e67256 Mon Sep 17 00:00:00 2001
+From: Luiz Augusto von Dentz <luiz.von.dentz@intel.com>
+Date: Fri, 7 Feb 2014 16:28:08 +0200
+Subject: [PATCH 3/7] core/service: Add btd_service_get_auto_connect
+
+---
+ src/service.c | 5 +++++
+ src/service.h | 1 +
+ 2 files changed, 6 insertions(+)
+
+diff --git a/src/service.c b/src/service.c
+index a434a9d..0cd2287 100644
+--- a/src/service.c
++++ b/src/service.c
+@@ -349,6 +349,11 @@ void btd_service_set_auto_connect(struct btd_service *service, bool value)
+ 	service->auto_connect = value;
+ }
+ 
++bool btd_service_get_auto_connect(const struct btd_service *service)
++{
++	return service->auto_connect;
++}
++
+ unsigned int btd_service_add_state_cb(btd_service_state_cb cb, void *user_data)
+ {
+ 	struct service_state_callback *state_cb;
+diff --git a/src/service.h b/src/service.h
+index e3e0b00..cc4eac1 100644
+--- a/src/service.h
++++ b/src/service.h
+@@ -62,6 +62,7 @@ int btd_service_get_error(const struct btd_service *service);
+ uint16_t btd_service_get_version(const struct btd_service *service);
+ 
+ void btd_service_set_auto_connect(struct btd_service *service, bool value);
++bool btd_service_get_auto_connect(const struct btd_service *service);
+ 
+ unsigned int btd_service_add_state_cb(btd_service_state_cb cb,
+ 							void *user_data);
+-- 
+1.9.1
+

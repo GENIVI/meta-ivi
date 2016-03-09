@@ -1,0 +1,41 @@
+From 28fef24ee122e252b802d6710cb2eb49aa044475 Mon Sep 17 00:00:00 2001
+From: Luiz Augusto von Dentz <luiz.von.dentz@intel.com>
+Date: Sat, 8 Feb 2014 13:52:45 +0200
+Subject: [PATCH 7/7] core/service: Add btd_service_is_blocked
+
+---
+ src/service.c | 5 +++++
+ src/service.h | 1 +
+ 2 files changed, 6 insertions(+)
+
+diff --git a/src/service.c b/src/service.c
+index 59553be..eff3c92 100644
+--- a/src/service.c
++++ b/src/service.c
+@@ -360,6 +360,11 @@ void btd_service_set_blocked(struct btd_service *service, bool value)
+ 	service->blocked = value;
+ }
+ 
++bool btd_service_is_blocked(const struct btd_service *service)
++{
++	return service->blocked;
++}
++
+ unsigned int btd_service_add_state_cb(btd_service_state_cb cb, void *user_data)
+ {
+ 	struct service_state_callback *state_cb;
+diff --git a/src/service.h b/src/service.h
+index 2855359..a1db44f 100644
+--- a/src/service.h
++++ b/src/service.h
+@@ -65,6 +65,7 @@ void btd_service_set_auto_connect(struct btd_service *service, bool value);
+ bool btd_service_get_auto_connect(const struct btd_service *service);
+ 
+ void btd_service_set_blocked(struct btd_service *service, bool value);
++bool btd_service_is_blocked(const struct btd_service *service);
+ 
+ unsigned int btd_service_add_state_cb(btd_service_state_cb cb,
+ 							void *user_data);
+-- 
+1.9.1
+

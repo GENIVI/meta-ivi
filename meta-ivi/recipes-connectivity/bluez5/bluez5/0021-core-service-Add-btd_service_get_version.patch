@@ -1,0 +1,71 @@
+From 5d58c98b9e3b9024d33fcacd282a379931b670e5 Mon Sep 17 00:00:00 2001
+From: Luiz Augusto von Dentz <luiz.von.dentz@intel.com>
+Date: Fri, 7 Feb 2014 15:23:52 +0200
+Subject: [PATCH 1/7] core/service: Add btd_service_get_version
+
+This adds btd_service_get_version which can be use to query service
+version.
+
+Conflicts:
+	src/service.c
+---
+ src/service.c | 23 +++++++++++++++++++++++
+ src/service.h |  1 +
+ 2 files changed, 24 insertions(+)
+
+diff --git a/src/service.c b/src/service.c
+index f7912f5..506c741 100644
+--- a/src/service.c
++++ b/src/service.c
+@@ -38,6 +38,7 @@
+ 
+ #include "lib/bluetooth.h"
+ #include "lib/sdp.h"
++#include "lib/sdp_lib.h"
+ 
+ #include "log.h"
+ #include "backtrace.h"
+@@ -319,6 +320,28 @@ int btd_service_get_error(const struct btd_service *service)
+ 	return service->err;
+ }
+ 
++uint16_t btd_service_get_version(const struct btd_service *service)
++{
++	const sdp_record_t *rec;
++	sdp_list_t *list;
++	sdp_profile_desc_t *desc;
++	uint16_t version;
++
++	rec = btd_device_get_record(service->device,
++					service->profile->remote_uuid);
++	if (rec == NULL)
++		return 0;
++
++	if (sdp_get_profile_descs(rec, &list) < 0)
++		return 0;
++
++	desc = list->data;
++	version = desc->version;
++	sdp_list_free(list, free);
++
++	return version;
++}
++
+ unsigned int btd_service_add_state_cb(btd_service_state_cb cb, void *user_data)
+ {
+ 	struct service_state_callback *state_cb;
+diff --git a/src/service.h b/src/service.h
+index c1f97f6..b95bd58 100644
+--- a/src/service.h
++++ b/src/service.h
+@@ -59,6 +59,7 @@ struct btd_device *btd_service_get_device(const struct btd_service *service);
+ struct btd_profile *btd_service_get_profile(const struct btd_service *service);
+ btd_service_state_t btd_service_get_state(const struct btd_service *service);
+ int btd_service_get_error(const struct btd_service *service);
++uint16_t btd_service_get_version(const struct btd_service *service);
+ 
+ unsigned int btd_service_add_state_cb(btd_service_state_cb cb,
+ 							void *user_data);
+-- 
+1.9.1
+
