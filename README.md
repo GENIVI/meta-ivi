@@ -16,10 +16,10 @@ review and edit our documentation and much more.
 
 Subscribe to the mailing list
     [here](https://lists.genivi.org/mailman/listinfo/genivi-meta-ivi).  
+View or Report bugs
+    [here](https://at.projects.genivi.org/jira/secure/RapidBoard.jspa?rapidView=10&projectKey=BASE).
 Read or Edit the wiki
-    [here](http://wiki.projects.genivi.org/index.php/meta-ivi).  
-Vote or Comment on our plan
-    [here](https://trello.com/b/HplBZa2l/meta-ivi-development).  
+    [here](https://at.projects.genivi.org/wiki/display/PROJ/meta-ivi).
 For information about the Yocto Project, see the
     [Yocto Project website](https://www.yoctoproject.org).  
 For information about the Yocto GENIVI Baseline, see the
