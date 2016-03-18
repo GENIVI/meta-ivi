@@ -9,6 +9,7 @@ PR = "r1"
 
 SRC_URI = "git://git.projects.genivi.org/${PN}.git;tag=${PV} \
     file://remove_compile-host-path_issue.patch \
+    file://0001-buildsystem-make-example-programs-link-to-the-genera.patch \
     "
 
 DEPENDS = "weston"
