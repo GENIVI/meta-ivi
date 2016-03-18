@@ -6,6 +6,7 @@ PR = "r2"
 
 SRC_URI = "git://git.projects.genivi.org/lifecycle/${PN}.git;tag=${PV} \
            file://fix-no-libsystemd-daemon.patch \
+           file://0001-change-service-name.patch \
           "
 S = "${WORKDIR}/git"
 
