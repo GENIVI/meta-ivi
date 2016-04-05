@@ -10,7 +10,7 @@ do_install_append() {
 }
 
 PACKAGES += "${PN}-test"
-DEPENDS_${PN}-test += "${PN}"
+RDEPENDS_${PN}-test += " libcheck"
 
 FILES_${PN}-dbg += " \
    /opt/tests/${PN}/.debug/* \
