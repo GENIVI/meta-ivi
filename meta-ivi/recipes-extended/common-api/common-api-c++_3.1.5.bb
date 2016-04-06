@@ -13,10 +13,5 @@ S = "${WORKDIR}/git"
 
 EXTRA_OECMAKE += "-DCMAKE_INSTALL_PREFIX=/usr"
 
-do_configure_prepend () {
-  sed -i '/ set(${var} /c  set(ABSOLUTE_${var} "${CMAKE_INSTALL_PREFIX}/${${var}}") ' ${S}/CMakeLists.txt
-  sed -i '/file(RELATIVE_PATH /c  file(RELATIVE_PATH REL_INCLUDE_DIR "${ABSOLUTE_INSTALL_CMAKE_DIR}" "${ABSOLUTE_INSTALL_INCLUDE_DIR}") ' ${S}/CMakeLists.txt
-}
-
 FILES_${PN}-dev += "${libdir}/cmake"
 RDEPENDS_${PN} += "dlt-daemon"
