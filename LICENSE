@@ -1,11 +1,40 @@
-Different components of meta-ivi are under different license. Please see:
-
-meta-ivi/COPYING.MIT (MIT)
-meta-ivi-bsp/COPYING.MIT (MIT)
-
 All metadata is MIT licensed unless otherwise stated. Source code included
 in tree for individual recipes is under the LICENSE stated in the associated
 recipe (.bb file) unless otherwise stated.
 
 License information for any other files is either explicitly stated 
 or defaults to MPL version 2.
+
+----------------------------------------
+missing s/w packages due to license
+
+Because the license issues,
+following packages are not shipped in s/w build image from meta-ivi.
+
+gcc-runtime-dbg
+libgomp
+libgomp-dev
+libgomp-staticdev
+ - poky/meta/recipes-devtools/gcc/gcc-runtime.inc
+ - LICENSE_${PN}-dbg = "GPL-3.0-with-GCC-exception & GPLv3"
+ - LICENSE_libgomp = "GPLv3"
+ - LICENSE_libgomp-dev = "GPLv3"
+ - LICENSE_libgomp-staticdev = "GPLv3"
+
+cairo-dbg
+cairo-staticdev
+cairo-doc
+cairo-locale
+ - poky/meta/recipes-graphics/cairo/cairo.inc
+ - LICENSE = "MPL-1 & LGPLv2.1 & GPLv3+"
+
+dumpsexp-dev
+ - poky/meta/recipes-support/libgcrypt/libgcrypt.inc
+ - LICENSE_dumpsexp-dev = "GPLv3+"
+
+libgcrypt-dbg
+libgcrypt-staticdev
+libgcrypt-doc
+libgcrypt-locale
+ - poky/meta/recipes-support/libgcrypt/libgcrypt.inc
+ - LICENSE = "GPLv2+ & LGPLv2.1+ & GPLv3+"

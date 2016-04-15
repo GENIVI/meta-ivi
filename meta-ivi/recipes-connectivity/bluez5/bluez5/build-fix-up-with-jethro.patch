@@ -1,0 +1,11 @@
+diff -urN bluez-5.33.orig/plugins/service.c bluez-5.33/plugins/service.c
+--- bluez-5.33.orig/plugins/service.c	2015-11-09 15:53:53.179261402 +0900
++++ bluez-5.33/plugins/service.c	2015-11-09 16:11:10.743287532 +0900
+@@ -32,6 +32,7 @@
+ #include <glib.h>
+ #include <gdbus/gdbus.h>
+ 
++#include "lib/sdp.h"
+ #include "lib/uuid.h"
+ #include "src/log.h"
+ #include "src/plugin.h"

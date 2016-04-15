@@ -1,0 +1,41 @@
+From f1bc578f41bfeec2c6bcbe89406bf04ada412b74 Mon Sep 17 00:00:00 2001
+From: Yong-iL Joh <yong-il.joh@windriver.com>
+Date: Fri, 4 Mar 2016 16:02:54 +0900
+Subject: [PATCH] change file position for dlt-test-filetransfer
+
+Signed-off-by: Yong-iL Joh <yong-il.joh@windriver.com>
+---
+ src/tests/CMakeLists.txt          | 2 +-
+ src/tests/dlt-test-filetransfer.c | 4 ++--
+ 2 files changed, 3 insertions(+), 3 deletions(-)
+
+diff --git a/src/tests/CMakeLists.txt b/src/tests/CMakeLists.txt
+index 6a6a962..bd6808e 100644
+--- a/src/tests/CMakeLists.txt
++++ b/src/tests/CMakeLists.txt
+@@ -58,5 +58,5 @@ install(TARGETS dlt-test-multi-process dlt-test-multi-process-client dlt-test-us
+ 	COMPONENT base)
+ 
+ INSTALL(FILES dlt-test-filetransfer-file dlt-test-filetransfer-image.png
+-	DESTINATION /usr/share/dlt-filetransfer
++	DESTINATION /opt/tests/dlt-daemon/data
+ )
+diff --git a/src/tests/dlt-test-filetransfer.c b/src/tests/dlt-test-filetransfer.c
+index 14b69e4..589926f 100644
+--- a/src/tests/dlt-test-filetransfer.c
++++ b/src/tests/dlt-test-filetransfer.c
+@@ -362,9 +362,9 @@ int testFile3Run3(){
+ int main(void)
+ {
+ 	//First file contains some text
+-	file1 = "/usr/share/dlt-filetransfer/dlt-test-filetransfer-file";
++	file1 = "/opt/tests/dlt-daemon/data/dlt-test-filetransfer-file";
+ 	//Second file is a picture
+-	file2 = "/usr/share/dlt-filetransfer/dlt-test-filetransfer-image.png";
++	file2 = "/opt/tests/dlt-daemon/data/dlt-test-filetransfer-image.png";
+ 	//Third file doesn't exist. Just to test the reaction when the file isn't available.
+ 	file3_1 = "dlt-test-filetransfer-doesntExist_1";
+ 	//Third file doesn't exist. Just to test the reaction when the file isn't available.
+-- 
+1.9.1
+

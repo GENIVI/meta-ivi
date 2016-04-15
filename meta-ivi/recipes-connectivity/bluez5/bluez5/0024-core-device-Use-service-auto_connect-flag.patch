@@ -1,0 +1,37 @@
+From 12265c3db364ed4deefd3d9c1a861080c5d5032e Mon Sep 17 00:00:00 2001
+From: Luiz Augusto von Dentz <luiz.von.dentz@intel.com>
+Date: Fri, 7 Feb 2014 16:28:36 +0200
+Subject: [PATCH 4/7] core/device: Use service auto_connect flag
+
+This make use of service auto_connect flag to determine if the service
+should be included in the list to be connected.
+---
+ src/device.c | 4 +---
+ 1 file changed, 1 insertion(+), 3 deletions(-)
+
+diff --git a/src/device.c b/src/device.c
+index 1f7c895..a85ff76 100644
+--- a/src/device.c
++++ b/src/device.c
+@@ -1645,7 +1645,6 @@ static int service_prio_cmp(gconstpointer a, gconstpointer b)
+ static GSList *create_pending_list(struct btd_device *dev, const char *uuid)
+ {
+ 	struct btd_service *service;
+-	struct btd_profile *p;
+ 	GSList *l;
+ 
+ 	if (uuid) {
+@@ -1658,9 +1657,8 @@ static GSList *create_pending_list(struct btd_device *dev, const char *uuid)
+ 
+ 	for (l = dev->services; l != NULL; l = g_slist_next(l)) {
+ 		service = l->data;
+-		p = btd_service_get_profile(service);
+ 
+-		if (!p->auto_connect)
++		if (!btd_service_get_auto_connect(service))
+ 			continue;
+ 
+ 		if (g_slist_find(dev->pending, service))
+-- 
+1.9.1
+

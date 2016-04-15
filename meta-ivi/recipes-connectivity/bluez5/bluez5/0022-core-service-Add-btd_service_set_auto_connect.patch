@@ -1,0 +1,58 @@
+From 503b8a648d450289181131712fc9917a11787659 Mon Sep 17 00:00:00 2001
+From: Luiz Augusto von Dentz <luiz.von.dentz@intel.com>
+Date: Fri, 7 Feb 2014 16:24:53 +0200
+Subject: [PATCH 2/7] core/service: Add btd_service_set_auto_connect
+
+---
+ src/service.c | 7 +++++++
+ src/service.h | 2 ++
+ 2 files changed, 9 insertions(+)
+
+diff --git a/src/service.c b/src/service.c
+index 506c741..a434a9d 100644
+--- a/src/service.c
++++ b/src/service.c
+@@ -55,6 +55,7 @@ struct btd_service {
+ 	void			*user_data;
+ 	btd_service_state_t	state;
+ 	int			err;
++	bool			auto_connect;
+ };
+ 
+ struct service_state_callback {
+@@ -146,6 +147,7 @@ struct btd_service *service_create(struct btd_device *device,
+ 	service->ref = 1;
+ 	service->device = device; /* Weak ref */
+ 	service->profile = profile;
++	service->auto_connect = profile->auto_connect;
+ 	service->state = BTD_SERVICE_STATE_UNAVAILABLE;
+ 
+ 	return service;
+@@ -342,6 +344,11 @@ uint16_t btd_service_get_version(const struct btd_service *service)
+ 	return version;
+ }
+ 
++void btd_service_set_auto_connect(struct btd_service *service, bool value)
++{
++	service->auto_connect = value;
++}
++
+ unsigned int btd_service_add_state_cb(btd_service_state_cb cb, void *user_data)
+ {
+ 	struct service_state_callback *state_cb;
+diff --git a/src/service.h b/src/service.h
+index b95bd58..e3e0b00 100644
+--- a/src/service.h
++++ b/src/service.h
+@@ -61,6 +61,8 @@ btd_service_state_t btd_service_get_state(const struct btd_service *service);
+ int btd_service_get_error(const struct btd_service *service);
+ uint16_t btd_service_get_version(const struct btd_service *service);
+ 
++void btd_service_set_auto_connect(struct btd_service *service, bool value);
++
+ unsigned int btd_service_add_state_cb(btd_service_state_cb cb,
+ 							void *user_data);
+ bool btd_service_remove_state_cb(unsigned int id);
+-- 
+1.9.1
+

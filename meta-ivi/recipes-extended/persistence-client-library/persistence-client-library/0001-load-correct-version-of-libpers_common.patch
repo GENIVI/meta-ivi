@@ -1,0 +1,29 @@
+From 58c25a1bee0e65aa273af3958675b9db398851ee Mon Sep 17 00:00:00 2001
+From: Igor Socec <igor.socec@pelagicore.com>
+Date: Thu, 25 Feb 2016 09:52:15 +0100
+Subject: [PATCH] load correct version of libpers_common
+
+Signed-off-by: Igor Socec <igor.socec@pelagicore.com>
+---
+ config/pclCustomLibConfigFile.cfg | 4 ++--
+ 1 file changed, 2 insertions(+), 2 deletions(-)
+
+diff --git a/config/pclCustomLibConfigFile.cfg b/config/pclCustomLibConfigFile.cfg
+index fe95ea0..f8e0877 100644
+--- a/config/pclCustomLibConfigFile.cfg
++++ b/config/pclCustomLibConfigFile.cfg
+@@ -1,8 +1,8 @@
+ hwinfo /usr/lib/libhwinfoperscustom.so init async
+ secure /usr/lib/libsecureperscustom.so od sync
+ custom3 /usr/lib/libcustom3perscustom.so init sync
+-default /usr/lib/libpers_common.so.1 init sync
++default /usr/lib/libpers_common.so.0 init sync
+ emergency /usr/lib/libemergencyperscustom.so od async
+ early /usr/lib/libearlyperscustom.so od sync
+ anInvalidEntry /wrongPath/wrongLib do cnys
+-custom2 /usr/lib/libcustom2perscustom.so init sync
+\ No newline at end of file
++custom2 /usr/lib/libcustom2perscustom.so init sync
+--
+2.1.4
+

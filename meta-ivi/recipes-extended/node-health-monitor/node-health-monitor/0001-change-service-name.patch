@@ -1,0 +1,27 @@
+From 15e991f5e36f896fa79e4fd851ba075c25e4ce0d Mon Sep 17 00:00:00 2001
+From: Yong-iL Joh <yong-il.joh@windriver.com>
+Date: Wed, 9 Mar 2016 17:30:32 +0900
+Subject: [PATCH] change service name
+
+---
+ cfg/node-health-monitor.service.in | 4 ++--
+ 1 file changed, 2 insertions(+), 2 deletions(-)
+
+diff --git a/cfg/node-health-monitor.service.in b/cfg/node-health-monitor.service.in
+index a28ab39..9027b42 100644
+--- a/cfg/node-health-monitor.service.in
++++ b/cfg/node-health-monitor.service.in
+@@ -2,8 +2,8 @@
+ 
+ [Unit]
+ Description=node-health-monitor to observe system health
+-Requires=nodestatemanager-daemon.service dlt-daemon.service
+-After=nodestatemanager-daemon.service dlt-daemon.service
++Requires=nodestatemanager-daemon.service dlt.service
++After=nodestatemanager-daemon.service dlt.service
+ 
+ [Service]
+ Type=notify
+-- 
+1.9.1
+

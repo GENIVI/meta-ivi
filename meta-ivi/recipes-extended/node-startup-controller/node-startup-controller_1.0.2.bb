@@ -1,5 +1,3 @@
-DEFAULT_PREFERENCE = "-1"
-
 SUMMARY = "GENIVI Node Startup Controller"
 DESCRIPTION = "The GENIVI Node Startup Controller \
 		- manages the Last User Context (LUC) \
@@ -14,17 +12,16 @@ SECTION = "base"
 LICENSE = "MPLv2"
 LIC_FILES_CHKSUM = "file://COPYING;md5=815ca599c9df247a0c7f619bab123dad"
 
-SRCREV = "717e743c84ef9c168501dcbc012c4212f1903581"
 PR = "r4"
 
-SRC_URI = "git://git.projects.genivi.org/lifecycle/node-startup-controller.git;branch=genivi-excalibur \
+SRCREV = "717e743c84ef9c168501dcbc012c4212f1903581"
+SRC_URI = "git://git.projects.genivi.org/lifecycle/${PN}.git;branch=genivi-excalibur \
            file://use-systemd-unit-dir.patch \
            file://fix-no-libsystemd-daemon.patch \
           "
+S = "${WORKDIR}/git"
 
 DEPENDS = "glib-2.0 dlt-daemon systemd"
-
-S = "${WORKDIR}/git"
 
 inherit autotools gtk-doc systemd
 do_configure_prepend () {

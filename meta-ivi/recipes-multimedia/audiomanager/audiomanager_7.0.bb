@@ -8,38 +8,31 @@ PR = "r1"
 
 DEPENDS = "common-api-c++-dbus dlt-daemon sqlite3 dbus node-state-manager"
 
-BRANCH = "master"
-
+SRCREV = "8725157e248c6706de59a02996f869b6ccdccb13"
 SRC_URI = " \
-    git://git.projects.genivi.org/AudioManager.git;branch=${BRANCH};tag=${PV} \
+    git://git.projects.genivi.org/AudioManager.git;branch=master \
     file://AudioManager.service \
     file://setup_amgr.sh \
     "
-
 S = "${WORKDIR}/git"
+
 inherit autotools gettext cmake pkgconfig systemd
 
 SYSTEMD_PACKAGES = "${PN}"
 SYSTEMD_SERVICE_${PN} = "AudioManager.service"
 SYSTEMD_AUTO_ENABLE = "disable"
 
-EXTRA_OECMAKE += "-DWITH_TESTS=OFF -DUSE_BUILD_LIBS=OFF"
 OECMAKE_CXX_FLAGS +="-ldl"
+EXTRA_OECMAKE = " -DWITH_TESTS=OFF"
 
-FILES_${PN} += " \
-    ${libdir}/audioManager/command/*.so* \
-    ${libdir}/audioManager/control/*.so* \
-    ${libdir}/audioManager/routing/*.so* \
+FILES_${PN} = " \
+    ${bindir}/* \
     ${systemd_unitdir}/AudioManager.service \
     ${systemd_unitdir}/scripts/setup_amgr.sh \
     "
-
-FILES_${PN}-dbg += " \
-    ${libdir}/audioManager/command/.debug/* \
-    ${libdir}/audioManager/control/.debug/* \
-    ${libdir}/audioManager/routing/.debug/* \
+FILES_${PN}-dev += " \
+    ${libdir}/* \
     "
-
 do_install_append() {
     if ${@bb.utils.contains('DISTRO_FEATURES','systemd','true','false',d)}; then
         mkdir -p ${D}${systemd_unitdir}/scripts/
@@ -47,4 +40,8 @@ do_install_append() {
         install -d ${D}${systemd_unitdir}/system/
         install -m 0644 ${WORKDIR}/AudioManager.service ${D}${systemd_unitdir}/system
     fi
+
+    perl -pi -e \
+      's/set_and_check\(CMAKE_MODULE_PATH/#set_and_check\(CMAKE_MODULE_PATH/' \
+      ${D}${libdir}/audiomanager/cmake/audiomanagerConfig.cmake
 }

@@ -17,11 +17,9 @@ review and edit our documentation and much more.
 Subscribe to the mailing list
     [here](https://lists.genivi.org/mailman/listinfo/genivi-meta-ivi).  
 View or Report bugs
-    [here](https://bugs.genivi.org/buglist.cgi?product=meta-ivi).  
+    [here](https://at.projects.genivi.org/jira/secure/RapidBoard.jspa?rapidView=10&projectKey=BASE).
 Read or Edit the wiki
-    [here](http://wiki.projects.genivi.org/index.php/meta-ivi).  
-Vote or Comment on our plan
-    [here](https://trello.com/b/HplBZa2l/meta-ivi-development).  
+    [here](https://at.projects.genivi.org/wiki/display/PROJ/meta-ivi).
 For information about the Yocto Project, see the
     [Yocto Project website](https://www.yoctoproject.org).  
 For information about the Yocto GENIVI Baseline, see the
@@ -31,16 +29,16 @@ Layer Dependencies
 ------------------
 
 URI: git://git.yoctoproject.org/poky
-> branch:   fido
-> revision: eb4a134a60e3ac26a48379675ad6346a44010339
+> branch:   jethro
+> revision: fc45deac89ef63ca1c44e763c38ced7dfd72cbe1
 
 URI: git://git.openembedded.org/meta-openembedded
 > layer:    meta-oe
-> branch:   fido
-> revision: 5b0305d9efa4b5692cd942586fb7aa92dba42d59
+> branch:   jethro
+> revision: ad6133a2e95f4b83b6b3ea413598e2cd5fb3fd90
 
-Using the above git sha's and the master meta-ivi branch, bitbaking kronos-image
-is known to work (the kronos-image build should be aligned with GENIVI 9.0).
+Using the above git sha's and the master meta-ivi branch, bitbaking leviathan-image
+is known to work (the leviathan-image build should be aligned with GENIVI 10.0).
 
 For creating a specific GENIVI compliant image version, please make sure you
 git checkout the related meta-ivi branch and follow the build instructions
@@ -76,24 +74,63 @@ export TEMPLATECONF=/full/path/to/meta-ivi/meta-ivi/conf
 2. Run the following command:
    > $ source poky/oe-init-build-env
 
-3. Build kronos-image including GENIVI 9.0 (Kronos) components
-   > $ bitbake kronos-image
+3. Build leviathan-image including GENIVI 10.0 (Leviathan) components
+   > $ bitbake leviathan-image
 
 4. Run the emulator:
    > for qemu vexpressa9:  
-   > $ PATH_TO_META_IVI/meta-ivi/scripts/runqemu kronos-image vexpressa9
+   > $ PATH_TO_META_IVI/meta-ivi/scripts/runqemu leviathan-image vexpressa9
    >
    > for qemu x86:  
-   > $ PATH_TO_META_IVI/meta-ivi/scripts/runqemu kronos-image qemux86
+   > $ PATH_TO_META_IVI/meta-ivi/scripts/runqemu leviathan-image qemux86
    >
    > for qemu x86-64:  
-   > $ PATH_TO_META_IVI/meta-ivi/scripts/runqemu kronos-image qemux86-64
+   > $ PATH_TO_META_IVI/meta-ivi/scripts/runqemu leviathan-image qemux86-64
 
 5. To login use these credentials:
    > User - root
    > Password - root
 
-6. To use wayland-ivi-extension 1.5.0,
-   put below line to conf/local.conf at your build directory
 
-   PREFERRED_VERSION_wayland-ivi-extension = "1.5.0"
+talk about using SRCREV instead of branch or tag at SRC_URI
+-----------------------------------------------------------
+Sent: Tuesday, April 05, 2016 11:33 PM
+To: James Thomas
+Cc: genivi-meta-ivi@lists.genivi.org
+Subject: Re: [meta-ivi] Building with local source mirror
+
+On Tue, Mar 29, 2016 at 10:51 PM, James Thomas <james.thomas@codethink.co.uk> wrote:
+> One thing I noticed is that simply providing the SRCREV works as long 
+> as that sha exists within master, if it doesn't then you have a build 
+> error, so being able to use tags is useful.
+>
+> I think using git://...;tag=foo is not sufficient, because tags *can* 
+> change (i.e there's no guarantee that the tag you're using is going to 
+> be the same as the one you used yesterday).
+>
+> What would be nice is if you could go tag=foo, and have it verified 
+> against SRCREV (in my testing this resulted in a build error *when* 
+> the tag and sha matched)
+>
+> However, something like
+>
+> SRC_URI = "git://mygitrepo/foo.git;nobranch=1;branch=v0.2"
+> SRCREV  = "7654321"
+>
+> does enforce that check (v0.2 is actually a tag in this case), which 
+> seems to be pretty useful (the recipe provides something human 
+> readable, and something a machine can understand, and will always 
+> check they match)
+
+I completely understand the reasoning behind this. The point I'm trying to make is that the automotive industry has a strong need for reproducible offline builds and any kind of mandatory online checks break this requirement. And like Federico said, using SRCREV is also the Yocto project practice.
+
+If we want meta-ivi to be widely used in the industry I believe it should support it's needs. In my opinion the same should go for the whole GENIVI stack to work nicely, which in particular means tags of the projects should not change. But the easiest solution would be for meta-ivi to not use tags. That way it supports offline builds and it is also possible to track bugfixes in the projects instead of pinning to the tag and then getting the bugfixes in patch by patch until next release.
+
+How do the others on this list feel about this proposal?
+
+Regards,
+--
+Igor Socec
+Software Engineer
+
+
