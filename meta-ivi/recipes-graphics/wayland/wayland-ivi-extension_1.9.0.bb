@@ -7,13 +7,14 @@ LIC_FILES_CHKSUM = "file://LICENSE;md5=176cedb32f48dd58f07e0c1c717b3ea4"
 
 PR = "r1"
 
-SRC_URI = "git://git.projects.genivi.org/${PN}.git;tag=${PV} \
+SRCREV = "beac5d2e25324ca9cc82d0e3b364512258af3567"
+SRC_URI = "git://git.projects.genivi.org/${PN}.git \
     file://remove_compile-host-path_issue.patch \
     file://0001-buildsystem-make-example-programs-link-to-the-genera.patch \
     "
+S = "${WORKDIR}/git"
 
 DEPENDS = "weston"
-S = "${WORKDIR}/git"
 
 inherit cmake autotools
 

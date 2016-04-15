@@ -6,8 +6,8 @@ PR = "r0"
 DEPENDS = "commonapi3 dbus"
 REQUIRES = "commonapi3 dbus"
 
-SRC_URI = "git://git.projects.genivi.org/ipc/common-api-dbus-runtime.git;branch=master;tag=${PV}" 
-
+SRCREV = "3348a422ffc756b63de5890356383858a898e8b1"
+SRC_URI = "git://git.projects.genivi.org/ipc/common-api-dbus-runtime.git"
 S = "${WORKDIR}/git"
 
 EXTRA_OECMAKE += "-DCMAKE_INSTALL_PREFIX=/usr "

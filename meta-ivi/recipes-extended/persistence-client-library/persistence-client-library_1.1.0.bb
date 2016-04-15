@@ -9,8 +9,9 @@ LIC_FILES_CHKSUM = "file://COPYING;md5=6161c6840f21a000e9b52af81d2ca823"
 
 DEPENDS = "dlt-daemon dbus libcheck persistence-common-object"
 
+SRCREV = "4b503da99c6b04ad21a197dafe6e7243187c7c7e"
 SRC_URI = " \
-    git://git.projects.genivi.org/persistence/persistence-client-library.git;tag=v${PV} \
+    git://git.projects.genivi.org/persistence/persistence-client-library.git \
     file://0001-load-correct-version-of-libpers_common.patch \
     file://0001-fix-exec-path.patch \
     "
