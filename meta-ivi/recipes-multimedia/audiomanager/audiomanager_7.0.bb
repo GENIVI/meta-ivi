@@ -23,6 +23,7 @@ SYSTEMD_SERVICE_${PN} = "AudioManager.service"
 SYSTEMD_AUTO_ENABLE = "disable"
 
 OECMAKE_CXX_FLAGS +="-ldl"
+EXTRA_OECMAKE = " -DWITH_TESTS=OFF"
 
 FILES_${PN} = " \
     ${bindir}/* \
