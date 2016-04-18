@@ -7,7 +7,8 @@ LIC_FILES_CHKSUM = "file://LICENSE;md5=176cedb32f48dd58f07e0c1c717b3ea4"
 
 DEPENDS = "weston"
 
-SRC_URI = "git://git.projects.genivi.org/${PN}.git \
+SRCREV = "8f0874b606b8e2a9385af947728905735bad3939"
+SRC_URI = "git://git.projects.genivi.org/${PN}.git;protocol=http \
            file://apply_weston-1.5.x.patch \
           "
 SRCREV = "8f0874b606b8e2a9385af947728905735bad3939"

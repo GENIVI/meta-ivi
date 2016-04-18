@@ -7,7 +7,8 @@ PR = "r1"
 
 inherit autotools cmake lib_package pkgconfig
 
-SRC_URI = "git://git.projects.genivi.org/ipc/common-api-runtime.git;branch=master;tag=${PV}"
+SRCREV = "3d2fb21d0e93b6b595610285e910ac80c099a174"
+SRC_URI = "git://git.projects.genivi.org/ipc/common-api-runtime.git;protocol=http"
 S = "${WORKDIR}/git"
 
 EXTRA_OECMAKE += "-DCMAKE_INSTALL_PREFIX=/usr"

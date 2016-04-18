@@ -6,7 +6,8 @@ PR = "r1"
 DEPENDS = "commonapi3 dbus"
 REQUIRES = "commonapi3 dbus"
 
-SRC_URI = "git://git.projects.genivi.org/ipc/common-api-dbus-runtime.git;branch=master;tag=${PV}" 
+SRCREV = "db96446ece67ba1f495811e29838e8c7bc7984ff"
+SRC_URI = "git://git.projects.genivi.org/ipc/common-api-dbus-runtime.git;protocol=http"
 
 S = "${WORKDIR}/git"
 

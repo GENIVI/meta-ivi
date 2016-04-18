@@ -9,8 +9,9 @@ LIC_FILES_CHKSUM = "file://COPYING;md5=6161c6840f21a000e9b52af81d2ca823"
 
 DEPENDS = "dlt-daemon dbus libcheck persistence-common-object"
 
+SRCREV = "af8668f0ef39cd09481be43d9d53327cb9304d94"
 SRC_URI = " \
-    git://git.projects.genivi.org/persistence/persistence-client-library.git;tag=v${PV} \
+    git://git.projects.genivi.org/persistence/persistence-client-library.git;protocol=http \
     file://0001-Fix-cast-on-64bit-machines.patch \
     "
 S = "${WORKDIR}/git"
