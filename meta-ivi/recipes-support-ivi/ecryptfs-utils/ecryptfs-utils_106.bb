@@ -43,3 +43,5 @@ do_install_append() {
         install -m 0644 ${WORKDIR}/ecryptfs.service ${D}${systemd_unitdir}/system
     fi
 }
+
+RDEPENDS_${PN} = "nspr nss"
