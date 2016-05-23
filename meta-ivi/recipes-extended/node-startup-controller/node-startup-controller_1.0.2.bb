@@ -35,24 +35,24 @@ SYSTEMD_SERVICE_${PN} = "node-startup-controller.service"
 SYSTEMD_AUTO_ENABLE = "disable"
 
 FILES_${PN} += "\
-    ${libdir}/${PN}-1/${PN} \
-    ${libdir}/${PN}-1/legacy-app-handler \
+    ${libdir}/${BPN}-1/${BPN} \
+    ${libdir}/${BPN}-1/legacy-app-handler \
     ${datadir}/dbus-1/system-services/org.genivi.NodeStartupController1.service \
     ${sysconfdir}/dbus-1/system.d/org.genivi.NodeStartupController1.conf \
     ${systemd_unitdir}/system/node-startup-controller.service \
     "
 
 FILES_${PN}-dbg += "\
-    ${libdir}/${PN}-1/.debug/*ler \
+    ${libdir}/${BPN}-1/.debug/*ler \
     "
 
 FILES_${PN}-nsm-dummy = "\
-    ${libdir}/${PN}-1/nsm-dummy \
+    ${libdir}/${BPN}-1/nsm-dummy \
     ${datadir}/dbus-1/system-services/org.genivi.NodeStateManager.* \
     ${sysconfdir}/dbus-1/system.d/org.genivi.NodeStateManager.conf \
     ${systemd_unitdir}/system/nsm-dummy.service \
     "
 
 FILES_${PN}-nsm-dummy-dbg = "\
-    ${libdir}/${PN}-1/.debug/nsm-dummy \
+    ${libdir}/${BPN}-1/.debug/nsm-dummy \
     "
