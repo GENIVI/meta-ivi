@@ -15,3 +15,7 @@ CXXFLAGS := "${@oe_filter_out('-fvisibility-inlines-hidden', '${CXXFLAGS}', d)}"
 
 inherit cmake lib_package pkgconfig
 FILES_${PN}-dev += "${libdir}/cmake"
+
+FILESEXTRAPATHS_prepend := "${THISDIR}/${PN}:"
+SRC_URI += "file://0001-common-api-dbus-runtime-replace-hard-coded-lib-dir-b.patch"
+EXTRA_OECMAKE = "-DINSTALL_LIB_DIR:PATH=${baselib} -DINSTALL_CMAKE_DIR:PATH=${baselib}/cmake/CommonAPI-DBus"
