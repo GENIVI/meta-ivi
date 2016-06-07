@@ -6,7 +6,7 @@ LICENSE = "Apache-2.0"
 LIC_FILES_CHKSUM = "file://LICENSE;md5=176cedb32f48dd58f07e0c1c717b3ea4"
 
 SRCREV = "44598504503eea5ac7f94c88477a5a78bda01f30"
-SRC_URI = "git://git.projects.genivi.org/${PN}.git \
+SRC_URI = "git://git.projects.genivi.org/${BPN}.git \
     "
 S = "${WORKDIR}/git"
 
