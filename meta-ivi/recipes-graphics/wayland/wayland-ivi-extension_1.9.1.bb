@@ -19,3 +19,4 @@ EXTRA_OECMAKE := "-DWITH_ILM_INPUT=1"
 FILES_${PN} += "${libdir}/weston/*"
 FILES_${PN}-dbg += "${libdir}/weston/.debug/*"
 
+EXTRA_OECMAKE += "-DLIB_SUFFIX=${@d.getVar('baselib', True).replace('lib', '')}"
