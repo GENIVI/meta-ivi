@@ -15,7 +15,7 @@ LIC_FILES_CHKSUM = "file://COPYING;md5=815ca599c9df247a0c7f619bab123dad"
 PR = "r4"
 
 SRCREV = "717e743c84ef9c168501dcbc012c4212f1903581"
-SRC_URI = "git://git.projects.genivi.org/lifecycle/${PN}.git;branch=genivi-excalibur \
+SRC_URI = "git://git.projects.genivi.org/lifecycle/${PN}.git;branch=genivi-excalibur;protocol=http \
            file://use-systemd-unit-dir.patch \
            file://fix-no-libsystemd-daemon.patch \
           "
