@@ -11,6 +11,7 @@ DEPENDS = "common-api-c++-dbus dlt-daemon sqlite3 dbus node-state-manager"
 SRCREV = "8725157e248c6706de59a02996f869b6ccdccb13"
 SRC_URI = " \
     git://git.projects.genivi.org/AudioManager.git;branch=master;protocol=http \
+    file://0001-audiomanager-fix-lib-install-path-for-multilib.patch \
     file://AudioManager.service \
     file://setup_amgr.sh \
     "
@@ -43,5 +44,5 @@ do_install_append() {
 
     perl -pi -e \
       's/set_and_check\(CMAKE_MODULE_PATH/#set_and_check\(CMAKE_MODULE_PATH/' \
-      ${D}${libdir}/audiomanager/cmake/audiomanagerConfig.cmake
+      ${D}${libdir}/cmake/audiomanagerConfig.cmake
 }
