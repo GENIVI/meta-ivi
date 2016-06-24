@@ -15,3 +15,7 @@ EXTRA_OECMAKE += "-DCMAKE_INSTALL_PREFIX=/usr"
 
 FILES_${PN}-dev += "${libdir}/cmake"
 RDEPENDS_${PN} += "dlt-daemon"
+
+FILESEXTRAPATHS_prepend := "${THISDIR}/${PN}:"
+SRC_URI += "file://0001-common-api-runtime-replace-hard-coded-lib-dir-by-var.patch"
+EXTRA_OECMAKE += "-DINSTALL_LIB_DIR:PATH=${baselib} -DINSTALL_CMAKE_DIR:PATH=${baselib}/cmake/CommonAPI"

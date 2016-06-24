@@ -16,11 +16,12 @@ LIC_FILES_CHKSUM = "file://LICENSE.txt;md5=99ba60c3fad7eaf8c56bca6dd75cba09 \
 DEPENDS = "dbus zlib"
 
 SRCREV = "b8b3ea3a31f7deb681941a19878c82e7b7350ae7"
-SRC_URI = "git://git.projects.genivi.org/${PN}.git;branch=v2.11.x;protocol=http \
+SRC_URI = "git://git.projects.genivi.org/${BPN}.git;branch=v2.11.x;protocol=http \
            file://0001-Fix-build-with-systemd-209.patch \
            file://0002-Don-t-execute-processes-as-a-specific-user.patch \
            file://0003-systemd-unit-type-should-be-in-lowercase-so-use-Type.patch \
-           file://0004-Modify-systemd-config-directory.patch"
+           file://0004-Modify-systemd-config-directory.patch \
+           file://0005-Fix-OE-cmake-installation-dir.patch"
 S = "${WORKDIR}/git"
 
 inherit gzipnative autotools gettext cmake systemd

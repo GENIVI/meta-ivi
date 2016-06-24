@@ -13,6 +13,7 @@ SRC_URI = " \
     git://git.projects.genivi.org/AudioManager.git;branch=master;protocol=http \
     file://AudioManager.service \
     file://setup_amgr.sh \
+    file://0001-audiomanager-fix-lib-install-path-for-multilib.patch \
     "
 S = "${WORKDIR}/git"
 
