@@ -9,19 +9,16 @@ Signed-off-by: Andrei Gherzan <andrei.gherzan@windriver.com>
  systemd/CMakeLists.txt | 2 +-
  1 file changed, 1 insertion(+), 1 deletion(-)
 
-diff --git a/systemd/CMakeLists.txt b/systemd/CMakeLists.txt
-index a9838e4..c8feae5 100644
---- a/systemd/CMakeLists.txt
-+++ b/systemd/CMakeLists.txt
-@@ -16,7 +16,7 @@
+diff --git a/CMakeLists.txt b/CMakeLists.txt
+index e6b44a2..0e885bf 100644
+--- a/CMakeLists.txt
++++ b/CMakeLists.txt
+@@ -175,7 +175,7 @@ if(WITH_SYSTEMD OR WITH_SYSTEMD_WATCHDOG OR WITH_SYSTEMD_JOURNAL)
  
- if(WITH_SYSTEMD)
+     set( systemd_SRCS ${CMAKE_SOURCE_DIR}/systemd/3rdparty/sd-daemon.c)
  
--    set(SYSTEMD_CONFIGURATIONS_FILES_DIR ${CMAKE_INSTALL_PREFIX}/lib/systemd/system )
-+    set(SYSTEMD_CONFIGURATIONS_FILES_DIR /lib/systemd/system )
-         
-     if(WITH_SYSTEMD_WATCHDOG)
-         set( DLT_WatchdogSec 2 )
--- 
-1.9.3
-
+-    set(SYSTEMD_UNITDIR "${CMAKE_INSTALL_PREFIX}/lib/systemd/system" CACHE PATH
++    set(SYSTEMD_UNITDIR "/lib/systemd/system" CACHE PATH
+         "Set directory to install systemd unit files")
+ 
+     add_subdirectory( systemd )

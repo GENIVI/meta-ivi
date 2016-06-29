@@ -10,18 +10,15 @@ logging facility providing: \
 HOMEPAGE = "https://www.genivi.org/"
 SECTION = "console/utils"
 LICENSE = "MPLv2"
-LIC_FILES_CHKSUM = "file://LICENSE.txt;md5=99ba60c3fad7eaf8c56bca6dd75cba09 \
-                    file://MPL.txt;md5=ccdb2761cef70c8b2612624c323f89dc"
+LIC_FILES_CHKSUM = "file://LICENSE;md5=8184208060df880fe3137b93eb88aeea"
 
 DEPENDS = "dbus zlib"
 
-SRCREV = "b8b3ea3a31f7deb681941a19878c82e7b7350ae7"
-SRC_URI = "git://git.projects.genivi.org/${BPN}.git;branch=v2.11.x;protocol=http \
-           file://0001-Fix-build-with-systemd-209.patch \
-           file://0002-Don-t-execute-processes-as-a-specific-user.patch \
-           file://0003-systemd-unit-type-should-be-in-lowercase-so-use-Type.patch \
-           file://0004-Modify-systemd-config-directory.patch \
-           file://0005-Fix-OE-cmake-installation-dir.patch"
+SRCREV = "e9a486a08fff6d3cc7133a350cec3ee10f463207"
+SRC_URI = "git://git.projects.genivi.org/${BPN}.git;protocol=http \
+    file://0002-Don-t-execute-processes-as-a-specific-user.patch \
+    file://0004-Modify-systemd-config-directory.patch \
+    "
 S = "${WORKDIR}/git"
 
 inherit gzipnative autotools gettext cmake systemd
