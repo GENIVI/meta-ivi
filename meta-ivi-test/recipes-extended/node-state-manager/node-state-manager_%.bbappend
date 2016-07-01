@@ -1,12 +1,16 @@
 #
 # for test
 #
+do_compile_append() {
+   make -C NodeStateMachineTest
+}
+
 do_install_append() {
    install -d ${D}/opt/tests/${PN}/lib
-   install -m 0755 ${S}/NodeStateTest/NodeStateTest ${D}/opt/tests/${PN}
-   install -m 0644 ${S}/NodeStateTest/org.genivi.NodeStateMachineTest.xml \
+   install -m 0755 ${S}/NodeStateMachineTest/NodeStateTest ${D}/opt/tests/${PN}
+   install -m 0644 ${S}/NodeStateMachineTest/org.genivi.NodeStateMachineTest.xml \
      ${D}${datadir}/dbus-1/interfaces/
-   install -m 0755 ${S}/NodeStateTest/.libs/libNodeStateMachineTest.so \
+   install -m 0755 ${S}/NodeStateMachineTest/.libs/libNodeStateMachineTest.so \
      ${D}/opt/tests/${PN}/lib
 }
 
