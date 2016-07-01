@@ -13,7 +13,7 @@ SRC_URI = " \
 S = "${WORKDIR}/git"
 
 DEPENDS = "glib-2.0 dbus dlt-daemon libarchive zlib json-c node-state-manager \
-           systemd persistence-common-object libffi libitzam"
+           systemd persistence-common-object libffi"
 
 inherit autotools-brokensep systemd pkgconfig
 
