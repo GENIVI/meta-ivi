@@ -10,6 +10,8 @@ do_install_append() {
    install -d ${D}/Data
    install -m 0644 ${S}/test/data/PAS_data.tar.gz \
         ${D}/Data/Data.tar.gz
+   install -d ${D}/Data/mnt-c/lt-persistence_client_library_test
+   touch ${D}/Data/mnt-c/lt-persistence_client_library_test/BLANK
 }
 
 PACKAGES += "${PN}-test"
@@ -21,4 +23,5 @@ FILES_${PN}-dbg += " \
 FILES_${PN}-test = " \
    /opt/tests/${PN}/persistence_client_library_test \
    /Data/Data.tar.gz \
+   /Data/mnt-c/lt-persistence_client_library_test/BLANK \
    "
