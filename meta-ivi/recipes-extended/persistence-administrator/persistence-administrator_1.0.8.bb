@@ -6,11 +6,9 @@ SECTION = "base"
 LICENSE = "MPLv2"
 LIC_FILES_CHKSUM = "file://COPYING;md5=815ca599c9df247a0c7f619bab123dad"
 
-SRCREV = "68016b6762f9cbd87a7196df26d2b6fc8fcba2c1"
+SRCREV = "47e5a424c8ef6e33565737f20d3bd81f69c8efc9"
 SRC_URI = " \
     git://git.projects.genivi.org/persistence/persistence-administrator.git;protocol=http \
-    file://libsystemd_daemon.patch \
-    file://0001-Add-support-for-json-c-0.12.patch \
     "
 S = "${WORKDIR}/git"
 
