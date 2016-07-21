@@ -1,6 +1,10 @@
 #
 # for test
 #
+FILESEXTRAPATHS_append := ":${THISDIR}/${PN}"
+SRC_URI_append += " file://${BPN}_t.inc \
+    "
+
 EXTRA_OECONF += "--enable-tests"
 
 do_install_append() {
@@ -12,16 +16,12 @@ do_install_append() {
         ${D}/Data/Data.tar.gz
    install -d ${D}/Data/mnt-c/lt-persistence_client_library_test
    touch ${D}/Data/mnt-c/lt-persistence_client_library_test/BLANK
+
+   install -m 0755 ${WORKDIR}/${BPN}_t.inc ${D}/opt/tests/${PN}
 }
 
 PACKAGES += "${PN}-test"
 DEPENDS_${PN}-test = "${PN}"
 
-FILES_${PN}-dbg += " \
-   /opt/tests/${PN}/.debug/* \
-   "
-FILES_${PN}-test = " \
-   /opt/tests/${PN}/persistence_client_library_test \
-   /Data/Data.tar.gz \
-   /Data/mnt-c/lt-persistence_client_library_test/BLANK \
-   "
+FILES_${PN}-dbg += "/opt/tests/${PN}/.debug/* "
+FILES_${PN}-test = "/opt/tests/${PN}/ /Data/* "

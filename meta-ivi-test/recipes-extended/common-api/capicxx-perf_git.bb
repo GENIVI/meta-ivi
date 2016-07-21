@@ -6,7 +6,9 @@ LIC_FILES_CHKSUM = \
 PR = "r0"
 
 SRCREV = "2eacc9d7fb76957e9a5450a559675fddf0a95ce2"
-SRC_URI = "git://github.com/GENIVI/capic-poc.git"
+SRC_URI = "git://github.com/GENIVI/capic-poc.git \
+    file://${BPN}_t.inc \
+    "
 S = "${WORKDIR}/git/test/capicxx-perf"
 
 DEPENDS = "common-api-c++ common-api-c++-dbus capicxx-core-native capicxx-dbus-native"
@@ -31,4 +33,6 @@ do_install_append() {
     mv ${D}/usr/bin/* ${_DEST}
     rmdir ${D}/usr/bin
     rmdir ${D}/usr
+
+   install -m 0755 ${WORKDIR}/${BPN}_t.inc ${D}/opt/tests/${PN}
 }
