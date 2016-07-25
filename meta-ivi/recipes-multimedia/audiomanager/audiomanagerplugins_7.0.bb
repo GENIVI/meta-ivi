@@ -9,7 +9,7 @@ DEPENDS = "audiomanager capicxx-core-native capicxx-dbus-native"
 
 SRCREV = "a0ed3b8f05147e9240d941655488d505057bbae7"
 SRC_URI = " \
-    git://git.projects.genivi.org/${BPN}.git;branch=master;protocol=http \
+    git://git.projects.genivi.org/AudioManagerPlugins.git;branch=master;protocol=http \
     file://build-fixup.patch \
     "
 S = "${WORKDIR}/git"
