@@ -1,0 +1,26 @@
+From 39a5c3136ee0f84e29fe3c8121b3b61142a8a76f Mon Sep 17 00:00:00 2001
+From: Clement Dransart <clement.dransart@awtce.be>
+Date: Tue, 7 Jun 2016 11:02:12 +0200
+Subject: [meta-ivi][PATCH] Fix OE cmake installation dir
+
+Signed-off-by: Clement Dransart <clement.dransart@awtce.be>
+---
+ CMakeLists.txt | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
+
+diff --git a/CMakeLists.txt b/CMakeLists.txt
+index 46beec0..ad62848 100644
+--- a/CMakeLists.txt
++++ b/CMakeLists.txt
+@@ -112,7 +112,7 @@ ELSE (${WITH_DOC} STREQUAL "OFF")
+ 	SET(PACKAGE_DOC "")
+ ENDIF(${WITH_DOC} STREQUAL "OFF")
+ 
+-set(LIB_INSTALL_DIR lib${LIB_SUFFIX})
++set(LIB_INSTALL_DIR ${CMAKE_INSTALL_LIBDIR})
+ 
+ configure_file(${CMAKE_SOURCE_DIR}/${PROJECT_NAME}.spec.in ${PROJECT_BINARY_DIR}/${PROJECT_NAME}.spec)
+ configure_file(${CMAKE_SOURCE_DIR}/${PROJECT_NAME}.pc.in ${PROJECT_BINARY_DIR}/${PROJECT_NAME}.pc @ONLY)
+-- 
+1.9.1
+
