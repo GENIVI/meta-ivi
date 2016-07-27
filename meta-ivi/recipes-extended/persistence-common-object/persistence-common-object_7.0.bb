@@ -6,7 +6,7 @@ SECTION = "base"
 LICENSE = "MPLv2"
 LIC_FILES_CHKSUM = "file://COPYING;md5=815ca599c9df247a0c7f619bab123dad"
 
-SRC_URI = "git://git.projects.genivi.org/persistence/persistence-common-object.git;tag=${PV} \
+SRC_URI = "git://git.projects.genivi.org/persistence/persistence-common-object.git;tag=${PV};protocol=http \
            file://configure.ac-fix-typo.patch \
            file://B251_typedef_uint64_t.patch \
           "

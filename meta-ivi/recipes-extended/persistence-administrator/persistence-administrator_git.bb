@@ -8,7 +8,7 @@ LIC_FILES_CHKSUM = "file://COPYING;md5=815ca599c9df247a0c7f619bab123dad"
 
 PV = "7.0+git${SRCPV}"
 
-SRC_URI = "git://git.projects.genivi.org/persistence/persistence-administrator.git \
+SRC_URI = "git://git.projects.genivi.org/persistence/persistence-administrator.git;protocol=http \
           file://libsystemd_daemon.patch \
           "
 

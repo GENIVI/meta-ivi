@@ -7,9 +7,8 @@ LIC_FILES_CHKSUM = "file://LICENCE;md5=815ca599c9df247a0c7f619bab123dad"
 
 DEPENDS = "common-api-c++-dbus dlt-daemon sqlite3 dbus node-state-manager"
 
-BRANCH = "Intreprid_stable_branch"
-
-SRC_URI = "git://git.projects.genivi.org/AudioManager.git;branch=${BRANCH};tag=${PV} \
+SRCREV = "6e700bfc7faecb6d7e0f31c9d08b8b4f6cd1b3dd"
+SRC_URI = "git://git.projects.genivi.org/AudioManager.git;nobranch=1;protocol=http \
            file://0001-src-gen-update-to-CommonAPI-version-2.1.6.patch \
            file://AudioManager.service file://setup_amgr.sh"
 
