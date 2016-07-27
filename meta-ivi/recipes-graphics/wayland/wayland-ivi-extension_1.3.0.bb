@@ -12,7 +12,7 @@ DEPENDS = "weston"
 # https://bugzilla.yoctoproject.org/show_bug.cgi?id=6881
 #TAG = "a4bde3e5a4c21ff7cf28cc027d45d7c63cac2f66"
 TAG = "1.3.91"
-SRC_URI = "git://git.projects.genivi.org/${PN}.git;tag=${TAG} \
+SRC_URI = "git://git.projects.genivi.org/${PN}.git;tag=${TAG};;protocol=http \
            file://use_sysroot_dir.patch \
            file://apply_weston-1.6.x.patch \
           "
