@@ -3,9 +3,8 @@ SECTION = "libs"
 LICENSE = "MPLv2"
 LIC_FILES_CHKSUM = "file://LICENSE;md5=815ca599c9df247a0c7f619bab123dad"
 
-BRANCH ?= "maintain/2.1.6"
-TAG ?= "${PV}"
-SRC_URI = "git://git.projects.genivi.org/ipc/common-api-dbus-runtime.git;branch=${BRANCH};tag=${TAG}"
+SRCREV = "2976e524d5a46cc4793e3e3f3ec70558f6de74de"
+SRC_URI = "git://git.projects.genivi.org/ipc/common-api-dbus-runtime.git;nobranch=1;protocol=http"
 S = "${WORKDIR}/git"
 
 DEPENDS = "common-api2 dbus"

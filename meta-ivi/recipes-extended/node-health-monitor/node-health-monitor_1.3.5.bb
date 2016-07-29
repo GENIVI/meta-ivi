@@ -6,7 +6,7 @@ PR = "r2"
 
 SRCREV = "851565499527e2d44047de3f6cbe9dd3a84a6c74"
 
-SRC_URI = "git://git.projects.genivi.org/lifecycle/node-health-monitor.git \
+SRC_URI = "git://git.projects.genivi.org/lifecycle/node-health-monitor.git;protocol=http \
            file://fix-no-libsystemd-daemon.patch \
           "
 S = "${WORKDIR}/git"
