@@ -11,7 +11,7 @@ DEPENDS = "dlt-daemon dbus libcheck persistence-common-object"
 
 PV = "7.0+git${SRCPV}"
 
-SRC_URI = "git://git.projects.genivi.org/persistence/persistence-client-library.git"
+SRC_URI = "git://git.projects.genivi.org/persistence/persistence-client-library.git;protocol=http"
 SRCREV  = "441b3ce710ec6b7f1e6360cdf29e5c4243af9f1e"
 S = "${WORKDIR}/git"
 

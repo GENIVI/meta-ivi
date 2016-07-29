@@ -10,8 +10,8 @@ DEPENDS = "weston"
 # FIX ME
 # This should be TAG = "${PV}" but yocto doesn't support lightweight tags for now
 # https://bugzilla.yoctoproject.org/show_bug.cgi?id=6881
-TAG = "a4bde3e5a4c21ff7cf28cc027d45d7c63cac2f66"
-SRC_URI = "git://git.projects.genivi.org/${PN}.git;tag=${TAG} \
+SRCREV = "a4bde3e5a4c21ff7cf28cc027d45d7c63cac2f66"
+SRC_URI = "git://git.projects.genivi.org/${PN}.git;protocol=http \
            file://use_sysroot_dir.patch \
            file://fix_compositor_include.patch \
           "
