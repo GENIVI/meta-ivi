@@ -1,6 +1,6 @@
 DEFAULT_PREFERENCE = "-1"
 
-include recipes-multimedia/gstreamer/gstreamer1.0-plugins-base.inc
+include recipes-multimedia/gstreamer/gstreamer1.0-plugins-base_1.2.3.inc
 
 LIC_FILES_CHKSUM = "file://COPYING;md5=c54ce9345727175ff66d17b67ff51f58 \
                     file://common/coverage/coverage-report.pl;beginline=2;endline=17;md5=a4e1830fce078028c8f0974161272607 \

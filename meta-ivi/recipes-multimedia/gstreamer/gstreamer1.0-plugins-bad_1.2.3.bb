@@ -1,6 +1,6 @@
 DEFAULT_PREFERENCE = "-1"
 
-include recipes-multimedia/gstreamer/gstreamer1.0-plugins-bad.inc
+include recipes-multimedia/gstreamer/gstreamer1.0-plugins-bad_1.2.3.inc
 
 #remove patch from poky that is not necessary in version 1.2.3
 SRC_URI_remove = "file://configure-allow-to-disable-libssh2.patch"
