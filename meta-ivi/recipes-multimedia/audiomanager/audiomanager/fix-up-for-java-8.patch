@@ -1,0 +1,16 @@
+diff --git a/cmake/CommonAPI.cmake b/cmake/CommonAPI.cmake
+index 45c1078..972e53c 100755
+--- a/cmake/CommonAPI.cmake
++++ b/cmake/CommonAPI.cmake
+@@ -191,7 +191,10 @@ macro(FIND_AND_EXEC_GENERATOR GENERATOR_EXECUTABLE SHOULD_GENERATE_STUB_DEFAULT
+         if(EXIT_CODE)
+             message(FATAL_ERROR "Failed to generate files from FIDL:${GENERATOR_OUTPUT}")
+         elseif(GENERATOR_ERR_OUTPUT)
+-        	message(FATAL_ERROR "Common-API generator error:${GENERATOR_ERR_OUTPUT}")
++	    string(FIND "${GENERATOR_ERR_OUTPUT}" "VM warning" VM_WARNING_POS)
++	    if(${VM_WARNING_POS} EQUAL -1)
++		message(FATAL_ERROR "Common-API generator error:${GENERATOR_ERR_OUTPUT}")
++	    endif()
+         endif()
+         SET(TEMP_GEN_DST ${PARAMS_DESTINATION})   
+     ENDIF()
