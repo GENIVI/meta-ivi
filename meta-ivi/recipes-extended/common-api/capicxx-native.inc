@@ -25,6 +25,14 @@ S = "${WORKDIR}"
 DD = "${D}${datadir}/${PN}-${PV}"
 
 do_install() {
+    # work around for java-8
+    java_version=`java -version 2>&1 | head -n 1 | grep '[ "]1\.8[\. "$$]'`
+    if [ "x${java_version}" != "x" ]; then
+      for i in x86 x86_64; do
+        perl -pi -e 's|-XX:PermSize=128m||' ${S}/${LAUNCHER_BASE}-linux-${i}.ini
+      done
+    fi
+
     install -d ${DD}
     install -m 0644 ${S}/artifacts.xml ${DD}
     install -m 0755 ${S}/${LAUNCHER_BASE}-linux-x86 ${DD}
