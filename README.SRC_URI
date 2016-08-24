@@ -1,0 +1,50 @@
+talk about using SRCREV instead of branch or tag at SRC_URI
+-----------------------------------------------------------
+
+Sent: Tuesday, April 05, 2016 11:33 PM
+To: James Thomas
+Cc: genivi-meta-ivi@lists.genivi.org
+Subject: Re: [meta-ivi] Building with local source mirror
+
+On Tue, Mar 29, 2016 at 10:51 PM, James Thomas <james.thomas@codethink.co.uk> wrote:
+> One thing I noticed is that simply providing the SRCREV works as long
+> as that sha exists within master, if it doesn't then you have a build
+> error, so being able to use tags is useful.
+>
+> I think using git://...;tag=foo is not sufficient, because tags *can*
+> change (i.e there's no guarantee that the tag you're using is going to
+> be the same as the one you used yesterday).
+>
+> What would be nice is if you could go tag=foo, and have it verified
+> against SRCREV (in my testing this resulted in a build error *when*
+> the tag and sha matched)
+>
+> However, something like
+>
+> SRC_URI = "git://mygitrepo/foo.git;nobranch=1;branch=v0.2"
+> SRCREV  = "7654321"
+>
+> does enforce that check (v0.2 is actually a tag in this case), which
+> seems to be pretty useful (the recipe provides something human
+> readable, and something a machine can understand, and will always
+> check they match)
+
+I completely understand the reasoning behind this. The point I'm trying to
+ make is that the automotive industry has a strong need for reproducible
+ offline builds and any kind of mandatory online checks break this requirement.
+ And like Federico said, using SRCREV is also the Yocto project practice.
+
+If we want meta-ivi to be widely used in the industry I believe it should
+ support it's needs. In my opinion the same should go for the whole GENIVI
+ stack to work nicely, which in particular means tags of the projects should
+ not change. But the easiest solution would be for meta-ivi to not use tags.
+ That way it supports offline builds and it is also possible to track bugfixes
+ in the projects instead of pinning to the tag and then getting the bugfixes
+ in patch by patch until next release.
+
+How do the others on this list feel about this proposal?
+
+Regards,
+--
+Igor Socec
+Software Engineer
