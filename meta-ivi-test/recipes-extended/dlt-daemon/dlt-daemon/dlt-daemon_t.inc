@@ -7,10 +7,31 @@ get_title() {
   echo "dlt-daemon"
 }
 
+_run_dir=/opt/tests/dlt-daemon
 run_1() {
-  /opt/tests/dlt-daemon/dlt-test-filetransfer
+  if [ "x${1}" != "x" ]; then
+    ${_run_dir}/dlt-test-filetransfer > /tmp/t
+    _c1=$?
+    if [ "x${_c1}" = "x0" ]; then
+       echo " PASSED"
+    else
+       echo " FAILED"
+    fi
+  else
+    ${_run_dir}/dlt-test-filetransfer
+  fi
 }
 
 run_2() {
-  /opt/tests/dlt-daemon/dlt-test-user
+  if [ "x${1}" != "x" ]; then
+    ${_run_dir}/dlt-test-user > /tmp/t
+    _c1=`cat /tmp/t | grep -v -E Test.. | grep -v "locally printed"`
+    if [ "x${_c1}" = "x" ]; then
+       echo " PASSED"
+    else
+       echo " FAILED"
+    fi
+  else
+    ${_run_dir}/dlt-test-user
+  fi
 }

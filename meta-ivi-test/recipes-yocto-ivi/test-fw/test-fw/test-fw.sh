@@ -1,7 +1,23 @@
 #!/bin/bash
 # create dbus-session
-dbus-launch >& /tmp/t
-export `grep -r DBUS_SESSION_BUS_ADDRESS /tmp/t`
+dbus_live_p() {
+  dbus-send --bus=$1 \
+      --dest=org.freedesktop.DBus --type=method_call --print-reply \
+      /org/freedesktop/DBus org.freedesktop.DBus.ListNames > /tmp/dbus_check
+}
+
+if [ -f /tmp/dbus_test-fw ]; then
+  _bus_str=`grep -r DBUS_SESSION_BUS_ADDRESS /tmp/dbus_test-fw`
+  _bus_addr=`echo ${_bus_str} | awk -F_BUS_ADDRESS= '{print $2}'`
+  dbus_live_p ${_bus_addr}
+  _dbus_live_p=`grep "method return" /tmp/dbus_check`
+  if [ "x${_dbus_live_p}" = "x" ]; then
+    dbus-launch >& /tmp/dbus_test-fw
+  fi
+else
+  dbus-launch >& /tmp/dbus_test-fw
+fi
+export `grep -r DBUS_SESSION_BUS_ADDRESS /tmp/dbus_test-fw`
 
 test_list=`ls /opt/tests/*/*_t.inc | awk -F/ '{print $4}' | awk -F_t '{print $1}'`
 
@@ -16,8 +32,8 @@ _test_run() {
     cnt=$?
     echo "[ number of tests:" $cnt "]"
     for k in `seq $cnt`; do
-      echo "[" run_${k} "]"
-      eval run_${k}
+      echo -n "[" run_${k} "]"
+      eval run_${k} "no_verbose_output"
     done
   else
       echo "[" run_${n} "]"
@@ -57,4 +73,5 @@ for i in $test_list; do
     continue;
   fi
   _test_run
+  sleep 2
 done

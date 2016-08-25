@@ -4,21 +4,31 @@ get_list() {
 }
 
 get_title() {
-  echo "AudioManagerPlugins"
+  echo "audiomanagerplugins"
+}
+
+_run_dir=/opt/tests/audiomanagerplugins
+_run() {
+  if [ "x${2}" != "x" ]; then
+    ${_run_dir}/$1 > /tmp/t
+    tail /tmp/t | grep -E 'PASS|FAIL'
+  else
+    ${_run_dir}/$1
+  fi
 }
 
 run_1() {
-  /opt/tests/AudioManagerPlugins/AmCommandSenderCAPITest
+  _run AmCommandSenderCAPITest $*
 }
 
 run_2() {
-  /opt/tests/AudioManagerPlugins/AmControlReceiverShadowTest
+  _run AmControlReceiverShadowTest $*
 }
 
 run_3() {
-  /opt/tests/AudioManagerPlugins/AmRoutingInterfaceCAPITests
+  _run AmRoutingInterfaceCAPITests $*s
 }
 
 run_4() {
-  /opt/tests/AudioManagerPlugins/AmRoutingReceiveAsyncTest
+  _run AmRoutingReceiveAsyncTest $*
 }

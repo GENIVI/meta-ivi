@@ -1,9 +1,10 @@
 #
 # for test
 #
-#FILESEXTRAPATHS_append := ":${THISDIR}/${PN}"
+FILESEXTRAPATHS_append := ":${THISDIR}/${PN}"
 SRC_URI_append += " \
     http://googletest.googlecode.com/files/gtest-1.7.0.zip \
+    file://${BPN}_t.inc \
     "
 SRC_URI[md5sum] = "2d6ec8ccdf5c46b05ba54a9fd1d130d7"
 SRC_URI[sha256sum] = "247ca18dd83f53deb1328be17e4b1be31514cedfc1e3424f672bf11fd7e0d60d"
@@ -28,6 +29,8 @@ do_install_append() {
    for i in sh json test client service; do
      cp -f ${B}/test/*${i} ${D}/opt/tests/${PN}
    done
+
+    install -m 0755 ${WORKDIR}/${BPN}_t.inc ${D}/opt/tests/${PN}
 }
 
 PACKAGES += "${PN}-test"

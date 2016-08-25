@@ -7,30 +7,40 @@ get_title() {
   echo "audiomanager"
 }
 
+_run_dir=/opt/tests/audiomanager
+_run() {
+  if [ "x${2}" != "x" ]; then
+    ${_run_dir}/$1 > /tmp/t
+    tail /tmp/t | grep -E 'PASS|FAIL'
+  else
+    ${_run_dir}/$1
+  fi
+}
+
 run_1() {
-  /opt/tests/audiomanager/AmControlInterfaceTest
+  _run AmControlInterfaceTest $*
 }
 
 run_2() {
-  /opt/tests/audiomanager/AmMapHandlerTest
+  _run AmMapHandlerTest $*
 }
 
 run_3() {
-  /opt/tests/audiomanager/AmRouterMapTest
+  _run AmRouterMapTest $*
 }
 
 run_4() {
-  /opt/tests/audiomanager/AmRouterTest
+  _run AmRouterTest $*
 }
 
 run_5() {
-  /opt/tests/audiomanager/AmRoutingInterfaceTest
+  _run AmRoutingInterfaceTest $*
 }
 
 run_6() {
-  /opt/tests/audiomanager/AmSocketHandlerTest
+  _run AmSocketHandlerTest $*
 }
 
 run_7() {
-  /opt/tests/audiomanager/AmTelnetServerTest
+  _run AmTelnetServerTest $*
 }
