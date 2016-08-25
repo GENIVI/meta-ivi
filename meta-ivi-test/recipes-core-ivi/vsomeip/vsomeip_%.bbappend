@@ -14,10 +14,11 @@ do_configure_prepend() {
 }
 
 do_compile_append() {
-   perl -pi -e 's|-Wl,-rpath,/storage/.*||' examples/CMakeFiles/*/link.txt
+   _B=`pwd`
+   perl -pi -e "s|-Wl,-rpath,${_B}:||" examples/CMakeFiles/*/link.txt
    make examples
 
-   perl -pi -e 's|-Wl,-rpath,/storage/.*||' test/CMakeFiles/*/link.txt
+   perl -pi -e "s|-Wl,-rpath,${_B}||" test/CMakeFiles/*/link.txt
    make build_tests
 }
 
