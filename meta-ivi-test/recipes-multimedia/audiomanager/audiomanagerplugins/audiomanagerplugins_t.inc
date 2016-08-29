@@ -1,6 +1,6 @@
 #!/bin/sh
 get_list() {
-  return 4
+  return 5
 }
 
 get_title() {
@@ -22,13 +22,17 @@ run_1() {
 }
 
 run_2() {
-  _run AmControlReceiverShadowTest $*
+  _run AmCommandSenderDbusSignalTest $*
 }
 
 run_3() {
-  _run AmRoutingInterfaceCAPITests $*s
+  _run AmCommandSenderDbusTest $*s
 }
 
 run_4() {
+  _run AmRoutingInterfaceCAPITests $*
+}
+
+run_5() {
   _run AmRoutingReceiveAsyncTest $*
 }
