@@ -1,0 +1,137 @@
+diff --git a/PluginCommandInterfaceCAPI/cmake/CommonAPI.cmake b/PluginCommandInterfaceCAPI/cmake/CommonAPI.cmake
+index 3db1f4a..ab3d4d6 100644
+--- a/PluginCommandInterfaceCAPI/cmake/CommonAPI.cmake
++++ b/PluginCommandInterfaceCAPI/cmake/CommonAPI.cmake
+@@ -351,7 +351,10 @@
+         if(EXIT_CODE)
+             message(FATAL_ERROR "Failed to generate files from FIDL:${GENERATOR_OUTPUT}")
+         elseif(GENERATOR_ERR_OUTPUT)
+-        	message(FATAL_ERROR "Common-API generator error:${GENERATOR_ERR_OUTPUT}")
++        	STRING(FIND "${GENERATOR_ERR_OUTPUT}" "VM warning" VM_WARNING_POS)
++			IF( ${VM_WARNING_POS} EQUAL -1)
++				message(FATAL_ERROR "Common-API generator error:${GENERATOR_ERR_OUTPUT}")
++			ENDIF()
+         endif()
+         SET(TEMP_GEN_DST ${PARAMS_DESTINATION})                
+     ENDIF()
+diff --git a/PluginRoutingInterfaceCAPI/cmake/CommonAPI.cmake b/PluginRoutingInterfaceCAPI/cmake/CommonAPI.cmake
+index 3db1f4a..3746cfc 100644
+--- a/PluginRoutingInterfaceCAPI/cmake/CommonAPI.cmake
++++ b/PluginRoutingInterfaceCAPI/cmake/CommonAPI.cmake
+@@ -41,18 +41,18 @@
+ 
+ # find the proper libs ...
+ MACRO(LOAD_COMMONAPI_LIB)
+-	FIND_PACKAGE(CommonAPI REQUIRED)
+-	FIND_LIBRARY(CommonAPI_LIBRARY 
+-	             REQUIRED
+-	             NAMES CommonAPI
+-	             PATHS
+-	             "/usr/local/lib"
+-	             "/usr/lib"
+-	            )  
+-	message(STATUS "CommonAPI Version: ${CommonAPI_VERSION}")
+-	string(REPLACE "." "" COMMONAPI_VERSION_NUMBER ${CommonAPI_VERSION})
+-	SET(COMMONAPI_VERSION_NUMBER ${COMMONAPI_VERSION_NUMBER} CACHE INTERNAL "hide this!" FORCE)
+-	SET(CommonAPI_VERSION ${CommonAPI_VERSION} PARENT_SCOPE)   
++    FIND_PACKAGE(CommonAPI REQUIRED)
++    FIND_LIBRARY(CommonAPI_LIBRARY 
++                 REQUIRED
++                 NAMES CommonAPI
++                 PATHS
++                 "/usr/local/lib"
++                 "/usr/lib"
++                )  
++    message(STATUS "CommonAPI Version: ${CommonAPI_VERSION}")
++    string(REPLACE "." "" COMMONAPI_VERSION_NUMBER ${CommonAPI_VERSION})
++    SET(COMMONAPI_VERSION_NUMBER ${COMMONAPI_VERSION_NUMBER} CACHE INTERNAL "hide this!" FORCE)
++    SET(CommonAPI_VERSION ${CommonAPI_VERSION} PARENT_SCOPE)   
+ ENDMACRO()
+ 
+ MACRO(LOAD_COMMONAPI_DBUS_LIB)
+@@ -110,9 +110,9 @@
+     # load the proper libs ...
+     LOAD_COMMONAPI_LIB()
+     IF(${SELECTED_CAPI_BINDING} EQUAL 1)
+-	    LOAD_COMMONAPI_SOMEIP_LIB()
++        LOAD_COMMONAPI_SOMEIP_LIB()
+     ELSE()
+-		LOAD_COMMONAPI_DBUS_LIB()
++        LOAD_COMMONAPI_DBUS_LIB()
+     ENDIF()
+     
+ ENDMACRO()
+@@ -304,7 +304,7 @@
+                         ERROR_VARIABLE OUT_ERROR
+                         OUTPUT_STRIP_TRAILING_WHITESPACE
+                         ERROR_STRIP_TRAILING_WHITESPACE)
+-	
++    
+     IF(OUT_ERROR)
+          # in case of error just try to find the sources in the alternative folder
+         SET(TEMP_GEN_DST ${PARAMS_ALT_DESTINATION})
+@@ -317,7 +317,7 @@
+         # the generator binary is found
+         MESSAGE(STATUS "Will execute common-api generator at path ${OUT_RESULT} with fidls:")
+         FOREACH(FIDL ${FIDLS})
+-    	    MESSAGE(STATUS "${FIDL}")
++            MESSAGE(STATUS "${FIDL}")
+         ENDFOREACH()
+      
+         function(mktmpdir OUTVAR)
+@@ -333,25 +333,28 @@
+         # execute the generate command ...             
+         IF(${SHOULD_GENERATE_STUB_DEFAULT} EQUAL 1)  
+             execute_process(COMMAND ${OUT_RESULT} -sk Default -d ${PARAMS_DESTINATION} ${FIDLS}
+-	                        WORKING_DIRECTORY ${CMAKE_CURRENT_SOURCE_DIR}
+-	                        RESULT_VARIABLE EXIT_CODE
+-	                        OUTPUT_VARIABLE GENERATOR_OUTPUT
+-	                        ERROR_VARIABLE GENERATOR_ERR_OUTPUT
+-	                        OUTPUT_STRIP_TRAILING_WHITESPACE
+-	                        ERROR_STRIP_TRAILING_WHITESPACE)	                        
++                            WORKING_DIRECTORY ${CMAKE_CURRENT_SOURCE_DIR}
++                            RESULT_VARIABLE EXIT_CODE
++                            OUTPUT_VARIABLE GENERATOR_OUTPUT
++                            ERROR_VARIABLE GENERATOR_ERR_OUTPUT
++                            OUTPUT_STRIP_TRAILING_WHITESPACE
++                            ERROR_STRIP_TRAILING_WHITESPACE)                            
+         ELSE()
+-      		execute_process(COMMAND ${OUT_RESULT} -d ${PARAMS_DESTINATION} ${FIDLS}
+-	                        WORKING_DIRECTORY ${CMAKE_CURRENT_SOURCE_DIR}
+-	                        RESULT_VARIABLE EXIT_CODE
+-	                        OUTPUT_VARIABLE GENERATOR_OUTPUT
+-	                        ERROR_VARIABLE GENERATOR_ERR_OUTPUT
+-	                        OUTPUT_STRIP_TRAILING_WHITESPACE
+-	                        ERROR_STRIP_TRAILING_WHITESPACE)
++            execute_process(COMMAND ${OUT_RESULT} -d ${PARAMS_DESTINATION} ${FIDLS}
++                            WORKING_DIRECTORY ${CMAKE_CURRENT_SOURCE_DIR}
++                            RESULT_VARIABLE EXIT_CODE
++                            OUTPUT_VARIABLE GENERATOR_OUTPUT
++                            ERROR_VARIABLE GENERATOR_ERR_OUTPUT
++                            OUTPUT_STRIP_TRAILING_WHITESPACE
++                            ERROR_STRIP_TRAILING_WHITESPACE)
+         ENDIF()                
+         if(EXIT_CODE)
+             message(FATAL_ERROR "Failed to generate files from FIDL:${GENERATOR_OUTPUT}")
+         elseif(GENERATOR_ERR_OUTPUT)
+-        	message(FATAL_ERROR "Common-API generator error:${GENERATOR_ERR_OUTPUT}")
++            STRING(FIND "${GENERATOR_ERR_OUTPUT}" "VM warning" VM_WARNING_POS)
++            IF( ${VM_WARNING_POS} EQUAL -1)
++                message(FATAL_ERROR "Common-API generator error:${GENERATOR_ERR_OUTPUT}")
++            ENDIF()
+         endif()
+         SET(TEMP_GEN_DST ${PARAMS_DESTINATION})                
+     ENDIF()
+@@ -371,10 +374,10 @@
+     # prepare an additional compatibilty flag for generators prior 3.x.x ...
+     IF(${COMMONAPI_VERSION_NUMBER} GREATER 300 OR ${COMMONAPI_VERSION_NUMBER} EQUAL 300)
+         # >= 3.x.x the stubs are generated by the binding generator
+-       	SET(GENERATE_STUB 1)         
++        SET(GENERATE_STUB 1)         
+     ELSE() 
+         # < 3.0.0 the stubs are generated by the genric generator
+-    	SET(GENERATE_STUB 0) 
++        SET(GENERATE_STUB 0) 
+     ENDIF()
+     SET(${PARAMS_TARGET}_GEN_INCLUDE_DIR ${PARAMS_DESTINATION} PARENT_SCOPE)
+        
