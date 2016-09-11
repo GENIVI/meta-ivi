@@ -13,6 +13,7 @@ SRCREV = "9209a0c8fd63afc59f644e078b40cec531409c30"
 
 SRC_URI = "git://git.kernel.org/pub/scm/linux/kernel/git/dhowells/keyutils.git;protocol=git \
           file://0001-keyutils-Use-libdir-from-the-Yocto-environment.patch \
+          file://0001-Include-limits.h-for-UINT_MAX.patch \
           "
 
 S = "${WORKDIR}/git"
