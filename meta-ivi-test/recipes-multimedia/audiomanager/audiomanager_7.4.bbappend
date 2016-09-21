@@ -19,10 +19,10 @@ do_install_append() {
       install -m 0755 ${i} ${D}/opt/tests/${PN}
     done
 
-   install -m 0755 ${WORKDIR}/${BPN}_t.inc ${D}/opt/tests/${PN}
+    install -m 0755 ${WORKDIR}/${BPN}_t.inc ${D}/opt/tests/${PN}
 }
 
 PACKAGES += " ${PN}-test"
 
 FILES_${PN}-dbg += "/opt/tests/${PN}/.debug/* "
-FILES_${PN}-test = "/opt/tests/${PN}/* "
+FILES_${PN}-test = "/opt/tests/${PN}/ "
