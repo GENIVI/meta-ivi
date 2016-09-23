@@ -30,7 +30,7 @@ Layer Dependencies
 
 URI: git://git.yoctoproject.org/poky
 > branch:   krogoth
-> revision: 12eb72ee3b02f826a156ff4e396c770f2b93571e
+> revision: aad7166704021d82ad3a5ec468552f8f10360d41
 
 URI: git://git.openembedded.org/meta-openembedded
 > layer:    meta-oe
@@ -91,3 +91,15 @@ export TEMPLATECONF=/full/path/to/meta-ivi/meta-ivi/conf
 5. To login use these credentials:
    > User - root
    > Password - root
+
+Build a s/w image with audiomanager 7.0 instead of 7.4
+------------------------------------------------------
+Because audiomanagerplugins 7.4 is not working properly,
+ you may choose audiomanager/plugins 7.0
+  as an implementation of audiomanager 7.0 specification.
+( see https://at.projects.genivi.org/jira/browse/AMP-1 )
+
+to use am 7.0, put following lines to <build directory>/conf/local.conf
+# use audiomanager 7.0 until am7.4 issues are fixed.
+PREFERRED_VERSION_audiomanager          ?= "7.0"
+PREFERRED_VERSION_audiomanagerplugins   ?= "7.0"
