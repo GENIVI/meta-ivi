@@ -5,8 +5,9 @@ BUGTRACKER = "http://bugs.genivi.org/enter_bug.cgi?product=Wayland%20IVI%20Exten
 LICENSE = "Apache-2.0"
 LIC_FILES_CHKSUM = "file://LICENSE;md5=176cedb32f48dd58f07e0c1c717b3ea4"
 
-SRCREV = "6c2823684105c0bd46aaeca817fe5d87e7c6da25"
-SRC_URI = "git://git.projects.genivi.org/${BPN}.git;protocol=http \
+PR = "r1"
+SRCREV = "e232017e0906557f468823505a49e92d4c94591c"
+SRC_URI = "git://github.com/GENIVI/${BPN}.git;protocol=http \
     "
 S = "${WORKDIR}/git"
 
