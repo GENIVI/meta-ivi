@@ -12,7 +12,21 @@ _run_1() {
   ${_run_dir}/NodeStateTest
 }
 
+_setup_env() {
+  systemctl stop node-startup-controller
+
+  _p=`pidof NodeStateManager`
+  if [ "x${_p}" != "x" ]; then
+      kill -9 ${_p} >& /dev/null
+  fi
+  _p=`pidof nsm-dummy`
+  if [ "x${_p}" != "x" ]; then
+      kill -9 ${_p} >& /dev/null
+  fi
+}
+
 _lib=/usr/lib/libNodeStateMachineStub.so
+_lib_2=/usr/lib/libNodeStateMachineTest.so
 _lib_t=${_run_dir}/lib/libNodeStateMachineTest.so
 _lib_bak=${_run_dir}/lib/libNodeStateMachineStub.so
 run_1() {
@@ -23,7 +37,9 @@ run_1() {
   ldconfig
   sleep 1
 
-  systemctl start node-startup-controller
+  _setup_env
+  /usr/bin/NodeStateManager >& /dev/null &
+  sleep 2
 
   if [ "x${1}" != "x" ]; then
     _run_1 > /tmp/t 2> /tmp/t.err
@@ -40,17 +56,9 @@ run_1() {
     _run_1 2> /tmp/t.err
   fi
 
-  systemctl stop node-startup-controller
-  _p=`pidof NodeStateManager`
-  if [ "x${_p}" != "x" ]; then
-      kill -9 ${_p} >& /dev/null
-  fi
-  _p=`pidof nsm-dummy`
-  if [ "x${_p}" != "x" ]; then
-      kill -9 ${_p} >& /dev/null
-  fi
+  _setup_env
 
-  rm -f ${_lib}
+  rm -f ${_lib} ${_lib_2}
   cp ${_lib_bak} ${_lib}
   ldconfig
 }
