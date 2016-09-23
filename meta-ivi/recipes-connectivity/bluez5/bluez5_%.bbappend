@@ -33,3 +33,9 @@ EXTRA_OECONF += "--enable-service --enable-sixaxis "
 
 PACKAGES =+ " libbluetooth-plugins-service "
 FILES_libbluetooth-plugins-service = "${libdir}/bluetooth/plugins/*.so"
+
+do_configure_prepend() {
+    if [ -f configure ]; then
+       rm -f configure
+    fi
+}

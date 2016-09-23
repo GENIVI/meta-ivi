@@ -1,4 +1,4 @@
 Common targets are:
-    leviathan-image
+    miranda-image
     ivi-image
 

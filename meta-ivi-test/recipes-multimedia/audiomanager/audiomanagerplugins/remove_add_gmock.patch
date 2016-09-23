@@ -1,0 +1,95 @@
+diff --git a/PluginCommandInterfaceCAPI/CMakeLists.txt b/PluginCommandInterfaceCAPI/CMakeLists.txt
+index a5ec2fc..5e8e4fe 100644
+--- a/PluginCommandInterfaceCAPI/CMakeLists.txt
++++ b/PluginCommandInterfaceCAPI/CMakeLists.txt
+@@ -31,12 +31,6 @@ if (NOT DAEMONVERSION)
+         set(PLUGINS_OUTPUT_PATH ${CMAKE_CURRENT_BINARY_DIR}) 
+         set(TEST_EXECUTABLE_OUTPUT_PATH ${CMAKE_CURRENT_BINARY_DIR}) 
+ 
+-        if(WITH_TESTS)
+-            if(NOT TARGET gtest)
+-                add_subdirectory(${GOOGLE_MOCK_PROJECT_FOLDER} ${CMAKE_CURRENT_BINARY_DIR}/gmock)
+-            endif(NOT TARGET gtest)
+-        endif(WITH_TESTS)
+-
+         set(COMMONAPI_DBUS_CONFIGURATIONS "") 
+     else(AUDIOMANAGER_FOUND)
+         message(FATAL_ERROR "Could not find audiomanager cmake configuration")
+diff --git a/PluginCommandInterfaceDbus/CMakeLists.txt b/PluginCommandInterfaceDbus/CMakeLists.txt
+index 225fdc6..d6ef7e8 100644
+--- a/PluginCommandInterfaceDbus/CMakeLists.txt
++++ b/PluginCommandInterfaceDbus/CMakeLists.txt
+@@ -26,11 +26,6 @@ if (NOT DAEMONVERSION)
+         include ("${AUDIOMANAGER_CMAKE_CONFIG_PATH}/audiomanagerConfig.cmake")
+         set(PLUGINS_OUTPUT_PATH ${CMAKE_CURRENT_BINARY_DIR}) 
+         set(TEST_EXECUTABLE_OUTPUT_PATH ${CMAKE_CURRENT_BINARY_DIR}) 
+-        if(WITH_TESTS)
+-            if(NOT TARGET gtest)
+-            add_subdirectory(${GOOGLE_MOCK_PROJECT_FOLDER} ${CMAKE_CURRENT_BINARY_DIR}/gmock)
+-            endif()
+-        endif(WITH_TESTS)
+         
+         set(COMMONAPI_DBUS_CONFIGURATIONS "") 
+     else(AUDIOMANAGER_FOUND)
+diff --git a/PluginControlInterface/CMakeLists.txt b/PluginControlInterface/CMakeLists.txt
+index 137ca8f..53d71f3 100644
+--- a/PluginControlInterface/CMakeLists.txt
++++ b/PluginControlInterface/CMakeLists.txt
+@@ -29,11 +29,6 @@ if (NOT DAEMONVERSION)
+         include ("${AUDIOMANAGER_CMAKE_CONFIG_PATH}/audiomanagerConfig.cmake")
+         set(PLUGINS_OUTPUT_PATH ${CMAKE_CURRENT_BINARY_DIR}) 
+         set(TEST_EXECUTABLE_OUTPUT_PATH ${CMAKE_CURRENT_BINARY_DIR}) 
+-        if(WITH_TESTS)
+-            if(NOT TARGET gtest)
+-            add_subdirectory(${GOOGLE_MOCK_PROJECT_FOLDER} ${CMAKE_CURRENT_BINARY_DIR}/gmock)
+-            endif()
+-        endif(WITH_TESTS)
+         
+         set(COMMONAPI_DBUS_CONFIGURATIONS "") 
+     else(AUDIOMANAGER_FOUND)
+diff --git a/PluginRoutingInterfaceAsync/CMakeLists.txt b/PluginRoutingInterfaceAsync/CMakeLists.txt
+index 85a7a04..010b7ee 100644
+--- a/PluginRoutingInterfaceAsync/CMakeLists.txt
++++ b/PluginRoutingInterfaceAsync/CMakeLists.txt
+@@ -29,11 +29,6 @@ if (NOT DAEMONVERSION)
+         include ("${AUDIOMANAGER_CMAKE_CONFIG_PATH}/audiomanagerConfig.cmake")
+         set(PLUGINS_OUTPUT_PATH ${CMAKE_CURRENT_BINARY_DIR}) 
+         set(TEST_EXECUTABLE_OUTPUT_PATH ${CMAKE_CURRENT_BINARY_DIR}) 
+-        if(WITH_TESTS)
+-            if(NOT TARGET gtest)
+-                add_subdirectory(${GOOGLE_MOCK_PROJECT_FOLDER} ${CMAKE_CURRENT_BINARY_DIR}/gmock)
+-            endif()
+-        endif(WITH_TESTS)
+         
+         set(COMMONAPI_DBUS_CONFIGURATIONS "") 
+     else(AUDIOMANAGER_FOUND)
+diff --git a/PluginRoutingInterfaceCAPI/CMakeLists.txt b/PluginRoutingInterfaceCAPI/CMakeLists.txt
+index 7b4b1af..bf52e4a 100644
+--- a/PluginRoutingInterfaceCAPI/CMakeLists.txt
++++ b/PluginRoutingInterfaceCAPI/CMakeLists.txt
+@@ -30,11 +30,6 @@ if (NOT DAEMONVERSION)
+         include ("${AUDIOMANAGER_CMAKE_CONFIG_PATH}/audiomanagerConfig.cmake")
+         set(PLUGINS_OUTPUT_PATH ${CMAKE_CURRENT_BINARY_DIR}) 
+         set(TEST_EXECUTABLE_OUTPUT_PATH ${CMAKE_CURRENT_BINARY_DIR}) 
+-        if(WITH_TESTS)
+-            if(NOT TARGET gtest)
+-                add_subdirectory(${GOOGLE_MOCK_PROJECT_FOLDER} ${CMAKE_CURRENT_BINARY_DIR}/gmock)
+-            endif()
+-        endif(WITH_TESTS)
+         
+         set(COMMONAPI_DBUS_CONFIGURATIONS "") 
+     else(AUDIOMANAGER_FOUND)
+diff --git a/PluginRoutingInterfaceDBus/CMakeLists.txt b/PluginRoutingInterfaceDBus/CMakeLists.txt
+index e08b591..09a0696 100644
+--- a/PluginRoutingInterfaceDBus/CMakeLists.txt
++++ b/PluginRoutingInterfaceDBus/CMakeLists.txt
+@@ -26,9 +26,6 @@ if (NOT DAEMONVERSION)
+         include ("${AUDIOMANAGER_CMAKE_CONFIG_PATH}/audiomanagerConfig.cmake")
+         set(PLUGINS_OUTPUT_PATH ${CMAKE_CURRENT_BINARY_DIR}) 
+         set(TEST_EXECUTABLE_OUTPUT_PATH ${CMAKE_CURRENT_BINARY_DIR}) 
+-        if(WITH_TESTS)
+-            add_subdirectory(${GOOGLE_MOCK_PROJECT_FOLDER} ${CMAKE_CURRENT_BINARY_DIR}/gmock)
+-        endif(WITH_TESTS)
+         
+         set(COMMONAPI_DBUS_CONFIGURATIONS "") 
+     else(AUDIOMANAGER_FOUND)

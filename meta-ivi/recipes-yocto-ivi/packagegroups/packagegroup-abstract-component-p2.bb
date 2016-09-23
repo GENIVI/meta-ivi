@@ -16,4 +16,5 @@ RDEPENDS_${PN} += "\
     node-health-monitor \
     persistence-client-library \
     persistence-administrator \
+    audiomanagerplugins \
     "

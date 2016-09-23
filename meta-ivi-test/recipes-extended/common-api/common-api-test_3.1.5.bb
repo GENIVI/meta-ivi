@@ -4,12 +4,13 @@ LICENSE = "MIT"
 LIC_FILES_CHKSUM = "file://COPYING.MIT;md5=3da9cfbcb788c80a0384361b4de20420"
 PR = "r0"
 
-inherit autotools cmake pkgconfig
+inherit cmake pkgconfig
 
 DEPENDS += " common-api-c++ common-api-c++-dbus glib-2.0"
 
 SRC_URI = " \
     file://${PN}-${PV}.tar.gz \
+    file://${BPN}_t.inc \
     "
 
 S = "${WORKDIR}/${PN}"
@@ -22,6 +23,7 @@ FILES_${PN} = " \
     /opt/tests/${PN}/*/commonapi4dbus.ini \
     /opt/tests/${PN}/*/*Client \
     /opt/tests/${PN}/*/*Service \
+    /opt/tests/${PN}/${BPN}_t.inc \
     ${libdir}/*.so \
     "
 
@@ -60,4 +62,6 @@ do_install() {
       fi
       install -m 0755 ${_BIN}/${i}/lib${i}-dbus.so ${D}${libdir}
     done
+
+   install -m 0755 ${WORKDIR}/${BPN}_t.inc ${D}/opt/tests/${PN}
 }

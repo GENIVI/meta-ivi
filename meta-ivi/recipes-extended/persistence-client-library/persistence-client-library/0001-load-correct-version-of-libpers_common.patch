@@ -5,25 +5,22 @@ Subject: [PATCH] load correct version of libpers_common
 
 Signed-off-by: Igor Socec <igor.socec@pelagicore.com>
 ---
- config/pclCustomLibConfigFile.cfg | 4 ++--
- 1 file changed, 2 insertions(+), 2 deletions(-)
+ config/pclCustomLibConfigFile.cfg.in | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
 
-diff --git a/config/pclCustomLibConfigFile.cfg b/config/pclCustomLibConfigFile.cfg
-index fe95ea0..f8e0877 100644
---- a/config/pclCustomLibConfigFile.cfg
-+++ b/config/pclCustomLibConfigFile.cfg
-@@ -1,8 +1,8 @@
- hwinfo /usr/lib/libhwinfoperscustom.so init async
- secure /usr/lib/libsecureperscustom.so od sync
- custom3 /usr/lib/libcustom3perscustom.so init sync
--default /usr/lib/libpers_common.so.1 init sync
-+default /usr/lib/libpers_common.so.0 init sync
- emergency /usr/lib/libemergencyperscustom.so od async
- early /usr/lib/libearlyperscustom.so od sync
+diff --git a/config/pclCustomLibConfigFile.cfg.in b/config/pclCustomLibConfigFile.cfg.in
+index 185cab4..fe95b18 100644
+--- a/config/pclCustomLibConfigFile.cfg.in
++++ b/config/pclCustomLibConfigFile.cfg.in
+@@ -1,7 +1,7 @@
+ hwinfo @prefix@/lib/libhwinfoperscustom.so init async
+ secure @prefix@/lib/libsecureperscustom.so od sync
+ custom3 @prefix@/lib/libcustom3perscustom.so init sync
+-default @prefix@/lib/libpers_common.so init sync
++default @prefix@/lib/libpers_common.so.0 init sync
+ emergency @prefix@/lib/libemergencyperscustom.so od async
+ early @prefix@/lib/libearlyperscustom.so od sync
  anInvalidEntry /wrongPath/wrongLib do cnys
--custom2 /usr/lib/libcustom2perscustom.so init sync
-\ No newline at end of file
-+custom2 /usr/lib/libcustom2perscustom.so init sync
---
-2.1.4
+-- 
+1.9.1
 

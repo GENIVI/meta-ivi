@@ -13,6 +13,8 @@ ALLOW_EMPTY_${PN} = "1"
 
 RDEPENDS_${PN} += "\
     common-api-c++-dbus \
+    common-api-c++-someip \
+    vsomeip \
     fuse \
     pulseaudio-server \
     quota \

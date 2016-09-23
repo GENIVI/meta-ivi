@@ -11,7 +11,7 @@ SECTION = "base"
 LICENSE = "MPLv2"
 LIC_FILES_CHKSUM = "file://COPYING;md5=815ca599c9df247a0c7f619bab123dad"
 
-SRCREV = "dd4a86b9459537d2e85489b36abf80f34d12f098"
+SRCREV = "0894ea63e0b86afcee3a45baa10abc6b8be4ad44"
 SRC_URI = "git://git.projects.genivi.org/lifecycle/${BPN}.git;protocol=http \
            file://nsm-fix-systemd-service-dep.patch \
            file://nsm-fix-no-libsystemd-daemon.patch \
@@ -19,7 +19,7 @@ SRC_URI = "git://git.projects.genivi.org/lifecycle/${BPN}.git;protocol=http \
           "
 S = "${WORKDIR}/git"
 
-PR = "r1"
+PR = "r2"
 
 EXTRA_OECONF = "${@bb.utils.contains('DISTRO_FEATURES', 'systemd', '--with-systemdsystemunitdir=${systemd_unitdir}/system/', '', d)}"
 
@@ -49,7 +49,8 @@ FILES_${PN} += "\
     "
 
 do_install_append() {
-   rm -f ${D}${bindir}/NodeStateTest
-   rm -f ${D}${libdir}/libNodeStateMachineTest.*
-   rm -f ${D}${datadir}/dbus-1/interfaces/org.genivi.NodeStateMachineTest.xml
+    T_XML=${D}/${datadir}/dbus-1/interfaces/org.genivi.NodeStateMachineTest.xml
+    if [ -f ${T_XML} ]; then
+       rm -f ${T_XML}
+    fi
 }
