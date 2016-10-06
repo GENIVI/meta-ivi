@@ -6,7 +6,7 @@ LIC_FILES_CHKSUM = \
 PR = "r0"
 
 SRCREV = "2eacc9d7fb76957e9a5450a559675fddf0a95ce2"
-SRC_URI = "git://github.com/GENIVI/capic-poc.git \
+SRC_URI = "git://github.com/GENIVI/capic-poc.git;protocol=https \
     file://${BPN}_t.inc \
     "
 S = "${WORKDIR}/git/test/capicxx-perf"
