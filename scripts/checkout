@@ -1,0 +1,9 @@
+#!/bin/sh
+# (C) 2016-10-25 Yong-iL Joh
+# License: MPLv2
+
+export LANG=C
+MYDIR=$(dirname "$0")
+
+$MYDIR/checkout_layer_hash.sh poky
+$MYDIR/checkout_layer_hash.sh meta-openembedded
