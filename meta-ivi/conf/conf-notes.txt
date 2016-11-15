@@ -1,4 +1,4 @@
 Common targets are:
-    miranda-image
+    nostromo-image
     ivi-image
 

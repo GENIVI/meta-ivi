@@ -29,17 +29,17 @@ Layer Dependencies
 ------------------
 
 URI: git://git.yoctoproject.org/poky
-> branch:   krogoth
-> revision: aad7166704021d82ad3a5ec468552f8f10360d41
+> branch:   morty
+> revision: 5aa481dfedfd089f0d6e8a3bae1b84134d5dff4c
 
 URI: git://git.openembedded.org/meta-openembedded
 > layer:    meta-oe
-> branch:   krogoth
-> revision: 247b1267bbe95719cd4877d2d3cfbaf2a2f4865a
+> branch:   morty
+> revision: 1efa5d623bc64659b57389e50be2568b1355d5f7
 
 Using the above git sha's and the master meta-ivi branch,
- bitbaking miranda-image is known to work
- (the miranda-image build should be aligned with GENIVI 11.0).
+ bitbaking nostromo-image is known to work
+ (the nostromo-image build should be aligned with GENIVI 12.0).
 
 For creating a specific GENIVI compliant image version, please make sure you
 git checkout the related meta-ivi branch and follow the build instructions
@@ -75,18 +75,18 @@ export TEMPLATECONF=/full/path/to/meta-ivi/meta-ivi/conf
 2. Run the following command:
    > $ source poky/oe-init-build-env
 
-3. Build miranda-image including GENIVI 11.0 (Miranda) components
-   > $ bitbake miranda-image
+3. Build nostromo-image including GENIVI 12.0 (Nostromo) components
+   > $ bitbake nostromo-image
 
 4. Run the emulator:
    > for qemu vexpressa9:  
-   > $ PATH_TO_META_IVI/meta-ivi/scripts/runqemu miranda-image vexpressa9
+   > $ PATH_TO_META_IVI/meta-ivi/scripts/runqemu nostromo-image vexpressa9
    >
    > for qemu x86:  
-   > $ PATH_TO_META_IVI/meta-ivi/scripts/runqemu miranda-image qemux86
+   > $ PATH_TO_META_IVI/meta-ivi/scripts/runqemu nostromo-image qemux86
    >
    > for qemu x86-64:  
-   > $ PATH_TO_META_IVI/meta-ivi/scripts/runqemu miranda-image qemux86-64
+   > $ PATH_TO_META_IVI/meta-ivi/scripts/runqemu nostromo-image qemux86-64
 
 5. To login use these credentials:
    > User - root
