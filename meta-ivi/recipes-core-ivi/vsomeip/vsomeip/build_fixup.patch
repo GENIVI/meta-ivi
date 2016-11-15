@@ -11,3 +11,15 @@ index bf03c16..b102654 100644
  )
  
  # Add all targets to the build-tree export set
+diff --git a/test/payload_tests/payload_test_client.hpp b/test/payload_tests/payload_test_client.hpp
+index ca1b58c..c9a100e 100644
+--- a/test/payload_tests/payload_test_client.hpp
++++ b/test/payload_tests/payload_test_client.hpp
+@@ -14,6 +14,7 @@
+ #include <mutex>
+ #include <condition_variable>
+ #include <functional>
++#include <cmath>
+ 
+ #include "../someip_test_globals.hpp"
+ 
