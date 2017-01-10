@@ -4,16 +4,14 @@ LICENSE = "MPLv2"
 LIC_FILES_CHKSUM = "file://LICENSE;md5=815ca599c9df247a0c7f619bab123dad"
 
 PROVIDES = "commonapi3"
-PR = "r1"
+PR = "r0"
 
 DEPENDS = "dlt-daemon"
 
 inherit cmake lib_package pkgconfig
 
-SRCREV = "77d9cdaf6acee03a1e360e0e1a3cd0b01a95b407"
-
-SRC_URI = "git://git.projects.genivi.org/ipc/common-api-runtime.git;protocol=http \
-    file://0001-common-api-runtime-replace-hard-coded-lib-dir-by-var.patch \
+SRCREV = "436750026fb1a27944584513c7191d1bc83e9f0d"
+SRC_URI = "git://github.com/GENIVI/capicxx-core-runtime.git;protocol=https \
     "
 S = "${WORKDIR}/git"
 
