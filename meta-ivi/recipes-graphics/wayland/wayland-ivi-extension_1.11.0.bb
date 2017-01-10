@@ -5,8 +5,9 @@ BUGTRACKER = "http://bugs.genivi.org/enter_bug.cgi?product=Wayland%20IVI%20Exten
 LICENSE = "Apache-2.0"
 LIC_FILES_CHKSUM = "file://LICENSE;md5=176cedb32f48dd58f07e0c1c717b3ea4"
 
-PR = "r1"
-SRCREV = "e232017e0906557f468823505a49e92d4c94591c"
+PR = "r0"
+
+SRCREV = "c9001582b10ce209c37b42dd560947c5aa8928b3"
 SRC_URI = "git://github.com/GENIVI/${BPN}.git;protocol=http \
     "
 S = "${WORKDIR}/git"
@@ -19,5 +20,6 @@ EXTRA_OECMAKE := "-DWITH_ILM_INPUT=1"
 
 FILES_${PN} += "${libdir}/weston/*"
 FILES_${PN}-dbg += "${libdir}/weston/.debug/*"
+INSANE_SKIP_${PN} = "dev-deps"
 
 EXTRA_OECMAKE += "-DLIB_SUFFIX=${@d.getVar('baselib', True).replace('lib', '')}"
