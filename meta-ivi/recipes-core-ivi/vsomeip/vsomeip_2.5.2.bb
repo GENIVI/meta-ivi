@@ -5,19 +5,19 @@ LIC_FILES_CHKSUM = "file://LICENSE;md5=815ca599c9df247a0c7f619bab123dad"
 
 DEPENDS = "boost dlt-daemon"
 
-SRCREV = "2b7442a4c2452f8f3bd9e0f09f829478256d39af"
-SRC_URI = "git://git.projects.genivi.org/vSomeIP.git;protocol=http \
-    file://build_fixup.patch \
+SRCREV = "1a230558936ec84b4fb44b2346dc5ae52d6f2805"
+SRC_URI = "git://github.com/GENIVI/vsomeip.git;protocol=https \
     "
-
 S = "${WORKDIR}/git"
 
 inherit cmake lib_package gitpkgv
 
-CXXFLAGS := "${@oe_filter_out('-fvisibility-inlines-hidden', '${CXXFLAGS}', d)}"
-
 PACKAGES_remove += "${PN}-bin"
-FILES_${PN} += "${bindir}/vsomeipd"
+FILES_${PN} += "${bindir}/vsomeipd ${sysconfdir}/${BPN}"
 FILES_${PN}-dev += "${libdir}/cmake"
 
 BBCLASSEXTEND = "nativesdk"
+
+do_install_append() {
+    mv ${D}/usr/etc ${D}
+}
