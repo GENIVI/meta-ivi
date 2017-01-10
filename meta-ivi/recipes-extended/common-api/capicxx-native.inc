@@ -3,8 +3,8 @@ LICENSE = "MPL-2.0"
 LIC_FILES_CHKSUM = \
     "file://${COMMON_LICENSE_DIR}/MPL-2.0;md5=815ca599c9df247a0c7f619bab123dad"
 
-BASE_URL = "http://docs.projects.genivi.org/yamaica-update-site/CommonAPI"
 BASE_VER = "${@'.'.join(d.getVar('PV', True).split('.')[0:2])}"
+_BPN = "${@'-'.join(d.getVar('BPN', True).split('-')[0:2])}"
 
 def get_launcher_name(d):
     BS = d.getVar('BUILD_SYS', True)
