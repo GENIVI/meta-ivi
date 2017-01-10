@@ -14,7 +14,7 @@ LIC_FILES_CHKSUM = "file://LICENSE;md5=8184208060df880fe3137b93eb88aeea"
 
 DEPENDS = "dbus zlib"
 
-SRCREV = "e9a486a08fff6d3cc7133a350cec3ee10f463207"
+SRCREV = "b2688c1c77d050dcbcaf85e5cd031b30262db935"
 SRC_URI = "git://github.com/GENIVI/${BPN}.git;protocol=https \
     file://0002-Don-t-execute-processes-as-a-specific-user.patch \
     file://0004-Modify-systemd-config-directory.patch \
