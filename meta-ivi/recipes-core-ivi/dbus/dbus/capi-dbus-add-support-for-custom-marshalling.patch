@@ -13,10 +13,11 @@ Subject: [PATCH] Add functions to support querying and manipulating the
  dbus/dbus-string.h  |  5 +++
  4 files changed, 134 insertions(+)
 
-diff -urN dbus-1.10.6.orig/dbus/dbus-message.c dbus-1.10.6/dbus/dbus-message.c
---- dbus-1.10.6.orig/dbus/dbus-message.c	2016-06-30 15:42:08.307273745 +0900
-+++ dbus-1.10.6/dbus/dbus-message.c	2016-06-30 15:42:38.939272838 +0900
-@@ -3558,6 +3558,47 @@
+diff --git a/dbus/dbus-message.c b/dbus/dbus-message.c
+index 43cb1be..d34663a 100644
+--- a/dbus/dbus-message.c
++++ b/dbus/dbus-message.c
+@@ -3445,6 +3445,47 @@ dbus_message_get_sender (DBusMessage *message)
  }
  
  /**
@@ -64,7 +65,7 @@ diff -urN dbus-1.10.6.orig/dbus/dbus-message.c dbus-1.10.6/dbus/dbus-message.c
   * Gets the type signature of the message, i.e. the arguments in the
   * message payload. The signature includes only "in" arguments for
   * #DBUS_MESSAGE_TYPE_METHOD_CALL and only "out" arguments for
-@@ -4742,6 +4783,64 @@
+@@ -4632,6 +4673,64 @@ dbus_message_type_to_string (int type)
  }
  
  /**
@@ -129,10 +130,11 @@ diff -urN dbus-1.10.6.orig/dbus/dbus-message.c dbus-1.10.6/dbus/dbus-message.c
   * Turn a DBusMessage into the marshalled form as described in the D-Bus
   * specification.
   *
-diff -urN dbus-1.10.6.orig/dbus/dbus-message.h dbus-1.10.6/dbus/dbus-message.h
---- dbus-1.10.6.orig/dbus/dbus-message.h	2016-06-30 15:42:08.307273745 +0900
-+++ dbus-1.10.6/dbus/dbus-message.h	2016-06-30 15:42:38.939272838 +0900
-@@ -138,6 +138,9 @@
+diff --git a/dbus/dbus-message.h b/dbus/dbus-message.h
+index 4fd44da..76377b8 100644
+--- a/dbus/dbus-message.h
++++ b/dbus/dbus-message.h
+@@ -138,6 +138,9 @@ dbus_bool_t   dbus_message_set_sender       (DBusMessage   *message,
  DBUS_EXPORT
  const char*   dbus_message_get_sender       (DBusMessage   *message);
  DBUS_EXPORT
@@ -142,7 +144,7 @@ diff -urN dbus-1.10.6.orig/dbus/dbus-message.h dbus-1.10.6/dbus/dbus-message.h
  const char*   dbus_message_get_signature    (DBusMessage   *message);
  DBUS_EXPORT
  void          dbus_message_set_no_reply     (DBusMessage   *message,
-@@ -265,6 +268,17 @@
+@@ -262,6 +265,17 @@ dbus_bool_t dbus_message_iter_close_container    (DBusMessageIter *iter,
  DBUS_EXPORT
  void        dbus_message_iter_abandon_container  (DBusMessageIter *iter,
                                                    DBusMessageIter *sub);
@@ -160,10 +162,11 @@ diff -urN dbus-1.10.6.orig/dbus/dbus-message.h dbus-1.10.6/dbus/dbus-message.h
  
  DBUS_EXPORT
  void dbus_message_lock    (DBusMessage  *message);
-diff -urN dbus-1.10.6.orig/dbus/dbus-string.c dbus-1.10.6/dbus/dbus-string.c
---- dbus-1.10.6.orig/dbus/dbus-string.c	2016-06-30 15:42:08.307273745 +0900
-+++ dbus-1.10.6/dbus/dbus-string.c	2016-06-30 15:42:38.939272838 +0900
-@@ -744,6 +744,22 @@
+diff --git a/dbus/dbus-string.c b/dbus/dbus-string.c
+index 0f63612..a084eca 100644
+--- a/dbus/dbus-string.c
++++ b/dbus/dbus-string.c
+@@ -730,6 +730,22 @@ _dbus_string_get_length (const DBusString  *str)
  }
  #endif /* !_dbus_string_get_length */
  
@@ -186,10 +189,11 @@ diff -urN dbus-1.10.6.orig/dbus/dbus-string.c dbus-1.10.6/dbus/dbus-string.c
  /**
   * Makes a string longer by the given number of bytes.  Checks whether
   * adding additional_length to the current length would overflow an
-diff -urN dbus-1.10.6.orig/dbus/dbus-string.h dbus-1.10.6/dbus/dbus-string.h
---- dbus-1.10.6.orig/dbus/dbus-string.h	2016-06-30 15:42:08.307273745 +0900
-+++ dbus-1.10.6/dbus/dbus-string.h	2016-06-30 15:43:01.027272184 +0900
-@@ -61,6 +61,7 @@
+diff --git a/dbus/dbus-string.h b/dbus/dbus-string.h
+index 86fb8c3..bfa2a39 100644
+--- a/dbus/dbus-string.h
++++ b/dbus/dbus-string.h
+@@ -61,6 +61,7 @@ struct DBusString
   */
  #define _dbus_string_get_data(s) ((char*)(((DBusString*)(s))->dummy1))
  #define _dbus_string_get_length(s) (((DBusString*)(s))->dummy2)
@@ -197,7 +201,7 @@ diff -urN dbus-1.10.6.orig/dbus/dbus-string.h dbus-1.10.6/dbus/dbus-string.h
  #define _dbus_string_set_byte(s, i, b) ((((unsigned char*)(((DBusString*)(s))->dummy1))[(i)]) = (unsigned char) (b))
  #define _dbus_string_get_byte(s, i) (((const unsigned char*)(((DBusString*)(s))->dummy1))[(i)])
  #define _dbus_string_get_const_data(s) ((const char*)(((DBusString*)(s))->dummy1))
-@@ -151,6 +152,10 @@
+@@ -151,6 +152,10 @@ DBUS_PRIVATE_EXPORT
  int           _dbus_string_get_length            (const DBusString  *str);
  #endif /* !_dbus_string_get_length */
  
@@ -208,3 +212,6 @@ diff -urN dbus-1.10.6.orig/dbus/dbus-string.h dbus-1.10.6/dbus/dbus-string.h
  /**
   * Get the string's length as an unsigned integer, for comparison with
   * size_t and similar unsigned types that does not trigger compiler
+-- 
+1.9.1
+
