@@ -5,6 +5,7 @@ PV = "${DATE}"
 IMAGE_INSTALL_append += " openssh test-fw \
     audiomanager-test audiomanagerplugins-test \
     common-api-test capicxx-perf \
+    common-api-c++-dbus-test \
     persistence-client-library-test \
     persistence-common-object-test \
     persistence-administrator-test \
