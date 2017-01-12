@@ -1,16 +1,17 @@
 SUMMARY = "Genivi AudioManager Plugins"
 HOMEPAGE = "https://www.genivi.org/"
 SECTION = "multimedia"
-
 LICENSE = "MPL-2.0"
 LIC_FILES_CHKSUM = "file://${COMMON_LICENSE_DIR}/MPL-2.0;md5=815ca599c9df247a0c7f619bab123dad"
+
+PR = "r1"
 
 DEPENDS = "audiomanager capicxx-core-native capicxx-dbus-native"
 RDEPENDS_${PN} += "libxml2"
 
-SRCREV = "8096eee2649585d13464b23e9ab940f0e030c56a"
+SRCREV = "cb5797de3df41f4661c3055b0ea1a3e677c293aa"
 SRC_URI = " \
-    git://git.projects.genivi.org/AudioManagerPlugins.git;branch=master;protocol=http \
+    git://github.com/GENIVI/AudioManagerPlugins.git;branch=master;protocol=https \
     file://AM-Genivi-Filtering-out-JDK-warnings-in-CAPI-script.patch \
     "
 S = "${WORKDIR}/git"
@@ -28,6 +29,8 @@ do_configure_prepend() {
     perl -pi -e 's|include\(CMakeDependentOption\)|include\(CMakeDependentOption\)\ninclude_directories\(${PKG_CONFIG_SYSROOT_DIR}/usr/include/audiomanager/AudioManagerUtilities\)|' ${S}/CMakeLists.txt
     perl -pi -e 's|include\(CMakeDependentOption\)|include\(CMakeDependentOption\)\ninclude_directories\(${PKG_CONFIG_SYSROOT_DIR}/usr/include/audiomanager/AudioManagerCore\)|' ${S}/CMakeLists.txt
     perl -pi -e 's|include\(CMakeDependentOption\)|include\(CMakeDependentOption\)\ninclude_directories\(${PKG_CONFIG_SYSROOT_DIR}/usr/include/audiomanager\)|' ${S}/CMakeLists.txt
+
+    perl -pi -e 's|\${CMAKE_INSTALL_PREFIX}/etc/controllerconf|/etc/controllerconf|' ${S}/PluginControlInterfaceGeneric/CMakeLists.txt
 
     perl -pi -e 's|set\(LIBRARY_OUTPUT_PATH \${DEFAULT_PLUGIN_ROUTING_DIR}\)|set\(LIBRARY_OUTPUT_PATH ${B}\)|' ${S}/PluginRouting*/CMakeLists.txt
     perl -pi -e 's|COMMAND find "/usr/local/share/.*"|COMMAND find "\${PKG_CONFIG_SYSROOT_DIR}/../"|' ${S}/PluginRoutingInterfaceCAPI/cmake/CommonAPI.cmake
@@ -49,7 +52,6 @@ FILES_${PN}-dev = " \
     "
 
 do_install_append() {
-    mv ${D}${libdir}/audiomanager/routing/* ${D}${libdir}/routing/
-    rmdir ${D}${libdir}/audiomanager/routing
+    mv ${D}${libdir}/audiomanager/* ${D}${libdir}/
     rmdir ${D}${libdir}/audiomanager
 }

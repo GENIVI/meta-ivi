@@ -1,6 +1,6 @@
 #!/bin/sh
 get_list() {
-  return 7
+  return 6
 }
 
 get_title() {
@@ -39,8 +39,4 @@ run_5() {
 
 run_6() {
   _run AmSocketHandlerTest $*
-}
-
-run_7() {
-  _run AmTelnetServerTest $*
 }

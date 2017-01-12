@@ -1,18 +1,18 @@
 SUMMARY = "Genivi AudioManager"
 HOMEPAGE = "https://www.genivi.org/"
 SECTION = "multimedia"
-
 LICENSE = "MPLv2"
 LIC_FILES_CHKSUM = "file://LICENCE;md5=f164349b56ed530a6642e9b9f244eec5"
 
+PR = "r1"
+
 DEPENDS = "common-api-c++-dbus dlt-daemon sqlite3 dbus node-state-manager"
 
-SRCREV = "5bcd206b9270d9a79e212f91723ea1a08a4d4859"
+SRCREV = "fe056279dde92475f29a35f8c0c6c5a41dc59a8b"
 SRC_URI = " \
-    git://git.projects.genivi.org/AudioManager.git;branch=master;protocol=http \
+    git://github.com/GENIVI/AudioManager.git;protocol=https \
     file://AudioManager.service \
     file://setup_amgr.sh \
-    file://0001-audiomanager-fix-lib-install-path-for-multilib.patch \
     "
 S = "${WORKDIR}/git"
 
