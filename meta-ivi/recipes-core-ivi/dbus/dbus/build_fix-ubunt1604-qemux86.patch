@@ -1,0 +1,44 @@
+--- dbus-1.10.10/dbus/dbus-sysdeps-unix.c.orig	2017-01-26 20:39:27.868191644 +0900
++++ dbus-1.10.10/dbus/dbus-sysdeps-unix.c	2017-01-26 20:43:15.708197478 +0900
+@@ -4320,13 +4320,14 @@
+     {
+       for (;;)
+         {
+-          struct dirent buf, *de;
+-          int k, fd;
++          struct dirent *de;
++          int fd;
+           long l;
+           char *e = NULL;
+ 
+-          k = readdir_r (d, &buf, &de);
+-          if (k != 0 || !de)
++          errno = 0;
++          de = readdir (d);
++          if (!de && errno)
+             break;
+ 
+           if (de->d_name[0] == '.')
+--- dbus-1.10.10/dbus/dbus-message.c.orig	2017-01-26 20:32:02.456180239 +0900
++++ dbus-1.10.10/dbus/dbus-message.c	2017-01-26 20:32:27.288180875 +0900
+@@ -4128,7 +4128,7 @@
+      beginning. This sucks a bit, however unless SCM_RIGHTS is fixed
+      there is no better way. */
+ 
+-  if (loader->n_unix_fds_allocated < loader->max_message_unix_fds)
++  if ((int)(loader->n_unix_fds_allocated) < loader->max_message_unix_fds)
+     {
+       int *a = dbus_realloc(loader->unix_fds,
+                             loader->max_message_unix_fds * sizeof(loader->unix_fds[0]));
+--- dbus-1.10.10/dbus/dbus-shell.c.orig	2017-01-26 20:45:49.292201410 +0900
++++ dbus-1.10.10/dbus/dbus-shell.c	2017-01-26 20:47:39.840204241 +0900
+@@ -419,7 +419,9 @@
+             {
+             case '\n':
+               if (!delimit_token (&current_token, &retval, error))
++		{
+ 		goto error;
++		}
+ 
+ 		_dbus_string_free (&current_token);
+ 
