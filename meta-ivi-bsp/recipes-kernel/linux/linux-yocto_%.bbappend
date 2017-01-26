@@ -9,5 +9,4 @@ SRC_URI_append_qemux86-64   = " file://qemux86_64.cfg"
 
 # vexpress-a9 support
 KMACHINE_vexpressa9 = "beagleboard"
-SRCREV_machine_vexpressa9 ?= "${AUTOREV}"
 COMPATIBLE_MACHINE_vexpressa9 = "vexpressa9"
