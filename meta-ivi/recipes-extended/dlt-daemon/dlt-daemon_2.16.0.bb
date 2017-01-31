@@ -12,7 +12,7 @@ SECTION = "console/utils"
 LICENSE = "MPLv2"
 LIC_FILES_CHKSUM = "file://LICENSE;md5=8184208060df880fe3137b93eb88aeea"
 
-DEPENDS = "dbus zlib"
+DEPENDS = "dbus zlib pigz-native"
 
 SRCREV = "b2688c1c77d050dcbcaf85e5cd031b30262db935"
 SRC_URI = "git://github.com/GENIVI/${BPN}.git;protocol=https \
@@ -21,7 +21,7 @@ SRC_URI = "git://github.com/GENIVI/${BPN}.git;protocol=https \
     "
 S = "${WORKDIR}/git"
 
-inherit gzipnative autotools gettext cmake systemd
+inherit autotools gettext cmake systemd
 
 PACKAGES += "${PN}-systemd"
 SYSTEMD_PACKAGES = "${PN} ${PN}-systemd"
