@@ -9,7 +9,7 @@ SRC_URI_append += " \
 SRC_URI[md5sum] = "2d6ec8ccdf5c46b05ba54a9fd1d130d7"
 SRC_URI[sha256sum] = "247ca18dd83f53deb1328be17e4b1be31514cedfc1e3424f672bf11fd7e0d60d"
 
-EXTRA_OECONF += " -DTEST_IP_MASTER=10.0.3.1 -DTEST_IP_SLAVE=10.0.3.125"
+EXTRA_OECONF += " -DTEST_IP_MASTER=10.0.3.1 -DTEST_IP_SLAVE=10.0.3.125 "
 do_configure_prepend() {
    export GTEST_ROOT=${WORKDIR}/gtest-1.7.0
 }

@@ -5,7 +5,7 @@ FILESEXTRAPATHS_append := ":${THISDIR}/${PN}"
 SRC_URI_append += " file://${BPN}_t.inc \
     "
 
-EXTRA_OECONF += "--enable-tests"
+EXTRA_OECONF += " --enable-tests "
 
 do_install_append() {
    install -d ${D}/opt/tests/${PN}
