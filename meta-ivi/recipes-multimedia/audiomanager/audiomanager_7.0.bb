@@ -10,7 +10,7 @@ DEPENDS = "common-api-c++-dbus dlt-daemon sqlite3 dbus node-state-manager"
 
 SRCREV = "8725157e248c6706de59a02996f869b6ccdccb13"
 SRC_URI = " \
-    git://git.projects.genivi.org/AudioManager.git;branch=master;protocol=http \
+    git://github.com/GENIVI/AudioManager.git;branch=master;protocol=https \
     file://AudioManager.service \
     file://setup_amgr.sh \
     file://0001-audiomanager-fix-lib-install-path-for-multilib_7.0.patch \
