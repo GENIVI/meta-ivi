@@ -11,8 +11,8 @@ SECTION = "base"
 LICENSE = "MPLv2"
 LIC_FILES_CHKSUM = "file://COPYING;md5=815ca599c9df247a0c7f619bab123dad"
 
-SRCREV = "0894ea63e0b86afcee3a45baa10abc6b8be4ad44"
-SRC_URI = "git://git.projects.genivi.org/lifecycle/${BPN}.git;protocol=http \
+SRCREV = "253d10aada6bf5cdfe307aaff55363f08194c85e"
+SRC_URI = "git://github.com/GENIVI/${BPN}.git;protocol=https \
            file://nsm-fix-systemd-service-dep.patch \
            file://nsm-fix-no-libsystemd-daemon.patch \
            file://link-with-gio.patch \
