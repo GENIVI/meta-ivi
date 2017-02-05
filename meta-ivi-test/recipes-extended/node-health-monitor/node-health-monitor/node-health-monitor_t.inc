@@ -20,9 +20,6 @@ _run_() {
 }
 
 _run() {
-  echo "[ FAILED ] node-head-monitor is not working properly"
-  return 0
-
   if [ "x${2}" != "x" ]; then
     _run_ $1 > /tmp/t 2> /tmp/t.err
     _c1=$?
