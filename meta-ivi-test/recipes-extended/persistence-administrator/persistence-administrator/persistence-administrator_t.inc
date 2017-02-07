@@ -14,9 +14,6 @@ _run_1() {
 }
 
 run_1() {
-  echo "[ FAILED ] segfault at 7fa2ac0b6010 ip 000000364d88e130 sp 00007fa2ae0f2aa8 error 4 in libc-2.23.so[364d800000+197000]"
-  return 0
-
   if [ ! -d /tmp/PAS ]; then
     rm -f /tmp/PAS
     mkdir -p /tmp/PAS
@@ -36,7 +33,7 @@ run_1() {
     elif [ "x${_c2}" = "x0" ]; then
        echo "[ OK ] ${_c1} tests."
     else
-       echo " ${_c1} OK, ${_c2} FAILED"
+       echo " ${_c1} PASSED, ${_c2} FAILED"
     fi
   else
     _run_1
