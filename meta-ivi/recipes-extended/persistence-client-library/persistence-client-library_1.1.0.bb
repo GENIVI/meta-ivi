@@ -11,7 +11,7 @@ DEPENDS = "dlt-daemon dbus libcheck persistence-common-object"
 
 SRCREV = "fe4b73dcc282932ae3ebb8805e0b617a0016dc9a"
 SRC_URI = " \
-    git://git.projects.genivi.org/persistence/persistence-client-library.git;protocol=http \
+    git://github.com/GENIVI/${BPN}.git;protocol=https \
     file://0001-load-correct-version-of-libpers_common.patch \
     file://0001-fix-exec-path.patch \
     "

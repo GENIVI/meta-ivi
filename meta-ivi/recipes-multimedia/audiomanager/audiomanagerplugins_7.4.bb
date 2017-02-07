@@ -10,7 +10,7 @@ RDEPENDS_${PN} += "libxml2"
 
 SRCREV = "8096eee2649585d13464b23e9ab940f0e030c56a"
 SRC_URI = " \
-    git://git.projects.genivi.org/AudioManagerPlugins.git;branch=master;protocol=http \
+    git://github.com/GENIVI/AudioManagerPlugins.git;protocol=https \
     file://AM-Genivi-Filtering-out-JDK-warnings-in-CAPI-script.patch \
     "
 S = "${WORKDIR}/git"

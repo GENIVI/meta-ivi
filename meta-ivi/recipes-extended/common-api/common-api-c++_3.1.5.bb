@@ -12,7 +12,7 @@ inherit cmake lib_package pkgconfig
 
 SRCREV = "77d9cdaf6acee03a1e360e0e1a3cd0b01a95b407"
 
-SRC_URI = "git://git.projects.genivi.org/ipc/common-api-runtime.git;protocol=http \
+SRC_URI = "git://github.com/GENIVI/capicxx-core-runtime.git;protocol=https \
     file://0001-common-api-runtime-replace-hard-coded-lib-dir-by-var.patch \
     "
 S = "${WORKDIR}/git"
