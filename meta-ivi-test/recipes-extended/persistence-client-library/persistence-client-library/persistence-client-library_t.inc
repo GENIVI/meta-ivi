@@ -1,6 +1,6 @@
 #!/bin/sh
 get_list() {
-  return 1
+  return 3
 }
 
 get_title() {
@@ -8,10 +8,6 @@ get_title() {
 }
 
 _run_dir=/opt/tests/persistence-client-library
-_run_1() {
-  persadmin_tool install /Data/Data.tar.gz > /tmp/t
-  ${_run_dir}/persistence_client_library_test
-}
 
 _setup_env() {
   _p=`pidof NodeStateManager`
@@ -23,14 +19,18 @@ _setup_env() {
       kill -9 ${_p} >& /dev/null
   fi
 
+  if [ ! -e /Data/mnt-c/lt-persistence_client_library_test/ ]; then
+     persadmin_tool install /Data/Data_benchmark.tar.gz > /tmp/t
+  fi
   systemctl restart pas-daemon
+  systemctl restart nodestatemanager-daemon
 }
 
-run_1() {
+_run() {
   _setup_env
 
-  if [ "x${1}" != "x" ]; then
-    _run_1 > /tmp/t
+  if [ "x${2}" != "x" ]; then
+    ${_run_dir}/$1 > /tmp/t
     _c1=`cat /tmp/t | grep :P: | wc -l`
     _c2=`cat /tmp/t | grep :F: | wc -l`
     if [ "x${_c1}" = "x0" ]; then
@@ -41,6 +41,34 @@ run_1() {
        echo " ${_c1} PASSED, ${_c2} FAILED"
     fi
   else
-    _run_1
+    ${_run_dir}/$1
   fi
+}
+
+_run_2() {
+  _setup_env
+
+  if [ "x${2}" != "x" ]; then
+    yes | ${_run_dir}/$1 > /tmp/t
+    _c1=`cat /tmp/t | grep "Press enter to end" | wc -l`
+    if [ "x${_c1}" = "x0" ]; then
+       echo "[ FAILED ]"
+    else
+       echo "[ PASSED ]"
+    fi
+  else
+    yes | ${_run_dir}/$1
+  fi
+}
+
+run_1() {
+  _run persistence_client_library_test $*
+}
+
+run_2() {
+  _run persistence_client_library_test_file $*
+}
+
+run_3() {
+  _run_2 persistence_client_library_dbus_test $*
 }
