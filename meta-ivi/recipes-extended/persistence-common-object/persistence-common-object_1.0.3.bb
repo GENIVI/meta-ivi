@@ -15,9 +15,6 @@ DEPENDS = "glib-2.0 dlt-daemon"
 
 inherit autotools-brokensep pkgconfig
 
-EXTRA_OECONF = " \
-    --with-dbuspolicydir=${sysconfdir} \
-    --with-database=key-value-store \
-    "
+EXTRA_OECONF = " --with-database=key-value-store "
 
 FILES_${PN} += "${datadir}"
