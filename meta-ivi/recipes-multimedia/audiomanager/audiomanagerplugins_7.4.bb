@@ -50,8 +50,3 @@ FILES_${PN}-dev = " \
     /usr/include/ \
     ${libdir}/pkgconfig/ \
     "
-
-do_install_append() {
-    mv ${D}${libdir}/audiomanager/* ${D}${libdir}/
-    rmdir ${D}${libdir}/audiomanager
-}

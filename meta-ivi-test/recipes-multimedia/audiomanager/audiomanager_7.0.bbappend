@@ -10,14 +10,14 @@ EXTRA_OECMAKE_append = " -DWITH_TESTS=ON -DUSE_BUILD_LIBS=OFF \
     -DCMAKE_SKIP_RPATH=ON \
     "
 
+DEPENDS += "gtest gmock"
+
 do_install_append() {
     mkdir -p ${D}/opt/tests/${PN}
 
     for i in `find ${B}/bin/ -type f -regex '.*[tT]est.*'`; do
       install -m 0755 ${i} ${D}/opt/tests/${PN}
     done
-    install -m 0755 ${B}/googleMock/gtest/libgtest_dll.so ${D}/opt/tests/${PN}
-
     install -m 0755 ${WORKDIR}/${BPN}_t.inc ${D}/opt/tests/${PN}
 }
 

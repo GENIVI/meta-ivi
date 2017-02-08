@@ -1,0 +1,40 @@
+diff --git a/CMakeLists.txt b/CMakeLists.txt
+index 0004b07..75a2185 100755
+--- a/CMakeLists.txt
++++ b/CMakeLists.txt
+@@ -216,9 +216,14 @@ if(WITH_DLT)
+ endif(WITH_DLT)
+ 
+ if(WITH_TESTS)	
+-	add_subdirectory(googleMock)
+-	set(GMOCK_INCLUDE_DIR "${CMAKE_SOURCE_DIR}/googleMock/include")
+-	set(GOOGLE_TEST_INCLUDE_DIR "${CMAKE_SOURCE_DIR}/googleMock/gtest/include")
++        #check if we can find the google stuff
++        pkg_check_modules (GTEST "gtest >= 1.6.0")
++        pkg_check_modules (GMOCK "gmock >= 1.6.0")
++        if (NOT("${GTEST_FOUND}" AND "${GMOCK_FOUND}"))
++		add_subdirectory(googleMock)
++		set(GMOCK_INCLUDE_DIR "${CMAKE_SOURCE_DIR}/googleMock/include")
++		set(GOOGLE_TEST_INCLUDE_DIR "${CMAKE_SOURCE_DIR}/googleMock/gtest/include")
++	endif (NOT("${GTEST_FOUND}" AND "${GMOCK_FOUND}"))
+ endif(WITH_TESTS)
+ 
+ ##global build flags set(CPACK_RPM_COMPONENT_INSTALL ON)
+diff --git a/cmake/audiomanagerConfig.cmake.in b/cmake/audiomanagerConfig.cmake.in
+index fb6fd36..b3f6942 100644
+--- a/cmake/audiomanagerConfig.cmake.in
++++ b/cmake/audiomanagerConfig.cmake.in
+@@ -37,13 +37,4 @@ set(COMMONAPI_DBUS_VERSION_NUMBER "@COMMONAPI_DBUS_VERSION_NUMBER@")
+ set(COMMONAPI_SOMEIP_VERSION_NUMBER "@COMMONAPI_SOMEIP_VERSION_NUMBER@")
+ set(COMMONAPI_USED_BINDING "@COMMONAPI_USED_BINDING@")
+ 
+-IF(WITH_TESTS)	
+-	set_and_check(GOOGLE_MOCK_PROJECT_FOLDER "@GOOGLE_MOCK_PROJECT_FOLDER@")
+-	set_and_check(GMOCK_INCLUDE_DIR "@GMOCK_INCLUDE_DIR@")
+-	set_and_check(GOOGLE_TEST_INCLUDE_DIR "@GOOGLE_TEST_INCLUDE_DIR@")
+-ENDIF(WITH_TESTS)
+-
+ check_required_components(AudioManagerDaemon)
+-
+-
+-

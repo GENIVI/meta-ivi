@@ -14,6 +14,7 @@ SRC_URI = " \
     file://AudioManager.service \
     file://setup_amgr.sh \
     file://0001-audiomanager-fix-lib-install-path-for-multilib_7.0.patch \
+    file://0002-audiomanager-fix-googleMock.patch \
     "
 S = "${WORKDIR}/git"
 
