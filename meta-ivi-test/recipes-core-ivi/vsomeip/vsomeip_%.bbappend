@@ -24,6 +24,8 @@ do_compile_append() {
 }
 
 do_install_append() {
+   perl -pi -e 's|../daemon/./vsomeipd|${bindir}/vsomeipd|' ${B}/test/*.sh
+
    install -d ${D}/opt/tests/${PN}/examples
    install -m 0755 ${B}/examples/*-sample ${D}/opt/tests/${PN}/examples
    for i in sh json test client service; do
