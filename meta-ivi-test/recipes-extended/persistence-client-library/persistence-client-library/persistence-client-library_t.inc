@@ -4,7 +4,7 @@ get_list() {
 }
 
 get_title() {
-  echo "persisitence-client-library"
+  echo "persistence-client-library"
 }
 
 _run_dir=/opt/tests/persistence-client-library
