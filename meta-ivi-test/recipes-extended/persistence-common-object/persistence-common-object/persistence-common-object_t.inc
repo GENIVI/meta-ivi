@@ -4,7 +4,7 @@ get_list() {
 }
 
 get_title() {
-  echo "persisitence-common-object"
+  echo "persistence-common-object"
 }
 
 _run_dir=/opt/tests/persistence-common-object
