@@ -9,7 +9,7 @@ LIC_FILES_CHKSUM = "file://COPYING;md5=6161c6840f21a000e9b52af81d2ca823"
 
 DEPENDS = "dlt-daemon dbus libcheck persistence-common-object"
 
-SRCREV = "b433f9686017ac0e9009957034100759b7f0aa6d"
+SRCREV = "2e190294dfd19ab9612e2576ebbaeff738990f70"
 SRC_URI = " \
     git://github.com/GENIVI/${BPN}.git;protocol=https \
     file://0001-load-correct-version-of-libpers_common.patch \
@@ -17,11 +17,13 @@ SRC_URI = " \
     "
 S = "${WORKDIR}/git"
 
-PR = "r3"
+PV = "1.1.0+git${SRCPV}"
+PR = "r4"
 
 inherit pkgconfig autotools-brokensep
 
-EXTRA_OECONF_append = "--enable-tools --enable-pasinterface "
+EXTRA_OECONF_append = " --enable-tools --enable-pasinterface"
+# EXTRA_OECONF_append = " --enable-debug=yes"
 
 PARALLEL_MAKE = ""
 
