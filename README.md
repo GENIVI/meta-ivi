@@ -30,7 +30,7 @@ Layer Dependencies
 
 URI: git://git.yoctoproject.org/poky
 > branch:   morty
-> revision: 5aa481dfedfd089f0d6e8a3bae1b84134d5dff4c
+> revision: 6a1f33cc40bfac33cf030fe41e1a8efd1e5fad6f
 
 URI: git://git.openembedded.org/meta-openembedded
 > layer:    meta-oe
