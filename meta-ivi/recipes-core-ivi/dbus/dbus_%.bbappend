@@ -5,8 +5,5 @@ FILESEXTRAPATHS_append := ":${THISDIR}/${PN}"
 SRC_URI_append = " \
     file://capi-dbus-add-send-with-reply-set-notify.patch \
     file://capi-dbus-add-support-for-custom-marshalling.patch \
-    file://capi-dbus-block-acquire-io-path-on-send.patch \
-    file://capi-dbus-correct-dbus-connection-block-pending-call.patch \
-    file://capi-dbus-send-with-reply-and-block-delete-reply-on-error.patch \
     "
 SRC_URI_append_qemux86 = " file://build_fix-ubunt1604-qemux86.patch"
