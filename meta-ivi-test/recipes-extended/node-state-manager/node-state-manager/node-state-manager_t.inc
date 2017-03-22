@@ -38,8 +38,11 @@ run_1() {
   sleep 1
 
   _setup_env
+  dbus-launch >& /tmp/d.pid
+  _dbus_pid=`grep BUS_PID /tmp/d.pid  | awk -F= '{print $2}'`
+  sleep 1
   /usr/bin/NodeStateManager >& /dev/null &
-  sleep 2
+  sleep 4
 
   if [ "x${1}" != "x" ]; then
     _run_1 > /tmp/t 2> /tmp/t.err
@@ -56,9 +59,10 @@ run_1() {
     _run_1 2> /tmp/t.err
   fi
 
+  kill -9 ${_dbus_pid} >& /dev/null
   _setup_env
 
   rm -f ${_lib} ${_lib_2}
-  cp ${_lib_bak} ${_lib}
+  mv ${_lib_bak} ${_lib}
   ldconfig
 }
