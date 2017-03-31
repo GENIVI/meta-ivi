@@ -33,7 +33,7 @@ SYSTEMD_SERVICE_${PN}-systemd = "dlt-example-user.service \
     dlt-receive.service"
 SYSTEMD_AUTO_ENABLE_${PN}-systemd = "disable"
 
-EXTRA_OECMAKE = "-DWITH_SYSTEMD=ON"
+EXTRA_OECMAKE = "-DWITH_SYSTEMD=ON -DWITH_MAN=OFF"
 
 FILES_${PN}-doc += "/usr/share/dlt-filetransfer"
 
