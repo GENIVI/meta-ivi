@@ -103,3 +103,12 @@ to use am 7.0, put following lines to <build directory>/conf/local.conf
 # use audiomanager 7.0 until am7.4 issues are fixed.
 PREFERRED_VERSION_audiomanager          ?= "7.0"
 PREFERRED_VERSION_audiomanagerplugins   ?= "7.0"
+
+update poky, meta-openembedded automatically
+--------------------------------------------
+1. confirm current directory is meta-ivi
+   > $ basename `pwd`
+   meta-ivi
+
+2. run script
+   > $ ./scripts/checkout

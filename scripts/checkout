@@ -5,5 +5,28 @@
 export LANG=C
 MYDIR=$(dirname "$0")
 
+update_git() {
+  _git=$1
+  _cur_dir=`pwd`
+  if [ -d ../${_git} ]; then
+     cd ../${_git}
+     _null=`git status >& /dev/null`
+     _r=$?
+     if [ $_r -eq 0 ]; then
+        git checkout master >& /dev/null
+        git pull            >& /dev/null
+        cd ${_cur_dir}
+     else
+        echo "fatal: Not a git repository"
+        exit 2
+     fi
+  else
+     echo "there is no such directory: $_git "
+     exit 1
+  fi
+}
+
+update_git poky
 $MYDIR/checkout_layer_hash.sh poky
+update_git meta-openembedded
 $MYDIR/checkout_layer_hash.sh meta-openembedded
