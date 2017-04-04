@@ -30,12 +30,12 @@ Layer Dependencies
 
 URI: git://git.yoctoproject.org/poky
 > branch:   morty
-> revision: 6a1f33cc40bfac33cf030fe41e1a8efd1e5fad6f
+> revision: 924e576b8930fd2268d85f0b151e5f68a3c2afce
 
 URI: git://git.openembedded.org/meta-openembedded
 > layer:    meta-oe
 > branch:   morty
-> revision: 1efa5d623bc64659b57389e50be2568b1355d5f7
+> revision: fe5c83312de11e80b85680ef237f8acb04b4b26e
 
 Using the above git sha's and the master meta-ivi branch,
  bitbaking nostromo-image is known to work
