@@ -49,5 +49,5 @@ do_install() {
         done
     done
     install -d "${D}${bindir}"
-    ln -sf -T "${DD}/${LAUNCHER}" ${D}${bindir}/${LAUNCHER_LINK}
+    ln -sf -T ../.."${datadir_native}/${PN}-${PV}/${LAUNCHER}" ${D}${bindir}/${LAUNCHER_LINK}
 }
