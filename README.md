@@ -6,7 +6,7 @@ used with Poky.  The goal is to make the Yocto Project reference system
 Poky GENIVI compliant.
 
 Please see the
-[MAINTAINERS](http://git.yoctoproject.org/cgit/cgit.cgi/meta-ivi/tree/MAINTAINERS)
+[MAINTAINERS](https://github.com/GENIVI/meta-ivi/blob/master/MAINTAINERS)
 file for information on contacting the maintainers
 of this layer, as well as instructions for submitting patches.
 
@@ -16,14 +16,12 @@ review and edit our documentation and much more.
 
 Subscribe to the mailing list
     [here](https://lists.genivi.org/mailman/listinfo/genivi-meta-ivi).  
-View or Report bugs
-    [here](https://at.projects.genivi.org/jira/secure/RapidBoard.jspa?rapidView=10&projectKey=BASE).
-Read or Edit the wiki
-    [here](https://at.projects.genivi.org/wiki/display/PROJ/meta-ivi).
+[View or Report bugs](https://at.projects.genivi.org/jira/secure/RapidBoard.jspa?rapidView=10&projectKey=BASE).
+Read the [wiki](https://at.projects.genivi.org/wiki/display/PROJ/meta-ivi). 
 For information about the Yocto Project, see the
     [Yocto Project website](https://www.yoctoproject.org).  
 For information about the Yocto GENIVI Baseline, see the
-    [Yocto GENIVI Baseline website](http://projects.genivi.org/GENIVI_Baselines/meta-ivi).
+    [Yocto GENIVI Baseline wiki](https://at.projects.genivi.org/wiki/display/PROJ/GENIVI+Baselines). 
 
 Layer Dependencies
 ------------------
@@ -58,7 +56,7 @@ We do smoke test the builds of the three machines that we currently support:
 * QEMU (IA-32) - emulated machine: qemux86
 * QEMU (x86-64) - emulated machine: qemux86-64
 
-Please check on our [wiki](http://wiki.projects.genivi.org/index.php/meta-ivi)
+Please check on our [wiki](https://at.projects.genivi.org/wiki/display/PROJ/meta-ivi)
 regarding any community supported machines.
 For example there Renesas provides a public Board Support Package (BSP)
 available for use with meta-ivi.
@@ -75,18 +73,18 @@ export TEMPLATECONF=/full/path/to/meta-ivi/meta-ivi/conf
 2. Run the following command:
    > $ source poky/oe-init-build-env
 
-3. Build nostromo-image including GENIVI 12.0 (Nostromo) components
+3. Build a s/w image including GENIVI 12.0 (Nostromo) components
    > $ bitbake nostromo-image
 
 4. Run the emulator:
    > for qemu vexpressa9:  
-   > $ PATH_TO_META_IVI/meta-ivi/scripts/runqemu nostromo-image vexpressa9
+   > $ PATH_TO_META_IVI/meta-ivi/scripts/runqemu -m vexpressa9
    >
    > for qemu x86:  
-   > $ PATH_TO_META_IVI/meta-ivi/scripts/runqemu nostromo-image qemux86
+   > $ PATH_TO_META_IVI/meta-ivi/scripts/runqemu -m qemux86
    >
    > for qemu x86-64:  
-   > $ PATH_TO_META_IVI/meta-ivi/scripts/runqemu nostromo-image qemux86-64
+   > $ PATH_TO_META_IVI/meta-ivi/scripts/runqemu -m qemux86-64
 
 5. To login use these credentials:
    > User - root
