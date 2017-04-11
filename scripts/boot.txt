@@ -1,3 +1,0 @@
-setenv bootcmd "fatload mmc 0:1 0x80000000 uImage; bootm 0x80000000"
-setenv bootargs "console=tty0 console=ttyO2,115200n8 mpurate=auto vram=12M omapfb.mode=dvi:1024x768MR-16@60 omapfb.debug=y omapdss.def_disp=dvi root=/dev/mmcblk0p2 rw rootfstype=ext3 rootwait"
-boot
