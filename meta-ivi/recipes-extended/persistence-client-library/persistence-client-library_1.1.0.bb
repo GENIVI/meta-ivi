@@ -13,6 +13,7 @@ SRCREV = "87281e7cb8e47cace208a1b0cf3109b37156418a"
 SRC_URI = " \
     git://github.com/GENIVI/${BPN}.git;protocol=https \
     file://0001-fix-exec-path.patch \
+    file://0002-load-correct-version-of-libpers_common.patch \
     "
 S = "${WORKDIR}/git"
 

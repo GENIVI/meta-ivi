@@ -1,0 +1,20 @@
+diff --git a/config/pclCustomLibConfigFile.cfg.in b/config/pclCustomLibConfigFile.cfg.in
+index 56e949b..e1bb593 100644
+--- a/config/pclCustomLibConfigFile.cfg.in
++++ b/config/pclCustomLibConfigFile.cfg.in
+@@ -1 +1 @@
+-default @prefix@/lib/libpers_common.so init sync
++default @prefix@/lib/libpers_common.so.0 init sync
+diff --git a/config/pclCustomLibConfigFileTest.cfg.in b/config/pclCustomLibConfigFileTest.cfg.in
+index 185cab4..fe95b18 100644
+--- a/config/pclCustomLibConfigFileTest.cfg.in
++++ b/config/pclCustomLibConfigFileTest.cfg.in
+@@ -1,7 +1,7 @@
+ hwinfo @prefix@/lib/libhwinfoperscustom.so init async
+ secure @prefix@/lib/libsecureperscustom.so od sync
+ custom3 @prefix@/lib/libcustom3perscustom.so init sync
+-default @prefix@/lib/libpers_common.so init sync
++default @prefix@/lib/libpers_common.so.0 init sync
+ emergency @prefix@/lib/libemergencyperscustom.so od async
+ early @prefix@/lib/libearlyperscustom.so od sync
+ anInvalidEntry /wrongPath/wrongLib do cnys
