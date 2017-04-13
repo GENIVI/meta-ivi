@@ -16,7 +16,7 @@ do_install_append() {
    install -d ${D}/Data/mnt-wt/
    touch ${D}/Data/mnt-wt/README.wt
    install -d ${D}/Data/mnt-c/
-   touch ${D}/Data/mnt-wt/README.c
+   touch ${D}/Data/mnt-c/README.c
 
    install -m 0755 ${WORKDIR}/${BPN}_t.inc ${D}/opt/tests/${PN}
 }
