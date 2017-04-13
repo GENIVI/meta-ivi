@@ -5,7 +5,7 @@ SECTION = "base"
 LICENSE = "MPLv2"
 LIC_FILES_CHKSUM = "file://COPYING;md5=815ca599c9df247a0c7f619bab123dad"
 
-SRCREV = "9f2fd043d034219a22b0ea84ee84ff9c07f05ec9"
+SRCREV = "c1cd0d398ee0c25b5af6e4ff96b9991a1b24959d"
 SRC_URI = " \
     git://github.com/GENIVI/persistence-common-object.git;protocol=https \
     "
