@@ -18,15 +18,16 @@ _setup_env() {
   if [ "x${_p}" != "x" ]; then
       kill -9 ${_p} >& /dev/null
   fi
+  sleep 2
+  systemctl restart pas-daemon
+  systemctl restart nodestatemanager-daemon
 
-  if [ ! -e /Data/mnt-wt/lt-persistence_client_library_test/ ]; then
-     persadmin_tool install /Data/mnt-backup/PAS_data.tar.gz > /tmp/t
-  fi
   if [ ! -e /tmp/myBackup ]; then
      mkdir /tmp/myBackup
   fi
-  systemctl restart pas-daemon
-  systemctl restart nodestatemanager-daemon
+  if [ ! -e /Data/mnt-wt/lt-persistence_client_library_test/ ]; then
+     persadmin_tool install /Data/mnt-backup/PAS_data.tar.gz > /tmp/t
+  fi
 }
 
 _run() {
