@@ -9,10 +9,9 @@ LIC_FILES_CHKSUM = "file://COPYING;md5=6161c6840f21a000e9b52af81d2ca823"
 
 DEPENDS = "dlt-daemon dbus libcheck persistence-common-object"
 
-SRCREV = "2e190294dfd19ab9612e2576ebbaeff738990f70"
+SRCREV = "87281e7cb8e47cace208a1b0cf3109b37156418a"
 SRC_URI = " \
     git://github.com/GENIVI/${BPN}.git;protocol=https \
-    file://0001-load-correct-version-of-libpers_common.patch \
     file://0001-fix-exec-path.patch \
     "
 S = "${WORKDIR}/git"
