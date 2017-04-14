@@ -10,23 +10,29 @@ get_title() {
 _run_dir=/opt/tests/persistence-client-library
 
 _setup_env() {
-  _p=`pidof NodeStateManager`
-  if [ "x${_p}" != "x" ]; then
-      kill -9 ${_p} >& /dev/null
-  fi
   _p=`pidof nsm-dummy`
   if [ "x${_p}" != "x" ]; then
       kill -9 ${_p} >& /dev/null
+      sleep 1
   fi
-  sleep 2
-  systemctl restart pas-daemon
+  if [ ! -d /Data/tmp ]; then
+     rm -f /Data/tmp >& /dev/null
+     mkdir /Data/tmp
+  fi
+  _m=`mount | grep /Data/mnt-c`
+  if [ "x${_m}" == "x" ]; then
+     mount -o bind /Data/tmp /Data/mnt-c
+     mount -o bind /Data/tmp /Data/mnt-wt
+  fi
   systemctl restart nodestatemanager-daemon
+  systemctl restart pas-daemon
+  sleep 2
 
   if [ ! -e /tmp/myBackup ]; then
      mkdir /tmp/myBackup
   fi
-  if [ ! -e /Data/mnt-wt/lt-persistence_client_library_test/ ]; then
-     persadmin_tool install /Data/mnt-backup/PAS_data.tar.gz > /tmp/t
+  if [ ! -e /Data/mnt-wt/pfs_test/ ]; then
+     persadmin_tool install /Data/mnt-backup/PAS_data.tar.gz > /tmp/t.2
   fi
 }
 
