@@ -61,6 +61,7 @@ error() {
 MACHINE=${MACHINE:=""}
 KERNEL=${KERNEL:=""}
 ROOTFS=${ROOTFS:=""}
+DTB=${DTB:=""}
 VM=${VM:=""}
 FSTYPE=${FSTYPE:=""}
 LAZY_ROOTFS=""
@@ -70,6 +71,7 @@ SCRIPT_KERNEL_OPT=""
 SERIALSTDIO=""
 KVM_ENABLED="no"
 KVM_ACTIVE="no"
+NO_GRAPHIC="no"
 
 # Determine whether the file is a kernel or QEMU image, and set the
 # appropriate variables
@@ -144,7 +146,10 @@ while true; do
 	    ;;
         "nographic")
             SCRIPT_QEMU_OPT="$SCRIPT_QEMU_OPT -nographic"
-            SCRIPT_KERNEL_OPT="$SCRIPT_KERNEL_OPT console=ttyS0"
+            if [ "x$MACHINE" != "xvexpressa9" ]; then
+               SCRIPT_KERNEL_OPT="$SCRIPT_KERNEL_OPT console=ttyS0"
+            fi
+            NO_GRAPHIC="yes"
             ;;
         "serial")
             SCRIPT_QEMU_OPT="$SCRIPT_QEMU_OPT -serial stdio"
@@ -307,6 +312,7 @@ QEMUARM_DEFAULT_FSTYPE=ext4
 
 VEXPRESSA9_DEFAULT_KERNEL=zImage-vexpressa9.bin
 VEXPRESSA9_DEFAULT_FSTYPE=ext3
+VEXPRESSA9_DEFAULT_DTB=zImage-vexpress-v2p-ca9.dtb
 
 QEMUARM64_DEFAULT_KERNEL=Image-qemuarm64.bin
 QEMUARM64_DEFAULT_FSTYPE=ext4
@@ -463,6 +469,10 @@ if [ "$LAZY_ROOTFS" = "true" ]; then
     setup_path_vars 1
     echo "Assuming $ROOTFS really means $DEPLOY_DIR_IMAGE/$ROOTFS-$MACHINE.$FSTYPE"
     ROOTFS=$DEPLOY_DIR_IMAGE/$ROOTFS-$MACHINE.$FSTYPE
+fi
+
+if [ "x$MACHINE" == "xvexpressa9" ]; then
+   eval DTB=$DEPLOY_DIR_IMAGE/\$${machine2}_DEFAULT_DTB
 fi
 
 if [ -z "$ROOTFS" -a "x$FSTYPE" != "xvmdk" ]; then

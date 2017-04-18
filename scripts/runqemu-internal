@@ -353,7 +353,8 @@ if [ "$FSTYPE" = "nfs" ]; then
     NFSRUNNING="true"
 fi
 
-if [ "$MACHINE" = "qemuarm" -o "$MACHINE" = "qemuarmv6" -o "$MACHINE" = "qemuarmv7" \
+if [ "$MACHINE" = "qemuarm" \
+     -o "$MACHINE" = "qemuarmv6" -o "$MACHINE" = "qemuarmv7" \
      -o "$MACHINE" = "vexpressa9" ]; then
     QEMU=qemu-system-arm
     if [ "$MACHINE" = "vexpressa9" ]; then
@@ -367,12 +368,16 @@ if [ "$MACHINE" = "qemuarm" -o "$MACHINE" = "qemuarmv6" -o "$MACHINE" = "qemuarm
     if [ "${FSTYPE:0:3}" = "ext" -o "$FSTYPE" = "btrfs" ]; then
         if [ "$MACHINE" = "vexpressa9" ]; then
             KERN_root="root=/dev/mmcblk0 vmalloc=384MB"
-	    QEMU_root="-sd $ROOTFS"
+	    QEMU_root="-sd $ROOTFS -dtb $DTB"
 	else
             KERN_root="root=/dev/sda"
 	    QEMU_root="-hda $ROOTFS"
         fi
-        KERNCMDLINE="${KERN_root} rw console=ttyAMA0,115200 console=tty $KERNEL_NETWORK_CMD mem=$QEMU_MEMORY highres=off"
+        _TTY=""
+        if [ "x${NO_GRAPHIC}" != "xyes" ]; then
+           _TTY="console=tty"
+        fi
+        KERNCMDLINE="${KERN_root} rw console=ttyAMA0,115200 $_TTY $KERNEL_NETWORK_CMD mem=$QEMU_MEMORY highres=off"
         QEMUOPTIONS="$QEMU_NETWORK_CMD -M ${MACHINE_SUBTYPE} ${QEMU_root} -no-reboot $QEMU_UI_OPTIONS"
     elif [ "$FSTYPE" = "nfs" ]; then
         if [ "$NFS_SERVER" = "192.168.7.1" -a ! -d "$NFS_DIR" ]; then
@@ -572,10 +577,6 @@ if [ "$MACHINE" = "qemush4" ]; then
         QEMUOPTIONS="$QEMU_NETWORK_CMD -M $MACHINE_SUBTYPE -no-reboot $QEMU_UI_OPTIONS -monitor null -serial vc -serial stdio"
         SERIALSTDIO="1"
     fi
-fi
-
-if [ "${FSTYPE:0:3}" = "ext" ]; then
-    KERNCMDLINE="$KERNCMDLINE rootfstype=$FSTYPE"
 fi
 
 if [ "$MACHINE" = "akita" ]; then
