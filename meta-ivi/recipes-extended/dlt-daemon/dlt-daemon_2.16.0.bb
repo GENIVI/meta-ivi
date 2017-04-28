@@ -22,6 +22,7 @@ SRC_URI = "git://github.com/GENIVI/${BPN}.git;protocol=https \
 S = "${WORKDIR}/git"
 
 inherit autotools gettext cmake systemd
+inherit gzipnative compress_doc
 
 PACKAGES += "${PN}-systemd"
 SYSTEMD_PACKAGES = "${PN} ${PN}-systemd"
@@ -33,7 +34,7 @@ SYSTEMD_SERVICE_${PN}-systemd = "dlt-example-user.service \
     dlt-receive.service"
 SYSTEMD_AUTO_ENABLE_${PN}-systemd = "disable"
 
-EXTRA_OECMAKE = "-DWITH_SYSTEMD=ON -DWITH_MAN=OFF"
+EXTRA_OECMAKE = "-DWITH_SYSTEMD=ON"
 
 FILES_${PN}-doc += "/usr/share/dlt-filetransfer"
 
