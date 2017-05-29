@@ -1,4 +1,4 @@
 Common targets are:
-    nostromo-image
+    orion-image
     ivi-image
 

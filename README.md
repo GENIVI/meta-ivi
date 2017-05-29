@@ -27,17 +27,17 @@ Layer Dependencies
 ------------------
 
 URI: git://git.yoctoproject.org/poky
-> branch:   morty
-> revision: 924e576b8930fd2268d85f0b151e5f68a3c2afce
+> branch:   pyro
+> revision: 67f4b98fb3077b9c27cd70942f6b99a10578c877
 
 URI: git://git.openembedded.org/meta-openembedded
 > layer:    meta-oe
-> branch:   morty
-> revision: fe5c83312de11e80b85680ef237f8acb04b4b26e
+> branch:   pyro
+> revision: 5e82995148a2844c6f483ae5ddd1438d87ea9fb7
 
 Using the above git sha's and the master meta-ivi branch,
- bitbaking nostromo-image is known to work
- (the nostromo-image build should be aligned with GENIVI 12.0).
+ bitbaking orion-image is known to work
+ (the orion-image build should be aligned with GENIVI 13.0).
 
 For creating a specific GENIVI compliant image version, please make sure you
 git checkout the related meta-ivi branch and follow the build instructions
@@ -55,6 +55,7 @@ We do smoke test the builds of the three machines that we currently support:
 * QEMU (ARMv7) - emulated machine: vexpressa9
 * QEMU (IA-32) - emulated machine: qemux86
 * QEMU (x86-64) - emulated machine: qemux86-64
+* QEMU (ARM64) - emulated machine: qemuarm64
 
 Please check on our [wiki](https://at.projects.genivi.org/wiki/display/PROJ/meta-ivi)
 regarding any community supported machines.
@@ -73,7 +74,7 @@ export TEMPLATECONF=/full/path/to/meta-ivi/meta-ivi/conf
 2. Run the following command:
    > $ source poky/oe-init-build-env
 
-3. Build a s/w image including GENIVI 12.0 (Nostromo) components
+3. Build a s/w image including GENIVI 13.0 (Orion) components
    > $ bitbake nostromo-image
 
 4. Run the emulator:
@@ -85,6 +86,9 @@ export TEMPLATECONF=/full/path/to/meta-ivi/meta-ivi/conf
    >
    > for qemu x86-64:  
    > $ PATH_TO_META_IVI/meta-ivi/scripts/runqemu -m qemux86-64
+   >
+   > for qemu qemuarm64:
+   > $ PATH_TO_META_IVI/meta-ivi/scripts/runqemu -m qemuarm64
 
 5. To login use these credentials:
    > User - root
