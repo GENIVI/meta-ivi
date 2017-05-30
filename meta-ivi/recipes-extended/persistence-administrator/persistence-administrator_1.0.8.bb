@@ -1,19 +1,17 @@
 SUMMARY = "Administrator application for persistence"
-
 HOMEPAGE = "https://www.genivi.org/"
 SECTION = "base"
-
 LICENSE = "MPLv2"
 LIC_FILES_CHKSUM = "file://COPYING;md5=815ca599c9df247a0c7f619bab123dad"
 
+PR = "r1"
+
 SRCREV = "47e5a424c8ef6e33565737f20d3bd81f69c8efc9"
-SRC_URI = " \
-    git://github.com/GENIVI/persistence-administrator.git;protocol=https \
-    "
+SRC_URI = "git://github.com/GENIVI/${BPN}.git;protocol=https "
 S = "${WORKDIR}/git"
 
-DEPENDS = "glib-2.0 dbus dlt-daemon libarchive zlib json-c node-state-manager \
-           systemd persistence-common-object libffi"
+DEPENDS = "glib-2.0 glib-2.0-native dbus dlt-daemon libarchive zlib json-c \
+           node-state-manager systemd persistence-common-object libffi"
 
 inherit autotools-brokensep systemd pkgconfig
 
