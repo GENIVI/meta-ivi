@@ -12,3 +12,11 @@ LIC_FILES_CHKSUM = "file://COPYING;md5=73a5855a8119deb017f5f13cf327095d \
 SRC_URI[md5sum] = "cfd6f303c8df2740b27cc63b945decef"
 SRC_URI[sha256sum] = "595d7911a9e6207dea37200587724bdbf841b81a5eb0730118be36976684278c"
 S = "${WORKDIR}/gst-plugins-bad-${PV}"
+
+do_install_append() {
+    if ls ${D}${libdir}/pkgconfig/*.pc >/dev/null 2>/dev/null; then
+        sed -i ${D}${libdir}/pkgconfig/*.pc \
+            -e "s@-L${STAGING_LIBDIR}@-L\${libdir}@g" \
+            -e "s@${STAGING_DIR_TARGET}@@g"
+    fi
+}
