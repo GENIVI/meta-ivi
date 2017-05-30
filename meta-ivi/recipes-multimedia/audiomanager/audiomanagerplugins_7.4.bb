@@ -4,9 +4,9 @@ SECTION = "multimedia"
 LICENSE = "MPL-2.0"
 LIC_FILES_CHKSUM = "file://${COMMON_LICENSE_DIR}/MPL-2.0;md5=815ca599c9df247a0c7f619bab123dad"
 
-PR = "r1"
+PR = "r2"
 
-DEPENDS = "audiomanager capicxx-core-native capicxx-dbus-native"
+DEPENDS = "audiomanager capicxx-core-native capicxx-dbus-native libxml2"
 RDEPENDS_${PN} += "libxml2"
 
 SRCREV = "cb5797de3df41f4661c3055b0ea1a3e677c293aa"
@@ -26,6 +26,22 @@ EXTRA_OECMAKE = " \
     "
 
 do_configure_prepend() {
+    capi_core_home=$(dirname `find ${WORKDIR}/recipe-sysroot-native -name commonapi-generator-linux-x86`)
+    capi_dbus_home=$(dirname `find ${WORKDIR}/recipe-sysroot-native -name commonapi-dbus-generator-linux-x86`)
+    if [ -L /usr/bin/java ]; then
+       java_bin=$(readlink -f /usr/bin/java)
+       if [ -L $java_bin ]; then
+          J_HOME=$(readlink -f $java_bin | sed "s:/bin/java::")
+       else
+          J_HOME=$(readlink -f /usr/bin/java | sed "s:/bin/java::")
+       fi
+       rm -f ${capi_core_home}/jre ${capi_dbus_home}/jre
+       ln -s ${J_HOME} ${capi_core_home}/
+       ln -s ${J_HOME} ${capi_dbus_home}/
+    else
+       echo "hello. it's impossible"
+    fi
+
     perl -pi -e 's|include\(CMakeDependentOption\)|include\(CMakeDependentOption\)\ninclude_directories\(${PKG_CONFIG_SYSROOT_DIR}/usr/include/audiomanager/AudioManagerUtilities\)|' ${S}/CMakeLists.txt
     perl -pi -e 's|include\(CMakeDependentOption\)|include\(CMakeDependentOption\)\ninclude_directories\(${PKG_CONFIG_SYSROOT_DIR}/usr/include/audiomanager/AudioManagerCore\)|' ${S}/CMakeLists.txt
     perl -pi -e 's|include\(CMakeDependentOption\)|include\(CMakeDependentOption\)\ninclude_directories\(${PKG_CONFIG_SYSROOT_DIR}/usr/include/audiomanager\)|' ${S}/CMakeLists.txt
