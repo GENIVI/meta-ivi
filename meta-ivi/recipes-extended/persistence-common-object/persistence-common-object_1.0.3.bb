@@ -13,7 +13,7 @@ S = "${WORKDIR}/git"
 
 PV = "1.0.3+git${SRCPV}"
 
-DEPENDS = "glib-2.0 dlt-daemon"
+DEPENDS = "glib-2.0 glib-2.0-native dlt-daemon libcheck"
 
 inherit autotools-brokensep pkgconfig
 
