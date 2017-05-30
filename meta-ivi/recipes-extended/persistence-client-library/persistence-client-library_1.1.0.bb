@@ -35,6 +35,8 @@ FILES_${PN} += " \
     ${libdir}/lib*custom.so \
     ${libdir}/*.so.* \
     ${sysconfdir} \
+    /Data/mnt-c \
+    /Data/mnt-wt \
     "
 FILES_${PN}-dev += " \
     ${libdir}/libpersistence_client_library.so \
