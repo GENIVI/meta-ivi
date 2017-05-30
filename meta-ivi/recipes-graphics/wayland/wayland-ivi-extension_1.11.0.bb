@@ -5,14 +5,13 @@ BUGTRACKER = "http://bugs.genivi.org/enter_bug.cgi?product=Wayland%20IVI%20Exten
 LICENSE = "Apache-2.0"
 LIC_FILES_CHKSUM = "file://LICENSE;md5=1f1a56bb2dadf5f2be8eb342acf4ed79"
 
-PR = "r0"
+PR = "r1"
 
-SRCREV = "c9001582b10ce209c37b42dd560947c5aa8928b3"
-SRC_URI = "git://github.com/GENIVI/${BPN}.git;protocol=http \
-    "
+SRCREV = "3ebb7b74e60a35d549284e7f77183de66bef18e0"
+SRC_URI = "git://github.com/GENIVI/${BPN}.git;protocol=http "
 S = "${WORKDIR}/git"
 
-DEPENDS = "weston"
+DEPENDS = "weston wayland-native"
 
 inherit cmake
 
