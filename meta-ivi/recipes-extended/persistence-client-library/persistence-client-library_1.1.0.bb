@@ -40,9 +40,4 @@ FILES_${PN}-dev += " \
     ${libdir}/libpersistence_client_library.so \
     "
 
-do_install_append() {
-    install -d ${D}${sysconfdir}/dbus-1/system.d
-    install -m 0644 ${S}/config/org.genivi.persistence.admin.conf ${D}${sysconfdir}/dbus-1/system.d
-}
-
 RDEPENDS_${PN} = "node-state-manager"
