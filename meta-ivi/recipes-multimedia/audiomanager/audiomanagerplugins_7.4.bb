@@ -4,9 +4,10 @@ SECTION = "multimedia"
 LICENSE = "MPL-2.0"
 LIC_FILES_CHKSUM = "file://${COMMON_LICENSE_DIR}/MPL-2.0;md5=815ca599c9df247a0c7f619bab123dad"
 
-PR = "r2"
+PR = "r3"
 
-DEPENDS = "audiomanager capicxx-core-native capicxx-dbus-native libxml2"
+DEPENDS = "audiomanager capicxx-core-native capicxx-dbus-native \
+    python3 libxml2"
 RDEPENDS_${PN} += "libxml2"
 
 SRCREV = "cb5797de3df41f4661c3055b0ea1a3e677c293aa"
