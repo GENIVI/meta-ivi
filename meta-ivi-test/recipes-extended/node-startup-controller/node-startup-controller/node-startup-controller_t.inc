@@ -23,16 +23,31 @@ _luc_check() {
     done
 }
 _run_() {
+  systemctl stop dbus
+  if [ ! -d ${_run_dir}/bak ]; then
+     mkdir ${_run_dir}/bak
+     cp -f etc/dbus-1/system.d/org.genivi.NodeStartupController1.conf ${_run_dir}/bak
+     cp -f etc/dbus-1/system.d/org.genivi.NodeStateManager.conf ${_run_dir}/bak
+  fi
+  cp -f ${_run_dir}/etc/dbus-1/system.d/org.*.conf /etc/dbus-1/system.d
+  systemctl start dbus
+
   systemctl start dlt-receive
-  systemctl start nsm-dummy
   systemctl start node-startup-controller
+  systemctl start nsm-dummy
 
   _luc_check
   ${_run_dir}/${1}
 
+  systemctl stop nsm-dummy
   systemctl stop node-startup-controller
+  sleep 1
   systemctl stop nsm-dummy
   #systemctl stop dlt-receive
+
+  systemctl stop dbus
+  cp -f ${_run_dir}/bak/org.*.conf /etc/dbus-1/system.d
+  systemctl start dbus
 }
 
 _check_luc_test_01() {
