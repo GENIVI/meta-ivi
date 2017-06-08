@@ -30,3 +30,5 @@ update_git poky
 $MYDIR/checkout_layer_hash.sh poky
 update_git meta-openembedded
 $MYDIR/checkout_layer_hash.sh meta-openembedded
+update_git meta-gplv2
+$MYDIR/checkout_layer_hash.sh meta-gplv2
