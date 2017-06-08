@@ -1,0 +1,139 @@
+From 7c17996273746d55cd3990ede7d9e736ddbbfab8 Mon Sep 17 00:00:00 2001
+From: Thangam Ramasamy <Thangam_Ramasamy@mentor.com>
+Date: Wed, 11 May 2016 15:56:48 +0530
+Subject: [PATCH] node-health-monitor: set valid format message for
+ g_set_error() calls
+
+Set valid format message to the last parameter of g_set_error() function
+instead of sending "NULL". This is needed to fix the gdbus warning message
+from glib-2.44.1. Moreover as per the comment in g_error_new_valist()
+function passing "NULL" to "format" parameter of g_set_error() function
+would be treated as errors. Due to this reason, set a valid format message
+to all the g_set_error() function calls.
+
+Signed-off-by: Thangam Ramasamy <Thangam_Ramasamy@mentor.com>
+---
+ tst/stubs/gen/nsm-dbus-consumer-stub.c    |  4 ++--
+ tst/stubs/gen/nsm-dbus-lc-consumer-stub.c |  2 +-
+ tst/stubs/gen/nsm-dbus-lc-control-stub.c  |  6 +++---
+ tst/stubs/gio/gio-stub.c                  | 10 +++++-----
+ 4 files changed, 11 insertions(+), 11 deletions(-)
+
+diff --git a/tst/stubs/gen/nsm-dbus-consumer-stub.c b/tst/stubs/gen/nsm-dbus-consumer-stub.c
+index 03a24a2..bfce582 100644
+--- a/tst/stubs/gen/nsm-dbus-consumer-stub.c
++++ b/tst/stubs/gen/nsm-dbus-consumer-stub.c
+@@ -60,7 +60,7 @@ nsm_dbus_consumer_proxy_new_sync_stub(GDBusConnection  *connection,
+   else
+   {
+     retval = NULL;
+-    g_set_error(error, G_DBUS_ERROR, G_DBUS_ERROR_DISCONNECTED, NULL);
++    g_set_error(error, G_DBUS_ERROR, G_DBUS_ERROR_DISCONNECTED, "dbus connection associated with NSM is disconnected");
+   }
+ 
+   return retval;
+@@ -91,7 +91,7 @@ nsm_dbus_consumer_call_register_shutdown_client_sync_stub(NsmDbusConsumer  *prox
+   else
+   {
+     retval = FALSE;
+-    g_set_error(error, G_DBUS_ERROR, G_DBUS_ERROR_DISCONNECTED, NULL);
++    g_set_error(error, G_DBUS_ERROR, G_DBUS_ERROR_DISCONNECTED, "dbus connection associated with NSM is disconnected");
+   }
+ 
+   return retval;
+diff --git a/tst/stubs/gen/nsm-dbus-lc-consumer-stub.c b/tst/stubs/gen/nsm-dbus-lc-consumer-stub.c
+index 82b0195..caeb47f 100644
+--- a/tst/stubs/gen/nsm-dbus-lc-consumer-stub.c
++++ b/tst/stubs/gen/nsm-dbus-lc-consumer-stub.c
+@@ -58,7 +58,7 @@ nsm_dbus_lc_consumer_proxy_new_sync_stub(GDBusConnection  *connection,
+   else
+   {
+     retval = NULL;
+-    g_set_error(error, G_DBUS_ERROR, G_DBUS_ERROR_DISCONNECTED, NULL);
++    g_set_error(error, G_DBUS_ERROR, G_DBUS_ERROR_DISCONNECTED, "dbus connection associated with NSM is disconnected");
+   }
+ 
+   return retval;
+diff --git a/tst/stubs/gen/nsm-dbus-lc-control-stub.c b/tst/stubs/gen/nsm-dbus-lc-control-stub.c
+index 14e3096..3ea40a3 100644
+--- a/tst/stubs/gen/nsm-dbus-lc-control-stub.c
++++ b/tst/stubs/gen/nsm-dbus-lc-control-stub.c
+@@ -60,7 +60,7 @@ nsm_dbus_lc_control_proxy_new_sync_stub(GDBusConnection *connection,
+   else
+   {
+     retval = NULL;
+-    g_set_error(error, G_DBUS_ERROR, G_DBUS_ERROR_DISCONNECTED, NULL);
++    g_set_error(error, G_DBUS_ERROR, G_DBUS_ERROR_DISCONNECTED, "dbus connection associated with NSM is disconnected");
+   }
+ 
+   return retval;
+@@ -88,7 +88,7 @@ nsm_dbus_lc_control_call_set_app_health_status_sync_stub(NsmDbusLcControl *proxy
+   else
+   {
+     retval = FALSE;
+-    g_set_error(error, G_DBUS_ERROR, G_DBUS_ERROR_DISCONNECTED, NULL);
++    g_set_error(error, G_DBUS_ERROR, G_DBUS_ERROR_DISCONNECTED, "dbus connection associated with NSM is disconnected");
+   }
+ 
+   return retval;
+@@ -116,7 +116,7 @@ nsm_dbus_lc_control_call_request_node_restart_sync_stub(NsmDbusLcControl *proxy,
+   else
+   {
+     retval = FALSE;
+-    g_set_error(error, G_DBUS_ERROR, G_DBUS_ERROR_DISCONNECTED, NULL);
++    g_set_error(error, G_DBUS_ERROR, G_DBUS_ERROR_DISCONNECTED, "dbus connection associated with NSM is disconnected");
+   }
+ 
+   return retval;
+diff --git a/tst/stubs/gio/gio-stub.c b/tst/stubs/gio/gio-stub.c
+index 6cf8fb1..e273ac2 100644
+--- a/tst/stubs/gio/gio-stub.c
++++ b/tst/stubs/gio/gio-stub.c
+@@ -156,7 +156,7 @@ g_bus_get_sync_stub(GBusType       bus_type,
+   else
+   {
+     retval = NULL;
+-    g_set_error(error, G_DBUS_ERROR, G_DBUS_ERROR_FAILED, NULL);
++    g_set_error(error, G_DBUS_ERROR, G_DBUS_ERROR_FAILED, "Could not connect to message bus of bus type '%d'", bus_type);
+   }
+ 
+   return retval;
+@@ -211,7 +211,7 @@ g_dbus_interface_skeleton_export_stub(GDBusInterfaceSkeleton *interface_,
+   else
+   {
+     retval = FALSE;
+-    g_set_error(error, G_DBUS_ERROR, G_DBUS_ERROR_FAILED, NULL);
++    g_set_error(error, G_DBUS_ERROR, G_DBUS_ERROR_FAILED, "Could not export dbus interface");
+   }
+ 
+   return retval;
+@@ -239,7 +239,7 @@ g_dbus_connection_new_for_address_sync_stub(const gchar          *address,
+   else
+   {
+     retval = NULL;
+-    g_set_error(error, G_DBUS_ERROR, G_DBUS_ERROR_FAILED, NULL);
++    g_set_error(error, G_DBUS_ERROR, G_DBUS_ERROR_FAILED, "Could not setup dbus client connection with address '%s'", address);
+   }
+ 
+   return retval;
+@@ -286,7 +286,7 @@ g_dbus_connection_call_sync_stub(GDBusConnection    *connection,
+ 
+     if((rval == NULL) && (error != NULL))
+     {
+-      g_set_error(error, G_DBUS_ERROR, G_DBUS_ERROR_FAILED, NULL);
++      g_set_error(error, G_DBUS_ERROR, G_DBUS_ERROR_FAILED, "Could not invoke the dbus method '%s'", method_name);
+     }
+   }
+ 
+@@ -415,7 +415,7 @@ g_spawn_sync_stub(const gchar          *working_directory,
+   else
+   {
+     retval = FALSE;
+-    g_set_error(error, G_SPAWN_ERROR, G_SPAWN_ERROR_FAILED, NULL);
++    g_set_error(error, G_SPAWN_ERROR, G_SPAWN_ERROR_FAILED, "Could not execute the child process '%s'", argv[0]);
+   }
+ 
+   return retval;
+-- 
+1.9.1
+
