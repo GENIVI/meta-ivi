@@ -1,4 +1,4 @@
-#!/bin/sh
+roo#!/bin/sh
 get_list() {
   return 1
 }
@@ -14,16 +14,23 @@ _run_1() {
 }
 
 run_1() {
+  systemctl start dlt-dbus
+  _p=`pidof NodeStateManager`          
+  if [ "x${_p}" != "x" ]; then       
+    kill -9 ${_p} >& /dev/null       
+  fi                                 
+  systemctl stop nsm-dummy           
+  systemctl stop node-startup-controller
+  systemctl stop nsm-dummy              
+  systemctl start node-startup-controller
+  systemctl start nsm-dummy              
   if [ ! -d /tmp/PAS ]; then
     rm -f /tmp/PAS
     mkdir -p /tmp/PAS
   fi
   cp ${_run_dir}/resource*.tar.gz /tmp/PAS/
 
-  systemctl restart dlt-dbus
-  systemctl restart dlt-example-user
-  systemctl restart pas-daemon
-  systemctl restart node-startup-controller
+  systemctl start pas-daemon
   if [ "x${1}" != "x" ]; then
     _run_1 > /tmp/t
     _c1=`cat /tmp/t | grep OK | wc -l`
@@ -38,4 +45,9 @@ run_1() {
   else
     _run_1
   fi
+  systemctl stop pas-daemon                        
+  systemctl stop nsm-dummy               
+  systemctl stop node-startup-controller 
+  systemctl stop nsm-dummy               
+  systemctl stop dlt-dbus                
 }
