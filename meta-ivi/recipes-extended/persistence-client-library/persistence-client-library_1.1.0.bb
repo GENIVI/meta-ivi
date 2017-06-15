@@ -9,7 +9,7 @@ LIC_FILES_CHKSUM = "file://COPYING;md5=6161c6840f21a000e9b52af81d2ca823"
 
 DEPENDS = "dlt-daemon dbus libcheck persistence-common-object"
 
-SRCREV = "87281e7cb8e47cace208a1b0cf3109b37156418a"
+SRCREV = "783f239c37470624f56cea6accb85a47309cb44e"
 SRC_URI = " \
     git://github.com/GENIVI/${BPN}.git;protocol=https \
     file://0001-fix-exec-path.patch \
@@ -18,18 +18,16 @@ SRC_URI = " \
 S = "${WORKDIR}/git"
 
 PV = "1.1.0+git${SRCPV}"
-PR = "r4"
+PR = "r5"
 
 inherit pkgconfig autotools-brokensep
 
 EXTRA_OECONF_append = " --enable-tools --enable-pasinterface"
-# EXTRA_OECONF_append = " --enable-debug=yes"
 
 PARALLEL_MAKE = ""
 
 # .so files are the actual libraries
 FILES_SOLIBSDEV = ""
-#SOLIBS = "${SOLIBSDEV}"
 
 FILES_${PN} += " \
     ${libdir}/lib*custom.so \

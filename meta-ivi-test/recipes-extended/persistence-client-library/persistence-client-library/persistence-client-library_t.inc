@@ -32,7 +32,7 @@ _setup_env() {
      mkdir /tmp/myBackup
   fi
   if [ ! -e /Data/mnt-wt/pfs_test/ ]; then
-     persadmin_tool install /Data/mnt-backup/PAS_data.tar.gz > /tmp/t.2
+     persadmin_tool install ${_rundir}/PAS_data.tar.gz > /tmp/t.2
   fi
 }
 

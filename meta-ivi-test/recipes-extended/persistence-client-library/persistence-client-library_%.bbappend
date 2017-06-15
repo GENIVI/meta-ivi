@@ -1,12 +1,19 @@
 #
 # for test
 #
+#LOCALSTATEDIR
+#localstatedir
 FILESEXTRAPATHS_append := ":${THISDIR}/${PN}"
 SRC_URI_append += " file://${BPN}_t.inc \
     file://fix_Werror_conversion.patch \
     "
 
 EXTRA_OECONF += " --enable-tests "
+
+do_configure_append() {
+    perl -pi -e "s|LOCALSTATEDIR|\"/opt/tests/${BPN}\"|" \
+      ${S}/test/persistence_client_library_test.c
+}
 
 do_install_append() {
    install -d ${D}/opt/tests/${PN}
@@ -16,11 +23,8 @@ do_install_append() {
         ${D}/opt/tests/${PN}
    install -m 0755 ${S}/test/.libs/persistence_client_library_test_file \
         ${D}/opt/tests/${PN}
-   install -d ${D}/Data/mnt-backup
-   install -m 0644 ${S}/test/data/PAS_data.tar.gz \
-        ${D}/Data/mnt-backup/
-   install -m 0644 ${S}/test/data/PAS_data_benchmark.tar.gz \
-        ${D}/Data/mnt-backup/
+   mv ${D}/var/*.tar.gz ${D}/opt/tests/${PN}
+   rmdir ${D}/var
 
    install -m 0755 ${WORKDIR}/${BPN}_t.inc ${D}/opt/tests/${PN}
 }
@@ -29,4 +33,4 @@ PACKAGES += "${PN}-test"
 DEPENDS_${PN}-test = "${PN}"
 
 FILES_${PN}-dbg += "/opt/tests/${PN}/.debug/* "
-FILES_${PN}-test = "/opt/tests/${PN}/ /Data/* "
+FILES_${PN}-test = "/opt/tests/${PN}/ "
