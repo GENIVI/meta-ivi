@@ -4,22 +4,22 @@ SECTION = "multimedia"
 LICENSE = "MPLv2"
 LIC_FILES_CHKSUM = "file://LICENCE;md5=f164349b56ed530a6642e9b9f244eec5"
 
-PR = "r1"
+PR = "r0"
 
 DEPENDS = "common-api-c++-dbus dlt-daemon sqlite3 dbus node-state-manager"
 
-SRCREV = "fe056279dde92475f29a35f8c0c6c5a41dc59a8b"
-SRC_URI = " \
-    git://github.com/GENIVI/AudioManager.git;protocol=https \
-    file://AudioManager.service \
+inherit gettext cmake pkgconfig systemd
+_BPN = "AudioManager"
+SRCREV = "8f2387e42641c7c2b967553a4c578f0e87549fb6"
+SRC_URI = " git://github.com/GENIVI/${_BPN}.git;protocol=https \
+    file://${_BPN}.service \
     file://setup_amgr.sh \
     "
 S = "${WORKDIR}/git"
 
-inherit gettext cmake pkgconfig systemd
 
 SYSTEMD_PACKAGES = "${PN}"
-SYSTEMD_SERVICE_${PN} = "AudioManager.service"
+SYSTEMD_SERVICE_${PN} = "${_BPN}.service"
 SYSTEMD_AUTO_ENABLE = "disable"
 
 OECMAKE_CXX_FLAGS +="-ldl"
@@ -27,7 +27,7 @@ EXTRA_OECMAKE = " -DWITH_DBUS_WRAPPER=ON -DWITH_TESTS=OFF"
 
 FILES_${PN} = " \
     ${bindir}/* \
-    ${systemd_unitdir}/AudioManager.service \
+    ${systemd_unitdir}/${_BPN}.service \
     ${systemd_unitdir}/scripts/setup_amgr.sh \
     "
 FILES_${PN}-dev += " \
@@ -39,7 +39,7 @@ do_install_append() {
         mkdir -p ${D}${systemd_unitdir}/scripts/
         install -m 0755 ${WORKDIR}/setup_amgr.sh ${D}${systemd_unitdir}/scripts/setup_amgr.sh
         install -d ${D}${systemd_unitdir}/system/
-        install -m 0644 ${WORKDIR}/AudioManager.service ${D}${systemd_unitdir}/system
+        install -m 0644 ${WORKDIR}/${_BPN}.service ${D}${systemd_unitdir}/system
     fi
 
     perl -pi -e 's|set_and_check\(|#set_and_check\(|' ${D}${libdir}/cmake/*/*.cmake

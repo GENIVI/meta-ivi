@@ -4,15 +4,14 @@ SECTION = "multimedia"
 LICENSE = "MPL-2.0"
 LIC_FILES_CHKSUM = "file://${COMMON_LICENSE_DIR}/MPL-2.0;md5=815ca599c9df247a0c7f619bab123dad"
 
-PR = "r3"
+PR = "r0"
 
 DEPENDS = "audiomanager capicxx-core-native capicxx-dbus-native \
     python3 libxml2"
 RDEPENDS_${PN} += "libxml2"
 
-SRCREV = "cb5797de3df41f4661c3055b0ea1a3e677c293aa"
-SRC_URI = " \
-    git://github.com/GENIVI/AudioManagerPlugins.git;branch=master;protocol=https \
+SRCREV = "6e167422e68089fee3098163b63f882ce4a50ad3"
+SRC_URI = " git://github.com/GENIVI/AudioManagerPlugins.git;protocol=https \
     file://AM-Genivi-Filtering-out-JDK-warnings-in-CAPI-script.patch \
     "
 S = "${WORKDIR}/git"
@@ -46,6 +45,7 @@ do_configure_prepend() {
     perl -pi -e 's|include\(CMakeDependentOption\)|include\(CMakeDependentOption\)\ninclude_directories\(${PKG_CONFIG_SYSROOT_DIR}/usr/include/audiomanager/AudioManagerUtilities\)|' ${S}/CMakeLists.txt
     perl -pi -e 's|include\(CMakeDependentOption\)|include\(CMakeDependentOption\)\ninclude_directories\(${PKG_CONFIG_SYSROOT_DIR}/usr/include/audiomanager/AudioManagerCore\)|' ${S}/CMakeLists.txt
     perl -pi -e 's|include\(CMakeDependentOption\)|include\(CMakeDependentOption\)\ninclude_directories\(${PKG_CONFIG_SYSROOT_DIR}/usr/include/audiomanager\)|' ${S}/CMakeLists.txt
+    perl -pi -e 's|CONFIG_PREFIX \$\{CMAKE_INSTALL_PREFIX\}/etc|CONFIG_PREFIX /etc|' ${S}/CMakeLists.txt
 
     perl -pi -e 's|\${CMAKE_INSTALL_PREFIX}/etc/controllerconf|/etc/controllerconf|' ${S}/PluginControlInterfaceGeneric/CMakeLists.txt
 
@@ -61,6 +61,7 @@ do_configure_append() {
 FILES_${PN} += " \
     ${libdir}/* \
     /usr/share/* \
+    ${confdir}/audiomanager/ \
     "
 
 FILES_${PN}-dev = " \
