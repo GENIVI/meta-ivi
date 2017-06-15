@@ -12,9 +12,11 @@ SECTION = "console/utils"
 LICENSE = "MPLv2"
 LIC_FILES_CHKSUM = "file://LICENSE;md5=8184208060df880fe3137b93eb88aeea"
 
+PR = "r1"
+
 DEPENDS = "dbus zlib pigz-native"
 
-SRCREV = "b2688c1c77d050dcbcaf85e5cd031b30262db935"
+SRCREV = "b91b38534e5276db69ffbf938177c227b01c65ad"
 SRC_URI = "git://github.com/GENIVI/${BPN}.git;protocol=https \
     file://0002-Don-t-execute-processes-as-a-specific-user.patch \
     file://0004-Modify-systemd-config-directory.patch \
