@@ -30,7 +30,7 @@ URI: git://git.openembedded.org/meta-openembedded
 > branch:   pyro
 > revision: 5e82995148a2844c6f483ae5ddd1438d87ea9fb7
 
-URI: git://git://git.yoctoproject.org/meta-gplv2
+URI: git://git.yoctoproject.org/meta-gplv2
 > branch:   pyro
 > revision: de001bd6bfcec943d274b649c62be6848cc9c3e6
 
