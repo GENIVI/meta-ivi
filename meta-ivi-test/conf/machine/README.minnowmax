@@ -1,0 +1,37 @@
+* visit https://at.projects.genivi.org/wiki/pages/viewpage.action?pageId=11569311
+=== Deploy on Minnowboard using Poky's convenient script ===
+ * /dev/sdd is the microSD device on HOST PC
+{{{
+sudo poky/scripts/contrib/mkefidisk.sh /dev/sdd \
+  build/tmp/deploy/images/minnowboard/test-image-minnowboard.hddimg /dev/mmcblk0
+}}}
+
+
+=== Deploy on Minnowboard using 'dd' ====
+ * Convert the .hddimg to .sdimg:
+{{{
+dd if=/dev/zero of="test-image-minnowboard.sdimg" bs=1024 count=1M
+sudo losetup -d /dev/loop0 # in case one is already associated, ignore any error
+sudo losetup /dev/loop0 "genivi-dev-platform-minnowboard.sdimg"
+sudo bash ./mkefidisk.sh /dev/loop0 test-image-minnowboard.hddimg /dev/mmcblk0
+sudo losetup -d /dev/loop0
+}}}
+ * Write the .sdimg to the SD card, for example:
+{{{
+sudo dd if=<file>.sdimg of=/dev/mmcblk0 bs=1024
+}}}
+
+=== Boot the device ===
+ * With the boot device provisioned, you can insert the media into the MinnowBoard-MAX and boot. It should detect the media and boot to the bootloader and subsequently the OS automatically, if not, you can do so manually from the EFI shell as follows:
+{{{
+Shell> connect -r
+Shell> map -r
+Shell> fs0:
+FS0:\> bootx64
+}}}
+ * Logon the genivi-dev-platform
+{{{
+    username: root
+    password: root
+}}}
+ * You can connect to the MinnowBoard MAX using some of the ftdi serial cables , or ssh as root with a known IP address 
