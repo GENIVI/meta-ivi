@@ -21,8 +21,7 @@ SRC_URI = "git://github.com/GENIVI/${BPN}.git;protocol=https \
     "
 S = "${WORKDIR}/git"
 
-inherit autotools gettext cmake systemd
-inherit gzipnative compress_doc
+inherit autotools gettext cmake systemd compress_doc
 
 PACKAGES += "${PN}-systemd"
 SYSTEMD_PACKAGES = "${PN} ${PN}-systemd"
