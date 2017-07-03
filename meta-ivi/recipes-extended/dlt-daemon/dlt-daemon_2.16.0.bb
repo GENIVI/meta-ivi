@@ -12,7 +12,7 @@ SECTION = "console/utils"
 LICENSE = "MPLv2"
 LIC_FILES_CHKSUM = "file://LICENSE;md5=8184208060df880fe3137b93eb88aeea"
 
-PR = "r1"
+PR = "r2"
 
 DEPENDS = "dbus zlib pigz-native"
 
@@ -23,7 +23,7 @@ SRC_URI = "git://github.com/GENIVI/${BPN}.git;protocol=https \
     "
 S = "${WORKDIR}/git"
 
-inherit autotools gettext cmake systemd
+inherit autotools gettext cmake systemd compress_doc
 
 PACKAGES += "${PN}-systemd"
 SYSTEMD_PACKAGES = "${PN} ${PN}-systemd"
@@ -35,7 +35,7 @@ SYSTEMD_SERVICE_${PN}-systemd = "dlt-example-user.service \
     dlt-receive.service"
 SYSTEMD_AUTO_ENABLE_${PN}-systemd = "disable"
 
-EXTRA_OECMAKE = "-DWITH_SYSTEMD=ON -DWITH_MAN=OFF"
+EXTRA_OECMAKE = "-DWITH_SYSTEMD=ON"
 
 FILES_${PN}-doc += "/usr/share/dlt-filetransfer"
 
