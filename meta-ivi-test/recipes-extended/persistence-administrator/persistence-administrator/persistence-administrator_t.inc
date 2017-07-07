@@ -1,4 +1,4 @@
-roo#!/bin/sh
+#!/bin/sh
 get_list() {
   return 1
 }
@@ -15,15 +15,17 @@ _run_1() {
 
 run_1() {
   systemctl start dlt-dbus
-  _p=`pidof NodeStateManager`          
-  if [ "x${_p}" != "x" ]; then       
-    kill -9 ${_p} >& /dev/null       
-  fi                                 
-  systemctl stop nsm-dummy           
+  _p=`pidof NodeStateManager`
+  if [ "x${_p}" != "x" ]; then
+    kill -9 ${_p} >& /dev/null
+  fi
+  _p=`pidof nsm-dummy`
+  if [ "x${_p}" != "x" ]; then
+    systemctl stop nsm-dummy
+    kill -9 ${_p} >& /dev/null
+  fi
   systemctl stop node-startup-controller
-  systemctl stop nsm-dummy              
   systemctl start node-startup-controller
-  systemctl start nsm-dummy              
   if [ ! -d /tmp/PAS ]; then
     rm -f /tmp/PAS
     mkdir -p /tmp/PAS
@@ -45,9 +47,7 @@ run_1() {
   else
     _run_1
   fi
-  systemctl stop pas-daemon                        
-  systemctl stop nsm-dummy               
-  systemctl stop node-startup-controller 
-  systemctl stop nsm-dummy               
-  systemctl stop dlt-dbus                
+  systemctl stop pas-daemon
+  systemctl stop node-startup-controller
+  systemctl stop dlt-dbus
 }
