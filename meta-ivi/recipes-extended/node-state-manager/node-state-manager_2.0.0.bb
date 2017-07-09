@@ -23,7 +23,7 @@ PR = "r2"
 
 EXTRA_OECONF = "${@bb.utils.contains('DISTRO_FEATURES', 'systemd', '--with-systemdsystemunitdir=${systemd_unitdir}/system/', '', d)}"
 
-DEPENDS = "dbus glib-2.0 glib-2.0-native dlt-daemon persistence-client-library systemd"
+DEPENDS = "dbus glib-2.0 glib-2.0-native dlt-daemon persistence-client-library systemd glib-2.0 glib-2.0-native"
 
 inherit pkgconfig autotools-brokensep systemd
 
