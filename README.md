@@ -5,14 +5,25 @@ This layer's purpose is to add In-Vehicle Infotainment (IVI) support when
 used with Poky.  The goal is to make the Yocto Project reference system
 Poky GENIVI compliant.
 
-Please see the
-[MAINTAINERS](https://github.com/GENIVI/meta-ivi/blob/master/MAINTAINERS)
-file for information on contacting the maintainers
-of this layer, as well as instructions for submitting patches.
+Branch Policy
+-------------
+
+Please note:
+- The most recent development is done on the highest numbered branch
+- Master branch is used as a stable version, typically equal to the most recently *released* numbered branch
+- Maintenance patches are added to both master and released branches
+
+Contribution
+-------------
 
 The meta-ivi project welcomes contributions. You can contribute code,
 submit patches, report bugs, answer questions on our mailing lists and
 review and edit our documentation and much more.
+
+Please see the
+[MAINTAINERS](https://github.com/GENIVI/meta-ivi/blob/master/MAINTAINERS)
+file for information on contacting the maintainers
+of this layer, as well as instructions for submitting patches.
 
 Subscribe to the mailing list
     [here](https://lists.genivi.org/mailman/listinfo/genivi-meta-ivi).  
