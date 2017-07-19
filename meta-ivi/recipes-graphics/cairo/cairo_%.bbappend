@@ -9,8 +9,10 @@ PACKAGES_remove =+ "\
 do_install_append () {
 	rm -f ${D}${bindir}/cairo-trace
 	rm -f ${D}${libdir}/cairo/libcairo-trace.so*
-
-	rmdir ${D}${bindir}
+        rm -f ${D}${libdir}/cairo/*.la
+ 
+        rmdir ${D}${bindir}
+        rmdir ${D}${libdir}/cairo
 
 	rm -f ${D}${libdir}/libcairo-script-interpreter.so*
 }
