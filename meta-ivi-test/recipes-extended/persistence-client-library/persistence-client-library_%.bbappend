@@ -5,7 +5,6 @@
 #localstatedir
 FILESEXTRAPATHS_append := ":${THISDIR}/${PN}"
 SRC_URI_append += " file://${BPN}_t.inc \
-    file://fix_Werror_conversion.patch \
     "
 
 EXTRA_OECONF += " --enable-tests "
