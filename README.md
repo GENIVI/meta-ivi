@@ -23,7 +23,7 @@ Layer Dependencies
 
 URI: git://git.yoctoproject.org/poky
 > branch:   pyro
-> revision: c63903443bab75cda3bfccb8f872985bd7e943c0
+> revision: 5686f4e1fe5229705b8c7d35895aa03827796d13
 
 URI: git://git.openembedded.org/meta-openembedded
 > layer:    meta-oe
