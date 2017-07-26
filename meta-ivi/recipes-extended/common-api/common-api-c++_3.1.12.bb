@@ -10,7 +10,7 @@ DEPENDS = "dlt-daemon"
 
 inherit cmake lib_package pkgconfig
 
-SRCREV = "66de998220d90116aa603d7458e245fe6094b4eb"
+SRCREV = "008f6c11f5371e93c06b3ed337326008d2031084"
 SRC_URI = "git://github.com/GENIVI/capicxx-core-runtime.git;protocol=https \
     "
 S = "${WORKDIR}/git"
