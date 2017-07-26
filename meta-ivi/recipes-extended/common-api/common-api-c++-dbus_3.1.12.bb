@@ -8,7 +8,7 @@ PR = "r0"
 DEPENDS = "commonapi3 dbus"
 REQUIRES = "commonapi3 dbus"
 
-SRCREV = "44103948d4b052603c0b361448ecb4ef7d954f79"
+SRCREV = "5f694be78a2520cbdea31e8ba82cb579ebf893f9"
 SRC_URI = "git://github.com/GENIVI/capicxx-dbus-runtime.git;protocol=https"
 S = "${WORKDIR}/git"
 
