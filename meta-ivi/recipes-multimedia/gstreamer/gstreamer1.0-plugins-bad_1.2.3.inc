@@ -2,7 +2,7 @@ require gstreamer1.0-plugins_1.2.3.inc
 
 LICENSE = "GPLv2+ & LGPLv2+ & LGPLv2.1+ "
 
-DEPENDS += "gstreamer1.0-plugins-base bzip2"
+DEPENDS += "gstreamer1.0-plugins-base bzip2 glib-2.0-native"
 
 S = "${WORKDIR}/gst-plugins-bad-${PV}"
 
