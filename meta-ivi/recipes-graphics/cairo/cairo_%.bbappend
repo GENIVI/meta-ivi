@@ -11,6 +11,8 @@ do_install_append () {
 	rm -f ${D}${libdir}/cairo/libcairo-trace.so*
 
 	rmdir ${D}${bindir}
+	
+	rm -rf ${D}${libdir}/cairo
 
 	rm -f ${D}${libdir}/libcairo-script-interpreter.so*
 }
