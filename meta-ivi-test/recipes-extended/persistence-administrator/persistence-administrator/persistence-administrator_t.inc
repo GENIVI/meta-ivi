@@ -13,18 +13,30 @@ _run_1() {
   ${_run_dir}/pers_admin_test_framework
 }
 
-run_1() {
+start_NSM() {
+  systemctl start dbus
+  systemctl start dlt
   systemctl start dlt-dbus
+  sleep 1
+  /usr/bin/NodeStateManager >& /dev/null &
+  sleep 4
+}
+
+stop_NSM() {
   _p=`pidof NodeStateManager`
   if [ "x${_p}" != "x" ]; then
-    kill -9 ${_p} >& /dev/null
+    kill -9 ${_p}
   fi
   _p=`pidof nsm-dummy`
   if [ "x${_p}" != "x" ]; then
     systemctl stop nsm-dummy
-    kill -9 ${_p} >& /dev/null
+    kill -9 ${_p}
   fi
-  systemctl stop node-startup-controller
+  systemctl stop dlt-dbus
+}
+
+run_1() {
+  start_NSM
   systemctl start node-startup-controller
   if [ ! -d /tmp/PAS ]; then
     rm -f /tmp/PAS
@@ -49,5 +61,5 @@ run_1() {
   fi
   systemctl stop pas-daemon
   systemctl stop node-startup-controller
-  systemctl stop dlt-dbus
+  stop_NSM >& /dev/null
 }
