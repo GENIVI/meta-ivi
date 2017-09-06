@@ -7,6 +7,9 @@
 # revision, branch name, or sub layer name can be extracted
 
 README=README.md
+if [ "x${META_IVI_HOME}" != "x" ]; then
+   README=${META_IVI_HOME}/README.md
+fi
 DEBUG=false
 
 
