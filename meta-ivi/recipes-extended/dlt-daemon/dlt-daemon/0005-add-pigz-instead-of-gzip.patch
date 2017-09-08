@@ -1,0 +1,12 @@
+diff --git a/doc/CMakeLists.txt b/doc/CMakeLists.txt
+index 6c59b06..964c4dd 100644
+--- a/doc/CMakeLists.txt
++++ b/doc/CMakeLists.txt
+@@ -72,6 +72,7 @@ if(WITH_MAN)
+ 	             NAMES gzip
+ 	             PATHS /bin
+ 	                   /usr/bin
++                           /usr/bin/pigz-native
+ 	                   /usr/local/bin)
+ 	
+ 	if(NOT GZIP_TOOL)
