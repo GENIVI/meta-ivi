@@ -23,7 +23,7 @@ Layer Dependencies
 
 URI: git://git.yoctoproject.org/poky
 > branch:   pyro
-> revision: 5686f4e1fe5229705b8c7d35895aa03827796d13
+> revision: 3f97cd3514f3e6025788ab7d6eec586fb7ac542f
 
 URI: git://git.openembedded.org/meta-openembedded
 > layer:    meta-oe
@@ -32,7 +32,7 @@ URI: git://git.openembedded.org/meta-openembedded
 
 URI: git://git.yoctoproject.org/meta-gplv2
 > branch:   pyro
-> revision: de001bd6bfcec943d274b649c62be6848cc9c3e6
+> revision: 07e5dd2136a2a7cc069ad8c70bb422fa9d5b14f0
 
 Using the above git sha's and the master meta-ivi branch,
  bitbaking orion-image is known to work
