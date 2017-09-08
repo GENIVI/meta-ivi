@@ -20,6 +20,7 @@ SRCREV = "b91b38534e5276db69ffbf938177c227b01c65ad"
 SRC_URI = "git://github.com/GENIVI/${BPN}.git;protocol=https \
     file://0002-Don-t-execute-processes-as-a-specific-user.patch \
     file://0004-Modify-systemd-config-directory.patch \
+    file://0005-add-pigz-instead-of-gzip.patch \
     "
 S = "${WORKDIR}/git"
 
