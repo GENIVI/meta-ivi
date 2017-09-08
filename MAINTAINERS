@@ -8,11 +8,11 @@ You may also contact the maintainers directly in case you have any questions
 on a particular meta-ivi topic, but please try to do the following first:
 
   - look in the GENIVI baseline JIRA
-    (https://at.projects.genivi.org/jira/projects/BASE/) to see if
+    (https://at.projects.genivi.org/jira/projects/BASE/ ) to see if
     a problem has already been reported
 
   - look through recent entries of the meta-ivi mailing list archives
-    (http://lists.genivi.org/pipermail/genivi-meta-ivi/) to see if other
+    (http://lists.genivi.org/mailman/listinfo/genivi-meta-ivi ) to see if other
     people have run into similar problems or had similar questions
     answered.
 
@@ -42,11 +42,6 @@ Please keep this list in alphabetical order.
 Maintainers List (try to look for most precise areas first)
 
 COMMON
-M:	Holger Behrens <holger.behrens@windriver.com>
-F:	./meta-ivi/
-F:	./meta-ivi-bsp/
-F:	./*
-
 M:	Yong-iL Joh <yong-il.joh@windriver.com>
 F:	./meta-ivi/
 F:	./meta-ivi-bsp/

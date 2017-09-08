@@ -7,12 +7,11 @@ LIC_FILES_CHKSUM = "file://LICENSE;md5=1f1a56bb2dadf5f2be8eb342acf4ed79"
 
 PR = "r0"
 
-SRCREV = "8fdae4cff2647d0060174509990cd2874e1d793d"
-SRC_URI = "git://github.com/GENIVI/${BPN}.git;protocol=http;branch=1.11 \
-    "
+SRCREV = "ede33c1c898eeaf673dd2c275e92763a5aabd066"
+SRC_URI = "git://github.com/GENIVI/${BPN}.git;protocol=http "
 S = "${WORKDIR}/git"
 
-DEPENDS = "weston"
+DEPENDS = "weston wayland-native"
 
 inherit cmake
 

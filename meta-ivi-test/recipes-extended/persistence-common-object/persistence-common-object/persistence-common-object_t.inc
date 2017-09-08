@@ -1,6 +1,6 @@
 #!/bin/sh
 get_list() {
-  return 1
+  return 2
 }
 
 get_title() {
@@ -8,13 +8,9 @@ get_title() {
 }
 
 _run_dir=/opt/tests/persistence-common-object
-_run_1() {
-  ${_run_dir}/test_pco_key_value_store
-}
-
-run_1() {
-  if [ "x${1}" != "x" ]; then
-    _run_1 > /tmp/t
+_run_x() {
+  if [ "x${2}" != "x" ]; then
+    ${_run_dir}/$1 > /tmp/t
     _c1=`cat /tmp/t | grep :P: | wc -l`
     _c2=`cat /tmp/t | grep :F: | wc -l`
     if [ "x${_c1}" = "x0" ]; then
@@ -25,6 +21,14 @@ run_1() {
        echo " ${_c1} PASSED, ${_c2} FAILED"
     fi
   else
-    _run_1
+    ${_run_dir}/$1
   fi
+}
+
+run_1() {
+  _run_x test_pco_key_value_store $*
+}
+
+run_2() {
+  _run_x persistence_common_object_test $*
 }

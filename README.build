@@ -1,0 +1,67 @@
+Build a QEMU image that contains GENIVI components
+--------------------------------------------------
+
+You can build a QEMU image that should be GENIVI compliant using the
+following steps:
+
+1. Export TEMPLATECONF to pick up correct configuration for the build
+export TEMPLATECONF=PATH_TO_META_IVI/meta-ivi/meta-ivi/conf
+
+2. Run the following command:
+   > $ source poky/oe-init-build-env
+
+3. Build a s/w image including GENIVI 13.0 (Orion) components
+   > $ bitbake orion-image
+
+4. Run the emulator:
+   > for qemu vexpressa9:  
+   > $ PATH_TO_META_IVI/meta-ivi/scripts/runqemu -m vexpressa9
+   >
+   > for qemu x86:  
+   > $ PATH_TO_META_IVI/meta-ivi/scripts/runqemu -m qemux86
+   >
+   > for qemu x86-64:  
+   > $ PATH_TO_META_IVI/meta-ivi/scripts/runqemu -m qemux86-64
+   >
+   > for qemu qemuarm64:
+   > $ PATH_TO_META_IVI/meta-ivi/scripts/runqemu -m qemuarm64
+
+5. To login use these credentials:
+   > User - root
+   > Password - root
+
+
+update poky, meta-openembedded by script
+----------------------------------------
+1. confirm current directory is meta-ivi
+   > $ basename `pwd`
+   meta-ivi
+
+2. run script
+   > $ ./scripts/checkout
+
+
+Build a s/w image with audiomanager 7.0 instead of 7.4
+------------------------------------------------------
+Because audiomanagerplugins 7.4 is not working properly,
+ you may choose audiomanager/plugins 7.0
+  as an implementation of audiomanager 7.0 specification.
+( see https://at.projects.genivi.org/jira/browse/AMP-1 )
+
+to use am 7.0, put following lines to <build directory>/conf/local.conf
+# use audiomanager 7.0 until am7.4 issues are fixed.
+PREFERRED_VERSION_audiomanager          ?= "7.0"
+PREFERRED_VERSION_audiomanagerplugins   ?= "7.0"
+
+
+Build s/w packages using gstreamer1.0-\*\_1.2.3.bb instead of default version
+-----------------------------------------------------------------------------
+you may encounter a build error like below:
+
+ERROR: Nothing PROVIDES 'tremor' (but /opt/genivi-baseline_13/poky/../meta-ivi/meta-ivi/recipes-multimedia/gstreamer/gstreamer1.0-plugins-base_1.2.3.bb DEPENDS on or otherwise requires it)
+ERROR: Required build target 'gstreamer1.0-plugins-base' has no buildable providers.
+Missing or unbuildable dependency chain was: ['gstreamer1.0-plugins-base', 'tremor']
+
+then you may need "tremor" package for build this package.
+add following line to your conf/bblayser.conf.
+BBLAYERS_append := " <your topdir>/meta-openembedded/meta-multimedia"

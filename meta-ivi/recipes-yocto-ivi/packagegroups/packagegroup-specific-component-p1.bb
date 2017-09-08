@@ -16,7 +16,7 @@ RDEPENDS_${PN} += "\
     common-api-c++ \
     dlt-daemon \
     dlt-daemon-systemd \
-    alsa-lib  \
+    libasound  \
     alsa-utils \
     connman \
     curl \

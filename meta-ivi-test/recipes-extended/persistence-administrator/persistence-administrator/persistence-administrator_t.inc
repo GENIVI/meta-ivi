@@ -13,17 +13,38 @@ _run_1() {
   ${_run_dir}/pers_admin_test_framework
 }
 
+start_NSM() {
+  systemctl start dbus
+  systemctl start dlt
+  systemctl start dlt-dbus
+  sleep 1
+  /usr/bin/NodeStateManager >& /dev/null &
+  sleep 4
+}
+
+stop_NSM() {
+  _p=`pidof NodeStateManager`
+  if [ "x${_p}" != "x" ]; then
+    kill -9 ${_p}
+  fi
+  _p=`pidof nsm-dummy`
+  if [ "x${_p}" != "x" ]; then
+    systemctl stop nsm-dummy
+    kill -9 ${_p}
+  fi
+  systemctl stop dlt-dbus
+}
+
 run_1() {
+  start_NSM
+  systemctl start node-startup-controller
   if [ ! -d /tmp/PAS ]; then
     rm -f /tmp/PAS
     mkdir -p /tmp/PAS
   fi
   cp ${_run_dir}/resource*.tar.gz /tmp/PAS/
 
-  systemctl restart dlt-dbus
-  systemctl restart dlt-example-user
-  systemctl restart pas-daemon
-  systemctl restart node-startup-controller
+  systemctl start pas-daemon
   if [ "x${1}" != "x" ]; then
     _run_1 > /tmp/t
     _c1=`cat /tmp/t | grep OK | wc -l`
@@ -38,4 +59,7 @@ run_1() {
   else
     _run_1
   fi
+  systemctl stop pas-daemon
+  systemctl stop node-startup-controller
+  stop_NSM >& /dev/null
 }

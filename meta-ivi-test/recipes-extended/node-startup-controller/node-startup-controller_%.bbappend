@@ -13,6 +13,8 @@ do_install_append() {
    install -m 0644 ${WORKDIR}/helper/*.service ${D}/${systemd_unitdir}/system
 
    install -m 0755 ${WORKDIR}/${BPN}_t.inc ${D}/opt/tests/${PN}
+
+   mv ${D}/etc ${D}/opt/tests/${PN}
 }
 
 FILES_${PN}-nsm-dummy += " \

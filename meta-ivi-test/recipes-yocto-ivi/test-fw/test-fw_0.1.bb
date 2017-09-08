@@ -1,12 +1,16 @@
 SUMMARY = "Simple Test script for meta-ivi"
-DESCRIPTION = "This component provides a simple test framework for testing meta-ivi s/w"
+DESCRIPTION = "a simple test framework for testing meta-ivi s/w"
 HOMEPAGE = "https://github.com/GENIVI/meta-ivi"
 SECTION = "test"
 LICENSE = "MPL-2.0"
 LIC_FILES_CHKSUM = "file://${COMMON_LICENSE_DIR}/MPL-2.0;md5=815ca599c9df247a0c7f619bab123dad"
 
+PR = "r1"
+
 SRC_URI = "file://test-fw.sh \
     "
+
+RDEPENDS_${PN} = "bash"
 
 do_compile() {
 }

@@ -13,6 +13,7 @@ BBLAYERS ?= " \
   ##OEROOT##/../meta-openembedded/meta-filesystems \
   ##OEROOT##/../meta-ivi/meta-ivi \
   ##OEROOT##/../meta-ivi/meta-ivi-bsp \
+  ##OEROOT##/../meta-gplv2 \
   "
 BBLAYERS_NON_REMOVABLE ?= " \
   ##OEROOT##/meta \

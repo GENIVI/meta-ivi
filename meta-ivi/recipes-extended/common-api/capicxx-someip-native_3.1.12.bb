@@ -6,5 +6,5 @@ LAUNCHER_LINK = "capicxx-someip-gen"
 require capicxx-native.inc
 
 SRC_URI = "https://github.com/GENIVI/${_BPN}-tools/releases/download/${PV}/commonapi_someip_generator.zip"
-SRC_URI[md5sum] = "edd260db732a4c45476e200b12cea1bd"
-SRC_URI[sha256sum] = "259a4524a6d24208461d6bba77becefffb8fc65e972e2ccb60fae565d6c75e35"
+SRC_URI[md5sum] = "6a2ec8b7a26adef97e524d4d6c1962de"
+SRC_URI[sha256sum] = "2c9608630a0fa5341ca7aa5960b70904a0ed5ec856b25400a61aa7034f6dc0d1"

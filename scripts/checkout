@@ -4,10 +4,10 @@
 
 export LANG=C
 MYDIR=$(dirname "$0")
+cur_dir=`pwd`
 
 update_git() {
   _git=$1
-  _cur_dir=`pwd`
   if [ -d ../${_git} ]; then
      cd ../${_git}
      _null=`git status >& /dev/null`
@@ -15,7 +15,7 @@ update_git() {
      if [ $_r -eq 0 ]; then
         git checkout master >& /dev/null
         git pull            >& /dev/null
-        cd ${_cur_dir}
+        cd ${cur_dir}
      else
         echo "fatal: Not a git repository"
         exit 2
@@ -26,7 +26,15 @@ update_git() {
   fi
 }
 
+if [ ! -d ../poky ]; then
+   echo "there is no poky layers on $PWD/.."
+   exit 1
+fi
 update_git poky
 $MYDIR/checkout_layer_hash.sh poky
 update_git meta-openembedded
 $MYDIR/checkout_layer_hash.sh meta-openembedded
+if [ -d ../meta-gplv2 ]; then
+update_git meta-gplv2
+$MYDIR/checkout_layer_hash.sh meta-gplv2
+fi
