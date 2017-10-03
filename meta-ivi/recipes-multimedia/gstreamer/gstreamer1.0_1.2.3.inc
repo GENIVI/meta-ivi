@@ -5,7 +5,7 @@ HOMEPAGE = "http://gstreamer.freedesktop.org/"
 BUGTRACKER = "https://bugzilla.gnome.org/enter_bug.cgi?product=Gstreamer"
 SECTION = "multimedia"
 LICENSE = "LGPLv2+"
-DEPENDS = "glib-2.0 libxml2 bison-native flex-native"
+DEPENDS = "glib-2.0 libxml2 bison-native flex-native glib-2.0-native"
 
 inherit autotools pkgconfig gettext
 
