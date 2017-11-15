@@ -8,10 +8,46 @@ Poky GENIVI compliant.
 Branch Policy
 -------------
 
-Please note:
-- The most recent development is done on the highest numbered branch
-- Master branch is used as a stable version, typically equal to the most recently *released* numbered branch
-- Maintenance patches are added to both master and released branches
+- New development is done on **master** branch and most new change requests
+(PRs) should be proposed as changes to master, unless you know they are
+applicable to a particular release only.
+- Somewhere near a new major release, a numbered release branch (e.g. 14.0)
+is created from master, and the new branch goes into stabilization/release phase.
+- Major numbers are stepped up every new release.  The release schedule is
+driven by a time plan.  Use [semantic versioning](http://semver.org/) for
+minor and patch numbers.
+- GENIVI-specific release tags, such as "M-0.2" for the second baseline
+*pre*release for the "M" platform may also be added.
+- After a versioned release, the release branch remains for maintenance and
+updates.
+- The project maintainer shall ensure that relevant patches are
+cherry-picked to every branch where they apply. I.e. patches should be
+back-ported *at minimum* to the Support Window versions as defined below.
+- In general, prefer a linear commit history (rebase and cherry-pick),
+  applying merge commits only where absolutely necessary to sort out a
+  complex merge situation (which we should rarely have).
+
+Support Window (Bugfixes, improvements)
+---------------------------------------
+
+- Because of available resources, and often low engagement from those companies
+that have settled on a version and gone into a production project, support
+is given for only the most recently released version, and *one* version
+before it.
+
+Support Window (Security)
+-------------------------
+
+- If critical security fixes are identified, the maintainer should apply
+them (if applicable) to the most recently released version and *two*
+versions before it.
+
+**Note** however that there is currently no quantified or documented
+commitment to tracking CVEs, nor any guarantee to apply all possible
+security fixes.  While it is of course tracked to the best of the
+maintainer's ability, the project is dependent on community input.  All the
+_responsibility remains on the adopting companies_ to secure their final
+products.
 
 Contribution
 -------------
