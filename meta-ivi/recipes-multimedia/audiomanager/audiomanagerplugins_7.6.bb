@@ -10,7 +10,7 @@ DEPENDS = "audiomanager capicxx-core-native capicxx-dbus-native \
     python3 libxml2"
 RDEPENDS_${PN} += "libxml2"
 
-SRCREV = "6e167422e68089fee3098163b63f882ce4a50ad3"
+SRCREV = "03fa3696fbbc1d624095bfc60f80b9ec071bec07"
 SRC_URI = " git://github.com/GENIVI/AudioManagerPlugins.git;protocol=https \
     file://AM-Genivi-Filtering-out-JDK-warnings-in-CAPI-script.patch \
     "

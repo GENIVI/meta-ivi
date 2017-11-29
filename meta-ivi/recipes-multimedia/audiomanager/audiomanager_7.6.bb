@@ -10,7 +10,7 @@ DEPENDS = "common-api-c++-dbus dlt-daemon sqlite3 dbus node-state-manager"
 
 inherit gettext cmake pkgconfig systemd
 _BPN = "AudioManager"
-SRCREV = "8f2387e42641c7c2b967553a4c578f0e87549fb6"
+SRCREV = "bcaeed20bbbb4375ae925d507821d2bef64e737b"
 SRC_URI = " git://github.com/GENIVI/${_BPN}.git;protocol=https \
     file://${_BPN}.service \
     file://setup_amgr.sh \
