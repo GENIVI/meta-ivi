@@ -7,8 +7,9 @@ LIC_FILES_CHKSUM = "file://LICENSE;md5=1f1a56bb2dadf5f2be8eb342acf4ed79"
 
 PR = "r0"
 
-SRCREV = "ede33c1c898eeaf673dd2c275e92763a5aabd066"
-SRC_URI = "git://github.com/GENIVI/${BPN}.git;protocol=http "
+SRCREV = "d2c2e262f3bdc9db33b3014293fcdbcfdc90ab27"
+SRC_URI = "git://github.com/GENIVI/${BPN}.git;protocol=http;branch=master \
+    "
 S = "${WORKDIR}/git"
 
 DEPENDS = "weston wayland-native"
@@ -17,8 +18,12 @@ inherit cmake
 
 EXTRA_OECMAKE := "-DWITH_ILM_INPUT=1"
 
-FILES_${PN} += "${libdir}/weston/*"
+FILES_${PN} += " \
+        ${libdir}/weston/* \
+        ${datadir}/wayland-protocols \
+    "
 FILES_${PN}-dbg += "${libdir}/weston/.debug/*"
 INSANE_SKIP_${PN} = "dev-deps"
 
 EXTRA_OECMAKE += "-DLIB_SUFFIX=${@d.getVar('baselib', True).replace('lib', '')}"
+
