@@ -20,4 +20,8 @@ inherit autotools-brokensep pkgconfig
 
 EXTRA_OECONF = " --with-database=key-value-store "
 
-FILES_${PN} += "${datadir}"
+do_install_append() {
+    rm -rf ${D}${sysconfdir}
+}
+
+FILES_${PN} := "${prefix}"
