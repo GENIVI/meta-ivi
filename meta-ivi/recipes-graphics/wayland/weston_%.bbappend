@@ -3,6 +3,12 @@ PR = "r3"
 DEPENDS += "xkeyboard-config"
 RDEPENDS_${PN} += "xkeyboard-config"
 
+FILESEXTRAPATHS_append := ":${THISDIR}/${PN}"
+
+SRC_URI_append = "\
+    file://0001_add_screen_remove_layer.patch \
+"
+
 FILES_${PN} += "${libdir}/weston/* ${sysconfdir}/xdg"
 FILES_${PN}-dbg += "${libdir}/weston/.debug/*"
 
