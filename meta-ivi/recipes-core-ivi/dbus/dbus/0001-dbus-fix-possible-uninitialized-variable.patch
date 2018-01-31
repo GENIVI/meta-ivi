@@ -1,0 +1,12 @@
+diff -rBu dbus-1.10.20/tools/dbus-send.c dbus-1.10.20-patched/tools/dbus-send.c
+--- dbus-1.10.20/tools/dbus-send.c	2015-09-30 16:48:40.000000000 +0200
++++ dbus-1.10.20-patched/tools/dbus-send.c	2018-01-31 15:03:00.508025197 +0100
+@@ -458,7 +458,7 @@
+       char *arg;
+       char *c;
+       int type;
+-      int secondary_type;
++      int secondary_type=0;
+       int container_type;
+       DBusMessageIter *target_iter;
+       DBusMessageIter container_iter;
