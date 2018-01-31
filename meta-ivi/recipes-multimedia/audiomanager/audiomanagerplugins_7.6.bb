@@ -46,9 +46,9 @@ do_configure_prepend() {
     perl -pi -e 's|include\(CMakeDependentOption\)|include\(CMakeDependentOption\)\ninclude_directories\(${PKG_CONFIG_SYSROOT_DIR}/usr/include/audiomanager\)|' ${S}/CMakeLists.txt
     perl -pi -e 's|CONFIG_PREFIX \$\{CMAKE_INSTALL_PREFIX\}/etc|CONFIG_PREFIX /etc|' ${S}/CMakeLists.txt
 
-    perl -pi -e 's|\${CMAKE_INSTALL_PREFIX}/etc/controllerconf|/etc/controllerconf|' ${S}/PluginControlInterfaceGeneric/CMakeLists.txt
+    perl -pi -e 's|${CMAKE_INSTALL_PREFIX}/etc/controllerconf|/etc/controllerconf|' ${S}/PluginControlInterfaceGeneric/CMakeLists.txt
 
-    perl -pi -e 's|set\(LIBRARY_OUTPUT_PATH \${DEFAULT_PLUGIN_ROUTING_DIR}\)|set\(LIBRARY_OUTPUT_PATH ${B}\)|' ${S}/PluginRouting*/CMakeLists.txt
+    perl -pi -e 's|set\(LIBRARY_OUTPUT_PATH ${DEFAULT_PLUGIN_ROUTING_DIR}\)|set\(LIBRARY_OUTPUT_PATH ${B}\)|' ${S}/PluginRouting*/CMakeLists.txt
     perl -pi -e 's|COMMAND find "/usr/local/share/.*"|COMMAND find "\${PKG_CONFIG_SYSROOT_DIR}/../"|' ${S}/PluginRoutingInterfaceCAPI/cmake/CommonAPI.cmake
     perl -pi -e 's|COMMAND find "/usr/local/share/.*"|COMMAND find "\${PKG_CONFIG_SYSROOT_DIR}/../"|' ${S}/PluginCommandInterfaceCAPI/cmake/CommonAPI.cmake
 }
