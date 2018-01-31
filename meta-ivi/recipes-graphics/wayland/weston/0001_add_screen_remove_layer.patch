@@ -1,0 +1,85 @@
+From deee858b0b199d8cfa8033a46d7078f30b23725e Mon Sep 17 00:00:00 2001
+From: "Ucan, Emre (ADITG/SW1)" <eucan@de.adit-jv.com>
+Date: Thu, 2 Mar 2017 08:47:33 +0000
+Subject: ivi-shell: add_screen_remove_layer API
+
+It is analagous to layer_remove_surface API.
+The API removes a layer from the render order
+of the screen.
+
+v3:
+add the new vfunc at the end of
+the ivi_layout_interface struct.
+
+Signed-off-by: Emre Ucan <eucan@de.adit-jv.com>
+Reviewed-by: Eugen Friedrich <friedrix@gmail.com>
+Reviewed-by: Pekka Paalanen <pekka.paalanen@collabora.co.uk>
+---
+ ivi-shell/ivi-layout-export.h | 10 ++++++++++
+ ivi-shell/ivi-layout.c        | 22 ++++++++++++++++++++++
+ 2 files changed, 32 insertions(+)
+
+diff --git a/ivi-shell/ivi-layout-export.h b/ivi-shell/ivi-layout-export.h
+index 2317d6e..39ffde1 100644
+--- a/ivi-shell/ivi-layout-export.h
++++ b/ivi-shell/ivi-layout-export.h
+@@ -578,6 +578,16 @@ struct ivi_layout_interface {
+ 	 */
+ 	struct ivi_layout_surface *
+ 		(*get_surface)(struct weston_surface *surface);
++
++	/**
++	 * \brief Remove a ivi_layer to a weston_output which is currently managed
++	 * by the service
++	 *
++	 * \return IVI_SUCCEEDED if the method call was successful
++	 * \return IVI_FAILED if the method call was failed
++	 */
++	int32_t (*screen_remove_layer)(struct weston_output *output,
++				       struct ivi_layout_layer *removelayer);
+ };
+ 
+ #ifdef __cplusplus
+diff --git a/ivi-shell/ivi-layout.c b/ivi-shell/ivi-layout.c
+index 298e18e..8e4280b 100644
+--- a/ivi-shell/ivi-layout.c
++++ b/ivi-shell/ivi-layout.c
+@@ -1664,6 +1664,27 @@ ivi_layout_screen_add_layer(struct weston_output *output,
+ }
+ 
+ static int32_t
++ivi_layout_screen_remove_layer(struct weston_output *output,
++			    struct ivi_layout_layer *removelayer)
++{
++	struct ivi_layout_screen *iviscrn;
++
++	if (output == NULL || removelayer == NULL) {
++		weston_log("ivi_layout_screen_remove_layer: invalid argument\n");
++		return IVI_FAILED;
++	}
++
++	iviscrn = get_screen_from_output(output);
++
++	wl_list_remove(&removelayer->pending.link);
++	wl_list_init(&removelayer->pending.link);
++
++	iviscrn->order.dirty = 1;
++
++	return IVI_SUCCEEDED;
++}
++
++static int32_t
+ ivi_layout_screen_set_render_order(struct weston_output *output,
+ 				   struct ivi_layout_layer **pLayer,
+ 				   const int32_t number)
+@@ -2088,6 +2109,7 @@ static struct ivi_layout_interface ivi_layout_interface = {
+ 	 */
+ 	.get_screens_under_layer	= ivi_layout_get_screens_under_layer,
+ 	.screen_add_layer		= ivi_layout_screen_add_layer,
++	.screen_remove_layer		= ivi_layout_screen_remove_layer,
+ 	.screen_set_render_order	= ivi_layout_screen_set_render_order,
+ 
+ 	/**
+-- 
+cgit v1.1
+
