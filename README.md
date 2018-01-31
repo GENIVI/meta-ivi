@@ -79,21 +79,21 @@ Layer Dependencies
 ------------------
 
 URI: git://git.yoctoproject.org/poky
-> branch:   pyro
-> revision: 3f97cd3514f3e6025788ab7d6eec586fb7ac542f
+> branch:   rocko
+> revision: 21ba45aa77e4d43a93cd96d859707a4758e8b64b
 
 URI: git://git.openembedded.org/meta-openembedded
 > layer:    meta-oe
-> branch:   pyro
-> revision: 5e82995148a2844c6f483ae5ddd1438d87ea9fb7
+> branch:   rocko
+> revision: 6e3fc5b8d904d06e3aa77e9ec9968ab37a798188
 
 URI: git://git.yoctoproject.org/meta-gplv2
-> branch:   pyro
-> revision: 07e5dd2136a2a7cc069ad8c70bb422fa9d5b14f0
+> branch:   rocko
+> revision: c7f97f199a6dd54d3f369f0465a6bfd2cfa739b9
 
 Using the above git sha's and the master meta-ivi branch,
- bitbaking orion-image is known to work
- (the orion-image build should be aligned with GENIVI 13.0).
+ bitbaking pulsar-image is known to work
+ (the pulsar-image build should be aligned with GENIVI 14.0).
 
 For creating a specific GENIVI compliant image version, please make sure you
 git checkout the related meta-ivi branch and follow the build instructions
