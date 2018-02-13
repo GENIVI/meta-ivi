@@ -22,3 +22,5 @@ FILES_${PN}-nsm-dummy += " \
    ${systemd_unitdir}/system/example.service \
    ${systemd_unitdir}/system/hello.service \
    "
+
+PACKAGES += "${PN}-nsm-dummy"
