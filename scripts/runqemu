@@ -1,4 +1,4 @@
-#!/bin/sh
+#!/bin/bash
 _script_dir=`dirname $0`
 _meta_ivi=`dirname ${_script_dir}`
 
