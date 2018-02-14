@@ -1,0 +1,21 @@
+commit b87c0b8bb756e80a56f1abd703ff0fee14dcfcc7
+Author: Oscar Andreasson <oscar.andreasson@pelagicore.com>
+Date:   Wed Feb 14 09:36:35 2018 +0100
+
+    sanitizers are not available in our cross compilers for the time being.
+    
+    Signed-off-by: Oscar Andreasson <oscar.andreasson@pelagicore.com>
+
+diff --git a/ivi-layermanagement-api/test/CMakeLists.txt b/ivi-layermanagement-api/test/CMakeLists.txt
+index ef1f50d..a3cb8a9 100644
+--- a/ivi-layermanagement-api/test/CMakeLists.txt
++++ b/ivi-layermanagement-api/test/CMakeLists.txt
+@@ -56,7 +56,7 @@ IF(BUILD_ILM_API_TESTS)
+         ilm_control_notification_test.cpp
+     )
+ 
+-    SET(GCC_SANITIZER_COMPILE_FLAGS "-fsanitize=address -fsanitize=undefined -fno-sanitize-recover -fstack-protector-all")
++#    SET(GCC_SANITIZER_COMPILE_FLAGS "-fsanitize=address -fsanitize=undefined -fno-sanitize-recover -fstack-protector-all")
+     SET( CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} ${GCC_SANITIZER_COMPILE_FLAGS}" )
+     SET( CMAKE_CXX_LINK_FLAGS "${CMAKE_CXX_LINK_FLAGS} -static-libasan -static-libubsan" )
+ 
