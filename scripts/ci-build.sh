@@ -1,38 +1,7 @@
 #!/bin/bash -e
 
-# (C) 2017 Gunnar Andersson
+# (C) 2018 GENIVI Alliance
 # LICENSE: MPLv2
-
-# User warning!
-
-# A casual user will need to read the script to understand what the first
-# parameter shall be to make it actually run:
-#
-
-# Fail script unless you give the magic value:
-if [[ "$1" != CI_FLAG ]]; then
-
-  cat <<EOT
-
-READ THIS: This script was not designed for personal use.
-
-If you still use it, you hereby agree to any applicable End-User License
-Agreement (EULA) of the corresponding BSPs that are used.  You must read
-and understand the obligations by studying the script.
-
-It is still a useful script but a few things could be destructive, e.g.
-"git reset --hard" if you use this in your development environment instead of
-a throw-away environment like CI.
-
-Please make sure you commit/backup local changes and read the script to
-understand what it does!
-
-After that I hope you enjoy using it.
-
-EOT
-
-   exit 2
-fi
 
 # ---- General settings ----
 
@@ -80,7 +49,7 @@ stop_immediately() {
 }
 
 append_local_conf() {
-  LOCAL_CONF="$BASEDIR/gdp-src-build/conf/local.conf"
+  LOCAL_CONF="$BASEDIR/build/conf/local.conf"
   if [[ -f "$LOCAL_CONF" ]]; then
     echo -n "Appending to local.conf: "
     cat <<EOT | tee -a "$LOCAL_CONF"
@@ -126,7 +95,7 @@ stage_artifact() {
 # LAYER_<layername>_TAG
 
 # *NOTE*  Variables cannot have dashes in name therefore, underscores must be
-# used!  For example: LAYER_meta_browser_COMMIT for meta-browser layer
+# used!  For example: LAYER_meta_openembedded for meta-openembedded layer
 
 # If an override variable is defined, build with this version of the layer
 # instead.  If multiple conflicting values, then the most specific override
@@ -200,23 +169,11 @@ print_layer_overrides() {
   done
 }
 
-# FIXME: Asking git to list submodules would be better
 LAYERS="
-meta-browser
-meta-erlang
-meta-genivi-dev
-meta-intel
-meta-iot-web
 meta-ivi
-meta-linaro
-meta-oic
-meta-openembedded
-meta-qcom
-meta-qt5
-meta-raspberrypi
-meta-renesas
-meta-rvi
 poky
+meta-gplv2
+meta-openembedded
 renesas-rcar-gen3
 "
 
@@ -252,6 +209,7 @@ stop_if_failure
 # The values can be overridden by defining environment variables
 # If no value given, use this default:
 define_with_default BUILD_SDK false
+define_with_default BUILD_TEST_IMAGE false
 define_with_default COPY_LICENSES false
 define_with_default LAYER_ARCHIVE false
 define_with_default CREATE_RELEASE_DIR false
@@ -276,15 +234,8 @@ define_with_default KEEP_TMP false
 
 stop_if_failure
 
-git_gdp="https://github.com/GENIVI/genivi-dev-platform"
+#git_gdp="https://github.com/GENIVI/meta-ivi"
 branch="master"
-
-# Special case: Use porter script to copy graphics drivers for koelsch
-if [[ "$TARGET" == "koelsch" ]]; then
-  GFX_MACHINE=porter
-else
-  GFX_MACHINE=$TARGET
-fi
 
 # cd workingdir
 MACHINE="$TARGET" # For most boards - exceptions handled below
@@ -322,6 +273,7 @@ echo "COMMIT = $COMMIT"
 echo "RELEASE = $RELEASE (currently unused)"
 print_layer_overrides "$LAYERS"
 echo "BUILD_SDK = $BUILD_SDK"
+echo "BUILD_TEST_IMAGE = $BUILD_TEST_IMAGE"
 echo "COPY_LICENSES" = "$COPY_LICENSES"
 echo "CREATE_RELEASE_DIR" = "$CREATE_RELEASE_DIR"
 echo "DL_DIR = $DL_DIR"
@@ -336,8 +288,16 @@ echo "SOURCE_ARCHIVE" = "$SOURCE_ARCHIVE"
 echo "SSTATE_DIR = $DL_DIR"
 echo "STANDARD_RELEASE_BUILD" = "$STANDARD_RELEASE_BUILD"
 
+# INIT
+cd "$BASEDIR"
+echo "*** Initializing layers"
+scripts/checkout
+echo "*** Initializing conf"
+export TEMPLATECONF=$PWD/meta-ivi/conf
+source ../poky/oe-init-build-env build
+
 # build steps
-cd "$BASEDIR/gdp-src-build"
+# We are now in build/
 
 # If DL/SSTATE are to be reused it is normally by the use of
 # REUSE_STANDARD_DL_DIR and REUSE_STANDARD_SSTATE_DIR.  Local dirs left in the
@@ -375,8 +335,6 @@ if [[ -n "$FORK" ]]; then
   git fetch
   # V *danger* V.  One reason why you should not use this script if it's not in CI
   git reset origin/master --hard
-  # After this, submodule sync/update will be done by init.sh
-  # this may need some further testing!
   git checkout $BRANCH  # <- note this should be ok even if $BRANCH is an empty value
 fi
 
@@ -395,44 +353,13 @@ if [[ -n "$COMMIT" ]]; then
   git checkout $COMMIT
 fi
 
-# Deal with special setup, copy binary drivers etc.
-if [[ "$TARGET" == "r-car-m3-starter-kit" || "$TARGET" == "r-car-h3-starter-kit" ]];  then
-  cd meta-renesas
-  meta-rcar-gen3/docs/sample/copyscript/copy_evaproprietary_softwares.sh /var/go/sgx_bin_gen3/
-  cd -
-fi
-
-if [[ "$GFX_MACHINE" == "porter" || "$GFX_MACHINE" == silk ]]; then
-  echo "Copying binary graphics drivers for $GFX_MACHINE"
-  cd meta-renesas/meta-rcar-gen2
-  ./copy_gfx_software_$GFX_MACHINE.sh /var/go/sgx_bin
-  ./copy_mm_software_lcb.sh /var/go/sgx_bin/
-  cd -
-fi
-
-# INIT
-cd "$BASEDIR"
-echo "Running init.sh"
-
-# By using this script you accept the EULA (see top of script)
-if [[ "$TARGET" == "dragonboard-410c" ]]; then
-  source ./init.sh $TARGET accept-eula -f
-else
-  source ./init.sh $TARGET -f
-fi
+## FIXME echo 'BBLAYERS += "##your source code root##/poky/../meta-ivi /meta-ivi-test"'
 
 # Do version override on sublayers (if any such overrides defined)
 cd ..
 for l in $LAYERS ; do
   layer_override $l
 done
-cd gdp-src-build
-
-# Remind us exactly what submodules hashes are used (this is already stated by
-# go.cd when fetching materials, but materials can be overriden by FORK /
-# BRANCH / TAG / COMMIT environment variables
-echo "Submodules (after any updates or overrides):"
-git submodule status
 
 # LOCAL CONF MODIFICATIONS
 
@@ -494,20 +421,22 @@ MIRRORS_append = \"\\
 fi
 
 if [[ "$BUILD_SDK" != "true" ]]; then
-  bitbake genivi-dev-platform
+  bitbake pulsar-image
+fi
+
+if [[ "$BUILD_TEST_IMAGE" == "true" ]]; then
+  # FIXME
+  bitbake pulsar-image-test
 fi
 
 if [[ "$BUILD_SDK" == "true" ]]; then
-  bitbake genivi-dev-platform-sdk
-fi
-
-if [[ "$BUILD_SDK" == "true" ]]; then
-  bitbake meta-ide-support
+  # same?
+  bitbake pulsar-image-sdk
 fi
 
 cd "$BASEDIR"
 rm -f logs.tar logs.tar.gz
-find gdp-src-build/tmp/work \( -name "*.log" -o -name "log.*" -o -name "run.*" \) -print0 | xargs -0 tar uf logs.tar || true
+find build/tmp/work \( -name "*.log" -o -name "log.*" -o -name "run.*" \) -print0 | xargs -0 tar uf logs.tar || true
 gzip logs.tar || true
 
 # Soften up the failure requirements here.  Maybe sometimes
@@ -515,22 +444,27 @@ gzip logs.tar || true
 set +e
 rm -rf staging
 shopt -s nullglob
-stage_artifact mv gdp-src-build/tmp/deploy/licenses
-stage_artifact mv gdp-src-build/tmp/deploy/licenses/genivi-dev-platform*/license.manifest
-stage_artifact mv gdp-src-build/tmp/deploy/sdk*
-stage_artifact cp gdp-src-build/tmp/deploy/images/*
-stage_artifact mv gdp-src-build/tmp/deploy/sources
-stage_artifact cp gdp-src-build/conf/*.conf
+stage_artifact mv build/tmp/deploy/licenses
+stage_artifact mv build/tmp/deploy/licenses/genivi-dev-platform*/license.manifest
+stage_artifact mv build/tmp/deploy/sdk*
+stage_artifact cp build/tmp/deploy/images/*
+stage_artifact mv build/tmp/deploy/sources
+stage_artifact cp build/conf/*.conf
 stage_artifact mv logs.tar.gz
-stage_artifact cp gdp-src-build/buildhistory/images/*/glibc/genivi-dev-platform/files-in-image.txt
-stage_artifact mv gdp-src-build/buildhistory
-stage_artifact mv gdp-src-build/tmp/buildstats
+stage_artifact cp build/buildhistory/images/*/glibc/genivi-dev-platform/files-in-image.txt
+stage_artifact mv build/buildhistory
+stage_artifact mv build/tmp/buildstats
 
 if [[ "$LAYER_ARCHIVE" == "true" ]]; then
-  tar cfj staging/meta-layers-snapshot.tar.bz2 meta-* poky renesas* gdp-src-build/conf
+  tar cfj staging/meta-layers-snapshot.tar.bz2 meta-* poky renesas* build/conf
 fi
 
 set -e
+
+# META-IVI note:
+# usually we don't release built (binary) images of baseline -- however to keep
+# the script consistent with GDP version of the script (and make releases
+# possible in theory), the support is kept intact here:
 
 # Environment contains alot of variables from Go.CD that specify the built
 # version/hash, and other metadata.  Let's store them for future reference.
@@ -539,9 +473,8 @@ cd "$BASEDIR"
 build_info_file=staging/build_info.txt
 
 env >$build_info_file
-git submodule status >>$build_info_file
 echo 'For conf , see files *.conf, and any diff below' >>$build_info_file
-git diff gdp-src-build/conf/templates/*.inc >>$build_info_file
+git diff build/conf/templates/*.inc >>$build_info_file
 
 mkdir -p staging/images
 mv staging/*/{*201*ext*,*201*rootfs*,*sdimg*,*qemuboot.conf*,modules*.tgz,*hddimg*,bzImage*201*,*201*.iso,*201*.wic,*.efi,*.dtd} staging/images/ 2>/dev/null || true
