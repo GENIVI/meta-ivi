@@ -15,10 +15,16 @@ AGENT_STANDARD_SGX_GEN3_LOCATION="/var/go/sgx_bin_gen3"
 
 fail=false
 
-# This is some trickery, but quite useful.
+# deref() is some trickery, but useful when a variable *name* itself is created
+# on-the-fly by the program, and then a value is looked for in that variable
+# name.
+
 # Return the value of a variable whose name is stored in another variable
 deref() { eval echo \$$1 ; }
 
+# For shell/environment variables, whether they are named explicitly in the
+# program, or the name is generated on the fly, this single function
+# encapsulate a check that there is a value defined for the variable.
 ensure_var_is_defined() {
   var_name=$1
   current_value=$(deref $var_name)
@@ -28,6 +34,9 @@ ensure_var_is_defined() {
   fi
 }
 
+# This function takes a variable name and a "default" value If no value was
+# assigned to the variable already (e.g. from environment) the given "default"
+# value is assigned.
 define_with_default() {
   var_name=$1
   default="$2"
@@ -37,17 +46,23 @@ define_with_default() {
   fi
 }
 
+# Helper function to terminate the program on failure.
+# This allows us to delay program termination a bit by setting fail flag
+# precisely when the error is found, but a bit later on call the
+# stop_if_failure function
 stop_if_failure() {
   if [[ "$fail" == "true" ]] ; then
     exit 1
   fi
 }
 
+# As the function says... (inform user and exit)
 stop_immediately() {
   echo "Fatal error occurred - stopping ci-build script"
   exit 2
 }
 
+# Append a given value to the project's bitbake local.conf file
 append_local_conf() {
   LOCAL_CONF="$BASEDIR/build/conf/local.conf"
   if [[ -f "$LOCAL_CONF" ]]; then
@@ -61,6 +76,13 @@ EOT
   fi
 }
 
+# Copy or move data from the build tree to the staging directory
+# The first argument is either "cp" or "mv".  The (multiple) argumentns
+# that follow specify files/directories to copy or move.
+# - The function will handle both files and directories
+# - The list of paths might be created by a glob, such as *.log
+#   If such a list turns out to be empty, the function handles it 
+#   silently, where a straight cp, or mv would write out errors.
 stage_artifact() {
   mkdir -p staging
   cmd=$1
@@ -87,20 +109,26 @@ stage_artifact() {
 }
 
 # Layer version overrides:
-# Find and evaluate environment variables of type
-
-# LAYER_<layername>_FORK
-# LAYER_<layername>_COMMIT
-# LAYER_<layername>_BRANCH
-# LAYER_<layername>_TAG
-
-# *NOTE*  Variables cannot have dashes in name therefore, underscores must be
-# used!  For example: LAYER_meta_openembedded for meta-openembedded layer
 
 # If an override variable is defined, build with this version of the layer
 # instead.  If multiple conflicting values, then the most specific override
 # (commit) wins
 
+# *NOTE*  Variables cannot have dashes in name therefore, underscores must be
+# used!  For example: define LAYER_meta_openembedded for meta-openembedded layer
+
+# To override a layer, define a variable like this in the environment
+# before calling the script.
+
+# LAYER_<layername>_FORK      <- specify a git URL where your variant is stored
+# LAYER_<layername>_COMMIT    <- specify a commit hash
+# LAYER_<layername>_BRANCH    <- specify a branch name
+# LAYER_<layername>_TAG       <- specify a tag namae
+
+# Note that a logical priority order is applied, as follows:
+# - FORK is always applied - any specified commit/branch/tag will refer to the repo fetched from the FORK url)
+# - TAG overrides BRANCH
+# - COMMIT hash is more specific than both TAG and BRANCH and shall take priority if defined.
 layer_override() {
   local name=$1 suffix var_name value d
 
@@ -152,7 +180,10 @@ layer_override() {
   done
 }
 
-# Because of the order they are called we can't use output from the
+# Overrides are defined invisibly in environment variables so we should inform
+# the user which ones are applied, for both interactive use and for studying
+# a build log at a later time.
+# NOTE:  Because of the order they are called we can't use output from the
 # layer_override function above, so we have some repeated code here.
 print_layer_overrides() {
   local names="$1" name clean_name suffix var_name value d
@@ -169,15 +200,19 @@ print_layer_overrides() {
   done
 }
 
+# List all dependent layers here.  This list is used by the layer overrides
+# functionality.
+# NOTE If a super-project is applied, such as using submodules, then this list
+# would be fetched from git instead, in case it changes.
 LAYERS="
-meta-ivi
 poky
 meta-gplv2
 meta-openembedded
 renesas-rcar-gen3
 "
 
-# Clean up function called at end of script, or if interrupted
+# Clean up function is called at end of script, or as a signal handler (trap)
+# if the script is interrupted
 cleanup() {
   # Restore git config user - if this was not defined locally before then it is
   # unset (which might mean a global setting is used)
@@ -304,6 +339,8 @@ source ../poky/oe-init-build-env build
 # build directory are therefore normally wiped, unless these environment
 # variables say otherwise.
 
+# Additional environment variables that can be specified to modify
+# caching behavior:
 if [[ "$KEEP_DOWNLOADS" != "true" ]] ; then
   rm -rf downloads
 fi
@@ -318,13 +355,22 @@ fi
 
 cd "$BASEDIR"
 
-# Need to set an identity for some git patching done by recipes
+# Need to set an identity because if it is unset (which it could be in a CI
+# environment), some patching commands will fail the build.
+# Then, we must prefer to restore the user's git identity again, in case the
+# script is used interactively.
 set +e  # The following two commands can fail if value is unset
 olduser="$(git config user.name)"
 oldemail="$(git config user.email)"
-set -e
+set -e  # Back to strict failure checking - (abort script if any command fails)
 git config user.name "CI build -- ignore"
 git config user.email no_email
+
+# Here follows overrides, not of individual layers, but of the main project
+# itself.  Define the env. variables FORK, BRANCH, TAG, and/or COMMIT to
+# fetch the parent project from another location or force a particular version
+# to be built.  The comments about priority written above the layer_override()
+# function apply also here.
 
 # Normally the material (source code) is defined in the pipeline itself in the
 # CIAT system but there are multiple ways to override it provided here.
@@ -353,8 +399,6 @@ if [[ -n "$COMMIT" ]]; then
   git checkout $COMMIT
 fi
 
-## FIXME echo 'BBLAYERS += "##your source code root##/poky/../meta-ivi /meta-ivi-test"'
-
 # Do version override on sublayers (if any such overrides defined)
 cd ..
 for l in $LAYERS ; do
@@ -362,6 +406,10 @@ for l in $LAYERS ; do
 done
 
 # LOCAL CONF MODIFICATIONS
+
+# Also this is controlled by environment variables that can be set before
+# calling the script.  Until there is external documentation, this code
+# should be quite self-explanatory.
 
 if [[ "$RM_WORK" == "true" ]]; then
   append_local_conf 'INHERIT += "rm_work"'
@@ -397,6 +445,10 @@ fi
 # The own-mirrors bbclass is generally more convenient for PREMIRRORS, but
 # this format makes it similar to the $MIRROR setup below, which needs to be
 # explicit anyhow.
+
+# We *pre*pend PREMIRROR because we want it to be the first PREMIRROR that
+# is checked, if the user had defined any other in conf files.
+
 if [[ -n "$PREMIRROR" ]]; then
   append_local_conf "
 PREMIRRORS_prepend = \"\\
@@ -409,6 +461,8 @@ PREMIRRORS_prepend = \"\\
 fi
 
 # This is the "post" mirror (i.e. checked last).
+# WE *app*pend MIRROR because we want it to be the last mirror that is checked,
+# if the user had defined others in conf files.
 if [[ -n "$MIRROR" ]]; then
   append_local_conf "
 MIRRORS_append = \"\\
@@ -420,6 +474,9 @@ MIRRORS_append = \"\\
 "
 fi
 
+# These environment variables control conditional compilation
+# of the SDK parts.
+
 if [[ "$BUILD_SDK" != "true" ]]; then
   bitbake pulsar-image
 fi
@@ -430,7 +487,7 @@ if [[ "$BUILD_TEST_IMAGE" == "true" ]]; then
 fi
 
 if [[ "$BUILD_SDK" == "true" ]]; then
-  # same?
+  # (Anticipating a future sdk image:)
   bitbake pulsar-image-sdk
 fi
 
@@ -439,9 +496,9 @@ rm -f logs.tar logs.tar.gz
 find build/tmp/work \( -name "*.log" -o -name "log.*" -o -name "run.*" \) -print0 | xargs -0 tar uf logs.tar || true
 gzip logs.tar || true
 
-# Soften up the failure requirements here.  Maybe sometimes
-# some things can't be staged, which is probably ok.
-set +e
+# The following will be copied/moved to the staging directory, but only if
+# the files exist.  It will silently continue, with any files that do exist.
+set +e  # Allow failures temporarily
 rm -rf staging
 shopt -s nullglob
 stage_artifact mv build/tmp/deploy/licenses
@@ -459,7 +516,7 @@ if [[ "$LAYER_ARCHIVE" == "true" ]]; then
   tar cfj staging/meta-layers-snapshot.tar.bz2 meta-* poky renesas* build/conf
 fi
 
-set -e
+set -e  # Back to strict error checking
 
 # META-IVI note:
 # usually we don't release built (binary) images of baseline -- however to keep
@@ -472,15 +529,12 @@ set -e
 cd "$BASEDIR"
 build_info_file=staging/build_info.txt
 
+# Store environment info into log file for future reference
 env >$build_info_file
 echo 'For conf , see files *.conf, and any diff below' >>$build_info_file
 git diff build/conf/templates/*.inc >>$build_info_file
 
-mkdir -p staging/images
-mv staging/*/{*201*ext*,*201*rootfs*,*sdimg*,*qemuboot.conf*,modules*.tgz,*hddimg*,bzImage*201*,*201*.iso,*201*.wic,*.efi,*.dtd} staging/images/ 2>/dev/null || true
-cd staging && rm -rf "$TARGET"
-cd "$BASEDIR"
-
+# Environment variable moving selected parts from staging/ to release/
 if [[ "$CREATE_RELEASE_DIR" == "true" ]]; then
   set +e
   mkdir -p release
