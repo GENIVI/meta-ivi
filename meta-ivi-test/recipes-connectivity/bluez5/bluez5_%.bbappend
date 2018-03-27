@@ -1,7 +1,7 @@
 #
 # for test
 #
-PACKAGECONFIG += " experimental"
+PACKAGECONFIG += " readline testing tools"
 
 do_install_append() {
    install -d ${D}/opt/tests/${PN}
