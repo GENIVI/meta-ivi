@@ -234,7 +234,7 @@ trap cleanup SIGINT SIGTERM
 
 D=$(dirname "$0")
 cd "$D"
-BASEDIR=$(readlink -f "$PWD/..")
+BASEDIR=$(readlink -f "$PWD/../..") # One dir above meta-ivi!
 
 # The user must define this
 ensure_var_is_defined TARGET
@@ -324,12 +324,12 @@ echo "SSTATE_DIR = $DL_DIR"
 echo "STANDARD_RELEASE_BUILD" = "$STANDARD_RELEASE_BUILD"
 
 # INIT
-cd "$BASEDIR"
+cd "$BASEDIR/meta-ivi"
 echo "*** Initializing layers"
 scripts/checkout
 echo "*** Initializing conf"
 export TEMPLATECONF=$PWD/meta-ivi/conf
-source ../poky/oe-init-build-env build
+source ../poky/oe-init-build-env ../build
 
 # build steps
 # We are now in build/
@@ -353,7 +353,7 @@ if [[ "$KEEP_TMP" != "true" ]]; then
    rm -rf tmp
 fi
 
-cd "$BASEDIR"
+cd "$BASEDIR/meta-ivi"
 
 # Need to set an identity because if it is unset (which it could be in a CI
 # environment), some patching commands will fail the build.
