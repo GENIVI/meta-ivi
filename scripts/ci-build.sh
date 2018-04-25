@@ -251,8 +251,8 @@ define_with_default CREATE_RELEASE_DIR false
 define_with_default MIRROR "https://docs.projects.genivi.org/releases/yocto_mirror"
 define_with_default PREMIRROR ""  # By default none (but we have the shared DL_DIR)
 define_with_default RM_WORK false
-define_with_default REUSE_STANDARD_DL_DIR true
-define_with_default REUSE_STANDARD_SSTATE_DIR true
+define_with_default REUSE_STANDARD_DL_DIR false
+define_with_default REUSE_STANDARD_SSTATE_DIR false
 define_with_default SGX_DRIVERS $AGENT_STANDARD_SGX_LOCATION
 define_with_default SGX_GEN_3_DRIVERS $AGENT_STANDARD_SGX_GEN3_LOCATION
 define_with_default SOURCE_ARCHIVE false
