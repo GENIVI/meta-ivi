@@ -66,10 +66,14 @@ stop_immediately() {
 append_local_conf() {
   LOCAL_CONF="$BASEDIR/build/conf/local.conf"
   if [[ -f "$LOCAL_CONF" ]]; then
-    echo -n "Appending to local.conf: "
+    if fgrep -q "$1" ; then
+      echo "Found variable ($1) in local conf - skipping append"
+    else
+      echo -n "Appending to local.conf: "
     cat <<EOT | tee -a "$LOCAL_CONF"
-$1
+$2
 EOT
+    fi
   else
     echo "Fatal: Did not find local.conf where expected"
     stop_immediately
@@ -412,34 +416,34 @@ done
 # should be quite self-explanatory.
 
 if [[ "$RM_WORK" == "true" ]]; then
-  append_local_conf 'INHERIT += "rm_work"'
+  append_local_conf rm_work 'INHERIT += "rm_work"'
 fi
 
 if [[ -n "$DL_DIR" ]]; then
-  append_local_conf "DL_DIR = \"$DL_DIR\""
+  append_local_conf DL_DIR "DL_DIR = \"$DL_DIR\""
 fi
 
 if [[ -n "$SSTATE_DIR" ]]; then
-  append_local_conf "SSTATE_DIR = \"$SSTATE_DIR\""
+  append_local_conf SSTATE_DIR "SSTATE_DIR = \"$SSTATE_DIR\""
 fi
 
 if [[ -n "$BB_NUMBER_THREADS" ]]; then
-  append_local_conf "BB_NUMBER_THREADS = \"$BB_NUMBER_THREADS\""
+  append_local_conf BB_NUMBER_THREADS "BB_NUMBER_THREADS = \"$BB_NUMBER_THREADS\""
 fi
 
 if [[ -n "$PARALLEL_MAKE" ]]; then
   echo $PARALLEL_MAKE | egrep -q '^-j' || PARALLEL_MAKE="-j$PARALLEL_MAKE"
-  append_local_conf "PARALLEL_MAKE = \"$PARALLEL_MAKE\""
+  append_local_conf PARALLEL_MAKE "PARALLEL_MAKE = \"$PARALLEL_MAKE\""
 fi
 
 if [[ "$SOURCE_ARCHIVE" == "true" ]]; then
-  append_local_conf 'INHERIT += "archiver"'
-  append_local_conf 'ARCHIVER_MODE[src] = "original"'
+  append_local_conf ARCHIVER_MODE 'INHERIT += "archiver"'
+  append_local_conf ARCHIVER_MODE 'ARCHIVER_MODE[src] = "original"'
 fi
 
 if [[ "$COPY_LICENSES" == "true" ]]; then
-  append_local_conf 'COPY_LIC_DIRS = "1"'
-  append_local_conf 'COPY_LIC_MANIFEST = "1"'
+  append_local_conf COPY_LIC_DIRS 'COPY_LIC_DIRS = "1"'
+  append_local_conf COPY_LIC_MANIFEST 'COPY_LIC_MANIFEST = "1"'
 fi
 
 # The own-mirrors bbclass is generally more convenient for PREMIRRORS, but
@@ -450,7 +454,7 @@ fi
 # is checked, if the user had defined any other in conf files.
 
 if [[ -n "$PREMIRROR" ]]; then
-  append_local_conf "
+  append_local_conf PREMIRRORS_prepend "
 PREMIRRORS_prepend = \"\\
      git://.*/.* $PREMIRROR \\n \\
      ftp://.*/.* $PREMIRROR \\n \\
@@ -464,7 +468,7 @@ fi
 # WE *app*pend MIRROR because we want it to be the last mirror that is checked,
 # if the user had defined others in conf files.
 if [[ -n "$MIRROR" ]]; then
-  append_local_conf "
+  append_local_conf MIRRORS_append "
 MIRRORS_append = \"\\
      git://.*/.* $MIRROR \\n \\
      ftp://.*/.* $MIRROR \\n \\
