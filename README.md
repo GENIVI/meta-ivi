@@ -9,23 +9,45 @@ Branch Policy
 -------------
 
 - New development is done on **master** branch and most new change requests
-(PRs) should be proposed as changes to master, unless you know they are
-applicable to a particular release only.
-- Somewhere near a new major release, a numbered release branch (e.g. 14.0)
-is created from master, and the new branch goes into stabilization/release phase.
-- Major numbers are stepped up every new release.  The release schedule is
-driven by a time plan.  Use [semantic versioning](http://semver.org/) for
-minor and patch numbers.
-- GENIVI-specific release tags, such as "M-0.2" for the second baseline
-*pre*release for the "M" platform may also be added.
+  (PRs) should be proposed as changes to master, unless you know they are
+  applicable to a particular release only.
+- Major numbers are stepped up every new release of the GENIVI Compliance
+  Specification.  The release schedule is driven by a time plan. 
+- Meta-ivi use [semantic versioning](http://semver.org/) for minor and patch
+  numbers.
+- The GENIVI Compliance specification is released annually, while meta-ivi is
+  released bi-annually meaning that we get a gap. We will create 14.x-rocko
+  branch together with the Compliance Specification 14.0.0 and 14.x-sumo half
+  way to 15.0.0.
+- Somewhere near a new major release of the GENIVI Compliance specification, a
+  numbered release branch (e.g. 14.x-rocko and 14.x-sumo) is created from
+  master, and the new branch goes into stabilization/release phase.
+- In the middle between the GENIVI Compliance Specification version 14.0 and
+  15.0 a numbered branch is created for the 14.x-sumo meta-ivi release.
 - After a versioned release, the release branch remains for maintenance and
-updates.
+  updates.
 - The project maintainer shall ensure that relevant patches are
-cherry-picked to every branch where they apply. I.e. patches should be
-back-ported *at minimum* to the Support Window versions as defined below.
+  cherry-picked to every branch where they apply. I.e. patches should be
+  back-ported *at minimum* to the Support Window versions as defined below.
 - In general, prefer a linear commit history (rebase and cherry-pick),
   applying merge commits only where absolutely necessary to sort out a
   complex merge situation (which we should rarely have).
+
+Tag Policy
+----------
+- Meta-ivi creates tags based on the Compliance Specification version number as
+  the major version, for example 14.0.0, 14.0.1, 14.1.0 in accordance with
+  semver.
+- Releases are created from the respective working branch.
+- Meta-ivi creates a Github release based on the version number in accordance
+  with our version numbering policy.
+- The versions used on 14.x-rocko will start at 14.0.0.
+- The versions used on 14.x-sumo will start on 14.50.0 to keep the major version
+  numbers in sync.
+  - Note: Updates to the 14.0.0 release would then become 14.0.1 and/or 14.1.0,
+    which can be released __after__ 14.50.0.
+- Meta-ivi creates GENIVI internal tags upon releasing new GENVI versions, for
+  example P-0.1, P-0.2 and P-1.0.
 
 Support Window (Bugfixes, improvements)
 ---------------------------------------
