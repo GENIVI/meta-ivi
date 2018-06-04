@@ -52,16 +52,3 @@ to use am 7.0, put following lines to <build directory>/conf/local.conf
 # use audiomanager 7.0 until am7.4 issues are fixed.
 PREFERRED_VERSION_audiomanager          ?= "7.0"
 PREFERRED_VERSION_audiomanagerplugins   ?= "7.0"
-
-
-Build s/w packages using gstreamer1.0-\*\_1.2.3.bb instead of default version
------------------------------------------------------------------------------
-you may encounter a build error like below:
-
-ERROR: Nothing PROVIDES 'tremor' (but /opt/genivi-baseline_13/poky/../meta-ivi/meta-ivi/recipes-multimedia/gstreamer/gstreamer1.0-plugins-base_1.2.3.bb DEPENDS on or otherwise requires it)
-ERROR: Required build target 'gstreamer1.0-plugins-base' has no buildable providers.
-Missing or unbuildable dependency chain was: ['gstreamer1.0-plugins-base', 'tremor']
-
-then you may need "tremor" package for build this package.
-add following line to your conf/bblayser.conf.
-BBLAYERS_append := " <your topdir>/meta-openembedded/meta-multimedia"
