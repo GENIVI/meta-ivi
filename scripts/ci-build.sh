@@ -520,8 +520,6 @@ if [[ "$LAYER_ARCHIVE" == "true" ]]; then
   tar cfj staging/meta-layers-snapshot.tar.bz2 meta-* poky renesas* build/conf
 fi
 
-set -e  # Back to strict error checking
-
 # META-IVI note:
 # usually we don't release built (binary) images of baseline -- however to keep
 # the script consistent with GDP version of the script (and make releases
@@ -535,8 +533,8 @@ build_info_file=staging/build_info.txt
 
 # Store environment info into log file for future reference
 env >$build_info_file
-echo 'For conf , see files *.conf, and any diff below' >>$build_info_file
-git diff build/conf/templates/*.inc >>$build_info_file
+echo 'Note the content of conf files and any local diffs reported below:' >>$build_info_file
+git diff -- build/conf/*.conf build/conf/*.inc >>$build_info_file
 
 # Environment variable moving selected parts from staging/ to release/
 if [[ "$CREATE_RELEASE_DIR" == "true" ]]; then
@@ -561,6 +559,6 @@ ls -al staging/ release/
 echo
 echo "...in release/images/ :"
 ls -al release/images/
-set -e
 
 cleanup
+true
