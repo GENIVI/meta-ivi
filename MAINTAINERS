@@ -42,7 +42,7 @@ Please keep this list in alphabetical order.
 Maintainers List (try to look for most precise areas first)
 
 COMMON
-M:	Yong-iL Joh <yong-il.joh@windriver.com>
+M:  Oscar Andreasson <oandreasson@luxoft.com>
 F:	./meta-ivi/
 F:	./meta-ivi-bsp/
 F:	./meta-ivi-test/
