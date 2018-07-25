@@ -99,17 +99,17 @@ Layer Dependencies
 ------------------
 
 URI: git://git.yoctoproject.org/poky
-> branch:   rocko
-> revision: 6b744113ad3e564d1cb05411816b103d99fd84dc
+> branch:   sumo
+> revision: 96fbd39ba32362416c18d90bb7a81eb6a76912e0
 
 URI: git://git.openembedded.org/meta-openembedded
 > layer:    meta-oe
-> branch:   rocko
-> revision: dacfa2b1920e285531bec55cd2f08743390aaf57
+> branch:   sumo
+> revision: b0950aeff5b630256bb5e25ca15f4d59c115e7c1
 
 URI: git://git.yoctoproject.org/meta-gplv2
-> branch:   rocko
-> revision: f875c60ecd6f30793b80a431a2423c4b98e51548
+> branch:   sumo
+> revision: d7687d404bbc9ba3f44ec43ea8828d9071033513
 
 Using the above git SHAs and the master meta-ivi branch,
  bitbaking pulsar-image is known to work
