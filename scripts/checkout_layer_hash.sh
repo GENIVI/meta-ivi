@@ -77,7 +77,7 @@ EOT
 
    # Get value for item "what" (what = revision, branch, ...)
    value=$(
-   cat <<EOT | grep "$what" | awk '{print $2}'
+   cat <<EOT | fgrep "$what" | awk '{print $2}'
    $layer_info
 EOT
    )
@@ -96,6 +96,7 @@ checkoutlayer=$1
 [ -z "$checkoutlayer" ] && { echo "Usage: $0 <layername, e.g. poky>" ; exit 1 ; }
 
 # Extract revision from README in meta-ivi
+branch=$(get_layer_info $checkoutlayer branch)
 revision=$(get_layer_info $checkoutlayer revision)
 
 # Fail if we could not fetch revision
@@ -106,4 +107,9 @@ revision=$(get_layer_info $checkoutlayer revision)
 # this script is run.  (Not true on full system builds, but typically
 # when building baseline only)
 cd ../"$checkoutlayer" || fail "Can't cd to layer directory ($checkoutlayer)"
+
+# First fetch the branch - CI system might at first fetch shallow clones and
+# when the selected branch changes we might otherwise lack the needed commit
+git fetch origin $branch
+
 git checkout $revision
