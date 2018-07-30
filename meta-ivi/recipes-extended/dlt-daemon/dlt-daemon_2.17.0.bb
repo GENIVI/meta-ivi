@@ -14,13 +14,12 @@ LIC_FILES_CHKSUM = "file://LICENSE;md5=8184208060df880fe3137b93eb88aeea"
 
 PR = "r2"
 
-DEPENDS = "dbus zlib pigz-native"
+DEPENDS = "dbus zlib gzip-native"
 
 SRCREV = "bdde2374efd567f27d7a4ec70911b34cda061d27"
 SRC_URI = "git://github.com/GENIVI/${BPN}.git;protocol=https \
     file://0002-Don-t-execute-processes-as-a-specific-user.patch \
     file://0004-Modify-systemd-config-directory.patch \
-    file://0005-add-pigz-instead-of-gzip.patch \
     "
 S = "${WORKDIR}/git"
 
