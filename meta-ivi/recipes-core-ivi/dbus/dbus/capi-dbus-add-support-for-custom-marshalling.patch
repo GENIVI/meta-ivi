@@ -1,23 +1,23 @@
-From 7b0925938400b970bf699a9188fe03b7271eeead Mon Sep 17 00:00:00 2001
-From: =?UTF-8?q?J=C3=BCrgen=20Gehring?= <juergen.gehring@bmw.de>
-Date: Thu, 23 Apr 2015 01:18:11 -0700
-Subject: [PATCH] Add functions to support querying and manipulating the
+From 689ff4ef20347a2999afd2e39502aee71b653f1a Mon Sep 17 00:00:00 2001
+From: Juergen Gehring <juergen.gehring@bmw.de>
+Date: Fri, 19 Jan 2018 08:30:28 -0800
+Subject: [PATCH] patch Add functions to support querying and manipulating the
  message body and signature. This is useful for code generators, which can
  generate custom marshaling functions based on a given IDL. Those functions
  tend to be optimized and faster than the generic iterator based marshaling.
 
 ---
- dbus/dbus-message.c | 99 +++++++++++++++++++++++++++++++++++++++++++++++++++++
- dbus/dbus-message.h | 14 ++++++++
- dbus/dbus-string.c  | 16 +++++++++
- dbus/dbus-string.h  |  5 +++
- 4 files changed, 134 insertions(+)
+ dbus/dbus-message.c | 103 ++++++++++++++++++++++++++++++++++++++++++++++++++++
+ dbus/dbus-message.h |  14 +++++++
+ dbus/dbus-string.c  |  16 ++++++++
+ dbus/dbus-string.h  |   5 +++
+ 4 files changed, 138 insertions(+)
 
 diff --git a/dbus/dbus-message.c b/dbus/dbus-message.c
-index 43cb1be..d34663a 100644
+index 43b3a9f..f5a04fa 100644
 --- a/dbus/dbus-message.c
 +++ b/dbus/dbus-message.c
-@@ -3445,6 +3445,47 @@ dbus_message_get_sender (DBusMessage *message)
+@@ -3746,6 +3746,51 @@ dbus_message_get_sender (DBusMessage *message)
  }
  
  /**
@@ -47,10 +47,14 @@ index 43cb1be..d34663a 100644
 +dbus_message_set_signature (DBusMessage *message,
 +                            const char  *signature)
 +{
++  DBusString str;
++  _dbus_string_init_const (&str, signature);
++
 +  _dbus_return_val_if_fail (message != NULL, FALSE);
 +  _dbus_return_val_if_fail (!message->locked, FALSE);
-+  _dbus_return_val_if_fail (signature == NULL ||
-+                            _dbus_check_is_valid_signature (signature), FALSE);
++
++  _dbus_return_val_if_fail (signature != NULL &&
++        _dbus_validate_signature_with_reason (&str, 0, _dbus_string_get_length (&str)) == DBUS_VALID, FALSE);
 +  /* can't delete the signature if you have a message body */
 +  _dbus_return_val_if_fail (_dbus_string_get_length (&message->body) == 0 ||
 +                            signature != NULL, FALSE);
@@ -65,7 +69,7 @@ index 43cb1be..d34663a 100644
   * Gets the type signature of the message, i.e. the arguments in the
   * message payload. The signature includes only "in" arguments for
   * #DBUS_MESSAGE_TYPE_METHOD_CALL and only "out" arguments for
-@@ -4632,6 +4673,64 @@ dbus_message_type_to_string (int type)
+@@ -5009,6 +5054,64 @@ dbus_message_type_to_string (int type)
  }
  
  /**
@@ -131,10 +135,10 @@ index 43cb1be..d34663a 100644
   * specification.
   *
 diff --git a/dbus/dbus-message.h b/dbus/dbus-message.h
-index 4fd44da..76377b8 100644
+index 8a9d57a..2f7873a 100644
 --- a/dbus/dbus-message.h
 +++ b/dbus/dbus-message.h
-@@ -138,6 +138,9 @@ dbus_bool_t   dbus_message_set_sender       (DBusMessage   *message,
+@@ -170,6 +170,9 @@ dbus_bool_t   dbus_message_set_sender       (DBusMessage   *message,
  DBUS_EXPORT
  const char*   dbus_message_get_sender       (DBusMessage   *message);
  DBUS_EXPORT
@@ -144,7 +148,7 @@ index 4fd44da..76377b8 100644
  const char*   dbus_message_get_signature    (DBusMessage   *message);
  DBUS_EXPORT
  void          dbus_message_set_no_reply     (DBusMessage   *message,
-@@ -262,6 +265,17 @@ dbus_bool_t dbus_message_iter_close_container    (DBusMessageIter *iter,
+@@ -299,6 +302,17 @@ dbus_bool_t dbus_message_iter_close_container    (DBusMessageIter *iter,
  DBUS_EXPORT
  void        dbus_message_iter_abandon_container  (DBusMessageIter *iter,
                                                    DBusMessageIter *sub);
@@ -161,12 +165,12 @@ index 4fd44da..76377b8 100644
 +int         dbus_message_get_body_allocated      (DBusMessage   *message);
  
  DBUS_EXPORT
- void dbus_message_lock    (DBusMessage  *message);
+ void        dbus_message_iter_abandon_container_if_open (DBusMessageIter *iter,
 diff --git a/dbus/dbus-string.c b/dbus/dbus-string.c
-index 0f63612..a084eca 100644
+index 98d9f2b..565fa26 100644
 --- a/dbus/dbus-string.c
 +++ b/dbus/dbus-string.c
-@@ -730,6 +730,22 @@ _dbus_string_get_length (const DBusString  *str)
+@@ -744,6 +744,22 @@ _dbus_string_get_length (const DBusString  *str)
  }
  #endif /* !_dbus_string_get_length */
  
@@ -190,7 +194,7 @@ index 0f63612..a084eca 100644
   * Makes a string longer by the given number of bytes.  Checks whether
   * adding additional_length to the current length would overflow an
 diff --git a/dbus/dbus-string.h b/dbus/dbus-string.h
-index 86fb8c3..bfa2a39 100644
+index 1c01770..fdc5412 100644
 --- a/dbus/dbus-string.h
 +++ b/dbus/dbus-string.h
 @@ -61,6 +61,7 @@ struct DBusString
@@ -213,5 +217,5 @@ index 86fb8c3..bfa2a39 100644
   * Get the string's length as an unsigned integer, for comparison with
   * size_t and similar unsigned types that does not trigger compiler
 -- 
-1.9.1
+2.7.4
 
