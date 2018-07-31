@@ -18,7 +18,7 @@ SRC_URI = "git://github.com/GENIVI/${BPN}.git;protocol=https \
           "
 S = "${WORKDIR}/git"
 
-DEPENDS = "glib-2.0 dlt-daemon systemd"
+DEPENDS = "glib-2.0 dlt-daemon systemd glib-2.0-native"
 RDEPENDS_${PN} = "node-state-manager"
 
 inherit autotools gtk-doc systemd
