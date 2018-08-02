@@ -16,7 +16,7 @@ EXTRA_OECMAKE += "-DWITH_DLTTEST=ON -DCMAKE_SKIP_RPATH=ON -DWITH_MAN=OFF \
     "
 
 do_compile_append() {
-   make -C src/test
+   ninja build_tests
 }
 
 do_install_append() {
