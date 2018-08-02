@@ -29,6 +29,8 @@ FILES_${PN}-noinst-tools = "${@get_noinst_tools_paths2(d, bb, d.getVar('NOINST_T
 PACKAGES += "${PN}-test"
 DEPENDS_${PN}-test = "${PN}"
 
+RDEPENDS_${PN}-test += "python3-core"
+
 FILES_${PN}-dbg += " \
    /opt/tests/${PN}/.debug/* \
    /opt/tests/${PN}/lib/.debug/* \
