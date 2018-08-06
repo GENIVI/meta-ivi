@@ -24,7 +24,6 @@ SRC_URI_append = " \
 	file://0022-core-service-Add-btd_service_set_auto_connect.patch \
 	file://0023-core-service-Add-btd_service_get_auto_connect.patch \
 	file://0024-core-device-Use-service-auto_connect-flag.patch \
-	file://0025-core-Make-device_get_path-public.patch \
 	file://0026-core-service-Add-btd_service_set_blocked.patch \
 	file://0027-core-service-Add-btd_service_is_blocked.patch \
 	"
