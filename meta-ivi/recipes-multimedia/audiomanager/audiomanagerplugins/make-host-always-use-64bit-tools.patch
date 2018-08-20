@@ -1,0 +1,34 @@
+diff --git a/PluginCommandInterfaceCAPI/cmake/CommonAPI.cmake b/PluginCommandInterfaceCAPI/cmake/CommonAPI.cmake
+index 3db1f4a..7b34223 100644
+--- a/PluginCommandInterfaceCAPI/cmake/CommonAPI.cmake
++++ b/PluginCommandInterfaceCAPI/cmake/CommonAPI.cmake
+@@ -119,11 +119,7 @@ ENDMACRO()
+ 
+ # helper function giving a string with the current architecture
+ function(GET_TARGET_ARCH OUT_ARCH)  
+-    IF(CMAKE_SIZEOF_VOID_P EQUAL 8) 
+-        SET(${OUT_ARCH} "x86_64" PARENT_SCOPE)
+-    ELSE() 
+-        SET(${OUT_ARCH} "x86" PARENT_SCOPE)
+-    ENDIF()  
++    SET(${OUT_ARCH} "x86_64" PARENT_SCOPE)
+ endfunction()
+ 
+ # helper function giving a string with the current host
+diff --git a/PluginRoutingInterfaceCAPI/cmake/CommonAPI.cmake b/PluginRoutingInterfaceCAPI/cmake/CommonAPI.cmake
+index 3db1f4a..7b34223 100644
+--- a/PluginRoutingInterfaceCAPI/cmake/CommonAPI.cmake
++++ b/PluginRoutingInterfaceCAPI/cmake/CommonAPI.cmake
+@@ -119,11 +119,7 @@ ENDMACRO()
+ 
+ # helper function giving a string with the current architecture
+ function(GET_TARGET_ARCH OUT_ARCH)  
+-    IF(CMAKE_SIZEOF_VOID_P EQUAL 8) 
+-        SET(${OUT_ARCH} "x86_64" PARENT_SCOPE)
+-    ELSE() 
+-        SET(${OUT_ARCH} "x86" PARENT_SCOPE)
+-    ENDIF()  
++    SET(${OUT_ARCH} "x86_64" PARENT_SCOPE)
+ endfunction()
+ 
+ # helper function giving a string with the current host

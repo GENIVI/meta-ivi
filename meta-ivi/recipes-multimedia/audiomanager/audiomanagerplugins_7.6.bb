@@ -12,6 +12,7 @@ DEPENDS = "audiomanager capicxx-core-native capicxx-dbus-native python3 libxml2"
 SRCREV = "03fa3696fbbc1d624095bfc60f80b9ec071bec07"
 SRC_URI = " git://github.com/GENIVI/AudioManagerPlugins.git;protocol=https \
     file://AM-Genivi-Filtering-out-JDK-warnings-in-CAPI-script.patch \
+    file://make-host-always-use-64bit-tools.patch \
     "
 S = "${WORKDIR}/git"
 
@@ -25,8 +26,8 @@ EXTRA_OECMAKE = " \
     "
 
 do_configure_prepend() {
-    capi_core_home=$(dirname `find ${WORKDIR}/recipe-sysroot-native -name commonapi-generator-linux-x86`)
-    capi_dbus_home=$(dirname `find ${WORKDIR}/recipe-sysroot-native -name commonapi-dbus-generator-linux-x86`)
+    capi_core_home=$(dirname `find ${WORKDIR}/recipe-sysroot-native -name commonapi-generator-linux-x86_64`)
+    capi_dbus_home=$(dirname `find ${WORKDIR}/recipe-sysroot-native -name commonapi-dbus-generator-linux-x86_64`)
     if [ -L /usr/bin/java ]; then
        java_bin=$(readlink -f /usr/bin/java)
        if [ -L $java_bin ]; then
