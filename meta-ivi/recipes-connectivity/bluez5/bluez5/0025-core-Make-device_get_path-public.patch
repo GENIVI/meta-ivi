@@ -1,16 +1,7 @@
---- bluez-5.33/src/device.h.orig	2016-03-11 15:43:31.503474441 +0900
-+++ bluez-5.33/src/device.h	2016-03-11 15:43:45.703474020 +0900
-@@ -82,6 +82,7 @@
- struct btd_adapter *device_get_adapter(struct btd_device *device);
- const bdaddr_t *device_get_address(struct btd_device *device);
- const char *device_get_path(const struct btd_device *device);
-+const char *btd_device_get_path(const struct btd_device *device);
- gboolean device_is_temporary(struct btd_device *device);
- bool device_is_paired(struct btd_device *device, uint8_t bdaddr_type);
- bool device_is_bonded(struct btd_device *device, uint8_t bdaddr_type);
---- bluez-5.33/src/device.c.orig	2016-03-11 15:42:30.783476238 +0900
-+++ bluez-5.33/src/device.c	2016-03-11 15:43:20.483474767 +0900
-@@ -4700,6 +4700,10 @@
+diff -ur bluez-5.48.bak/src/device.c bluez-5.48/src/device.c
+--- bluez-5.48.bak/src/device.c	2018-08-20 14:34:33.895522420 +0200
++++ bluez-5.48/src/device.c	2018-08-20 14:35:13.699483187 +0200
+@@ -5219,6 +5219,10 @@
  	return device->path;
  }
  
@@ -21,3 +12,14 @@
  gboolean device_is_temporary(struct btd_device *device)
  {
  	return device->temporary;
+diff -ur bluez-5.48.bak/src/device.h bluez-5.48/src/device.h
+--- bluez-5.48.bak/src/device.h	2018-08-20 14:34:33.895522420 +0200
++++ bluez-5.48/src/device.h	2018-08-20 14:35:13.699483187 +0200
+@@ -88,6 +88,7 @@
+ struct btd_adapter *device_get_adapter(struct btd_device *device);
+ const bdaddr_t *device_get_address(struct btd_device *device);
+ const char *device_get_path(const struct btd_device *device);
++const char *btd_device_get_path(const struct btd_device *device);
+ gboolean device_is_temporary(struct btd_device *device);
+ bool device_is_connectable(struct btd_device *device);
+ bool device_is_paired(struct btd_device *device, uint8_t bdaddr_type);
