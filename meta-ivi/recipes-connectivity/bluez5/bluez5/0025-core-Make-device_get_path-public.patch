@@ -1,7 +1,18 @@
-diff -ur bluez-5.48.bak/src/device.c bluez-5.48/src/device.c
---- bluez-5.48.bak/src/device.c	2018-08-20 14:34:33.895522420 +0200
-+++ bluez-5.48/src/device.c	2018-08-20 14:35:13.699483187 +0200
-@@ -5219,6 +5219,10 @@
+From 54118063c549e72271c55abab753a02e4bb77a79 Mon Sep 17 00:00:00 2001
+From: Yong-iL Joh <yong-il.joh@windriver.com>
+Date: Mon, 27 Aug 2018 13:46:10 +0200
+Subject: [PATCH 25/25] core: Make device get path public
+
+---
+ src/device.c | 4 ++++
+ src/device.h | 1 +
+ 2 files changed, 5 insertions(+)
+
+diff --git a/src/device.c b/src/device.c
+index ef5b8f86a..12d5aed63 100644
+--- a/src/device.c
++++ b/src/device.c
+@@ -5328,6 +5328,10 @@ const char *device_get_path(const struct btd_device *device)
  	return device->path;
  }
  
@@ -12,14 +23,18 @@ diff -ur bluez-5.48.bak/src/device.c bluez-5.48/src/device.c
  gboolean device_is_temporary(struct btd_device *device)
  {
  	return device->temporary;
-diff -ur bluez-5.48.bak/src/device.h bluez-5.48/src/device.h
---- bluez-5.48.bak/src/device.h	2018-08-20 14:34:33.895522420 +0200
-+++ bluez-5.48/src/device.h	2018-08-20 14:35:13.699483187 +0200
-@@ -88,6 +88,7 @@
- struct btd_adapter *device_get_adapter(struct btd_device *device);
+diff --git a/src/device.h b/src/device.h
+index 06b100499..38337f07b 100644
+--- a/src/device.h
++++ b/src/device.h
+@@ -91,6 +91,7 @@ struct btd_adapter *device_get_adapter(struct btd_device *device);
  const bdaddr_t *device_get_address(struct btd_device *device);
+ uint8_t device_get_le_address_type(struct btd_device *device);
  const char *device_get_path(const struct btd_device *device);
 +const char *btd_device_get_path(const struct btd_device *device);
  gboolean device_is_temporary(struct btd_device *device);
  bool device_is_connectable(struct btd_device *device);
  bool device_is_paired(struct btd_device *device, uint8_t bdaddr_type);
+-- 
+2.17.1
+
