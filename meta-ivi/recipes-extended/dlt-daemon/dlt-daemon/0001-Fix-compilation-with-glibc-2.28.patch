@@ -1,0 +1,59 @@
+From 0be9c2726c45485cb0e00cec57c0bd1c167eb9c5 Mon Sep 17 00:00:00 2001
+From: Oleksandr Kravchuk <oleksandr.kravchuk@pelagicore.com>
+Date: Sun, 26 Aug 2018 01:48:48 +0200
+Subject: [PATCH] Fix compilation with glibc 2.28
+
+Package compilation fails with GLIBC 2.28:
+
+stat.h:56:8: error: redefinition of 'struct statx_timestamp'
+stat.h:99:8: error: redefinition of 'struct statx'
+
+Signed-off-by: Oleksandr Kravchuk <oleksandr.kravchuk@pelagicore.com>
+---
+ src/daemon/dlt-daemon.c        | 2 +-
+ src/daemon/dlt_daemon_client.c | 2 +-
+ src/daemon/dlt_daemon_socket.c | 2 +-
+ 3 files changed, 3 insertions(+), 3 deletions(-)
+
+diff --git a/src/daemon/dlt-daemon.c b/src/daemon/dlt-daemon.c
+index 0232cb1..5695a4b 100644
+--- a/src/daemon/dlt-daemon.c
++++ b/src/daemon/dlt-daemon.c
+@@ -47,7 +47,7 @@
+ #endif
+ #include <sys/stat.h>
+ #include <sys/time.h>
+-#ifdef linux
++#ifdef defined(linux) && defined(__NR_statx)
+ #include <linux/stat.h>
+ #endif
+ 
+diff --git a/src/daemon/dlt_daemon_client.c b/src/daemon/dlt_daemon_client.c
+index 7c6e1bd..cb59239 100644
+--- a/src/daemon/dlt_daemon_client.c
++++ b/src/daemon/dlt_daemon_client.c
+@@ -46,7 +46,7 @@
+ #endif
+ #include <sys/stat.h>
+ #include <sys/time.h>
+-#ifdef linux
++#ifdef defined(linux) && defined(__NR_statx)
+ #include <linux/stat.h>
+ #endif
+ 
+diff --git a/src/daemon/dlt_daemon_socket.c b/src/daemon/dlt_daemon_socket.c
+index 961556c..4ae1d86 100644
+--- a/src/daemon/dlt_daemon_socket.c
++++ b/src/daemon/dlt_daemon_socket.c
+@@ -49,7 +49,7 @@
+ #endif
+ #include <sys/stat.h>
+ #include <sys/time.h>
+-#ifdef linux
++#ifdef defined(linux) && defined(__NR_statx)
+ #include <linux/stat.h>
+ #endif
+ 
+-- 
+2.17.1
+
