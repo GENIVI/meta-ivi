@@ -1,6 +1,18 @@
---- dbus-1.10.10/dbus/dbus-message.c.orig	2017-01-26 20:32:02.456180239 +0900
-+++ dbus-1.10.10/dbus/dbus-message.c	2017-01-26 20:32:27.288180875 +0900
-@@ -4128,7 +4128,7 @@
+From 451ff2352585ea0f4ca5cd1ce20ae164cf9b33ea Mon Sep 17 00:00:00 2001
+From: Yong-iL Joh <yong-il.joh@windriver.com>
+Date: Mon, 3 Sep 2018 11:02:19 +0200
+Subject: [PATCH] dbus: fix up for qemux86 on ubuntu 16.04 environment
+
+---
+ dbus/dbus-message.c | 2 +-
+ dbus/dbus-shell.c   | 2 ++
+ 2 files changed, 3 insertions(+), 1 deletion(-)
+
+diff --git a/dbus/dbus-message.c b/dbus/dbus-message.c
+index 43b3a9fb..81885437 100644
+--- a/dbus/dbus-message.c
++++ b/dbus/dbus-message.c
+@@ -4324,7 +4324,7 @@ _dbus_message_loader_get_unix_fds(DBusMessageLoader  *loader,
       beginning. This sucks a bit, however unless SCM_RIGHTS is fixed
       there is no better way. */
  
@@ -9,3 +21,20 @@
      {
        int *a = dbus_realloc(loader->unix_fds,
                              loader->max_message_unix_fds * sizeof(loader->unix_fds[0]));
+diff --git a/dbus/dbus-shell.c b/dbus/dbus-shell.c
+index 44cbbcf3..b4795189 100644
+--- a/dbus/dbus-shell.c
++++ b/dbus/dbus-shell.c
+@@ -419,7 +419,9 @@ tokenize_command_line (const char *command_line, DBusError *error)
+             {
+             case '\n':
+               if (!delimit_token (&current_token, &retval, error))
++              {
+                 goto error;
++              }
+ 
+               _dbus_string_free (&current_token);
+ 
+-- 
+2.17.1
+
