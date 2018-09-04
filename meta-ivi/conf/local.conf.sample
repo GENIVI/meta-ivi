@@ -7,7 +7,7 @@
 # other examples of configuration which can be placed in this file
 # but new users likely won't need any of them initially.
 #
-# Lines starting with the '#' character are commented out and in some cases the 
+# Lines starting with the '#' character are commented out and in some cases the
 # default values are provided as comments to show people example syntax.
 # Enabling the option is a question of removing the # character and
 # making any change to the variable as required.
@@ -16,7 +16,7 @@
 # Machine Selection
 #
 # You need to select a specific machine to target the build with.
-# There are a selection of emulated machines available 
+# There are a selection of emulated machines available
 # which can boot and run in the QEMU emulator:
 #
 #MACHINE ?= "qemux86"
@@ -157,7 +157,7 @@ USER_CLASSES ?= "buildstats image-mklibs image-prelink"
 # Interactive shell configuration
 #
 # Under certain circumstances the system may need input from you and to do this
-# it can launch an interactive shell. It needs to do this since the build is 
+# it can launch an interactive shell. It needs to do this since the build is
 # multithreaded and needs to be able to handle the case where more than
 # one parallel process may require the user's attention. The default is
 # iterate over the available terminal types to find one that works.
@@ -189,7 +189,7 @@ BB_DISKMON_DIRS = "\
     STOPTASKS,${SSTATE_DIR},1G,100K \
     ABORT,${TMPDIR},100M,1K \
     ABORT,${DL_DIR},100M,1K \
-    ABORT,${SSTATE_DIR},100M,1K" 
+    ABORT,${SSTATE_DIR},100M,1K"
 
 #
 # Shared-state files from other locations
