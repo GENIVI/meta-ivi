@@ -9,8 +9,6 @@ LICENSE = "MIT"
 
 inherit core-image buildhistory
 
-IMAGE_ROOTFS_SIZE = "8192"
-
 IMAGE_FEATURES += " package-management"
 
 # Create SD image symlink correctly
