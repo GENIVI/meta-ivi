@@ -10,11 +10,11 @@ update_git() {
   _git=$1
   if [ -d ../${_git} ]; then
      cd ../${_git}
-     _null=`git status >& /dev/null`
+     _null=`git status >/dev/null 2>&1`
      _r=$?
      if [ $_r -eq 0 ]; then
-        git checkout master >& /dev/null
-        git pull            >& /dev/null
+        git checkout master >/dev/null 2>&1
+        git pull            >/dev/null 2>&1
         cd ${cur_dir}
      else
         echo "fatal: Not a git repository"
