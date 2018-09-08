@@ -5,28 +5,27 @@ inherit packagegroup
 
 PACKAGES = "\
     packagegroup-specific-component-p1 \
-    "
+"
 
 ALLOW_EMPTY_${PN} = "1"
 
-
 RDEPENDS_${PN} += "\
-    kernel-modules \
+    alsa-utils \
     audiomanager \
     common-api-c++ \
-    dlt-daemon \
-    dlt-daemon-systemd \
-    libasound  \
-    alsa-utils \
     connman \
     curl \
     dbus \
+    dlt-daemon \
+    dlt-daemon-systemd \
     ecryptfs-utils \
     gstreamer1.0-meta-base \
+    kernel-modules \
+    libasound  \
     libusb1 \
     node-startup-controller \
     node-state-manager \
     openssl \
     udev \
     wpa-supplicant \
-    "
+"

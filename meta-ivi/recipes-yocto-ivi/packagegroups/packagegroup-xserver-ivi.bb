@@ -5,11 +5,12 @@ PACKAGE_ARCH = "${MACHINE_ARCH}"
 
 inherit packagegroup
 
-XSERVER ?= "xserver-xorg \
-            xf86-input-evdev \
-            xf86-input-mouse \
-            xf86-video-fbdev \
-            xf86-input-keyboard \
-            "
+XSERVER ?= "
+    xf86-input-evdev \
+    xf86-input-keyboard \
+    xf86-input-mouse \
+    xf86-video-fbdev \
+    xserver-xorg \
+"
 
 RDEPENDS_${PN} = "${XSERVER}"

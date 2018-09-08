@@ -6,10 +6,6 @@ inherit packagegroup
 
 PACKAGES = "\
     packagegroup-placeholder-component-p1 \
-    "
+"
 
 ALLOW_EMPTY_${PN} = "1"
-
-
-RDEPENDS_${PN} += "\
-    "

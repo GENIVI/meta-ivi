@@ -28,21 +28,22 @@ VIRTUAL-RUNTIME_initscripts ?= ""
 VIRTUAL-RUNTIME_keymaps ?= "keymaps"
 
 RDEPENDS_${PN} = "\
+    ${@bb.utils.contains("MACHINE_FEATURES", "keyboard", "${VIRTUAL-RUNTIME_keymaps}", "", d)} \
+    ${MACHINE_ESSENTIAL_EXTRA_RDEPENDS} \
+    ${VIRTUAL-RUNTIME_dev_manager} \
+    ${VIRTUAL-RUNTIME_init_manager} \
+    ${VIRTUAL-RUNTIME_initscripts} \
+    ${VIRTUAL-RUNTIME_login_manager} \
+    ${VIRTUAL-RUNTIME_update-alternatives} \
     base-files \
     base-passwd \
     busybox \
-    ${@bb.utils.contains("MACHINE_FEATURES", "keyboard", "${VIRTUAL-RUNTIME_keymaps}", "", d)} \
-    netbase \
-    ${VIRTUAL-RUNTIME_login_manager} \
-    ${VIRTUAL-RUNTIME_init_manager} \
-    ${VIRTUAL-RUNTIME_initscripts} \
-    ${VIRTUAL-RUNTIME_dev_manager} \
-    ${VIRTUAL-RUNTIME_update-alternatives} \
-    ${MACHINE_ESSENTIAL_EXTRA_RDEPENDS} \
     kmod \
+    netbase \
     procps \
     util-linux-mount \
-    "
+"
 
 RRECOMMENDS_${PN} = "\
-    ${MACHINE_ESSENTIAL_EXTRA_RRECOMMENDS}"
+    ${MACHINE_ESSENTIAL_EXTRA_RRECOMMENDS} \
+"
