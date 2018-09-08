@@ -21,7 +21,6 @@ RDEPENDS_${PN} += "\
     connman \
     curl \
     dbus \
-    ecryptfs-utils \
     gstreamer1.0-meta-base \
     libusb1 \
     node-startup-controller \
