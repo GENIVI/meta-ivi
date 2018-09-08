@@ -18,7 +18,6 @@ RDEPENDS_${PN} += "\
     dbus \
     dlt-daemon \
     dlt-daemon-systemd \
-    ecryptfs-utils \
     gstreamer1.0-meta-base \
     kernel-modules \
     libasound  \
