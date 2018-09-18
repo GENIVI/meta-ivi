@@ -20,9 +20,9 @@ Branch Policy
 - Meta-ivi uses [semantic versioning](http://semver.org/). 
 - The release schedule is driven by a time plan.
 - The GENIVI Compliance Specification is released annually, while meta-ivi is
-  released bi-annually.  Major numbers follow the compliance specification.
-  We will create 14.x-rocko branch together with the specification 14.0.0
-  and 14.x-sumo half way to 15.0.0.
+  released twice a year. Major numbers follow the compliance specification.
+  E.g. We will create 14.x-rocko branch together with the specification
+  14.0.0 and 14.x-sumo half way to 15.0.0.
 - Meta-ivi updates regularly to follow Yocto/Poky releases.
 - Somewhere near a new major release of the specification, a numbered
   release branch (e.g. 14.x-rocko and 14.x-sumo) is created from master, and
