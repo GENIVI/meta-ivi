@@ -487,7 +487,7 @@ fi
 
 if [[ "$BUILD_TEST_IMAGE" == "true" ]]; then
   # FIXME
-  bitbake pulsar-image-test
+  bitbake test-image
 fi
 
 if [[ "$BUILD_SDK" == "true" ]]; then
