@@ -7,7 +7,7 @@ LIC_FILES_CHKSUM = "file://LICENSE;md5=1f1a56bb2dadf5f2be8eb342acf4ed79"
 
 PR = "r0"
 
-SRCREV = "d2c2e262f3bdc9db33b3014293fcdbcfdc90ab27"
+SRCREV = "9acdaa1a9c79558691b1513cc4917f2ced91af8a"
 SRC_URI = "git://github.com/GENIVI/${BPN}.git;protocol=http;branch=master \
     "
 S = "${WORKDIR}/git"
