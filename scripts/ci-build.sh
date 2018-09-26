@@ -66,7 +66,7 @@ stop_immediately() {
 append_local_conf() {
   LOCAL_CONF="$BASEDIR/build/conf/local.conf"
   if [[ -f "$LOCAL_CONF" ]]; then
-    if fgrep -q "$1" ; then
+    if fgrep -q "$1" "$LOCAL_CONF" ; then
       echo "Found variable ($1) in local conf - skipping append"
     else
       echo -n "Appending to local.conf: "
@@ -450,8 +450,8 @@ fi
 # this format makes it similar to the $MIRROR setup below, which needs to be
 # explicit anyhow.
 
-# We *pre*pend PREMIRROR because we want it to be the first PREMIRROR that
-# is checked, if the user had defined any other in conf files.
+# We *pre*pend PREMIRROR because we want it to be the first mirror that is
+# checked, if the user has defined any other in conf files.
 
 if [[ -n "$PREMIRROR" ]]; then
   append_local_conf PREMIRRORS_prepend "
@@ -466,7 +466,7 @@ fi
 
 # This is the "post" mirror (i.e. checked last).
 # WE *app*pend MIRROR because we want it to be the last mirror that is checked,
-# if the user had defined others in conf files.
+# if the user has defined others in conf files.
 if [[ -n "$MIRROR" ]]; then
   append_local_conf MIRRORS_append "
 MIRRORS_append = \"\\
