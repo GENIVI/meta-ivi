@@ -9,7 +9,8 @@
 AGENT_STANDARD_DL_DIR="/var/cache/yocto/downloads"
 AGENT_STANDARD_SSTATE_DIR="/var/cache/yocto/sstate"
 AGENT_STANDARD_SGX_LOCATION="/var/go/sgx_bin"
-AGENT_STANDARD_SGX_GEN3_LOCATION="/var/go/sgx_bin_gen3"
+AGENT_STANDARD_SGX_GEN3_LOCATION="/var/go/rcar-gen3/gfx-mmp_ybsp-390_20180627"
+
 
 # ---- Helper functions ----
 
@@ -62,7 +63,13 @@ stop_immediately() {
   exit 2
 }
 
-# Append a given value to the project's bitbake local.conf file
+# Append a given value to the project's bitbake local.conf file.
+#
+# $1 = A unique text-match that will be used to find if there
+# are any similar lines already and then it will not be added again.  That
+# pattern could be the exact text but for simplicity you'd often just put a
+# word there.
+# $2 = The exact text (make sure to quote it) to be appended to local.conf
 append_local_conf() {
   LOCAL_CONF="$BASEDIR/build/conf/local.conf"
   if [[ -f "$LOCAL_CONF" ]]; then
@@ -232,6 +239,15 @@ cleanup() {
   fi
 }
 
+# Fetch URL to file name using either curl or wget, skipping if the file exists.
+fetch() {
+  echo "Downloading external file: $2"
+  if [ ! -f "$1" ] ; then
+    curl "$2" >"$1" || wget "$2" -O "$1"
+  fi
+}
+
+
 # ---- Main program ----
 
 trap cleanup SIGINT SIGTERM
@@ -262,6 +278,11 @@ define_with_default SGX_GEN_3_DRIVERS $AGENT_STANDARD_SGX_GEN3_LOCATION
 define_with_default SOURCE_ARCHIVE false
 define_with_default STANDARD_RELEASE_BUILD false
 
+# This cleverly(?) reuses the r-car unique settings from the GDP project
+# The purpose is to avoid maintaining two files, although to avoid accidental
+# breakage we lock down the commit version here.
+define_with_default GDP_TEMPLATES_URL 'https://raw.githubusercontent.com/GENIVI/genivi-dev-platform/cc28fbfb130548f4cc9bf549844f2d5464a1bfef/gdp-src-build/conf/templates'
+
 # The following only apply to temporary (local) dirs.  If any of
 # REUSE_STANDARD_{DL,SSTATE}_DIR is defined then those directories will be
 # used no matter what. Those reusable DL/SSTATE dirs are never cleared by
@@ -281,6 +302,10 @@ MACHINE="$TARGET" # For most boards - exceptions handled below
 
 if [[ "$TARGET" == "r-car-m3-starter-kit" ]]; then
   MACHINE="m3ulcb"
+fi
+
+if [[ "$TARGET" == "r-car-h3-starter-kit" ]]; then
+  MACHINE="h3ulcb"
 fi
 
 ensure_var_is_defined MACHINE
@@ -474,6 +499,77 @@ MIRRORS_append = \"\\
      https://.*/.* $MIRROR \\n \\
      \"
 "
+fi
+
+# Deal with special setup, copy binary drivers etc.
+
+# All R-Car targets start with "r-car-"
+set +e
+if echo "$TARGET" | egrep -q '^r-car-' ; then
+  if [[ -d "$BASEDIR/meta-renesas" ]] ; then
+    echo "Copying binary graphics and mmp drivers for $TARGET from: $SGX_GEN_3_DRIVERS"
+    cd "$BASEDIR/meta-renesas"
+    meta-rcar-gen3/docs/sample/copyscript/copy_evaproprietary_softwares.sh "$SGX_GEN_3_DRIVERS"
+    append_bblayers_conf meta-renesas 'BBLAYERS += " \
+      ${TOPDIR}/../meta-renesas/meta-rcar-gen3 \
+      ${TOPDIR}/../meta-ivi-renesas \
+      ${TOPDIR}/../meta-linaro/meta-optee \
+      "'
+  else
+    echo "TARGET is set to $TARGET but I did not find a BSP layer (meta-renesas)"
+    exit 2
+  fi
+fi
+set -e
+
+# Adjust local conf if building for Renesas SoC
+# The purpose of this section is to reuse the special settings
+# from GDP.  That way we don't need to maintain two copies of
+# files.  This might be complicating things however... we're
+# trying it for now.
+
+case $TARGET in
+  r-car-m3-starter-kit)
+    target_local_conf_file=r-car-m3-starter-kit.local.conf
+    ;;
+
+  r-car-h3-starter-kit)
+    target_local_conf_file=r-car-h3-starter-kit.local.conf
+    ;;
+
+  r-car-m3-salvator-x)
+    target_local_conf_file=r-car-m3-salvator-x.local.conf
+    ;;
+
+  r-car-h3-salvator-x)
+    target_local_conf_file=r-car-h3-salvator-x.local.conf
+    ;;
+
+  *)
+    target_local_conf_file=
+    ;;
+esac
+
+
+if [ -n "$target_local_conf_file" ] ; then
+  # Download and use hardware-specific local conf settings (reused from the GDP project)
+  cd "$BASEDIR/build/conf"
+  local_conf_url="$GDP_TEMPLATES_URL/$target_local_conf_file"
+  fetch "$target_local_conf_file" "$local_conf_url"
+
+  # We need also the .inc file because it is recursively included
+  # Put this one under /templates
+  # We don't really use templates, just adjusting to what the GDP local conf file requires
+  inc_file="renesas-rcar-gen3.local.inc"
+  inc_url="$GDP_TEMPLATES_URL/$inc_file"
+  mkdir -p templates
+  cd templates
+  fetch "$inc_file" "$inc_url"
+
+  # And include the top level file at the bottom of local.conf
+  append_local_conf .local.conf "require $target_local_conf_file"
+
+  cd "$BASEDIR"
 fi
 
 # These environment variables control conditional compilation
