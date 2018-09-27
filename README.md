@@ -100,12 +100,12 @@ Layer Dependencies
 
 URI: git://git.yoctoproject.org/poky
 > branch:   rocko
-> revision: 6b744113ad3e564d1cb05411816b103d99fd84dc
+> revision: 05711ba18587aaaf4a9c465a1dd4537f27ceda93
 
 URI: git://git.openembedded.org/meta-openembedded
 > layer:    meta-oe
 > branch:   rocko
-> revision: dacfa2b1920e285531bec55cd2f08743390aaf57
+> revision: eae996301d9c097bcbeb8046f08041dc82bb62f8
 
 URI: git://git.yoctoproject.org/meta-gplv2
 > branch:   rocko
