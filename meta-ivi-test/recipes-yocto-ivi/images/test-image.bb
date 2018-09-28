@@ -1,6 +1,6 @@
 require recipes-yocto-ivi/images/ivi-image.bb
 
-PV = "${DATE}"
+PV = "14.x-sumo"
 
 IMAGE_INSTALL_append += " openssh test-fw \
     audiomanager-test audiomanagerplugins-test \
