@@ -199,7 +199,7 @@ BB_DISKMON_DIRS = "\
 # the system to search other mirror locations for these objects
 # before it builds the data itself.
 #
-# This can be a filesystem directory, or a remote url such as http or ftp.
+# This can be a filesystem directory, or a remote url such as http.
 # These would contain the sstate-cache results from previous builds (possibly
 # from other machines). This variable works like fetcher MIRRORS/PREMIRRORS and
 # points to the cache locations to check for the shared objects.
