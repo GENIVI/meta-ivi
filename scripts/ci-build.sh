@@ -457,7 +457,6 @@ if [[ -n "$PREMIRROR" ]]; then
   append_local_conf PREMIRRORS_prepend "
 PREMIRRORS_prepend = \"\\
      git://.*/.* $PREMIRROR \\n \\
-     ftp://.*/.* $PREMIRROR \\n \\
      http://.*/.* $PREMIRROR \\n \\
      https://.*/.* $PREMIRROR \\n \\
      \"
@@ -471,7 +470,6 @@ if [[ -n "$MIRROR" ]]; then
   append_local_conf MIRRORS_append "
 MIRRORS_append = \"\\
      git://.*/.* $MIRROR \\n \\
-     ftp://.*/.* $MIRROR \\n \\
      http://.*/.* $MIRROR \\n \\
      https://.*/.* $MIRROR \\n \\
      \"
