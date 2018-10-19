@@ -87,6 +87,25 @@ EOT
   fi
 }
 
+# Same principle as described above but for bblayers
+append_bblayers_conf() {
+  BBLAYERS_CONF="$BASEDIR/build/conf/bblayers.conf"
+  if [[ -f "$BBLAYERS_CONF" ]]; then
+    if fgrep -q "$1" "$BBLAYERS_CONF" ; then
+      echo "Found variable ($1) in bblayers.conf - skipping append"
+    else
+      echo -n "Appending to bblayers.conf: "
+    cat <<EOT | tee -a "$BBLAYERS_CONF"
+$2
+EOT
+    fi
+  else
+    echo "Fatal: Did not find bblayers.conf where expected"
+    stop_immediately
+  fi
+}
+
+
 # Copy or move data from the build tree to the staging directory
 # The first argument is either "cp" or "mv".  The (multiple) argumentns
 # that follow specify files/directories to copy or move.
@@ -580,8 +599,8 @@ if [[ "$BUILD_SDK" != "true" ]]; then
 fi
 
 if [[ "$BUILD_TEST_IMAGE" == "true" ]]; then
-  # FIXME
-  bitbake pulsar-image-test
+  append_bblayers_conf meta-ivi-test 'BBLAYERS += " ##OEROOT##/../meta-ivi/meta-ivi-test"'
+  bitbake test-image
 fi
 
 if [[ "$BUILD_SDK" == "true" ]]; then
