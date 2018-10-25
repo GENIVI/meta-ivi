@@ -76,7 +76,7 @@ The meta-ivi project welcomes contributions. You can contribute code,
 submit patches, report bugs, answer questions on our mailing lists and
 review and edit our documentation and much more.
 [Wiki page](https://at.projects.genivi.org/wiki/display/PROJ/meta-ivi).
-[Mailing list](https://lists.genivi.org/mailman/listinfo/genivi-meta-ivi).
+[Mailing list](https://lists.genivi.org/mailman/listinfo/genivi-meta-ivi_lists.genivi.org)
 [report Bugs](https://at.projects.genivi.org/jira/projects/BASE/).
 
 Please see the
