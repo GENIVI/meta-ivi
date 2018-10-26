@@ -6,7 +6,7 @@ LIC_FILES_CHKSUM = "file://COPYING;md5=815ca599c9df247a0c7f619bab123dad"
 
 PR = "r0"
 
-SRCREV = "635b4843b5189d68c38abfa14c9cd61815b2152b"
+SRCREV = "ebfb5ddea6976d1a30da78b17bf9821f2b0fda80"
 SRC_URI = "git://github.com/GENIVI/${BPN}.git;protocol=https "
 S = "${WORKDIR}/git"
 
