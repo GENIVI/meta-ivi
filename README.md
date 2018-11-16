@@ -100,7 +100,7 @@ Layer Dependencies
 
 URI: git://git.yoctoproject.org/poky
 > branch:   thud
-> revision: 4046716c2f315308048d568e5b606382ef7bc38b
+> revision: 84eecb017ef92ef36b4df730908828e54aeff85c
 
 URI: git://git.openembedded.org/meta-openembedded
 > layer:    meta-oe
