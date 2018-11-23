@@ -1,5 +1,7 @@
 FILESEXTRAPATHS_append := ":${THISDIR}/${PN}"
 
+PACKAGECONFIG_append = " obex-profiles"
+
 #
 # Service API reference implementation
 # Revision: 5.15 (Horizon)
