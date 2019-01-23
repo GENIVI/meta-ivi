@@ -11,7 +11,7 @@ _top_dir=`dirname ${_meta_ivi}`
 
 _build=${_top_dir}/build
 _machine='qemux86-64'
-_image=`grep bitbake ${_meta_ivi}/README.md | awk '{print $4}'`
+_image=`grep bitbake ${_meta_ivi}/README.build | awk '{print $4}'`
 while getopts "hm:i:b:" arg; do
   case $arg in
     h)
