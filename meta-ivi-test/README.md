@@ -27,7 +27,7 @@ MACHINE=qemux86-64 bitbake test-image
 boot with test-image
 
 ```
-../meta-ivi/scripts/runqemu test-image qemux86-64 nographic
+../meta-ivi/scripts/runqemu -i test qemux86-64 nographic
 ```
 
 ### Test run
