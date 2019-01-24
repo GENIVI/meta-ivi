@@ -10,7 +10,7 @@ inherit cmake pkgconfig
 DEPENDS += " common-api-c++ common-api-c++-dbus glib-2.0"
 
 SRC_URI = " \
-    file://${PN}-${PV}.tar.gz \
+    file://${PN}-${PV}.tar \
     file://${BPN}_t.inc \
     "
 
