@@ -29,6 +29,10 @@ boot with test-image
 ```
 ../meta-ivi/scripts/runqemu -i test qemux86-64 nographic
 ```
+To avoid root privileges, using SLIRP can help:
+```
+../meta-ivi/scripts/runqemu -i test qemux86-64 nographic slirp
+```
 
 ### Test run
 
