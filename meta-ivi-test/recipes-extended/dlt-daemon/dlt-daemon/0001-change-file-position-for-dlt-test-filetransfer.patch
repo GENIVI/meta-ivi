@@ -1,4 +1,4 @@
-From f1bc578f41bfeec2c6bcbe89406bf04ada412b74 Mon Sep 17 00:00:00 2001
+From 7727b3ae086a67a5c87c4c55a8bc03b6fdc08670 Mon Sep 17 00:00:00 2001
 From: Yong-iL Joh <yong-il.joh@windriver.com>
 Date: Fri, 4 Mar 2016 16:02:54 +0900
 Subject: [PATCH] change file position for dlt-test-filetransfer
@@ -21,21 +21,21 @@ index 7f9dc52..8878919 100644
 +	DESTINATION /opt/tests/dlt-daemon/data
  )
 diff --git a/src/tests/dlt-test-filetransfer.c b/src/tests/dlt-test-filetransfer.c
-index 591714a..2a2fd1a 100644
+index 05a54d9..59aa17c 100644
 --- a/src/tests/dlt-test-filetransfer.c
 +++ b/src/tests/dlt-test-filetransfer.c
-@@ -369,9 +369,9 @@ int testFile3Run3(){
+@@ -379,9 +379,9 @@ int testFile3Run3()
  int main(void)
  {
-     //First file contains some text
+     /*First file contains some text */
 -    file1 = "/usr/local/share/dlt-filetransfer/dlt-test-filetransfer-file";
 +    file1 = "/opt/tests/dlt-daemon/data/dlt-test-filetransfer-file";
-     //Second file is a picture
+     /*Second file is a picture */
 -    file2 = "/usr/local/share/dlt-filetransfer/dlt-test-filetransfer-image.png";
 +    file2 = "/opt/tests/dlt-daemon/data/dlt-test-filetransfer-image.png";
-     //Third file doesn't exist. Just to test the reaction when the file isn't available.
+     /*Third file doesn't exist. Just to test the reaction when the file isn't available. */
      file3_1 = "dlt-test-filetransfer-doesntExist_1";
-     //Third file doesn't exist. Just to test the reaction when the file isn't available.
+     /*Third file doesn't exist. Just to test the reaction when the file isn't available. */
 -- 
-1.9.1
+2.17.1
 
