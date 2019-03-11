@@ -9,7 +9,7 @@
 AGENT_STANDARD_DL_DIR="/var/cache/yocto/downloads"
 AGENT_STANDARD_SSTATE_DIR="/var/cache/yocto/sstate"
 AGENT_STANDARD_SGX_LOCATION="/var/go/sgx_bin"
-AGENT_STANDARD_SGX_GEN3_LOCATION="/var/go/rcar-gen3/gfx-mmp_ybsp-390_20180627"
+AGENT_STANDARD_SGX_GEN3_LOCATION="/var/go/rcar-gen3/gfx-mmp_ybsp-315_20190212"
 
 
 # ---- Helper functions ----
