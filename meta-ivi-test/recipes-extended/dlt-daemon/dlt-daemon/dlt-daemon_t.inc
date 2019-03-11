@@ -25,8 +25,8 @@ run_1() {
 run_2() {
   if [ "x${1}" != "x" ]; then
     ${_run_dir}/dlt-test-user > /tmp/t
-    _c1=`cat /tmp/t | grep -v -E Test.. | grep -v "locally printed"`
-    if [ "x${_c1}" = "x" ]; then
+    _c1=$?
+    if [ "x${_c1}" = "x0" ]; then
        echo " PASSED"
     else
        echo " FAILED"
