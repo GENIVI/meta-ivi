@@ -20,8 +20,7 @@ When creating patches, please use something like:
     git format-patch -s --subject-prefix='meta-ivi][PATCH' origin
 
 When sending patches, please use something like:
-    git send-email --to=oandreasson@luxoft.com \
-                   --cc=genivi-meta-ivi@lists.genivi.org <generated patch>
+    git send-email --to=genivi-meta-ivi@lists.genivi.org <generated patch>
 
 Please refer to:
 https://at.projects.genivi.org/wiki/display/PROJ/How+to+contribute+to+GENIVI
