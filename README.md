@@ -109,7 +109,7 @@ URI: git://git.openembedded.org/meta-openembedded
 
 URI: git://git.yoctoproject.org/meta-gplv2
 > branch:   thud
-> revision: 379ea8dd144b06aeb459e9a82c792c84d8a5baf7
+> revision: aabc30f3bd03f97326fb8596910b94639fea7575
 
 Using the above git SHAs and the master meta-ivi branch,
  bitbaking pulsar-image is known to work
