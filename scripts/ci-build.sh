@@ -595,7 +595,7 @@ fi
 # of the SDK parts.
 
 if [[ "$BUILD_SDK" != "true" ]]; then
-  bitbake pulsar-image
+  bitbake meta-ivi-image
 fi
 
 if [[ "$BUILD_TEST_IMAGE" == "true" ]]; then
@@ -605,7 +605,7 @@ fi
 
 if [[ "$BUILD_SDK" == "true" ]]; then
   # (Anticipating a future sdk image:)
-  bitbake pulsar-image-sdk
+  bitbake meta-ivi-image-sdk
 fi
 
 cd "$BASEDIR"
