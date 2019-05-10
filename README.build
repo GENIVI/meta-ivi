@@ -11,7 +11,7 @@ export TEMPLATECONF=PATH_TO_META_IVI/meta-ivi/meta-ivi/conf
    > $ source poky/oe-init-build-env
 
 3. Build a s/w image including GENIVI 13.0 (Orion) components
-   > $ bitbake pulsar-image
+   > $ bitbake meta-ivi-image
 
 4. Run the emulator:
    > for qemu vexpressa9:  

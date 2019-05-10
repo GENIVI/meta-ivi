@@ -112,8 +112,7 @@ URI: git://git.yoctoproject.org/meta-gplv2
 > revision: aabc30f3bd03f97326fb8596910b94639fea7575
 
 Using the above git SHAs and the master meta-ivi branch,
- bitbaking pulsar-image is known to work
- (the pulsar-image build should be aligned with GENIVI 14.0).
+ bitbaking meta-ivi-image is known to work.
 
 For creating a specific GENIVI compliant image version, please make sure you
 git checkout the related meta-ivi branch and follow the build instructions
