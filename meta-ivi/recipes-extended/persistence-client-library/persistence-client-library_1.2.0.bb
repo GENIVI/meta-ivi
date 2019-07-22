@@ -38,4 +38,7 @@ FILES_${PN}-dev += " \
     ${libdir}/libpersistence_client_library.so \
     "
 
-RDEPENDS_${PN} = "node-state-manager"
+RDEPENDS_${PN} = " \
+    node-state-manager \
+    persistence-administrator \
+"
