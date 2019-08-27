@@ -30,7 +30,7 @@ do_install_append() {
 
     install -d ${D}/opt/tests/${PN}/examples
     install -m 0755 ${B}/examples/*-sample ${D}/opt/tests/${PN}/examples
-    for i in sh json test client service; do
+    for i in sh json test client service process utility checker; do
         cp -f ${B}/test/*${i} ${D}/opt/tests/${PN}
     done
 
