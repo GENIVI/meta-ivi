@@ -9,7 +9,7 @@ LIC_FILES_CHKSUM = "file://COPYING;md5=6161c6840f21a000e9b52af81d2ca823"
 
 DEPENDS = "dlt-daemon dbus libcheck persistence-common-object"
 
-SRCREV = "797e31444eff1ec4d9977ed040696b2baff09752"
+SRCREV = "0cb972e8024a7d31aa0b637afbf45bdd1f6f8359"
 SRC_URI = " \
     git://github.com/GENIVI/${BPN}.git;protocol=https \
     file://0001-fix-exec-path.patch \
