@@ -7,7 +7,7 @@ LIC_FILES_CHKSUM = "file://COPYING;md5=815ca599c9df247a0c7f619bab123dad"
 
 PR = "r2"
 
-SRCREV = "6e827a990f7e0dceeaeddb7f16c710b7cc30f2fe"
+SRCREV = "ef393dc635875bb0bbb25abf66cfe42cfa5d6842"
 SRC_URI = " git://github.com/GENIVI/${BPN}.git;protocol=https \
     "
 S = "${WORKDIR}/git"
@@ -19,9 +19,5 @@ DEPENDS = "glib-2.0 glib-2.0-native dlt-daemon libcheck libarchive"
 inherit autotools-brokensep pkgconfig
 
 EXTRA_OECONF = " --with-database=key-value-store "
-
-do_install_append() {
-    rm -rf ${D}${sysconfdir}
-}
 
 FILES_${PN} := "${prefix}"
