@@ -108,8 +108,8 @@ URI: git://git.openembedded.org/meta-openembedded
 > revision: 4cd3a39f22a2712bfa8fc657d09fe2c7765a4005
 
 URI: git://git.yoctoproject.org/meta-gplv2
-> branch:   thud
-> revision: aabc30f3bd03f97326fb8596910b94639fea7575
+> branch:   warrior
+> revision: d5d9fc9a4bbd365d6cd6fe4d6a8558f7115c17da
 
 Using the above git SHAs and the master meta-ivi branch,
  bitbaking meta-ivi-image is known to work.
