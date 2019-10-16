@@ -104,8 +104,8 @@ URI: git://git.yoctoproject.org/poky
 
 URI: git://git.openembedded.org/meta-openembedded
 > layer:    meta-oe
-> branch:   thud
-> revision: 4cd3a39f22a2712bfa8fc657d09fe2c7765a4005
+> branch:   warrior
+> revision: f4ccdf2bc3fe4f00778629088baab840c868e36b
 
 URI: git://git.yoctoproject.org/meta-gplv2
 > branch:   warrior
