@@ -246,6 +246,8 @@ renesas-rcar-gen3
 cleanup() {
   # Restore git config user - if this was not defined locally before then it is
   # unset (which might mean a global setting is used)
+
+  cd "$BASEDIR/meta-ivi"
   if [ -z "$olduser" ] ; then
     git config --unset user.name
   else
@@ -667,11 +669,11 @@ if [[ "$CREATE_RELEASE_DIR" == "true" ]]; then
 fi
 
 set +e
-echo "Artifacts in staging/ and release/"
-ls -al staging/ release/
+echo "Artifacts in staging..."
+ls -al staging
 echo
-echo "...in release/images/ :"
-ls -al release/images/
+echo "...images for $TARGET:"
+ls -al staging/$TARGET
 
 cleanup
 true
