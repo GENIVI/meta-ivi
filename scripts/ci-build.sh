@@ -599,7 +599,7 @@ if [[ "$BUILD_SDK" != "true" ]]; then
 fi
 
 if [[ "$BUILD_TEST_IMAGE" == "true" ]]; then
-  append_bblayers_conf meta-ivi-test 'BBLAYERS += " ##OEROOT##/../meta-ivi/meta-ivi-test"'
+  append_bblayers_conf meta-ivi-test 'BBLAYERS += " ${TOPDIR}/../meta-ivi/meta-ivi-test"'
   bitbake test-image
 fi
 
