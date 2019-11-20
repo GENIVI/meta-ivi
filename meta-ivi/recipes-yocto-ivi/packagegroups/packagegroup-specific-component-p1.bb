@@ -17,7 +17,6 @@ RDEPENDS_${PN} += "\
     curl \
     dbus \
     dlt-daemon \
-    dlt-daemon-systemd \
     gstreamer1.0-meta-base \
     kernel-modules \
     libasound  \
