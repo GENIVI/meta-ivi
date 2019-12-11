@@ -18,6 +18,11 @@ DEPENDS = "glib-2.0 glib-2.0-native dlt-daemon libcheck libarchive"
 
 inherit autotools-brokensep pkgconfig
 
-EXTRA_OECONF = " --with-database=key-value-store "
+# For unknown reason the pkg-config fails (returns empty for the "datadir"
+# definition for this component. That causes the default D-Bus policy dir
+# to end up in root directory, and then not get packaged as expected.
+# Setting dbuspolicydir like this is maybe not the cleanest solution but
+# it's a # stopgap solution for this moment. (Feel free to send patches).
+EXTRA_OECONF = " --with-database=key-value-store --with-dbuspolicydir=/usr/share/dbus-1/system.d "
 
 FILES_${PN} := "${prefix}"
