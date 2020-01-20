@@ -6,4 +6,4 @@ LAUNCHER_LINK = "capicxx-dbus-gen"
 require capicxx-native.inc
 
 SRC_URI = "https://github.com/GENIVI/${_BPN}-tools/releases/download/${PV}/commonapi_dbus_generator.zip"
-SRC_URI[sha256sum] = "6fb53b10ae49952383c8eb990995c6a3197055ccb51b199c8570b89b73522669"
+SRC_URI[sha256sum] = "ee7c4bcffc38b9526ae179a057d39d3a2170622efddc924fc91cc42835d082f5"

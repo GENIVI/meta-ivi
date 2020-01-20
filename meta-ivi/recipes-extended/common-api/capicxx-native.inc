@@ -19,7 +19,6 @@ def get_launcher_name(d):
 LAUNCHER = "${@get_launcher_name(d)}"
 
 inherit native
-SANITY_REQUIRED_UTILITIES += "java"
 
 S = "${WORKDIR}"
 DD = "${D}${datadir}/${PN}-${PV}"
