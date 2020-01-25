@@ -7,11 +7,12 @@ Upstream-Status: Inappropriate [Configuration Specific]
 Signed-off-by: Andrei Gherzan <andrei.gherzan@windriver.com>
 ---
  systemd/dlt-adaptor-udp.service.cmake  | 1 -
+ systemd/dlt-dbus.service.cmake         | 1 -
  systemd/dlt-example-user.service.cmake | 1 -
  systemd/dlt-receive.service.cmake      | 1 -
  systemd/dlt-system.service.cmake       | 1 -
  systemd/dlt.service.cmake              | 1 -
- 5 files changed, 5 deletions(-)
+ 6 files changed, 6 deletions(-)
 
 diff --git a/systemd/dlt-adaptor-udp.service.cmake b/systemd/dlt-adaptor-udp.service.cmake
 index 8dac1f2..ecf9f9e 100644
@@ -29,6 +30,18 @@ index 8dac1f2..ecf9f9e 100644
 -WantedBy=multi-user.target
 \ No newline at end of file
 +WantedBy=multi-user.target
+diff --git a/systemd/dlt-dbus.service.cmake b/systemd/dlt-dbus.service.cmake
+index 9baf3e9..74a7eac 100644
+--- a/systemd/dlt-dbus.service.cmake
++++ b/systemd/dlt-dbus.service.cmake
+@@ -20,7 +20,6 @@ Wants=dlt.service
+ 
+ [Service]
+ Type=simple
+-User=@DLT_USER@
+ ExecStart=@CMAKE_INSTALL_PREFIX@/bin/dlt-dbus
+ WatchdogSec=@DLT_WatchdogSec@
+ NotifyAccess=main
 diff --git a/systemd/dlt-example-user.service.cmake b/systemd/dlt-example-user.service.cmake
 index b665742..35009b0 100644
 --- a/systemd/dlt-example-user.service.cmake
