@@ -17,13 +17,14 @@ DEPENDS = "zlib gzip-native"
 SRC_URI = "https://github.com/GENIVI/dlt-daemon/archive/v${PV}.tar.gz \
     file://0002-Don-t-execute-processes-as-a-specific-user.patch \
     file://0004-Modify-systemd-config-directory.patch \
+    file://204.patch \
 "
 SRC_URI[md5sum] = "691c10b56857183d9a88023e18964211"
 SRC_URI[sha256sum] = "6bd2bd4e9157e459a4ac7429f9e19cdefd5705fd1358fcf33423b6b4b8b54ac5"
 
 S = "${WORKDIR}/${PN}-${PV}"
 
-PACKAGECONFIG ??= "systemd"
+PACKAGECONFIG ??= "${@bb.utils.filter('DISTRO_FEATURES','systemd', d)}"
 # General options
 PACKAGECONFIG[dlt-examples] = "-DWITH_DLT_EXAMPLES=ON,-DWITH_DLT_EXAMPLES=OFF,,dlt-daemon-systemd"
 
