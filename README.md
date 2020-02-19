@@ -1,3 +1,4 @@
+
 meta-ivi, the Yocto layer for In-Vehicle Infotainment
 =====================================================
 
@@ -105,7 +106,7 @@ URI: git://git.yoctoproject.org/poky
 URI: git://git.openembedded.org/meta-openembedded
 > layer:    meta-oe
 > branch:   warrior
-> revision: f4ccdf2bc3fe4f00778629088baab840c868e36b
+> revision: a24acf94d48d635eca668ea34598c6e5c857e3f8
 
 URI: git://git.yoctoproject.org/meta-gplv2
 > branch:   warrior
