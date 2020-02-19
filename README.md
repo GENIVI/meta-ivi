@@ -100,7 +100,7 @@ Layer Dependencies
 
 URI: git://git.yoctoproject.org/poky
 > branch:   warrior
-> revision: fe90b6fc1d6d99a2e2c3eb57e72c780915574989
+> revision: 2ce6c7b190fc418a5653085f83016b29d52a2ae5
 
 URI: git://git.openembedded.org/meta-openembedded
 > layer:    meta-oe
